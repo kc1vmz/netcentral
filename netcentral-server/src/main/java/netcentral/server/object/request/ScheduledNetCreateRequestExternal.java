@@ -1,0 +1,198 @@
+package netcentral.server.object.request;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import io.micronaut.serde.annotation.Serdeable;
+import netcentral.server.enums.ScheduledNetType;
+import netcentral.server.object.ScheduledNet;
+
+@Serdeable
+public class ScheduledNetCreateRequestExternal {
+    //@NotBlank String callsign, @NotBlank String name, String description, Integer type, String voiceFrequency, String lat, String lon, String announce, int dayStart, String timeStartStr, int duration
+    private String callsign;
+    private String name;
+    private String description;
+    private Integer type;
+    private String voiceFrequency;
+    private String lat;
+    private String lon;
+    private String announce;
+    private int dayStart;
+    private String timeStartStr;
+    private int duration;
+    private String creatorName;
+    private String checkinReminder;
+    
+    public ScheduledNetCreateRequestExternal() {
+    }
+
+    //ScheduledNetCreateRequest(@NotBlank String callsign, @NotBlank String name, String description, Integer type, String voiceFrequency, String lat, String lon, String announce, int dayStart, String timeStartStr, int duration)
+    public ScheduledNetCreateRequestExternal(ScheduledNetCreateRequest req, String creatorName) {
+        this.callsign = req.callsign();
+        this.name = req.name();
+        this.description = req.description();
+        this.voiceFrequency = req.voiceFrequency();
+        this.lat = req.lat();
+        this.lon = req.lon();
+        this.announce = req.announce();
+        this.creatorName = creatorName;
+        this.type = req.type();
+        this.dayStart = req.dayStart();
+        this.timeStartStr = req.timeStartStr();
+        this.duration = req.duration();
+        this.checkinReminder = req.checkinReminder();
+    }
+
+    public ScheduledNetCreateRequestExternal(String callsign, String name, String description, Integer type, String voiceFrequency, String lat, String lon, 
+                                                    String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder) {
+        this.callsign = callsign;
+        this.name = name;
+        this.description = description;
+        this.voiceFrequency = voiceFrequency;
+        this.lat = lat;
+        this.lon = lon;
+        this.announce = announce;
+        this.creatorName = creatorName;
+        this.type = type;
+        this.dayStart = dayStart;
+        this.timeStartStr = timeStartStr;
+        this.duration = duration;
+        this.checkinReminder = checkinReminder;
+    }
+
+    public String getCallsign() {
+        return callsign;
+    }
+    public void setCallsign(String callsign) {
+        this.callsign = callsign;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getVoiceFrequency() {
+        return voiceFrequency;
+    }
+    public void setVoiceFrequency(String voiceFrequency) {
+        this.voiceFrequency = voiceFrequency;
+    }
+    public String getLat() {
+        return lat;
+    }
+    public void setLat(String lat) {
+        this.lat = lat;
+    }
+    public String getLon() {
+        return lon;
+    }
+    public void setLon(String lon) {
+        this.lon = lon;
+    }
+    public String getCreatorName() {
+        return creatorName;
+    }
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+    public int getDayStart() {
+        return dayStart;
+    }
+    public void setDayStart(int dayStart) {
+        this.dayStart = dayStart;
+    }
+    public int getDuration() {
+        return duration;
+    }
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+    public Integer getType() {
+        return type;
+    }
+    public void setType(Integer type) {
+        this.type = type;
+    }
+    public String getAnnounce() {
+        return announce;
+    }
+    public void setAnnounce(String announce) {
+        this.announce = announce;
+    }
+    public String getTimeStartStr() {
+        return timeStartStr;
+    }
+    public void setTimeStartStr(String timeStartStr) {
+        this.timeStartStr = timeStartStr;
+    }
+    public ScheduledNet getScheduledNet() {
+        ScheduledNet ret = new ScheduledNet();
+        if (ScheduledNetType.values()[getType()].equals(ScheduledNetType.ONE_TIME_ONLY)) {
+            ZonedDateTime nextStartTime = convertTimeStartStringToZDT(getTimeStartStr());
+            ZonedDateTime lastStartTime= ZonedDateTime.now();
+            ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
+                                                getLat(), getLon(), 
+                                                (getAnnounce().equalsIgnoreCase("true")) ? true : false,
+                                                getCreatorName(), 
+                                                getDayStart(), 0, getDuration(), lastStartTime, nextStartTime,
+                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false);
+        } else {
+            ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
+                                    getLat(), getLon(), 
+                                    (getAnnounce().equalsIgnoreCase("true")) ? true : false,
+                                    getCreatorName(),  
+                                    getDayStart(), convertTimeStartStringToInt(getTimeStartStr()), getDuration(),
+                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false);
+        }
+        ret.setNextStartTime(ret.calculateNextStartTime());
+
+        return ret;
+    }
+
+    private int convertTimeStartStringToInt(String timeStartStr) {
+        int ret = 0;
+        // string HH:MM (24hr time)
+        if (timeStartStr == null) {
+            return ret;
+        }
+        String [] parts = timeStartStr.split(":");
+        if ((parts != null) && (parts.length == 2)) {
+            // return HHMM in decimal ex: 1745
+            ret = ((Integer.parseInt(parts[0])) * 100) + (Integer.parseInt(parts[1]));
+        }
+        return ret;
+    }
+
+    private ZonedDateTime convertTimeStartStringToZDT(String timeStartStr) {
+        // form YYYY-MM-DD HH:MM
+        String [] dtValues = timeStartStr.split(" ");
+        if ((dtValues != null) && (dtValues.length == 2)) {
+            String [] ymdValues = dtValues[0].split("-");
+            if ((ymdValues != null) && (ymdValues.length == 3)) {
+                String [] hmValues = dtValues[1].split(":");
+                if ((hmValues != null) && (hmValues.length == 2)) { 
+                    return ZonedDateTime.of(Integer.parseInt(ymdValues[0]), Integer.parseInt(ymdValues[1]), Integer.parseInt(ymdValues[2]), 
+                                                Integer.parseInt(hmValues[0]), Integer.parseInt(hmValues[1]), 0, 0, ZoneId.systemDefault());
+                }
+            }
+        }
+        return ZonedDateTime.now().plusYears(300);
+    }
+
+    public String getCheckinReminder() {
+        return checkinReminder;
+    }
+
+    public void setCheckinReminder(String checkinReminder) {
+        this.checkinReminder = checkinReminder;
+    }
+
+}

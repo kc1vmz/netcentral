@@ -1,0 +1,79 @@
+package netcentral.server.accessor;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.exceptions.HttpStatusException;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.object.CompletedNet;
+import netcentral.server.object.Net;
+import netcentral.server.object.User;
+import netcentral.server.record.CompletedNetRecord;
+import netcentral.server.repository.CompletedNetRepository;
+
+@Singleton
+public class CompletedNetAccessor {
+    private static final Logger logger = LogManager.getLogger(CompletedNetAccessor.class);
+
+    @Inject
+    private CompletedNetRepository completedNetRepository;
+
+    public List<CompletedNet> getAll(User loggedInUser, String root) {
+        List<CompletedNetRecord> recs = completedNetRepository.findAll();
+        List<CompletedNet> ret = new ArrayList<>();
+
+        if (!recs.isEmpty()) {
+            for (CompletedNetRecord rec : recs) {
+                if ((root != null) && (!rec.callsign().startsWith(root))) {
+                    // only take those with the optional root
+                    continue;
+                }
+                ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name()));
+            }
+        }
+
+        return ret;
+    }
+
+    public CompletedNet get(User loggedInUser, String id) {
+        if (id == null) {
+            logger.debug("null id");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net id not provided");
+        }
+        Optional<CompletedNetRecord> recOpt = completedNetRepository.findById(id);
+        if (!recOpt.isPresent()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
+        }
+        CompletedNetRecord rec = recOpt.get();
+        return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name());
+    }
+
+
+    public CompletedNet create(User loggedInUser, Net obj) {
+        if (obj == null) {
+            logger.debug("Completed net is null");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not provided");
+        }
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+
+        CompletedNetRecord src = new CompletedNetRecord(obj.getCompletedNetId(), 
+                                            obj.getCallsign(), 
+                                            (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "",
+                                            obj.getName(), 
+                                            (obj.getDescription() != null) ? obj.getDescription() : "",  
+                                            obj.getStartTime(), ZonedDateTime.now(),
+                                            obj.getCreatorName());
+        CompletedNetRecord rec = completedNetRepository.save(src);
+        return get(loggedInUser, rec.completed_net_id());
+    }
+}

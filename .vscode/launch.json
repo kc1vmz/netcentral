@@ -1,0 +1,77 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.transceiver.kiss.Application",
+            "projectName": "transceiver-kiss"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.transceiver.direwolf.Application",
+            "projectName": "transceiver-direwolf"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.transceiver.kenwood.Application",
+            "projectName": "transceiver-kenwood"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.transceiver.aprsis.Application",
+            "projectName": "transceiver-aprsis"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.transceiver.test.Application",
+            "projectName": "transceiver-test"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "netcentral.server.Application",
+            "projectName": "netcentral-server"
+        },
+        {
+            "type": "java",
+            "name": "Application(1)",
+            "request": "launch",
+            "mainClass": "transceiver.aprsis.Application",
+            "projectName": "transceiver-aprsis"
+        },
+        {
+            "type": "java",
+            "name": "Application(2)",
+            "request": "launch",
+            "mainClass": "transceiver.direwolf.Application",
+            "projectName": "transceiver-direwolf"
+        },
+        {
+            "type": "java",
+            "name": "Application(3)",
+            "request": "launch",
+            "mainClass": "transceiver.kenwood.Application",
+            "projectName": "transceiver-kenwood"
+        }
+    ]
+}

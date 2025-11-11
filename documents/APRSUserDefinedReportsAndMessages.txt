@@ -1,0 +1,110 @@
+
+Envelope
+
+Output as APRS User Defined packet
+   {{E---------data
+
+    {{ user defined report
+    --------- - sender callsign
+    data - report specific packet
+
+Input as put operation
+    Send data as message to object callsign
+
+
+Shelter
+
+Census
+
+    SHPC---------AAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
+    --------- - 9 digit callsign
+    AAAAAA - population 0-3  (0 padded)
+    BBBBBB - population 4-7  (0 padded)
+    CCCCCC - population 8-12  (0 padded)
+    DDDDDD - population 13-18  (0 padded)
+    EEEEEE - population 19-65  (0 padded)
+    FFFFFF - population 66+  (0 padded)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+
+Operational Food
+
+    SHOF---------XAAAAAABBBBBBCCCCCCDDDDDDYYYYMMDD
+    --------- - 9 digit callsign
+    X - (1= TODAY, 2= TOMORROW, 3= NEEDED )
+    AAAAAA - breakfast  (0 padded)
+    BBBBBB - lunch  (0 padded)
+    CCCCCC - dinner  (0 padded)
+    DDDDDD - snack  (0 padded)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+
+Operational Materiel
+
+    SHOM---------XAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
+    --------- - 9 digit callsign
+    X - (1= TODAY, 2= TOMORROW, 3= NEEDED )
+    AAAAAA - cots  (0 padded)
+    BBBBBB - blankets  (0 padded)
+    CCCCCC - comfort  (0 padded)
+    DDDDDD - cleanup  (0 padded)
+    EEEEEE - signage  (0 padded)
+    FFFFFF - other  (0 padded)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+
+
+Status
+
+    SHST---------xyMESSAGE
+    --------- - 9 digit callsign
+    x - (0=UNKNOWN, 1=CLOSED, 2=OPEN)
+    y - (0=UNKNOWN, 1=STANDBY, 2=ACTIVE)
+    MESSAGE - optional 40 characters for status
+
+
+workers
+
+    SHWC---------XAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
+    --------- - 9 digit callsign
+    X - (Shift 1, 2 or 3)
+    AAAAAA - health  (0 padded)
+    BBBBBB - mental  (0 padded)
+    CCCCCC - spiritual  (0 padded)
+    DDDDDD - caseworker  (0 padded)
+    EEEEEE - feeding  (0 padded)
+    FFFFFF - other  (0 padded)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+
+
+EOC
+
+Contact
+
+    EOCO---------DNAME:ICNAME:YYYYMMDD
+    --------- - 9 digit callsign
+    DNAME - Director name 25 characters max
+    : - separator
+    ICNAME - Incident commander name 25 characters max
+    : - separator
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+
+
+mobilization
+
+    EOMO---------XYYYYMMDDMESSAGE
+    --------- - 9 digit callsign
+    x - status (0=UNKNOWN, 1=NORMAL, 2=PARTIAL, 3=FULL)
+    y - level (1-5)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+    MESSAGE - optional 30 character EOC name
+

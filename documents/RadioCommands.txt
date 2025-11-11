@@ -1,0 +1,18 @@
+List of valid commands sent as APRS messages to the net callsign:
+CI - Check in to net
+CO - Check out of net
+I - Send net info (name, voice frequency, description)
+S status - report your status so other participants know what you are doing
+T callsign - set tactical callsign for net
+F frequency - report your voice freqency that you are monitoring
+X n - report your transmit power n in watts
+E n - report your electrical power type
+B n - report your backup electrical power type
+Y n - report your radio style
+M - send message to all participants in net
+R n - replay last n messages sent to the net (n is a number)
+L - list net participants, their callsigns, status, location, and voice freqency monitored
+P callsign - ping callsign to test connectivity
+O callsign - get known operational status of a station by its callsign
+H - display help message of all commands
+

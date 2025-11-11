@@ -1,0 +1,5 @@
+package com.kc1vmz.netcentral.aprsobject.enums;
+
+public enum MicECommentType {
+    UNKNOWN, OFF_DUTY, EN_ROUTE, IN_SERVICE, RETURNING, COMMITTED, SPECIAL, PRIORITY, CUSTOM_0, CUSTOM_1, CUSTOM_2, CUSTOM_3, CUSTOM_4, CUSTOM_5, CUSTOM_6, EMERGENCY
+}

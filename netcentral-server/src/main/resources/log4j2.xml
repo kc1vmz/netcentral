@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+	<Properties>
+		<Property name="logFilePrefix">netcentralserver</Property>
+	</Properties>
+	<Appenders>
+		<RollingFile name="fileLogger"
+			fileName="${env:NETCENTRAL_SERVER_TEMP_DIR:-/tmp}/logs/${logFilePrefix}.log"
+			filePattern="${env:NETCENTRAL_SERVER_TEMP_DIR:-/tmp}/logs/${logFilePrefix}-%d{yyyy-MM-dd}.log">
+			<PatternLayout>
+				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+				</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<SizeBasedTriggeringPolicy size="20MB" />
+			</Policies>
+			<!-- Max 10 files will be created everyday -->
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${env:NETCENTRAL_SERVER_TEMP_DIR:-/tmp}/logs" maxDepth="10">
+					<!-- Delete all files older than 10 days -->
+					<IfLastModified age="10d" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</Appenders>
+    <Loggers>
+        <Logger name="netcentral.server" level="debug" additivity="false">
+            <AppenderRef ref="fileLogger"/>
+        </Logger>
+        <Logger name="io.micronaut" level="info" additivity="false">
+            <AppenderRef ref="fileLogger"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="fileLogger"/>
+        </Root>
+    </Loggers>
+</Configuration>
+

@@ -1,0 +1,108 @@
+package netcentral.server.controller;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
+import netcentral.server.accessor.APRSObjectAccessor;
+import netcentral.server.accessor.CompletedNetAccessor;
+import netcentral.server.accessor.CompletedParticipantAccessor;
+import netcentral.server.auth.SessionAccessor;
+import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.object.CompletedNet;
+import netcentral.server.object.CompletedParticipant;
+import netcentral.server.object.User;
+import netcentral.server.utils.NetParticipantReport;
+
+
+@Controller("/api/v1/completedNets") 
+@Secured(SecurityRule.IS_ANONYMOUS) 
+public class CompletedNetController {
+    @Inject
+    SessionAccessor sessionAccessor;
+    @Inject
+    private CompletedNetAccessor completedNetAccessor;
+    @Inject
+    private CompletedParticipantAccessor completedParticipantAccessor;
+    @Inject
+    private APRSObjectAccessor aprsObjectAccessor;
+    @Inject
+    private NetParticipantReport netParticipantReport;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
+
+
+    @Get 
+    public List<CompletedNet> getAll(HttpRequest<?> request, @Nullable @QueryValue String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        return completedNetAccessor.getAll(loggedInUser, callsign);
+    }
+
+    @Get("/{id}")
+    public CompletedNet getOne(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        return completedNetAccessor.get(loggedInUser, id);
+    }
+
+    @Get("/{id}/participants") 
+    public List<CompletedParticipant> getParticipants(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        CompletedNet net = completedNetAccessor.get(loggedInUser, id);
+
+        List<CompletedParticipant> ret = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+        return ret;
+    }
+
+    @Get("/{id}/messages") 
+    public List<APRSMessage> getMessages(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        CompletedNet net = completedNetAccessor.get(loggedInUser, id);
+
+        List<APRSMessage> ret = aprsObjectAccessor.getCompletedNetMessages(loggedInUser, net.getCompletedNetId());
+        return ret;
+    }
+
+
+    @Get(uri = "/{id}/partipationReports", produces = MediaType.APPLICATION_PDF)
+    public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        CompletedNet net = completedNetAccessor.get(loggedInUser, id);
+
+        try {
+            List<CompletedParticipant> participants = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+            String filename = netParticipantReport.createParticipantReport(net, participants);
+
+            filename = netConfigServerConfig.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("NetReport-%s-%s.pdf", net.getCallsign(), net.getPrettyStartTime());
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
+    }
+
+}

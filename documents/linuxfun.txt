@@ -1,0 +1,15 @@
+Install everything
+get java JAVA_HOME right
+
+change temp space in net central application.properties to linux path
+set owner to other than root: 
+  example: sudo chown jrokicki /tmp/netcentral/
+
+linux does not like port numbers in use below 1024
+Run:
+sudo apt-get install libcap2-bin
+readlink -f `which node`     (gives you NODE_PATH)
+sudo setcap cap_net_bind_service=+ep NODE_PATH
+
+
+open ports 8880 and 80 on server firewall - allow API and web ui 

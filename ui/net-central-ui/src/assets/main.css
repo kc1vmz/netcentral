@@ -1,0 +1,127 @@
+/*@import './base.css'; */
+
+#app {
+/*  max-width: 1280px; */
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    place-items: left;
+  }
+
+  #app {
+
+    padding: 0 2rem;
+  }
+}
+
+.bold-row {
+  font-weight: bold;
+}
+.pageheader {
+    font-size: 3rem;
+    line-height: 130%;
+    margin: 2rem 0 1rem 0;
+    font-weight: 600;
+}
+.pagesubheader {
+    font-size: 2rem;
+    line-height: 110%;
+    font-weight: 400;
+}
+
+.boxButton2 {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 3px;
+
+  border: 2px solid black;
+/*  width: 100px;
+  height: 30px;*/
+  text-align: center;
+  vertical-align: middle;
+}
+
+.topz {
+  border: 2px solid black;
+  z-index: 9999;
+  padding: 4px;
+}
+.grid-item {
+  flex: 1;
+}
+.boxButton {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+
+  color: #fff;
+  background: linear-gradient(180deg, #4B91F7 0%, #367AF6 100%);
+   background-origin: border-box;
+  box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.bigBoxButton {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  height: 100px;
+  width: 200px;
+
+  color: #fff;
+  background: linear-gradient(180deg, #4B91F7 0%, #367AF6 100%);
+  background-origin: border-box;
+  box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.boxButtonDisabled {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
+  background: linear-gradient(180deg, #d3d3d4 0%, #8f8f90 100%);
+  background-origin: border-box;
+  box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+
+.boxButton:focus {
+  box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+  outline: 0;
+}
+
+html, :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100% 100%;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
+}

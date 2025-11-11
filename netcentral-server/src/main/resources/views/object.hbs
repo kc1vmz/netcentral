@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Net Central - Object</title>
+  <!-- map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<style>
+
+  body {
+      margin: 0px;
+      background: #2559a7;
+      color: #ddd;
+    }
+
+  .navbar {
+    overflow: hidden;
+    background-color: #2559a7;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%; /* Full width */
+  }
+
+  /* Links inside the navbar */
+  .navbar a {
+    float: left;
+    display: block;
+    background-color: #2559a7;
+    color: #ddd;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+
+    font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    letter-spacing: -0.0025em;
+    place-items: center;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+
+  }
+
+  /* Change background on mouse-over */
+  .navbar a:hover {
+    background: #ddd;
+    color: black;
+  }
+
+  /* Main content */
+  .main {
+    margin-top: 60px;
+    font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+    /* font-size: clamp(1rem, 2.5vw, 2rem); */
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.0025em;
+    line-height: 1.4;
+    min-height: 100vh;
+    /* place-items: center; */
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: 40%  60%;
+    margin: 20px;
+    gap: 20px;
+  }
+  .grid-item {
+  }
+
+  .line {
+    margin : 20px;
+  }
+
+
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    thead, tbody {
+    }
+    thead {
+    }
+    tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        color: #ddd;
+        background-color: #2559a7
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        background-color: #ddd;
+        color: #2559a7
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+    .main a {
+        color: #ddd;
+    }
+  /* map */
+  #map { height: 600px; margin: 5px 5px; } /* Set map height */
+
+  .block {
+    border: 1px;
+    background: #033684;
+    color: white;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    width: 100px;
+    text-decoration: none;
+  }
+
+  .block:hover {
+    background: #ddd;
+    color: black;
+  }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/nets">Active Nets</a>
+    <a href="/stations">Stations</a>
+    <a href="/infras">Infrastructure</a>
+    <a href="/objects"><b>Objects</b></a>
+    <a href="/weathers">Weather</a>
+    <a href="/users">Users</a>
+    <a href="/transceivers">Transceivers</a>
+    <a href="/activities">Activity Log</a>
+    <a href="/archives">Archives</a>
+    {{#if token}}
+    <a href="/profile">Profile</a>
+    <a href="/logoutUser">Logout - {{friendlyName}}</a>
+    {{else}}
+    <a href="/loginUser">Login</a>
+    {{/if}}
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+      <h1>Known APRS object - {{obj.callsignFrom}}</h1>
+    </div>
+
+    <div class="line"><hr/></div>
+
+  <div class="grid-container">
+    <div class="grid-item">
+    <h2>Object information</h2>
+    <p>
+    <div class="table-container" >
+        <br>Callsign: {{obj.callsignFrom}}
+        <br>Type: {{obj.type}}
+        <br>Alive: {{obj.alive}}
+        <br>Location: {{obj.lat}} {{obj.lon}}
+        <br>Comment: {{obj.comment}}
+        <br>Last heard: {{obj.prettyLastHeard}}
+    </div>
+    <br>
+    <h2>Location</h2>
+  {{#if showMap}}
+    <!-- map -->
+    <div id="map"></div>
+    <!-- map -->
+    <script>
+        var map = L.map('map').setView([{{latitude}}, {{longitude}}], 13).fitBounds([[{{minLatitude}}, {{minLongitude}}],[{{maxLatitude}}, {{maxLongitude}}]]);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; {Link: OpenStreetMap https://www.openstreetmap.org/copyright} contributors'
+        }).addTo(map);
+
+        var latsi = "{{latString}}".split('{{itemSeperator}}');
+        let lonsi = "{{lonString}}".split('{{itemSeperator}}');
+        let texti = "{{labelString}}".split('{{itemSeperator}}');
+        let titlei = "{{titleString}}".split('{{itemSeperator}}');
+
+        for (let i = 0; i < {{itemCount}}; i++) {
+            L.circleMarker([latsi[i], lonsi[i]], {title: titlei[i], radius:2 }).bindPopup(texti[i]).addTo(map);
+            L.tooltip([latsi[i], lonsi[i]], {content: titlei[i], permanent: true}).addTo(map);
+        }
+    </script>
+    <!-- map -->
+  {{else}}
+    <h3>No location to show.</h3>
+  {{/if}}
+    </div>
+    <div class="grid-item">
+    <h2>Actions</h2>
+    {{#if shelter}}
+      <a class="block" href="/object-remove/{{obj.id}}">Remove</a>
+    {{/if}}
+    {{#if medical}}
+      <a class="block" href="/object-remove/{{obj.id}}">Remove</a>
+    {{/if}}
+    {{#if eoc}}
+      <a class="block" href="/object-remove/{{obj.id}}">Remove</a>
+    {{/if}}
+      <a class="block" href="/object-delete/{{obj.id}}">Delete</a>
+      <br>
+    <h2>Status ({{statusesCount}})</h2>
+      <table id="status-list">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each status}}
+            <tr id="{{id}}">
+              <td>{{prettyHeardTime}}</td>
+              <td>{{status}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>    
+    <br>
+
+    {{#if shelter}}
+    <div>
+      <div>
+        <h2>Shelter Population</h2>
+        <a class="block" href="/object/{{obj.callsignFrom}}/report-population">Report population...</a>
+        <h2>Current Population by age:</h2>
+        <table>
+          <thead>
+            <th>Date</th>
+            <th>0-3</th>
+            <th>4-7</th>
+            <th>8-12</th>
+            <th>13-18</th>
+            <th>19-65</th>
+            <th>66+</th>
+          </thead>
+          <tr>
+            <td>{{reportPopulation.dateReported}}</td>
+            <td>{{reportPopulation.p03}}</td>
+            <td>{{reportPopulation.p47}}</td>
+            <td>{{reportPopulation.p812}}</td>
+            <td>{{reportPopulation.p1318}}</td>
+            <td>{{reportPopulation.p1965}}</td>
+            <td>{{reportPopulation.p66}}</td>
+          </tr>
+        </table>
+      </div>
+      <div>
+        <h2>Shelter Workers</h2>
+        <a class="block" href="/object/{{obj.callsignFrom}}/report-workers">Report workers...</a>
+        <h3>Current Workforce:</h3>
+        <table>
+          <thead>
+            <th>Date</th>
+            <th>Shift</th>
+            <th>Health</th>
+            <th>Mental Health</th>
+            <th>Spiritual</th>
+            <th>Feeding</th>
+            <th>Other</th>
+          </thead>
+          <tr>
+            <td>{{reportWorkers.dateReported}}</td>
+            <td>{{reportWorkers.shift}}</td>
+            <td>{{reportWorkers.health}}</td>
+            <td>{{reportWorkers.mental}}</td>
+            <td>{{reportWorkers.spiritual}}</td>
+            <td>{{reportWorkers.caseworker}}</td>
+            <td>{{reportWorkers.feeding}}</td>
+            <td>{{reportWorkers.other}}</td>
+          </tr>
+        </table>
+      </div>
+      <div>
+        <h2>Shelter Food Availability</h2>
+        <a class="block" href="/object/{{obj.callsignFrom}}/report-food">Report food availability...</a>
+        <h3>Current Food Availability:</h3>
+        <table>
+          <thead>
+            <th>Date</th>
+            <th>For date</th>
+            <th>Period</th>
+            <th>Breakfast</th>
+            <th>Lunch</th>
+            <th>Dinner</th>
+            <th>Snack</th>
+          </thead>
+          <tr>
+            <td>{{reportFood.dateReported}}</td>
+            <td>{{reportFood.date}}</td>
+            <td>{{reportFood.timePeriod}}</td>
+            <td>{{reportFood.breakfast}}</td>
+            <td>{{reportFood.lunch}}</td>
+            <td>{{reportFood.dinner}}</td>
+            <td>{{reportFood.snack}}</td>
+          </tr>
+        </table>
+      </div>
+      <div>
+        <h2>Shelter Materiel Availability</h2>
+        <a class="block" href="/object/{{obj.callsignFrom}}/report-materiel">Report materiel availability...</a>
+        <h3>Current Materiel Availability:</h3>
+        <table>
+          <thead>
+            <th>Date</th>
+            <th>For date</th>
+            <th>Cots</th>
+            <th>Blankets</th>
+            <th>Comfort</th>
+            <th>Cleanup</th>
+            <th>Signage</th>
+            <th>Other</th>
+          </thead>
+          <tr>
+            <td>{{reportMateriel.dateReported}}</td>
+            <td>{{reportMateriel.date}}</td>
+            <td>{{reportMateriel.cots}}</td>
+            <td>{{reportMateriel.blankets}}</td>
+            <td>{{reportMateriel.comfort}}</td>
+            <td>{{reportMateriel.cleanup}}</td>
+            <td>{{reportMateriel.signage}}</td>
+            <td>{{reportMateriel.other}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {{/if}}
+
+    <h2>Messages ({{messagesCount}})</h2>
+      <table id="message-list">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>To</th>
+            <th>Message</th>
+            <th>Bulletin</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each messages}}
+            <tr id="{{id}}">
+              <td>{{prettyHeardTime}}</td>
+              <td>{{callsignTo}}</td>
+              <td>{{message}}</td>
+              <td>{{bulletin}} {{groupBulletin}} {{announcement}} {{NWSBulletin}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>    
+    </div>
+  <!-- end grid -->
+  </div>
+
+  </div>
+</div>
+
+</body>
+</html>

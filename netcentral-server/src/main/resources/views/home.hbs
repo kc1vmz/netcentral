@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Net Central - Welcome</title>
+</head>
+<body>
+<style>
+
+body {
+    margin: 0px;
+    background: #2559a7;
+    color: #ddd;
+  }
+
+.navbar {
+  overflow: hidden;
+  background-color: #2559a7;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+  background-color: #2559a7;
+  color: #ddd;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  letter-spacing: -0.0025em;
+  place-items: center;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+/* Change background on mouse-over */
+.navbar a:hover {
+  background: #ddd;
+  color: black;
+}
+
+/* Main content */
+.main {
+  margin-top: 60px;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+  /* font-size: clamp(1rem, 2.5vw, 2rem); */
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.0025em;
+  line-height: 1.4;
+  min-height: 100vh;
+  /* place-items: center; */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50%  50%;
+  margin: 20px;
+  gap: 20px;
+}
+.grid-item {
+}
+
+.line {
+  margin : 20px;
+}
+
+    .main a {
+        color: #ddd;
+    }
+
+</style>
+
+<script>
+</script>
+
+<div>
+  <div class="navbar">
+    <a href="/"><b>Welcome</b></a>
+    <a href="/nets">Active Nets</a>
+    <a href="/callsigns">Callsigns</a>
+    <a href="/stations">Stations</a>
+    <a href="/infras">Infrastructure</a>
+    <a href="/objects">Objects</a>
+    <a href="/weathers">Weather</a>
+    <a href="/users">Users</a>
+    <a href="/transceivers">Transceivers</a>
+    <a href="/activities">Activity Log</a>
+    <a href="/archives">Archives</a>
+    {{#if token}}
+    <a href="/profile">Profile</a>
+    <a href="/logoutUser">Logout - {{friendlyName}}</a>
+    {{else}}
+    <a href="/loginUser">Login</a>
+    {{/if}}
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+    {{#if token}}
+      <h1>Welcome to Net Central, {{friendlyName}} !</h1>
+    {{else}}
+      <h1>Welcome to Net Central!</h1>
+    {{/if}}
+      <br>Net Central is <b>the</b> tool for managing formal and informal APRS nets.
+      <br>Coordinate and track all participants and relevent APRS infrastructure using a single tool.
+      <div class="line" style="margin:0px"><hr/></div>
+    </div>
+
+  <div class="grid-container">
+    <div class="grid-item">
+      <h2>Current information</h2>
+      <p>
+
+      <br>Net Central is hosting {{netCount}} active nets.
+      <br>
+      <br>Net Central has heard {{trackedStationCount}} stations.
+      <br>
+      <br>Net Central is tracking {{trackedOnly}} stations.
+      <br>
+    {{#if tracking}}
+      You are displaying only tracked stations. <br>
+      <a class="block" href="/home-untrack">Display all stations</a>
+    {{else}}
+      You are displaying all stations. <br>
+      <a class="block" href="/home-track">Display only tracked stations</a>
+    {{/if}}
+      <br>
+
+    </div>
+    <div class="grid-item">
+    <h2>How it works</h2>
+    <p><br>Start a net and let people know about it.  Nets can be announced as bulletins when started.
+    <p><br>Operators can then participate by checking in and out of a net by sending APRS messages to the callsign of the net.
+    <p><br>List of valid commands sent as APRS messages to the net callsign:
+    <br><b>CI</b> - Check in to net
+    <br><b>CO</b> - Check out of net
+    <br><b>I</b> - Send net info (name, voice frequency, description)
+    <br><b>S status</b> - report your status so other participants know what you are doing
+    <br><b>T callsign</b> - set tactical callsign for net
+    <br><b>F frequency</b> - report your voice freqency that you are monitoring
+    <br><b>X n</b> - report your transmit power n in watts
+    <br><b>E (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR)</b> - report your electrical power type
+    <br><b>B (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR)</b> - report your backup electrical power type
+    <br><b>Y (APPLIANCE, BASE, HANDHELD, INTERNET, MOBILE, OTHER)</b> - report your radio style
+    <br><b>M</b> - send message to all participants in net
+    <br><b>R n</b> - replay last n messages sent to the net (n is a number)
+    <br><b>L</b> - list net participants, their callsigns, status, location, and voice freqency monitored
+    <br><b>P callsign</b> - ping callsign to test connectivity
+    <br><b>O callsign</b> - get known operational status of a station by its callsign
+    <br><b>H</b> - display help message of all commands
+    <br>
+    <br><b>CI, CO, T, F, X, E, B, and Y</b> can all be combined in a single message  (ex: CI X 50 E COMM B SO)
+    <br>
+    <p>You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!
+    </div>
+  <!-- end grid -->
+  </div>
+
+
+
+
+  </div>
+</div>
+
+</body>
+</html>

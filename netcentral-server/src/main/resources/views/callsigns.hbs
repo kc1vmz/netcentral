@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Net Central - Callsigns</title>
+  <!-- map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<style>
+
+  body {
+      margin: 0px;
+      background: #2559a7;
+      color: #ddd;
+    }
+
+  .navbar {
+    overflow: hidden;
+    background-color: #2559a7;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%; /* Full width */
+  }
+
+  /* Links inside the navbar */
+  .navbar a {
+    float: left;
+    display: block;
+    background-color: #2559a7;
+    color: #ddd;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+
+    font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    letter-spacing: -0.0025em;
+    place-items: center;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+
+  }
+
+  /* Change background on mouse-over */
+  .navbar a:hover {
+    background: #ddd;
+    color: black;
+  }
+
+  /* Main content */
+  .main {
+    margin-top: 60px;
+    font-family: -apple-system, "Helvetica Neue", Helvetica, sans-serif;
+    /* font-size: clamp(1rem, 2.5vw, 2rem); */
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.0025em;
+    line-height: 1.4;
+    min-height: 100vh;
+    /* place-items: center; */
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: 50%  50%;
+    margin: 20px;
+    gap: 20px;
+  }
+  .grid-item {
+  }
+
+  .line {
+    margin : 20px;
+  }
+
+
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    thead, tbody {
+    }
+    thead {
+    }
+    tbody {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    td {
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        color: #ddd;
+        background-color: #2559a7
+    }
+    th{
+        padding: 3px;
+        text-align: left;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        background-color: #ddd;
+        color: #2559a7
+    }
+    .rowpadded {
+        height:20px;
+    }
+    .column75 {
+        float: left;
+        width: 75%;
+    }
+    .column90 {
+        float: left;
+        width: 90%;
+    }
+    .column25 {
+        float: left;
+        width: 25%;
+    }
+    .column10 {
+        float: left;
+        width: 10%;
+    }
+    .main a {
+        color: #ddd;
+    }
+
+  /* map */
+  #map { height: 600px; margin: 5px 5px; } /* Set map height */
+
+</style>
+
+
+<div>
+  <div class="navbar">
+    <a href="/">Welcome</a>
+    <a href="/nets">Active Nets</a>
+    <a href="/callsigns"><b>Callsigns</b></a>
+    <a href="/stations">Stations</a>
+    <a href="/infras">Infrastructure</a>
+    <a href="/objects">Objects</a>
+    <a href="/weathers">Weather</a>
+    <a href="/users">Users</a>
+    <a href="/transceivers">Transceivers</a>
+    <a href="/activities">Activity Log</a>
+    <a href="/archives">Archives</a>
+    {{#if token}}
+    <a href="/profile">Profile</a>
+    <a href="/logoutUser">Logout - {{friendlyName}}</a>
+    {{else}}
+    <a href="/loginUser">Login</a>
+    {{/if}}
+  </div>
+  <div class="main">
+    <div><hr/></div>
+    <div style="margin:20px;">
+      <h1>Known Callsigns</h1>
+      Net Central listens to APRS and identifies callsigns in use. 
+    </div>
+
+    <div class="line"><hr/></div>
+
+  <div class="grid-container">
+    <div class="grid-item">
+    <h2>Known callsigns ({{callsignsCount}})</h2>
+    <p>
+
+    <div class="table-container" >
+      <table id="callsign-list">
+        <thead>
+          <tr>
+            <th>Callsign</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>License</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each callsigns}}
+            <tr id="{{callsign}}">
+              <td><a href="/callsign/{{callsign}}" >{{callsign}}</a></a></td>
+              <td>{{name}}</a></td>
+              <td>{{state}} {{country}}</td>
+              <td>{{license}}</a></td>
+              <td><a class="block" href="/callsign-edit/{{callsign}}">Edit</a>&nbsp;<a class="block" href="/callsign-identify/{{callsign}}">Identify</a>&nbsp;<a class="block" href="/callsign-delete/{{callsign}}">Delete</a></td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <br>
+    </div>
+    <div class="grid-item">
+    </div>
+  <!-- end grid -->
+  </div>
+
+  </div>
+</div>
+
+</body>
+</html>

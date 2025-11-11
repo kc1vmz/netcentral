@@ -1,0 +1,187 @@
+package netcentral.server.accessor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.exceptions.HttpStatusException;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.RadioStyle;
+import netcentral.server.object.Participant;
+import netcentral.server.object.User;
+import netcentral.server.record.ParticipantRecord;
+import netcentral.server.repository.ParticipantRepository;
+
+@Singleton
+public class ParticipantAccessor {
+    private static final Logger logger = LogManager.getLogger(ParticipantAccessor.class);
+
+    @Inject
+    private ParticipantRepository participantRepository;
+
+
+    public List<Participant> getAll(User loggedInUser, String root) {
+        logger.debug("getAll() called");
+        List<Participant> ret = new ArrayList<>();
+
+        try {
+            List<ParticipantRecord> recs = participantRepository.findAll();
+
+            if (!recs.isEmpty()) {
+                for (ParticipantRecord rec : recs) {
+                    if ((root != null) && (!rec.callsign().startsWith(root))) {
+                        // only take those with the optional root
+                        continue;
+                    }
+                    ret.add(new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught getting participants", e);
+        }
+
+        return ret;
+    }
+
+    public Participant get(User loggedInUser, String id) {
+        logger.debug(String.format("getId(%s) called", id));
+        if (id == null) {
+            logger.debug("null id");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant id not provided");
+        }
+        Optional<ParticipantRecord> recOpt = participantRepository.findById(id);
+        if (!recOpt.isPresent()) {
+            logger.debug("Participant not found");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
+        }
+        ParticipantRecord rec = recOpt.get();
+        return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN,RadioStyle.UNKNOWN, 0, null, null);
+    }
+
+    public Participant getByCallsign(User loggedInUser, String callsign) {
+        if (callsign == null) {
+            logger.debug("Participant not provided");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not provided");
+        }
+        try {
+            Optional<ParticipantRecord> recOptional = participantRepository.findById(callsign);
+            if (recOptional.isEmpty()) {
+                logger.debug("Participant not found");
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
+            }
+            ParticipantRecord rec = recOptional.get();
+            return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null);
+        } catch (Exception e) {
+            logger.debug("Participant not found");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
+        }
+    }
+
+    public Participant create(User loggedInUser, Participant obj) {
+        if (obj == null) {
+            logger.debug("Participant is null");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not provided");
+        }
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+
+        try {
+            Optional<ParticipantRecord> existingOptional = participantRepository.findById(obj.getCallsign());
+            if (existingOptional.isPresent()) {
+                logger.debug("Participant already exists");
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant already exists");
+            }
+        } catch (Exception e) {
+        }
+
+        ParticipantRecord src = new ParticipantRecord(obj.getCallsign(), 
+                                                        (obj.getStatus() != null) ? obj.getStatus() : "",
+                                                        (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
+        participantRepository.save(src);
+        return obj;
+    }
+
+    public Participant update(User loggedInUser, String id, Participant obj) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        if (id == null) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant id not provided");
+        }
+        if (obj == null) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not provided");
+        }
+        if ((obj.getCallsign() == null) || (obj.getCallsign().isEmpty()) || (obj.getCallsign().isBlank())) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid callsign");
+        }
+
+        Optional<ParticipantRecord> recOpt = participantRepository.findById(id);
+        if (!recOpt.isPresent()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
+        }
+
+        ParticipantRecord updatedRec = new ParticipantRecord(obj.getCallsign(), 
+                                                        (obj.getStatus() != null) ? obj.getStatus() : "",
+                                                        (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
+        participantRepository.update(updatedRec);
+        return obj;
+    }
+
+    public Participant delete(User loggedInUser, String id) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        if (id == null) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant id not provided");
+        }
+
+        Optional<ParticipantRecord> recOpt = participantRepository.findById(id);
+        if (!recOpt.isPresent()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not found");
+        }
+
+        participantRepository.delete(recOpt.get());
+        
+        return null;
+    }
+
+    public Map<String, List<Participant>> getAllRoot(User loggedInUser) {
+
+        Map<String, List<Participant>> rootMap = getCallsignRootMap(loggedInUser); 
+
+        return rootMap;
+    }
+
+    private Map<String, List<Participant>> getCallsignRootMap(User loggedInUser) {
+        Map<String, List<Participant>> rootMap = new HashMap<>(); 
+        List<Participant> allCallsigns = getAll(loggedInUser, null);
+
+        for (Participant callsign: allCallsigns) {
+            String callsignRoot = callsign.getCallsign();
+            if (callsignRoot.contains("-")) {
+                callsignRoot = callsignRoot.substring(0, callsignRoot.indexOf("-"));
+            }
+            List<Participant> callsigns = rootMap.get(callsignRoot);
+            if (callsigns != null) {
+                callsigns.add(callsign);
+            } else {
+                callsigns = new ArrayList<>();
+                callsigns.add(callsign);
+                rootMap.put(callsignRoot, callsigns);
+            }
+        }
+        return rootMap;
+    }
+}
