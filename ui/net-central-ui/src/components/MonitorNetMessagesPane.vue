@@ -32,8 +32,9 @@ const localLoggedInUserRef = reactive({ value : {}});
 
 
 const headers = [
-        { text: "Time", value: "prettyHeardTime", sortable: true },
+        { text: "Time", value: "prettyReceivedTime", sortable: true },
         { text: "From", value: "callsignFrom", sortable: true},
+        { text: "Recipient", value: "recipient", sortable: true},
         { text: "Message", value: "message", sortable: true}];
 
 watch(messageRef, (newValue, oldValue) => {
@@ -55,7 +56,7 @@ function getMessages() {
           },
         body: null
       };
-      fetch(buildNetCentralUrl('/nets/'+localSelectedNet.ncSelectedNet.callsign+'/messages'), requestOptions)
+      fetch(buildNetCentralUrl('/netMessages?completedNetId='+localSelectedNet.ncSelectedNet.completedNetId), requestOptions)
         .then(response => response.json())
         .then(data => {
             netMessages.value = data;

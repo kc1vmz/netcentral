@@ -4,8 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
-
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -17,13 +15,14 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
+import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
+import netcentral.server.object.NetMessage;
 import netcentral.server.object.User;
 import netcentral.server.utils.NetParticipantReport;
 
@@ -38,7 +37,7 @@ public class CompletedNetController {
     @Inject
     private CompletedParticipantAccessor completedParticipantAccessor;
     @Inject
-    private APRSObjectAccessor aprsObjectAccessor;
+    private NetMessageAccessor netMessageAccessor;
     @Inject
     private NetParticipantReport netParticipantReport;
     @Inject
@@ -73,13 +72,13 @@ public class CompletedNetController {
     }
 
     @Get("/{id}/messages") 
-    public List<APRSMessage> getMessages(HttpRequest<?> request, @PathVariable String id) {
+    public List<NetMessage> getMessages(HttpRequest<?> request, @PathVariable String id) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         CompletedNet net = completedNetAccessor.get(loggedInUser, id);
 
-        List<APRSMessage> ret = aprsObjectAccessor.getCompletedNetMessages(loggedInUser, net.getCompletedNetId());
+        List<NetMessage> ret = netMessageAccessor.getAll(loggedInUser, net.getCallsign(), net.getCompletedNetId());
         return ret;
     }
 

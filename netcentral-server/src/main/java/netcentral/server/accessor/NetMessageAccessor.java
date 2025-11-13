@@ -43,7 +43,7 @@ public class NetMessageAccessor {
         List<NetMessageRecord> recs = netMessageRepository.findBycompleted_net_id(completedNetId);
         if ((recs != null) && (!recs.isEmpty())) {
             for (NetMessageRecord rec : recs) {
-                ret.add(new NetMessage(rec.net_message_id(), rec.completed_net_id(), rec.callsign_from(), rec.message(), rec.received_time()));
+                ret.add(new NetMessage(rec.net_message_id(), rec.completed_net_id(), rec.callsign_from(), rec.message(), rec.received_time(), rec.recipient()));
             }
         }
 
@@ -61,7 +61,7 @@ public class NetMessageAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "NetMessage not found");
         }
         NetMessageRecord rec = recOpt.get();
-        return new NetMessage(rec.net_message_id(), rec.completed_net_id(), rec.callsign_from(), rec.message(), rec.received_time());
+        return new NetMessage(rec.net_message_id(), rec.completed_net_id(), rec.callsign_from(), rec.message(), rec.received_time(), rec.recipient());
     }
 
 
@@ -76,7 +76,7 @@ public class NetMessageAccessor {
         }
 
         String messageId = UUID.randomUUID().toString();
-        NetMessageRecord src = new NetMessageRecord(messageId, obj.getCompletedNetId(), obj.getCallsignFrom(), obj.getMessage(), ZonedDateTime.now());
+        NetMessageRecord src = new NetMessageRecord(messageId, obj.getCompletedNetId(), obj.getCallsignFrom(), obj.getMessage(), ZonedDateTime.now(), obj.getRecipient());
         netMessageRepository.save(src);
         return obj;
     }

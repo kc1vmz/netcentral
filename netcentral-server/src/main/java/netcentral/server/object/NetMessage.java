@@ -14,6 +14,10 @@ public class NetMessage {
     private String message;
     private ZonedDateTime receivedTime;
     private String prettyReceivedTime;
+    private String recipient;
+
+    public static final String RECIPIENT_NET_CONTROL = "Net Control";
+    public static final String RECIPIENT_ENTIRE_NET = "Net";
 
     public NetMessage() {
     }
@@ -22,6 +26,15 @@ public class NetMessage {
         this.completedNetId = completedNetId;
         this.callsignFrom = callsignFrom;
         this.message = message;
+        this.recipient = RECIPIENT_ENTIRE_NET;
+        setReceivedTime(receivedTime);
+    }
+    public NetMessage(String id, String completedNetId, String callsignFrom, String message, ZonedDateTime receivedTime, String recipient) {
+        this.id = id;
+        this.completedNetId = completedNetId;
+        this.callsignFrom = callsignFrom;
+        this.message = message;
+        this.recipient = recipient;
         setReceivedTime(receivedTime);
     }
     public NetMessage(NetMessage netMessage) {
@@ -30,6 +43,7 @@ public class NetMessage {
             this.completedNetId = netMessage.getCompletedNetId();
             this.callsignFrom = netMessage.getCallsignFrom();
             this.message = netMessage.getMessage();
+            this.recipient = netMessage.recipient;
             setReceivedTime(netMessage.getReceivedTime());
         }
     }
@@ -69,5 +83,11 @@ public class NetMessage {
     }
     public void setPrettyReceivedTime(String prettyReceivedTime) {
         this.prettyReceivedTime = prettyReceivedTime;
+    }
+    public String getRecipient() {
+        return recipient;
+    }
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 }

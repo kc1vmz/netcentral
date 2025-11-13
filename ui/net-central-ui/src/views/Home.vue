@@ -26,6 +26,7 @@
         <br><b>B (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR)</b> - report your backup electrical power type
         <br><b>Y (APPLIANCE, BASE, HANDHELD, INTERNET, MOBILE, OTHER)</b> - report your radio style
         <br><b>M</b> - send message to all participants in net
+        <br><b>MC</b> - send message to only net control
         <br><b>R n</b> - replay last n messages sent to the net (n is a number)
         <br><b>L</b> - list net participants, their callsigns, status, location, and voice freqency monitored
         <br><b>P callsign</b> - ping callsign to test connectivity

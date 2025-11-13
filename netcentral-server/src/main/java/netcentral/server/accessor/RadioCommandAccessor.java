@@ -27,6 +27,7 @@ public class RadioCommandAccessor {
     private static final String COMMAND_CHECK_OUT = "CO";
     private static final String COMMAND_TACTICAL_CALLSIGN = "T";
     private static final String COMMAND_NET_MESSAGE = "M";
+    private static final String COMMAND_NET_MESSAGE_NET_CONTROL = "MC";
     private static final String COMMAND_REPLAY_NET_MESSAGES = "R";
     private static final String COMMAND_LIST_PARTICIPANTS = "L";
     private static final String COMMAND_PING_PARTICIPANT = "P";
@@ -147,7 +148,18 @@ public class RadioCommandAccessor {
                         break;
                     }
                 }
-                processNetMessage(loggedInUser, msg, net, transceiverSourceId);
+                processNetMessage(loggedInUser, msg, net, transceiverSourceId, false);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_MESSAGE_NET_CONTROL.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processNetMessage(loggedInUser, msg, net, transceiverSourceId, true);
                 // cannot have multiple
                 break;
             } else if (COMMAND_REPLAY_NET_MESSAGES.equalsIgnoreCase(command)) {
@@ -550,6 +562,7 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s X - %s", COMMAND_TACTICAL_CALLSIGN, "Set tactical call sign"));
         helpMessages.add(String.format("%s - %s", COMMAND_INFO, "Send net info"));
         helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE, "Send message to all net participants"));
+        helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE_NET_CONTROL, "Send message to only net control"));
         helpMessages.add(String.format("%s X - %s", COMMAND_REPLAY_NET_MESSAGES, "Resend last X messages sent to net to you"));
         helpMessages.add(String.format("%s - %s", COMMAND_LIST_PARTICIPANTS, "List net participants"));
         helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_PING_PARTICIPANT, "Ping net participant"));
@@ -600,8 +613,8 @@ public class RadioCommandAccessor {
         if (netMessages != null) {
             List<String> replayMessages = new ArrayList<>();
             for (NetMessage netMessage : netMessages) {
-                if ((!netMessage.getMessage().startsWith("ack")) && (!netMessage.getMessage().startsWith("rej"))) {
-                    // not ack's / rej's and from the net, not to the net
+                if ((!netMessage.getMessage().startsWith("ack")) && (!netMessage.getMessage().startsWith("rej")) && (!netMessage.getRecipient().equals(NetMessage.RECIPIENT_NET_CONTROL))) {
+                    // not ack's / rej's and from the net, not to the net control
                     replayMessages.add(netMessage.getMessage());
                 }
             }
@@ -617,7 +630,7 @@ public class RadioCommandAccessor {
         }
     }
 
-    private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+    private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetControl) {
         String operatorMessage = message.getMessage().substring(2); // go past "m "
 
         // persist the net message
@@ -627,13 +640,20 @@ public class RadioCommandAccessor {
         netMessage.setId(UUID.randomUUID().toString());
         netMessage.setMessage(operatorMessage);
         netMessage.setReceivedTime(ZonedDateTime.now());
+        if (isNetControl) {
+            netMessage.setRecipient(NetMessage.RECIPIENT_NET_CONTROL);
+        } else {
+            netMessage.setRecipient(NetMessage.RECIPIENT_ENTIRE_NET);
+        }
         netMessage = netMessageAccessor.create(loggedInUser, netMessage);
 
         // send it to all participants
-        List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
-        if ((participants != null) && (!participants.isEmpty())) {
-            for (Participant participant : participants) {
-                transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), netMessage.getMessage());
+        if (!isNetControl) {
+            List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+            if ((participants != null) && (!participants.isEmpty())) {
+                for (Participant participant : participants) {
+                    transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), netMessage.getMessage());
+                }
             }
         }
     }

@@ -6,9 +6,9 @@ import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 
 const localSelectedCompletedNet = reactive({value : { id : null }});
 const headersRef = ref([
-        { text: "Time", value: "prettyHeardTime", sortable: true },
+        { text: "Time", value: "prettyReceivedTime", sortable: true },
         { text: "From", value: "callsignFrom", sortable: true},
-        { text: "To", value: "callsignTo", sortable: true},
+        { text: "To", value: "recipient", sortable: true},
         { text: "Message", value: "message", sortable: true}
       ]);
 

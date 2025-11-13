@@ -14,5 +14,6 @@ public record NetMessageRecord(
                 @NonNull @NotBlank @Size(max = 36) String completed_net_id,
                 @NonNull @NotBlank @Size(max = 30) String callsign_from, 
                 @NonNull @NotBlank @Size(max = 63) String message,
-                @NonNull @NotBlank ZonedDateTime received_time) {  
+                @NonNull @NotBlank ZonedDateTime received_time,
+                @NonNull @NotBlank @Size(max = 20) String recipient) {  
 }
