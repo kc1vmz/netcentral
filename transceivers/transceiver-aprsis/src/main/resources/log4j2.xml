@@ -25,16 +25,16 @@
 		</RollingFile>
 	</Appenders>
     <Loggers>
-        <Logger name="netcentral.transceiver" level="debug" additivity="false">
+        <Logger name="netcentral.transceiver" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Logger name="io.micronaut" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
-        <Logger name="java.lang" level="debug" additivity="false">
+        <Logger name="java.lang" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
-        <Logger name="net.ab0oo.aprs.parser" level="debug" additivity="false">
+        <Logger name="net.ab0oo.aprs.parser" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Root level="info">
