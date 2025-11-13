@@ -54,7 +54,7 @@ public class UIAccessor {
         completedNetAccessor.create(loggedInUser, net);
         ZonedDateTime time = ZonedDateTime.now();
 
-        String message = String.format("APRS Net %s has been closed", net.getCallsign());
+        String message = String.format("APRS Net %s has been secured", net.getCallsign());
         NetMessage msg = new NetMessage(UUID.randomUUID().toString(), net.getCompletedNetId(), net.getCallsign(), message, time);
         netMessageAccessor.create(loggedInUser, msg);
 
