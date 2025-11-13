@@ -110,6 +110,8 @@ public class KISSTCPIPClient {
     public KISSPacket listen() throws IOException {
         byte[] resp = read();
         KISSPacket packet = new KISSPacket();
+        packet.setPacket(new String(resp));
+
         List<String> digipeaters = new ArrayList<>();
 
         if (resp[0] != KISSControlCode.FEND.getValue()) {

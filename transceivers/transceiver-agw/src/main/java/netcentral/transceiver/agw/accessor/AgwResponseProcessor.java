@@ -12,7 +12,7 @@ import netcentral.transceiver.agw.object.AgwResponse2;
 public class AgwResponseProcessor {
     private static final Logger logger = LogManager.getLogger(AgwResponseProcessor.class);
 
-    public static List<AgwResponse2> getPackets(int channel, byte [] packet) {
+    public static List<AgwResponse2> getPackets(int channel, byte [] packet, PacketLoggerAccessor packetLoggerAccessor) {
         List<AgwResponse2> ret = new ArrayList<>();
 
         byte [] data = Arrays.copyOfRange(packet, 36, packet.length);
@@ -48,6 +48,8 @@ public class AgwResponseProcessor {
             String callsignFrom = "";
             String digis = "";
             List<String> digipeaters = new ArrayList<>();
+
+            packetLoggerAccessor.savePacket(packetString);
 
             if (remain.startsWith(fromLabel)) {
                 remain = remain.substring(fromLabel.length());

@@ -40,6 +40,8 @@ public class APRSListenerAccessor {
     private APRSConfiguration aprsConfiguration;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private TNCClient client = null;
 
@@ -290,7 +292,10 @@ public class APRSListenerAccessor {
                         if ((bytes == null) || (bytes.length == 0)) {
 
                         } else {
-                            APRSPacket packet = parsePacket(new String (bytes));
+                            String line = new String (bytes);
+                            packetLoggerAccessor.savePacket(line);
+
+                            APRSPacket packet = parsePacket(line);
                             if (packet != null) {
                                 processPacket(packet);
                                 statisticsAccessor.markLastReceivedTime();

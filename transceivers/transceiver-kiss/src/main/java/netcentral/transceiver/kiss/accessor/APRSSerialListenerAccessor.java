@@ -43,6 +43,8 @@ public class APRSSerialListenerAccessor {
     private APRSConfiguration aprsConfiguration;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private KISSSerialClient client = null;
 
@@ -263,6 +265,7 @@ public class APRSSerialListenerAccessor {
                         writeLock.lock();
                         try {
                             KISSPacket packet = client.listen();
+                            packetLoggerAccessor.savePacket(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();
@@ -274,6 +277,7 @@ public class APRSSerialListenerAccessor {
                     } else {
                         try {
                             KISSPacket packet = client.listen();
+                            packetLoggerAccessor.savePacket(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();

@@ -135,6 +135,8 @@ public class KISSSerialClient {
             return null;
         }
         KISSPacket packet = new KISSPacket();
+        packet.setPacket(new String(resp));
+
         List<String> digipeaters = new ArrayList<>();
 
         if (resp[0] != KISSControlCode.FEND.getValue()) {

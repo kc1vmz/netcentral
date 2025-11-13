@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import netcentral.transceiver.agw.accessor.AgwResponseProcessor;
+import netcentral.transceiver.agw.accessor.PacketLoggerAccessor;
 import netcentral.transceiver.agw.object.AgwCommand;
 import netcentral.transceiver.agw.object.AgwFrameType;
 import netcentral.transceiver.agw.object.AgwResponse2;
@@ -26,8 +27,9 @@ public class AGWPEClient {
     private Socket socket = null;
     private BufferedOutputStream out = null;
     private BufferedReader in = null;
+    private PacketLoggerAccessor packetLoggerAccessor;
 
-    public void connect(String host, int port) {
+    public void connect(String host, int port, PacketLoggerAccessor packetLoggerAccessor) {
         try {
             this.socket = new Socket(host, port);
             this.out = new BufferedOutputStream(this.socket.getOutputStream());
@@ -37,6 +39,7 @@ public class AGWPEClient {
 
             this.host = host;
             this.port = port;
+            this.packetLoggerAccessor = packetLoggerAccessor;
             setValid(true);
             return;
         } catch (IOException e) {
@@ -121,7 +124,7 @@ public class AGWPEClient {
 
     public List<AgwResponse2> listen(byte channel) throws IOException {
         byte[] resp = read();
-        List<AgwResponse2> responses = AgwResponseProcessor.getPackets(channel, resp);
+        List<AgwResponse2> responses = AgwResponseProcessor.getPackets(channel, resp, packetLoggerAccessor);
         return responses;
     }
 

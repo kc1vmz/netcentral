@@ -9,6 +9,7 @@ public class KISSPacket {
     private String applicationName;
     private List<String> digipeaters;
     private String data;
+    private String packet;
 
     public String getCallsignFrom() {
         return callsignFrom;
@@ -53,5 +54,11 @@ public class KISSPacket {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+    public String getPacket() {
+        return packet;
+    }
+    public void setPacket(String packet) {
+        this.packet = packet;
     }
 }

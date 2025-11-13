@@ -46,6 +46,8 @@ public class APRSListenerAccessor {
     FeatureConfiguration featureConfiguration;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
@@ -251,6 +253,8 @@ public class APRSListenerAccessor {
                         statisticsAccessor.markLastReceivedTime();
                         statisticsAccessor.incrementObjectsReceived();
 
+                        packetLoggerAccessor.savePacket(line);
+
                         APRSPacket packet = parsePacket(line);
                         if (packet != null) {
                             processPacket(packet);
@@ -274,7 +278,6 @@ public class APRSListenerAccessor {
             logger.error("IOException caught creating connection", e);
         }
     }
-
 
     private void processPacket(APRSPacket packet) {
         aprsMessageProcessor.processPacket(packet);

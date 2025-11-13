@@ -42,6 +42,8 @@ public class APRSListenerAccessor {
     private APRSConfiguration aprsConfiguration;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private AGWPEClient client = null;
 
@@ -201,7 +203,7 @@ public class APRSListenerAccessor {
 
         try {
             client = new AGWPEClient();
-            client.connect(tncConfiguration.getHostname(), tncConfiguration.getPort());  
+            client.connect(tncConfiguration.getHostname(), tncConfiguration.getPort(), packetLoggerAccessor);  
             int channel = tncConfiguration.getChannel();
 
             Integer waitSeconds = threadConfiguration.getListenerPauseInSeconds();

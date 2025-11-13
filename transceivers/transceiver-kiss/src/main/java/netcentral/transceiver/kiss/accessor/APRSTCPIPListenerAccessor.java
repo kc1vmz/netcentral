@@ -43,6 +43,8 @@ public class APRSTCPIPListenerAccessor {
     private APRSConfiguration aprsConfiguration;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private KISSTCPIPClient client = null;
 
@@ -262,6 +264,7 @@ public class APRSTCPIPListenerAccessor {
                         writeLock.lock();
                         try {
                             KISSPacket packet = client.listen();
+                            packetLoggerAccessor.savePacket(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();
@@ -273,6 +276,7 @@ public class APRSTCPIPListenerAccessor {
                     } else {
                         try {
                             KISSPacket packet = client.listen();
+                            packetLoggerAccessor.savePacket(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();

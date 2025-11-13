@@ -1,5 +1,7 @@
 package netcentral.transceiver.kenwood.config;
 
+import java.util.Optional;
+
 import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
@@ -13,6 +15,10 @@ public class FeatureConfiguration {
     private Integer messageCacheDeleteSeconds;
     @Value("${feature.listener.enabled}")
     private boolean listenerEnabled;
+    @Value("${feature.packet.logging}")
+    private boolean packetLoggingEnabled;
+    @Value("${feature.packet.logging.filename}")
+    private Optional<String> packetLoggingFilename;
  
     public boolean isListener() {
         return listenerEnabled;
@@ -37,5 +43,17 @@ public class FeatureConfiguration {
     }
     public void setMessageCacheDeleteSeconds(Integer messageCacheDeleteSeconds) {
         this.messageCacheDeleteSeconds = messageCacheDeleteSeconds;
+    }
+    public boolean isPacketLoggingEnabled() {
+        return packetLoggingEnabled;
+    }
+    public void setPacketLoggingEnabled(boolean packetLoggingEnabled) {
+        this.packetLoggingEnabled = packetLoggingEnabled;
+    }
+    public Optional<String> getPacketLoggingFilename() {
+        return packetLoggingFilename;
+    }
+    public void setPacketLoggingFilename(Optional<String> packetLoggingFilename) {
+        this.packetLoggingFilename = packetLoggingFilename;
     }
 }
