@@ -21,6 +21,7 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.APRSObjectAccessor;
+import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.NetAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
@@ -54,6 +55,8 @@ public class NetController {
     private NetMessageAccessor netMessageAccessor;
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {
@@ -190,5 +193,15 @@ public class NetController {
             }
         }
         return "{ \"message\" : \""+message+"\"}";
+    }
+
+    @Delete("/all/now")
+    public void deleteAll(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        netAccessor.deleteAll(loggedInUser);
+        netParticipantAccessor.deleteAll(loggedInUser);
+        changePublisherAccessor.publishAllUpdate();
     }
 }

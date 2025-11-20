@@ -8,6 +8,30 @@ import { ref, watch, reactive, computed  } from 'vue';
 import { configShowInfrastructure, configShowObjects, configShowTrackedStationsOnly, configShowPriorityObjects, updateShowInfrastructure, updateShowObjects, updateShowTrackedStationsOnly, updateShowPriorityObjects } from "@/ConfigurationDisplay.js";
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser } from "@/LoginInformation.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateNetParticipantEvent, updateNetParticipant, updateParticipant, updateParticipantEvent } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateNetParticipant", (data) => {
+  updateNetParticipant(data)
+});
+
+watch(updateNetParticipantEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedNet.ncSelectedNet == null) || ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign !== newValue.value.callsign))) {
+    // not this net
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    getMapItems();
+  } else if (newValue.value.action == "Delete") {
+    getMapItems();
+  }
+});
+
 
 const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 const mapPoints = reactive({});

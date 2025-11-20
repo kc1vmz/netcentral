@@ -7,6 +7,58 @@ import { selectedObjectType } from "@/SelectedObjectType.js";
 import { reactive, ref, watch, onMounted } from 'vue';
 import { nudgeObject, nudge, nudgeAddObject, nudgeAdd, nudgeRemoveObject } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateTrackedStation", (data) => {
+  updateTrackedStation(data)
+});
+socket.on("updateObject", (data) => {
+  updateObject(data)
+});
+socket.on("updateAll", (data) => {
+  updateAll(data)
+});
+
+function updateTrackedStation(data) {
+    updateTrackedStationEvent.value = JSON.parse(data);
+}
+function updateObject(data) {
+    updateObjectEvent.value = JSON.parse(data);
+}
+
+watch(updateTrackedStationEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Delete") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Update") {
+  }
+});
+
+watch(updateObjectEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Delete") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Update") {
+  }
+});
+
 
 const localSelectedObjects = reactive({value : null});
 const localSelectedObjectType = reactive({value : null});

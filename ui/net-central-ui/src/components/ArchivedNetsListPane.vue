@@ -1,8 +1,21 @@
 <script setup>
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, getUser } from "@/LoginInformation.js";
 import { selectedCompletedNet , updateSelectedCompletedNet, setSelectedCompletedNetValue } from "@/SelectedCompletedNet.js";
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { updateCompletedNetEvent } from "@/UpdateEvents.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateAllEvent } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateCompletedNet", (data) => {
+  updateCompletedNet(data)
+});
+
+function updateCompletedNet(data) {
+    updateCompletedNetEvent.value = JSON.parse(data);
+}
 
 const selectedItem = ref(null);
 const headersRef = ref([
@@ -21,6 +34,15 @@ onMounted(() => {
     completedNetsRef.value = [];
     getData()
 })
+
+watch(updateCompletedNetEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((newValue.value.action == "Create") || (newValue.value.action == "Delete") || (newValue.value.action == "Update")) {
+    getArchivedNets();
+  }
+});
 
 function getData () {
     selectedItem.value = null;

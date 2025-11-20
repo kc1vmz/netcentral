@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
 import netcentral.server.record.ParticipantRecord;
@@ -26,6 +27,10 @@ public class ParticipantAccessor {
 
     @Inject
     private ParticipantRepository participantRepository;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
 
     public List<Participant> getAll(User loggedInUser, String root) {
@@ -108,6 +113,7 @@ public class ParticipantAccessor {
                                                         (obj.getStatus() != null) ? obj.getStatus() : "",
                                                         (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
         participantRepository.save(src);
+        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(),"Create", obj);
         return obj;
     }
 
@@ -135,6 +141,7 @@ public class ParticipantAccessor {
                                                         (obj.getStatus() != null) ? obj.getStatus() : "",
                                                         (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
         participantRepository.update(updatedRec);
+        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(),"Update", obj);
         return obj;
     }
 
@@ -153,6 +160,7 @@ public class ParticipantAccessor {
         }
 
         participantRepository.delete(recOpt.get());
+        changePublisherAccessor.publishParticipantUpdate(recOpt.get().callsign(),"Delete", null);
         
         return null;
     }
@@ -183,5 +191,20 @@ public class ParticipantAccessor {
             }
         }
         return rootMap;
+    }
+
+    public Participant deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        participantRepository.deleteAll();
+        return null;
     }
 }

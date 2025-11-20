@@ -3,6 +3,41 @@ import { selectedNet , updateSelectedNet, setSelectedNetSelectionValue, forceNet
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser } from "@/LoginInformation.js";
 import { ref, watch, reactive, onMounted } from 'vue';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateNetMessageEvent, updateNetMessage } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+
+const { socket } = useSocketIO();
+socket.on("updateNetMessage", (data) => {
+  updateNetMessage(data)
+});
+
+watch(updateNetMessageEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedNet.ncSelectedNet == null) || ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.completedNetId !== newValue.value.callsign))) {  // callsign really completedNetId
+    // not this net
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    var found = false;
+    if (netMessages.value != null) {
+      netMessages.value.forEach(function(message){
+        if ((!found) && (message.id == newValue.value.id)) {
+          found = true;
+        }
+      });
+      if (found) {
+        return;
+      }
+    } else {
+        netMessages.value = [];
+    }
+    netMessages.value.push(newValue.value.object);
+  }
+});
 
 const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 

@@ -31,6 +31,9 @@ public class ObjectCleanupAccessor {
     private CallsignAccessor callsignAccessor;
     @Inject
     private CallsignAceAccessor callsignAceAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+ 
 
     private boolean stop = false;
 
@@ -62,6 +65,8 @@ public class ObjectCleanupAccessor {
 
             // delete messages
             aprsObjectAccessor.deleteMessages(systemUser, before);
+
+            changePublisherAccessor.publishAllUpdate();
         } catch (Exception e) {
             logger.error("Exception caught cleaning up objects", e);
         }
@@ -87,6 +92,8 @@ public class ObjectCleanupAccessor {
             callsignAccessor.deleteAllData(loggedInUser);
             // delete position reports
             callsignAceAccessor.deleteAllData(loggedInUser);
+
+            changePublisherAccessor.publishAllUpdate();
         } catch (Exception e) {
             logger.error("Exception caught cleaning up objects", e);
         }

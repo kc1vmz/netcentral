@@ -13,6 +13,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.User;
@@ -27,6 +28,10 @@ public class NetMessageAccessor {
     private NetAccessor netAccessor;
     @Inject
     private NetMessageRepository netMessageRepository;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
     public List<NetMessage> getAll(User loggedInUser, String callsignNet, String completedNetId) {
         List<NetMessage> ret = new ArrayList<>();
@@ -76,8 +81,25 @@ public class NetMessageAccessor {
         }
 
         String messageId = UUID.randomUUID().toString();
+        obj.setId(messageId);
         NetMessageRecord src = new NetMessageRecord(messageId, obj.getCompletedNetId(), obj.getCallsignFrom(), obj.getMessage(), ZonedDateTime.now(), obj.getRecipient());
         netMessageRepository.save(src);
+        changePublisherAccessor.publishNetMessageUpdate(obj.getCompletedNetId(), "Create", obj);
         return obj;
+    }
+
+    public Net deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        netMessageRepository.deleteAll();
+        return null;
     }
 }

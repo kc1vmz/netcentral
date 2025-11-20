@@ -30,6 +30,8 @@ public class TrackedStationAccessor {
 
     @Inject
     private TrackedStationRepository trackedStationRepository;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     public List<TrackedStation> getAll(User loggedInUser, String name, String callsign, String type) {
         List<TrackedStationRecord> recs;
@@ -131,7 +133,9 @@ public class TrackedStationAccessor {
 
         TrackedStationRecord rec = trackedStationRepository.save(src);
         if (rec != null) {
-            return get(loggedInUser, id);
+            TrackedStation trackedStationFinal = get(loggedInUser, id);
+            changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), "Create", trackedStationFinal);
+            return trackedStationFinal;
         }
 
         logger.debug("Station not created");
@@ -170,8 +174,10 @@ public class TrackedStationAccessor {
                                                 (obj.getRadioStyle().ordinal() != RadioStyle.UNKNOWN.ordinal()) ? obj.getRadioStyle().ordinal() : rec.radio_style(), 
                                                 (obj.getTransmitPower() != 0) ? obj.getTransmitPower() : rec.transmit_power());
         trackedStationRepository.update(updatedRec);
-        return get(loggedInUser, id);
 
+        TrackedStation trackedStationFinal = get(loggedInUser, id);
+        changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), "Update", trackedStationFinal);
+        return trackedStationFinal;
     }
 
     public TrackedStation delete(User loggedInUser, String id) {
@@ -188,6 +194,8 @@ public class TrackedStationAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
         }
    
+        TrackedStation trackedStation = get(loggedInUser, id);
+        changePublisherAccessor.publishTrackedStationUpdate(recOpt.get().callsign(), "Delete", trackedStation);
         trackedStationRepository.delete(recOpt.get());
         
         return null;

@@ -7,6 +7,105 @@ import { Tabs, Tab } from 'super-vue3-tabs';
 import { selectedLatestWeatherReport, updateSelectedLatestWeatherReport, selectedWeatherReports, updateSelectedWeatherReports } from "@/SelectedWeatherReports.js";
 import { nudgeObject, nudge, nudgeUpdateObject, nudgeUpdate, nudgeRemoveObject, nudgeRemove  } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateTrackedStation", (data) => {
+  updateTrackedStation(data)
+});
+socket.on("updateObject", (data) => {
+  updateObject(data)
+});
+socket.on("updateCallsign", (data) => {
+  updateCallsign(data)
+});
+socket.on("updateAll", (data) => {
+  updateAll(data)
+});
+
+function updateTrackedStation(data) {
+    updateTrackedStationEvent.value = JSON.parse(data);
+}
+function updateObject(data) {
+    updateObjectEvent.value = JSON.parse(data);
+}
+function updateCallsign(data) {
+    updateCallsignEvent.value = JSON.parse(data);
+}
+
+watch(updateTrackedStationEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    // would not have been selected yet - no update
+  } else if (newValue.value.action == "Delete") {
+    // will get cleared by exploreresorcespane
+  } else if (newValue.value.action == "Update") {
+    if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign == newValue.value.callsign)) {
+        localSelectedObject.ncSelectedObject.name = newValue.value.object.name;
+        localSelectedObject.ncSelectedObject.status = newValue.value.object.status;
+        localSelectedObject.ncSelectedObject.lat = newValue.value.object.lat;
+        localSelectedObject.ncSelectedObject.lon = newValue.value.object.lon;
+        localSelectedObject.ncSelectedObject.radioStyle = newValue.value.object.radioStyle;
+        localSelectedObject.ncSelectedObject.transmitPower = newValue.value.object.transmitPower;
+        localSelectedObject.ncSelectedObject.prettyLastHeard = newValue.value.object.prettyLastHeard;
+        localSelectedObject.ncSelectedObject.type = newValue.value.object.type;
+    }
+  }
+});
+
+watch(updateObjectEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    // would not have been selected yet - no update
+  } else if (newValue.value.action == "Delete") {
+    // will get cleared by exploreresorcespane
+  } else if (newValue.value.action == "Update") {
+    if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign == newValue.value.callsign)) {
+        localSelectedObject.ncSelectedObject.name = newValue.value.object.name;
+        localSelectedObject.ncSelectedObject.status = newValue.value.object.status;
+        localSelectedObject.ncSelectedObject.lat = newValue.value.object.lat;
+        localSelectedObject.ncSelectedObject.lon = newValue.value.object.lon;
+        localSelectedObject.ncSelectedObject.radioStyle = newValue.value.object.radioStyle;
+        localSelectedObject.ncSelectedObject.transmitPower = newValue.value.object.transmitPower;
+        localSelectedObject.ncSelectedObject.prettyLastHeard = newValue.value.object.prettyLastHeard;
+        localSelectedObject.ncSelectedObject.type = newValue.value.object.type;
+    }
+  }
+});
+
+watch(updateCallsignEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "CALLSIGN"){
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    // would not have been selected yet - no update
+  } else if (newValue.value.action == "Delete") {
+    // will get cleared by exploreresorcespane
+  } else if (newValue.value.action == "Update") {
+    if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign == newValue.value.callsign)) {
+      localSelectedObject.ncSelectedObject.name = newValue.value.object.name;
+      localSelectedObject.ncSelectedObject.country = newValue.value.object.country;
+      localSelectedObject.ncSelectedObject.state = newValue.value.object.state;
+      localSelectedObject.ncSelectedObject.license = newValue.value.object.license;
+      localSelectedObject.ncSelectedObject.id = newValue.value.callsign;
+    }
+  }
+});
 
 const localSelectedObject = reactive({ncSelectedObject : { id : null }});
 
@@ -64,6 +163,7 @@ const tone2Ref = reactive({value : ''});
 const state2Ref = reactive({value : ''});
 const country2Ref = reactive({value : ''});
 const license2Ref = reactive({value : ''});
+const selectedObjectType2Ref = reactive({value : ''});
 const directorNameRef = reactive({value : ''});
 const incidentCommanderNameRef = reactive({value : ''});
 const eocNameRef = reactive({value : ''});
@@ -1165,6 +1265,7 @@ function editStation() {
     dialogEditStationShow.value = true;
     name2Ref.value = localSelectedObject.ncSelectedObject.name;
     description2Ref.value = localSelectedObject.ncSelectedObject.description;
+    selectedObjectType2Ref.value = localSelectedObject.ncSelectedObject.type;
     callsign2Ref.value  = localSelectedObject.ncSelectedObject.callsign;
     electricalPowerType2Ref.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.electricalPowerType);
     backupElectricalPowerType2Ref.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.backupElectricalPowerType);
@@ -1243,7 +1344,7 @@ function performEditStation() {
                         trackingActive: localSelectedObject.ncSelectedObject.trackingActive, 
                         status: localSelectedObject.ncSelectedObject.status, 
                         ipAddress: localSelectedObject.ncSelectedObject.ipAddress, 
-                        type: localSelectedObject.ncSelectedObject.type 
+                        type: selectedObjectType2Ref.value 
                       };
     const requestOptions = {
       method: "PUT",
@@ -1766,6 +1867,77 @@ function performEditCallsign() {
               <div>
                 <label for="descriptionField">Description:</label>
                 <input style="padding: 5px;" type="text" id="descriptionField" v-model="description2Ref.value" />
+              </div>
+              <div>
+                <label for="objectTypeField">APRS resource type:</label>
+                <select name="objectTypeField" id="objectType" v-model="selectedObjectType2Ref.value" style="display: inline;">
+                  <div v-if="(selectedObjectType2Ref.value == 'BBS')">
+                    <option value="BBS" selected>Bulletin Board</option>
+                  </div>
+                  <div v-else>
+                    <option value="BBS">Bulletin Board</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'DSTAR')">
+                    <option value="DSTAR" selected>D-Star</option>
+                  </div>
+                  <div v-else>
+                    <option value="DSTAR">D-Star</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'DIGIPEATER')">
+                    <option value="DIGIPEATER" selected>Digipeater</option>
+                  </div>
+                  <div v-else>
+                    <option value="DIGIPEATER">Digipeater</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'IGATE')">
+                    <option value="IGATE" selected>iGate</option>
+                  </div>
+                  <div v-else>
+                    <option value="IGATE">iGate</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'IS')">
+                    <option value="IS" selected>Internet Server</option>
+                  </div>
+                  <div v-else>
+                    <option value="IS">Internet Server</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'MMDVM')">
+                    <option value="MMDVM" selected>MMDVM</option>
+                  </div>
+                  <div v-else>
+                    <option value="MMDVM">MMDVM</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'REPEATER')">
+                    <option value="REPEATER" selected>Repeater</option>
+                  </div>
+                  <div v-else>
+                    <option value="REPEATER">Repeater</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'STATION')">
+                    <option value="STATION" selected>Station</option>
+                  </div>
+                  <div v-else>
+                    <option value="STATION">Station</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'UNKNOWN')">
+                    <option value="UNKNOWN" selected>Unknown</option>
+                  </div>
+                  <div v-else>
+                    <option value="UNKNOWN">Unknown</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'WEATHER')">
+                    <option value="WEATHER" selected>Weather Station</option>
+                  </div>
+                  <div v-else>
+                    <option value="WEATHER">Weather Station</option>
+                  </div>
+                  <div v-if="(selectedObjectType2Ref.value == 'WINLINK_GATEWAY')">
+                    <option value="WINLINK_GATEWAY" selected>Winlink Gateway</option>
+                  </div>
+                  <div v-else>
+                    <option value="WINLINK_GATEWAY">Winlink Gateway</option>
+                  </div>
+                </select>
               </div>
               <div>
                   <label for="electricalPowerTypeField">Electrical power:</label>

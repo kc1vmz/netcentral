@@ -6,6 +6,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
@@ -13,6 +14,7 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.NetMessage;
@@ -25,7 +27,8 @@ public class NetMessageController {
     SessionAccessor sessionAccessor;
     @Inject
     private NetMessageAccessor netMessageAccessor;
-
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     @Post
     public NetMessage create(HttpRequest<?> request,  @Body NetMessage obj) {
@@ -49,5 +52,14 @@ public class NetMessageController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         return netMessageAccessor.get(loggedInUser, id);
+    }
+
+    @Delete("/all/now")
+    public void deleteAll(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        netMessageAccessor.deleteAll(loggedInUser);
+        changePublisherAccessor.publishAllUpdate();
     }
 }

@@ -38,7 +38,8 @@ public class UserAccessor {
     private ActivityAccessor activityAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
-
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     public User get(User loggedInUser, String id) {
         return getUser(loggedInUser, id, false);
@@ -135,6 +136,7 @@ public class UserAccessor {
         obj.setPassword(null);
         try {
             activityAccessor.create(loggedInUser, String.format("User %s created", obj.getEmailAddress()));
+            changePublisherAccessor.publishUserUpdate(id, "Create");
         } catch (Exception e) {
         }
         return obj;
@@ -192,6 +194,7 @@ public class UserAccessor {
         userRepository.update(updatedRec);
         try {
             activityAccessor.create(loggedInUser, String.format("User %s updated", obj.getEmailAddress()));
+            changePublisherAccessor.publishUserUpdate(id, "Update");
         } catch (Exception e) {
         }
         return obj;
@@ -237,6 +240,7 @@ public class UserAccessor {
         } catch (Exception e) {
         }
         userRepository.delete(recOpt.get());
+        changePublisherAccessor.publishUserUpdate(id, "Delete");
     }
 
     public User login(LoginRequest obj) {
@@ -256,6 +260,7 @@ public class UserAccessor {
         user.setAccessToken(sessionCacheAccessor.add(user));
         user.setPassword(null);
         statisticsAccessor.incrementUserLogins();
+        changePublisherAccessor.publishUserUpdate(user.getId(), "Login");
         return user;
     }
 
@@ -290,6 +295,7 @@ public class UserAccessor {
         sessionCacheAccessor.remove(user);
         user.setAccessToken(null);
         statisticsAccessor.incrementUserLogouts();
+        changePublisherAccessor.publishUserUpdate(user.getId(), "Logout");
         return user;
     }
 

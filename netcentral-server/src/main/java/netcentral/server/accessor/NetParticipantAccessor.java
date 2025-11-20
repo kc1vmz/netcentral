@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
 import netcentral.server.object.TrackedStation;
@@ -35,6 +36,11 @@ public class NetParticipantAccessor {
     private TrackedStationAccessor trackedStationAccessor;
     @Inject
     private ParticipantAccessor participantAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
+
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {
         List<Participant> ret = new ArrayList<>();
@@ -78,6 +84,28 @@ public class NetParticipantAccessor {
         return ret;
     }
 
+    private Participant hydrateParticipant(User loggedInUser, Participant item) {
+        if (item == null) {
+            return item;
+        }
+        Participant liveParticipant = participantAccessor.get(loggedInUser, item.getCallsign());
+        liveParticipant.setStartTime(item.getStartTime());
+        liveParticipant.setTacticalCallsign(item.getTacticalCallsign());
+        // liveParticipant.setStatus(item.getStatus()); - already in liveParticipant
+
+        // get curent location
+        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
+        liveParticipant.setLat(trackedStation.getLat());
+        liveParticipant.setLon(trackedStation.getLon());
+        liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
+        liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
+        liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
+        liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
+        liveParticipant.setLastHeardTime(trackedStation.getLastHeard());
+
+        return liveParticipant;
+    }
+
     public List<Participant> addParticipant(User loggedInUser, Net net, Participant participant) {
         if (loggedInUser == null) {
             logger.debug("User not logged in");
@@ -93,6 +121,8 @@ public class NetParticipantAccessor {
             String nid = net.getCallsign()+"."+participant.getCallsign();
             NetParticipantRecord rec = new NetParticipantRecord(nid,net.getCallsign(), participant.getCallsign(), ZonedDateTime.now(), null);
             netParticipantRepository.save(rec);
+            participant.setStartTime(rec.start_time());
+            changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Create", hydrateParticipant(loggedInUser,participant));
         } catch (Exception e) {
             logger.warn("Exception caught adding participant", e);
         }
@@ -127,6 +157,7 @@ public class NetParticipantAccessor {
                             (trackedStation != null) ? trackedStation.getTransmitPower() : 0, participant.getTacticalCallsign()));
 
         netParticipantRepository.delete(participantRec);
+        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Delete", hydrateParticipant(loggedInUser,participant));
 
         return getAllParticipants(loggedInUser, net); 
     }
@@ -155,5 +186,23 @@ public class NetParticipantAccessor {
         NetParticipantRecord rec = new NetParticipantRecord(participantRec.net_participant_id(), participantRec.net_callsign(), participantRec.participant_callsign(), 
                                                 participantRec.start_time(), participant.getTacticalCallsign());
         netParticipantRepository.update(rec);
+        participant.setStartTime(rec.start_time());
+        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Update", hydrateParticipant(loggedInUser, participant));
     }
+
+    public Participant deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        netParticipantRepository.deleteAll();
+        return null;
+    }
+
 }

@@ -3,6 +3,89 @@ import { selectedNet , updateSelectedNet, nudgeUpdateNetObject, nudgeUpdateNet, 
 import { ref, watch, reactive, onMounted } from 'vue';
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser } from "@/LoginInformation.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateNet, updateNetEvent, updateScheduledNet, updateScheduledNetEvent } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateNet", (data) => {
+  updateNet(data)
+});
+socket.on("updateScheduledNet", (data) => {
+  updateScheduledNet(data)
+});
+
+watch(updateNetEvent, (newValue, oldValue) => {
+  processUpdateNetEvent(newValue);
+});
+watch(updateScheduledNetEvent, (newValue, oldValue) => {
+  processUpdateNetEvent(newValue);
+});
+
+function processUpdateNetEvent(newValue) {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    var found = false;
+      if (netsRef.value != null) {
+        netsRef.value.forEach(function(net){
+          if ((!found) && (newValue.value.objectNow != null) && (net.completedNetId == newValue.value.objectNow.completedNetId)) {
+            found = true;
+          } else if ((!found) && (newValue.value.objectScheduled != null) && (net.callsign == newValue.value.objectScheduled.callsign)) {
+            found = true;
+          }
+        });
+        if (found) {
+          return;
+        }
+      } else {
+        netsRef.value = [];
+      }
+    if (newValue.value.objectNow != null) {
+      netsRef.value.push(newValue.value.objectNow);
+    } else if (newValue.value.objectScheduled != null) {
+      netsRef.value.push(newValue.value.objectScheduled);
+    }
+    var index = getSelectedCallsignIndex();
+    updateIndexes(index);
+  } else if (newValue.value.action == "Delete") {
+    const indexToRemove = netsRef.value.findIndex(obj => ((obj.callsign == newValue.value.callsign) || (obj.completedNetId == newValue.value.id)));
+    if (indexToRemove !== -1) {
+      if ((localSelectedNet.ncSelectedNet != null) && ((localSelectedNet.ncSelectedNet.callsign === newValue.value.callsign) || (localSelectedNet.ncSelectedNet.completedNetId === newValue.value.id))) {
+        localSelectedNet.ncSelectedNet = null;
+        updateLocalSelectedNet(null); 
+      }
+      netsRef.value.splice(indexToRemove, 1);
+    }
+    if (netsRef.value.length > 0) {
+      var index = getSelectedCallsignIndex();
+      updateIndexes(index);
+    }
+  } else if (newValue.value.action == "Update") {
+    if (netsRef.value != null) {
+      netsRef.value.forEach(function(net){
+        if ((net.callsign == newValue.value.callsign) || (net.completedNetId == newValue.value.id)) {
+          if (newValue.value.objectNow != null) {
+            net.name = newValue.value.objectNow.name;
+            net.description = newValue.value.objectNow.description;
+            net.voiceFrequency = newValue.value.objectNow.voiceFrequency;
+            net.participantCount = newValue.value.objectNow.participantCount;
+          } else if (newValue.value.objectScheduled != null) {
+            net.name = newValue.value.objectScheduled.name;
+            net.description = newValue.value.objectScheduled.description;
+            net.voiceFrequency = newValue.value.objectScheduled.voiceFrequency;
+            net.participantCount = newValue.value.objectScheduled.participantCount;
+          }
+          if ((localSelectedNet.ncSelectedNet != null) && ((localSelectedNet.ncSelectedNet.callsign === newValue.value.callsign) || (localSelectedNet.ncSelectedNet.completedNetId === newValue.value.id))) {
+            // if selected, force all the other ref updates
+            updateLocalSelectedNet(net); 
+          }
+        }
+      });
+    }
+  }
+}
 
 const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 const netsRef = reactive({value : []});
@@ -188,7 +271,7 @@ function getNets() {
       .catch(error => { console.error('Error getting nets from server:', error); })
 }
 
-function getSelectedCallsignIndex(value) {
+function getSelectedCallsignIndex() {
   var ret = 0;
   var index = 0;
   const callsign = localStorage.getItem('NetControl-net-selected-callsign');

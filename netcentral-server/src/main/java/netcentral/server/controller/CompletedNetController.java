@@ -9,12 +9,14 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
@@ -42,6 +44,8 @@ public class CompletedNetController {
     private NetParticipantReport netParticipantReport;
     @Inject
     private NetConfigServerConfig netConfigServerConfig;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
 
     @Get 
@@ -82,7 +86,6 @@ public class CompletedNetController {
         return ret;
     }
 
-
     @Get(uri = "/{id}/partipationReports", produces = MediaType.APPLICATION_PDF)
     public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request, @PathVariable String id) {
         String token = sessionAccessor.getTokenFromSession(request);
@@ -104,4 +107,13 @@ public class CompletedNetController {
         }
     }
 
+    @Delete("/all/now")
+    public void deleteAll(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        completedNetAccessor.deleteAll(loggedInUser);
+        completedParticipantAccessor.deleteAll(loggedInUser);
+        changePublisherAccessor.publishAllUpdate();
+    }
 }

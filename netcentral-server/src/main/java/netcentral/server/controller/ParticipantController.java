@@ -8,6 +8,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Put;
@@ -15,6 +16,7 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.NetAccessor;
 import netcentral.server.accessor.NetParticipantAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
@@ -34,6 +36,8 @@ public class ParticipantController {
     private NetParticipantAccessor netParticipantAccessor;
     @Inject
     private NetAccessor netAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     @Get 
     public List<Participant> getAll(HttpRequest<?> request, @Nullable @QueryValue String root) {
@@ -96,5 +100,14 @@ public class ParticipantController {
         }
 
         return ret;
+    }
+
+    @Delete("/all/now")
+    public void deleteAll(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        participantAccessor.deleteAll(loggedInUser);
+        changePublisherAccessor.publishAllUpdate();
     }
 }

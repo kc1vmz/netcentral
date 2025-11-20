@@ -12,6 +12,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ScheduledNetType;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.ScheduledNet;
 import netcentral.server.object.User;
 import netcentral.server.record.ScheduledNetRecord;
@@ -23,6 +24,10 @@ public class ScheduledNetAccessor {
 
     @Inject
     private ScheduledNetRepository scheduledNetRepository;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
     public List<ScheduledNet> getAll(User loggedInUser, String root) {
         List<ScheduledNetRecord> recs = scheduledNetRepository.findAll();
@@ -94,6 +99,7 @@ public class ScheduledNetAccessor {
                                             obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder());
         ScheduledNetRecord rec = scheduledNetRepository.save(src);
         if (rec != null) {
+            changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Create", obj);
             return obj;
         }
 
@@ -142,6 +148,7 @@ public class ScheduledNetAccessor {
 
         scheduledNetRepository.update(updatedRec);
         obj = get(loggedInUser, id);
+        changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Update", obj);
 
         return obj;
 
@@ -156,6 +163,8 @@ public class ScheduledNetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net id not provided");
         }
 
+        ScheduledNet net = get(loggedInUser, id);
+
         Optional<ScheduledNetRecord> recOpt = scheduledNetRepository.findById(id);
         if ((recOpt == null) || !recOpt.isPresent()) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net not found");
@@ -163,7 +172,23 @@ public class ScheduledNetAccessor {
 
         ScheduledNetRecord rec = recOpt.get();
         scheduledNetRepository.delete(rec);
+        changePublisherAccessor.publishScheduledNetUpdate(rec.callsign(), "Delete", net);
 
+        return null;
+    }
+
+    public ScheduledNet deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        scheduledNetRepository.deleteAll();
         return null;
     }
 }

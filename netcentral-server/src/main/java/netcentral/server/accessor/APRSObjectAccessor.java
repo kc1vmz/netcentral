@@ -115,6 +115,8 @@ public class APRSObjectAccessor {
     private PriorityObjectCommandAccessor priorityObjectCommandAccessor;
     @Inject
     private ToolsAccessor toolsAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
     
 
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -705,11 +707,13 @@ public class APRSObjectAccessor {
                                                                     innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
                                                                     (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
             rec = aprsObjectRepository.update(updated);
+            changePublisherAccessor.publishObjectUpdate(first.callsign_from(), "Update", innerAPRSObject);
         } else {
             APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
                                                         innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
                                                         (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
             rec = aprsObjectRepository.save(src);
+            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignFrom(), "Create", innerAPRSObject);
         }
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
@@ -1156,12 +1160,14 @@ public class APRSObjectAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Object id not provided");
         }
 
-        Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
-        if (!recOpt.isPresent()) {
+        APRSObject object = getObject(loggedInUser, id);
+        if (object == null) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Object not found");
         }
 
+        Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
         aprsObjectRepository.delete(recOpt.get());
+        changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), "Delete", object);
         return null;
     }
 
@@ -1262,9 +1268,11 @@ public class APRSObjectAccessor {
 
     public void deleteObject(User loggedInUser, String id) {
        try {
+            APRSObject object = getObject(loggedInUser, id);
             Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
             if (!recOpt.isEmpty()) {
                 aprsObjectRepository.delete(recOpt.get());  // there should only be one
+                changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), "Delete", object);
             }
         } catch (Exception e) {
         }
@@ -1274,7 +1282,9 @@ public class APRSObjectAccessor {
        try {
             List<APRSObjectRecord> recOpt = aprsObjectRepository.findBycallsign_from(messageRequest.callsign());
             if ((recOpt != null) && (!recOpt.isEmpty())) {
+                APRSObject object = getObjectByCallsign(loggedInUser, messageRequest.callsign());
                 aprsObjectRepository.delete(recOpt.get(0));  // there should only be one
+                changePublisherAccessor.publishObjectUpdate(recOpt.get(0).callsign_from(), "Delete", object);
             }
         } catch (Exception e) {
         }

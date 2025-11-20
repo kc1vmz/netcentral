@@ -20,6 +20,10 @@ const dialogPromoteUser = ref(null);
 const dialogPromoteUserShow = reactive({ value : false });
 const dialogDemoteUser = ref(null);
 const dialogDemoteUserShow = reactive({ value : false });
+const dialogPromoteUserSysAdmin = ref(null);
+const dialogPromoteUserSysAdminShow = reactive({ value : false });
+const dialogDemoteUserSysAdmin = ref(null);
+const dialogDemoteUserSysAdminShow = reactive({ value : false });
 const dialogChangePassword = ref(null);
 const dialogChangePasswordShow = reactive({ value : false });
 const callsign2Ref = reactive({ value : '' });
@@ -234,7 +238,93 @@ function performDemoteUser() {
       })
       .then(data => {
       })
+      .catch(error => { console.error('Error demoting user:', error); })
+}
+
+function promoteUserSysAdmin() {
+    dialogPromoteUserSysAdminShow.value = true;
+}
+
+function promoteUserSysAdminYes() {
+    // perform the promotion
+    performPromoteUserSysAdmin();
+}
+
+function promoteUserSysAdminNo() {
+    dialogPromoteUserSysAdminShow.value = false;
+}
+
+function performPromoteUserSysAdmin() {
+    var id = localSelectedUser.ncSelectedUser.id;
+    var bodyObject = {
+            id : id,
+            emailAddress: localSelectedUser.ncSelectedUser.emailAddress,
+            callsign : localSelectedUser.ncSelectedUser.callsign,
+            role: 'SYSADMIN',
+            firstName: localSelectedUser.ncSelectedUser.firstName,
+            lastName: localSelectedUser.ncSelectedUser.lastName
+    };
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body:JSON.stringify(bodyObject)
+    };
+    fetch(buildNetCentralUrl("/users/"+id), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+          forceUserRefresh();
+          dialogPromoteUserSysAdminShow.value = false;
+        }
+        return response.json();
+      })
+      .then(data => {
+      })
       .catch(error => { console.error('Error promoting user:', error); })
+}
+
+function demoteUserSysAdmin() {
+    dialogDemoteUserSysAdminShow.value = true;
+}
+
+function demoteUserSysAdminYes() {
+    // perform the demotion
+    performDemoteUserSysAdmin();
+}
+
+function demoteUserSysAdminNo() {
+    dialogDemoteUserSysAdminShow.value = false;
+}
+
+function performDemoteUserSysAdmin() {
+    var id = localSelectedUser.ncSelectedUser.id;
+    var bodyObject = {
+            id : id,
+            emailAddress: localSelectedUser.ncSelectedUser.emailAddress,
+            callsign : localSelectedUser.ncSelectedUser.callsign,
+            role: 'ADMIN',
+            firstName: localSelectedUser.ncSelectedUser.firstName,
+            lastName: localSelectedUser.ncSelectedUser.lastName
+    };
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body:JSON.stringify(bodyObject)
+    };
+    fetch(buildNetCentralUrl("/users/"+id), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+          forceUserRefresh();
+          dialogDemoteUserSysAdminShow.value = false;
+        }
+        return response.json();
+      })
+      .then(data => {
+      })
+      .catch(error => { console.error('Error demoting user:', error); })
 }
 
 function editUser() {
@@ -324,6 +414,34 @@ function performEditUser() {
             <br>
             <button class="boxButton" v-on:click.native="demoteUserYes">Yes</button>
             <button class="boxButton" v-on:click.native="demoteUserNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
+    <div v-if="dialogPromoteUserSysAdminShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogPromoteUserSysAdminShow.value" ref="dialogPromoteUserSysAdmin" @close="dialogPromoteUserSysAdminShow.value = false" class="topz">  
+          <form v-if="dialogPromoteUserSysAdminShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to promote user {{ localSelectedUser.ncSelectedUser.emailAddress }} to Net Central system administrator?
+            <br>
+            <button class="boxButton" v-on:click.native="promoteUserSysAdminYes">Yes</button>
+            <button class="boxButton" v-on:click.native="promoteUserSysAdminNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
+    <div v-if="dialogDemoteUserSysAdminShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogDemoteUserSysAdminShow.value" ref="dialogDemoteUserSysAdmin" @close="dialogDemoteUserSysAdminShow.value = false" class="topz">  
+          <form v-if="dialogDemoteUserSysAdminShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to demote user {{ localSelectedUser.ncSelectedUser.emailAddress }} from Net Central system administrator to administrator?
+            <br>
+            <button class="boxButton" v-on:click.native="demoteUserSysAdminYes">Yes</button>
+            <button class="boxButton" v-on:click.native="demoteUserSysAdminNo">No</button>
           </form>
         </dialog>
       </teleport>
@@ -426,11 +544,37 @@ function performEditUser() {
                   <!-- end pair -->
 
                   <!-- begin pair -->
-                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) && ((loggedInUserLocalRef.value.role == 'ADMIN') || (loggedInUserLocalRef.value.role == 'SYSADMIN')) && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
+                   <!-- cannot self demote from sysadmin -->
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null)  && (loggedInUserLocalRef.value.id != localSelectedUser.ncSelectedUser.id) &&
+                                                ((loggedInUserLocalRef.value.role == 'ADMIN') || (loggedInUserLocalRef.value.role == 'SYSADMIN')) && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
                     <button class="boxButton" v-on:click.native="demoteUser">Demote</button>
                   </div>
-                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) && ((loggedInUserLocalRef.value.role == 'ADMIN') || (loggedInUserLocalRef.value.role == 'SYSADMIN')) && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null)  && (loggedInUserLocalRef.value.id != localSelectedUser.ncSelectedUser.id) &&
+                                               ((loggedInUserLocalRef.value.role == 'ADMIN') || (loggedInUserLocalRef.value.role == 'SYSADMIN')) && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
                     Demote the user from administrator to simple user.
+                  </div>
+                  <!-- end pair -->
+
+                  <!-- begin pair -->
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) && 
+                                                (loggedInUserLocalRef.value.role == 'SYSADMIN') && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
+                    <button class="boxButton" v-on:click.native="promoteUserSysAdmin">Promote</button>
+                  </div>
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) &&
+                                                (loggedInUserLocalRef.value.role == 'SYSADMIN') && (localSelectedUser.ncSelectedUser.role == 'ADMIN'))">
+                    Promote the user to a system administrator.
+                  </div>
+                  <!-- end pair -->
+
+                  <!-- begin pair -->
+                   <!-- cannot self demote from sysadmin -->
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) && (loggedInUserLocalRef.value.id != localSelectedUser.ncSelectedUser.id) &&
+                                                (loggedInUserLocalRef.value.role == 'SYSADMIN') && (localSelectedUser.ncSelectedUser.role == 'SYSADMIN'))">
+                    <button class="boxButton" v-on:click.native="demoteUserSysAdmin">Demote</button>
+                  </div>
+                  <div class="grid-item" v-if="((accesstokenRef.value != null) && (localSelectedUser.ncSelectedUser != null) && (loggedInUserLocalRef.value.id != localSelectedUser.ncSelectedUser.id) &&
+                                                (loggedInUserLocalRef.value.role == 'SYSADMIN') && (localSelectedUser.ncSelectedUser.role == 'SYSADMIN'))">
+                    Demote the user from system administrator to administrator.
                   </div>
                   <!-- end pair -->
 

@@ -27,7 +27,8 @@ public class CallsignAccessor {
     private CallsignRepository callsignRepository;
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
-
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     public List<Callsign> getAll(User loggedInUser, String root) {
         logger.debug("getAll() called");
@@ -91,6 +92,7 @@ public class CallsignAccessor {
         CallsignRecord src = new CallsignRecord(obj.getCallsign(), obj.getName(), obj.getCountry(), obj.getState(), obj.getLicense());
         CallsignRecord rec = callsignRepository.save(src);
         if (rec != null) {
+            changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), "Create", obj);
             return obj;
         }
         logger.debug("Callsign not created");
@@ -118,6 +120,7 @@ public class CallsignAccessor {
         }
         CallsignRecord updatedRec = new CallsignRecord(obj.getCallsign(), obj.getName(), obj.getCountry(), obj.getState(), obj.getLicense());
         callsignRepository.update(updatedRec);
+        changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), "Update", obj);
 
         return obj;
     }
@@ -136,7 +139,10 @@ public class CallsignAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not found");
         }
 
+        Callsign object = getByCallsign(loggedInUser, id);
         callsignRepository.delete(recOpt.get());
+
+        changePublisherAccessor.publishCallsignUpdate(recOpt.get().callsign(), "Delete", object);
         
         return null;
     }

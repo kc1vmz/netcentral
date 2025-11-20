@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.CompletedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
@@ -30,6 +31,8 @@ public class CompletedParticipantAccessor {
 
     @Inject
     private CompletedParticipantRepository completedParticipantRepository;
+    @Inject
+    private UserAccessor userAccessor;
 
 
     public List<CompletedParticipant> getAll(User loggedInUser, String root) {
@@ -161,5 +164,20 @@ public class CompletedParticipantAccessor {
             }
         }
         return rootMap;
+    }
+
+    public CompletedParticipant deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        completedParticipantRepository.deleteAll();
+        return null;
     }
 }

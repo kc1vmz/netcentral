@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="DEBUG">
 	<Properties>
 		<Property name="logFilePrefix">netcentralserver</Property>
 	</Properties>
@@ -29,6 +29,9 @@
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Logger name="io.micronaut" level="info" additivity="false">
+            <AppenderRef ref="fileLogger"/>
+        </Logger>
+		<Logger name="io.socket.client" level="ebug" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Root level="info">

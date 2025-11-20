@@ -27,6 +27,11 @@ public class NetConfigServerConfig {
     private Integer queueObjectHandlerSize;
     @Value("${netcentral.queue.objecthandler.threads}")
     private Integer queueObjectHandlerThreads;
+    @Value("${netcentral.update.url}")
+    private String updateUrl;
+    @Value("${netcentral.update.port}")
+    private Integer updatePort;
+    
     
     public String getTempDir() {
         return tempDir;
@@ -93,5 +98,17 @@ public class NetConfigServerConfig {
     }
     public void setQueueObjectHandlerThreads(Integer queueObjectHandlerThreads) {
         this.queueObjectHandlerThreads = queueObjectHandlerThreads;
+    }
+    public String getUpdateUrl() {
+        return updateUrl;
+    }
+    public void setUpdateUrl(String updateUrl) {
+        this.updateUrl = updateUrl;
+    }
+    public Integer getUpdatePort() {
+        return updatePort;
+    }
+    public void setUpdatePort(Integer updatePort) {
+        this.updatePort = updatePort;
     }
 }

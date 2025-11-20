@@ -1,9 +1,26 @@
 <script setup>
 import PageHeaderPane from '@/components/PageHeaderPane.vue'
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, watch } from 'vue'
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";
 import { useRouter } from 'vue-router';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateDashboardEvent } from "@/UpdateEvents";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateDashboard", (data) => {
+  updateDashboard()
+});
+
+function generateValue() {
+    const now = new Date();
+    return now.toLocaleTimeString();
+ }
+
+function updateDashboard() {
+    updateDashboardEvent.value = generateValue();
+}
 
 const summary = reactive({ value : {}});
 const ncStats = reactive({ value : {}});
@@ -20,6 +37,13 @@ onMounted(() => {
   redirect(accesstoken.value, "Dashboard", useRouter());
   getData();
 })
+
+watch(updateDashboardEvent, (updateDashboardEventNew, updateDashboardEventOld) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  getData();
+});
 
 function getData() {
     getDashboardSummary();

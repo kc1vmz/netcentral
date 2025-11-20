@@ -3,6 +3,18 @@ import { ref, watch, reactive, onMounted } from 'vue';
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser } from "@/LoginInformation.js";
 import { selectedTransceiver , updateSelectedTransceiver, setSelectedTransceiverSelectionValue, transceiverRefresh, forceTransceiverRefresh } from "@/SelectedTransceiver.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateTransceiverEvent } from "@/UpdateEvents";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateTransceiver", (data) => {
+  updateTransceiver(data)
+});
+
+function updateTransceiver(data) {
+    updateTransceiverEvent.value = JSON.parse(data);
+}
 
 onMounted(() => {
     accesstoken.value = getToken()
@@ -21,9 +33,18 @@ watch(transceiverRefresh, (newValue, oldValue) => {
   getRegisteredTransceivers();
 });
 
+watch(updateTransceiverEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((newValue.value.action == "Create") || (newValue.value.action == "Delete") || (newValue.value.action == "Update")) {
+    getRegisteredTransceivers();
+  }
+});
+
 function updateLocalSelectedTransceiver(newTransceiver) {
-    localSelectedTransceiver.ncSelectedTransceiver = newTransceiver.ncSelectedTransceiver;
-    updateSelectedTransceiver(newTransceiver);
+  localSelectedTransceiver.ncSelectedTransceiver = newTransceiver.ncSelectedTransceiver;
+  updateSelectedTransceiver(newTransceiver);
 }
 
 function getRegisteredTransceivers() {
@@ -47,8 +68,6 @@ function getRegisteredTransceivers() {
               }
           });
         }
-
-
     })
     .catch(error => { console.error('Error getting registered transceivers from server:', error); })
 }

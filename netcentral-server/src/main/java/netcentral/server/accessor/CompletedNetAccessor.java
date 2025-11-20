@@ -12,6 +12,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.Net;
 import netcentral.server.object.User;
@@ -24,6 +25,10 @@ public class CompletedNetAccessor {
 
     @Inject
     private CompletedNetRepository completedNetRepository;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
     public List<CompletedNet> getAll(User loggedInUser, String root) {
         List<CompletedNetRecord> recs = completedNetRepository.findAll();
@@ -74,6 +79,23 @@ public class CompletedNetAccessor {
                                             obj.getStartTime(), ZonedDateTime.now(),
                                             obj.getCreatorName());
         CompletedNetRecord rec = completedNetRepository.save(src);
+        changePublisherAccessor.publishCompletedNetUpdate(obj.getCompletedNetId(), "Create");
         return get(loggedInUser, rec.completed_net_id());
     }
+
+    public CompletedNet deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        completedNetRepository.deleteAll();
+        return null;
+    }
+
 }

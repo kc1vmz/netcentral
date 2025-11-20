@@ -26,6 +26,8 @@ public class RegisteredTransceiverAccessor {
     private RegisteredTransceiverRepository registeredTransceiverRepository;
     @Inject
     private ActivityAccessor activityAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
     public List<RegisteredTransceiver> getAll(User loggedInUser) {
         List<RegisteredTransceiverRecord> recs = registeredTransceiverRepository.findAll();
@@ -98,6 +100,9 @@ public class RegisteredTransceiverAccessor {
                 activityAccessor.create(loggedInUser, String.format("Transceiver %s registered",  obj.getName()));
             } catch (Exception e) {
             }
+
+            changePublisherAccessor.publishTransceiverUpdate(id, "Create");
+
             return obj;
         }
 
@@ -139,6 +144,7 @@ public class RegisteredTransceiverAccessor {
             activityAccessor.create(loggedInUser, String.format("Transceiver %s updated",  obj.getName()));
         } catch (Exception e) {
         }
+        changePublisherAccessor.publishTransceiverUpdate(obj.getId(), "Update");
         return get(loggedInUser, id);
     }
 
@@ -161,6 +167,7 @@ public class RegisteredTransceiverAccessor {
         }
 
         registeredTransceiverRepository.delete(recOpt.get());
+        changePublisherAccessor.publishTransceiverUpdate(id, "Delete");
         
         return null;
     }

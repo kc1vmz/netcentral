@@ -1,5 +1,23 @@
 <template>
     <!-- dialogs -->
+    <div v-if="dialogConfirmDeleteAllNetCentralShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogConfirmDeleteAllNetCentralShow.value" ref="dialogConfirmDeleteAllNetCentral" @close="dialogConfirmDeleteAllNetCentralShow.value = false" class="topz">  
+          <form v-if="dialogConfirmDeleteAllNetCentralShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to delete all Net Central data ?
+            <br>
+            <div>
+              <b>{{ errorMessage }}</b>
+            </div>
+            <br>
+            <button class="boxButton" v-on:click.native="deleteAllNetCentralDataYes">Yes</button>
+            <button class="boxButton" v-on:click.native="deleteAllNetCentralDataNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogConfirmDeleteAllShow.value">
       <teleport to="#modals">
         <dialog :open="dialogConfirmDeleteAllShow.value" ref="dialogConfirmDeleteAll" @close="dialogConfirmDeleteAllShow.value = false" class="topz">  
@@ -199,6 +217,14 @@
         Delete all heard APRS data so you can start fresh.
       </div>
     </div>
+    <div class="grid-container" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'SYSADMIN'))">
+      <div class="grid-item">
+        <button class="bigBoxButton" v-on:click.native="deleteAllNetCentralData"><b>Delete all Net Central data</b></button>
+      </div>
+      <div class="grid-item">
+        Delete all Net Central data (nets, archives, etc.) so you can start fresh.
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -218,6 +244,8 @@ var dialogSendWinlinkShow = reactive({ value : false });
 
 var dialogConfirmDeleteAll = ref(null);
 var dialogConfirmDeleteAllShow = reactive({ value : false });
+var dialogConfirmDeleteAllNetCentral = ref(null);
+var dialogConfirmDeleteAllNetCentralShow = reactive({ value : false });
 
 var errorMessage = ref('');
 
@@ -479,6 +507,45 @@ function deleteAllDataYes() {
 }
 function deleteAllDataNo() {
   dialogConfirmDeleteAllShow.value = false;
+}
+
+function deleteAllNetCentralData() {
+  dialogConfirmDeleteAllNetCentralShow.value = true;
+}
+
+function performDeleteAll(resource) {
+  // send this to the server
+  var url = buildNetCentralUrl(resource);
+  var requestOptions = {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json",
+                "SessionID" : getToken()
+      },
+    body: null
+  };
+
+  fetch(url, requestOptions)
+    .then(response => {
+      if (response.status != 200) {
+        errorMessage.value = "Error deleting Net Central data - "+response.status;
+      } else {
+      }
+      return response
+    })
+    .then(data => {
+    })
+    .catch(error => { console.error('Error deleting Net Central data:', error); })
+}
+function deleteAllNetCentralDataYes() {
+    performDeleteAll('/nets/all/now');
+    performDeleteAll('/scheduledNets/all/now');
+    performDeleteAll('/completedNets/all/now');
+    performDeleteAll('/netMessages/all/now');
+    performDeleteAll('/participants/all/now');
+    dialogConfirmDeleteAllNetCentralShow.value = false;
+}
+function deleteAllNetCentralDataNo() {
+  dialogConfirmDeleteAllNetCentralShow.value = false;
 }
 
 function sendWinlink() {

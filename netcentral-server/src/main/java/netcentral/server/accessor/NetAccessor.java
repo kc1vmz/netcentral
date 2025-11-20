@@ -17,6 +17,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
@@ -42,6 +43,10 @@ public class NetAccessor {
     private StatisticsAccessor statisticsAccessor;
     @Inject
     private NetConfigServerConfig netConfigServerConfig;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
 
     public List<Net> getAll(User loggedInUser, String root) {
@@ -121,6 +126,7 @@ public class NetAccessor {
                                             creatorName, obj.isCheckinReminder());
         NetRecord rec = netRepository.save(src);
         if (rec != null) {
+            obj.setCompletedNetId(completed_net_id);
             if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null)) {
                 // announce the object and send the bulletin
                 String announcement = "";
@@ -141,6 +147,7 @@ public class NetAccessor {
                 upObject(loggedInUser, objectCreateRequest);
             }
             statisticsAccessor.incrementNetsStarted();
+            changePublisherAccessor.publishNetUpdate(obj.getCompletedNetId(), "Create", obj);
             return obj;
         }
 
@@ -209,6 +216,8 @@ public class NetAccessor {
             }
         }
 
+        changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Update", obj);
+
         return obj;
 
     }
@@ -222,13 +231,15 @@ public class NetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net id not provided");
         }
 
+        Net net = null;
+
         Optional<NetRecord> recOpt = netRepository.findById(id);
         if (!recOpt.isPresent()) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
 
         try {
-            Net net = get(loggedInUser, id);
+            net = get(loggedInUser, id);
 
             List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
             if ((participants != null) && (!participants.isEmpty())) {
@@ -248,10 +259,11 @@ public class NetAccessor {
                 }
             }
         } catch (Exception e) {
+            net = null;
             logger.error("Could not clean up net participants");
         }
     
-        NetRecord rec =recOpt.get();
+        NetRecord rec = recOpt.get();
         netRepository.delete(rec);
 
         if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
@@ -264,7 +276,25 @@ public class NetAccessor {
         ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
         deleteObject(loggedInUser, objectCreateRequest);
 
+        if (net != null) {
+            changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Delete", net);
+        }
         statisticsAccessor.incrementNetsClosed();
+        return null;
+    }
+
+    public Net deleteAll(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((!loggedInUser.getRole().equals(UserRole.SYSTEM)) && (!loggedInUser.getRole().equals(UserRole.SYSADMIN))) {
+            logger.debug("Insufficient role");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Insufficient role");
+        }
+
+        netRepository.deleteAll();
         return null;
     }
 }

@@ -15,6 +15,7 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.ScheduledNetAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.ScheduledNet;
@@ -28,8 +29,9 @@ public class ScheduledNetController {
     SessionAccessor sessionAccessor;
     @Inject
     private ScheduledNetAccessor scheduledNetAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
-    
 
     @Post
     public ScheduledNet create(HttpRequest<?> request,  @Body ScheduledNet obj) {
@@ -88,5 +90,14 @@ public class ScheduledNetController {
         scheduledNetAccessor.delete(loggedInUser, net.getCallsign());
 
         return;
+    }
+
+    @Delete("/all/now")
+    public void deleteAll(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        scheduledNetAccessor.deleteAll(loggedInUser);
+        changePublisherAccessor.publishAllUpdate();
     }
 }

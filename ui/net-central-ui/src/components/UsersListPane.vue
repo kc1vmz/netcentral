@@ -4,6 +4,18 @@ import { updateSelectedUser, userRefresh, forceUserRefresh } from "@/SelectedUse
 import { reactive, ref, onMounted, watch } from 'vue';
 import 'vue3-easy-data-table/dist/style.css';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateUserEvent } from "@/UpdateEvents";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateUser", (data) => {
+  updateUser(data)
+});
+
+function updateUser(data) {
+    updateUserEvent.value = JSON.parse(data);
+}
 
 onMounted(() => {
   accesstoken.value = getToken()
@@ -26,6 +38,15 @@ function updateLocalSelectedUser(newUser) {
     localSelectedUser.ncSelectedUser = newUser.ncSelectedUser;
     updateSelectedUser(newUser);
 }
+
+watch(updateUserEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((newValue.value.action == "Create") || (newValue.value.action == "Delete") || (newValue.value.action == "Update")) {
+    getUsers();
+  }
+});
 
 function getUsers() {
   var requestOptions = {

@@ -1,3 +1,15 @@
+<script setup>
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+function toggleLiveUpdate() {
+    if (liveUpdateEnabled.value) {
+      disableLiveUpdate();
+    } else {
+      enableLiveUpdate();
+    }
+}
+</script>
+
 <script>
 import SidebarLink from './SidebarLink.vue'
 import { collapsed, toggleSidebar, sidebarWidth } from './state.js'
@@ -14,8 +26,11 @@ export default {
 
 <template>
   <div class="sidebar" :style="{ width: sidebarWidth }">
-    <span v-if="collapsed"></span>
-    <span v-else><div class="menuheader">Net Central</div></span>
+    <span v-if="collapsed">
+    </span>
+    <span v-else>
+      <div class="menuheader">Net Central</div>
+    </span>
     <SidebarLink to="/" icon="fas fa-home">Home</SidebarLink>
     <SidebarLink v-if="((loggedInUserToken != null) && (loggedInUserToken.value != null))" to="/dashboard" icon="fa fa-tachometer">Dashboard</SidebarLink>
     <SidebarLink v-if="((loggedInUserToken != null) && (loggedInUserToken.value != null))" to="/monitor" icon="fas fa-heartbeat">Net Monitor</SidebarLink>
@@ -32,11 +47,24 @@ export default {
       <SidebarLink to="/logout" icon="fa-solid fa-right-to-bracket fa-rotate-180">Logout</SidebarLink>
     </div>
 
-    <span
-      class="collapse-icon"
-      :class="{ 'rotate-180': collapsed }"
-      @click="toggleSidebar"
-    >
+    <span v-if="collapsed">
+    </span>
+    <span v-else>
+      <br>
+      <br>
+      <br>
+      <div v-if="((loggedInUserToken != null) && (loggedInUserToken.value != null))">
+        <div v-if="liveUpdateEnabled.value">
+          Auto-update: On
+          <button class="boxButton" v-on:click.native="toggleLiveUpdate">Turn off</button>
+        </div>
+        <div v-else>
+          Auto-update: Off
+          <button class="boxButton" v-on:click.native="toggleLiveUpdate">Turn on</button>
+        </div>
+      </div>
+    </span>
+    <span class="collapse-icon" :class="{ 'rotate-180': collapsed }" @click="toggleSidebar">
       <i class="fas fa-angle-double-left" />
     </span>
   </div>

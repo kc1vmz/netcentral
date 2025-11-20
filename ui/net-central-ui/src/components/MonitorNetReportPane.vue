@@ -7,6 +7,69 @@ import { selectedObject, updateSelectedObject } from "@/SelectedObject.js";
 import { nudge } from "@/nudgeObject.js";
 import { Tabs, Tab } from 'super-vue3-tabs';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateNetParticipantEvent, updateNetParticipant, updateCallsign, updateCallsignEvent } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+const { socket } = useSocketIO();
+socket.on("updateNetParticipant", (data) => {
+  updateNetParticipant(data)
+});
+
+socket.on("updateCallsign", (data) => {
+  updateCallsign(data)
+});
+
+watch(updateCallsignEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  // create would never be selected
+  if (newValue.value.action == "Delete") {
+      if ((localCallsign.value != null) && (localCallsign.value.callsign === newValue.value.callsign)) {
+        localCallsign.value = null
+        nudge(localCallsign.value);
+      }
+  } else if (newValue.value.action == "Update") {
+    if ((localCallsign.value != null) && (localCallsign.value.callsign === newValue.value.callsign)) {
+      localCallsign.value.name = newValue.value.object.name;
+      localCallsign.value.country = newValue.value.object.country;
+      localCallsign.value.state = newValue.value.object.state;
+      localCallsign.value.license = newValue.value.object.license;
+    }
+  }
+});
+
+
+watch(updateNetParticipantEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedNet.ncSelectedNet == null) || ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign !== newValue.value.callsign))) {
+    // not this net
+    return;
+  }
+  // create would never be selected
+  if (newValue.value.action == "Delete") {
+      if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign === newValue.value.object.callsign)) {
+        var temp = { ncSelectedObject : null} ;
+        updateLocalObject(temp); 
+      }
+  } else if (newValue.value.action == "Update") {
+    if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign === newValue.value.object.callsign)) {
+      localSelectedObject.ncSelectedObject.voiceFrequency = newValue.value.object.voiceFrequency;
+      localSelectedObject.ncSelectedObject.prettyStartTime = newValue.value.object.prettyStartTime;
+      localSelectedObject.ncSelectedObject.lat = newValue.value.object.lat;
+      localSelectedObject.ncSelectedObject.lon = newValue.value.object.lon;
+      localSelectedObject.ncSelectedObject.electricalPowerType = newValue.value.object.electricalPowerType;
+      localSelectedObject.ncSelectedObject.backupElectricalPowerType = newValue.value.object.backupElectricalPowerType;
+      localSelectedObject.ncSelectedObject.radioStyle = newValue.value.object.radioStyle;
+      localSelectedObject.ncSelectedObject.transmitPower = newValue.value.object.transmitPower;
+      localSelectedObject.ncSelectedObject.tacticalCallsign = newValue.value.object.tacticalCallsign;
+      localSelectedObject.ncSelectedObject.prettyLastHeardTime = newValue.value.object.prettyLastHeardTime;
+    }
+  }
+});
 
 const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 const localSelectedObject = reactive({ncSelectedObject : { callsign : null }});

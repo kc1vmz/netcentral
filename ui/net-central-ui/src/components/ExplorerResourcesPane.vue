@@ -5,13 +5,42 @@ import { updateSelectedObject } from "@/SelectedObject.js";
 import { ref, watch, reactive, onMounted } from 'vue';
 import { nudgeObject, nudge, nudgeUpdateObject, nudgeUpdate, nudgeRemoveObject, nudgeRemove, nudgeAddObject, nudgeAdd  } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { useSocketIO } from "@/composables/socket";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateAllEvent } from "@/UpdateEvents.js";
+import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+
+
+const { socket } = useSocketIO();
+socket.on("updateTrackedStation", (data) => {
+  updateTrackedStation(data)
+});
+socket.on("updateObject", (data) => {
+  updateObject(data)
+});
+socket.on("updateCallsign", (data) => {
+  updateCallsign(data)
+});
+socket.on("updateAll", (data) => {
+  updateAll(data)
+});
+
+function updateTrackedStation(data) {
+    updateTrackedStationEvent.value = JSON.parse(data);
+}
+function updateObject(data) {
+    updateObjectEvent.value = JSON.parse(data);
+}
+function updateCallsign(data) {
+    updateCallsignEvent.value = JSON.parse(data);
+}
 
 const localSelectedObjectType = reactive({value : ""});
 const trackedStations = reactive({value : null});
 const selectedItem = ref(null);
 
-
-onMounted(async () => {
+function populate() {
+  trackedStations.value = null;
+  selectedItem.value = null;
   const explorerType = localStorage.getItem('NetControl-explorer-type')
   if (explorerType) {
     var value = JSON.parse(explorerType)
@@ -20,6 +49,185 @@ onMounted(async () => {
     updateLocalSelectedObjectType('STATION');
   }
   updateSelectedObject( null ) ;
+}
+
+onMounted(async () => {
+  populate();
+});
+
+watch(updateTrackedStationEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+    return;
+  }
+  if (newValue.value.object.type != localSelectedObjectType.value) {
+    // not the right object for the selected object type
+    return;
+  }
+  if (newValue.value.action == "Create") {
+      var found = false;
+      if (trackedStations.value != null) {
+        trackedStations.value.forEach(function(trackedStation){
+          if ((!found) && (trackedStation.callsign == newValue.value.callsign)) {
+            found = true;
+          }
+        });
+      }
+      if (!found) {
+        if (trackedStations.value == null) {
+          trackedStations.value = [];
+        }
+        trackedStations.value.push(newValue.value.object);
+      }
+  } else if (newValue.value.action == "Delete") {
+    const indexToRemove = trackedStations.value.findIndex(obj => obj.callsign === newValue.value.callsign);
+    if (indexToRemove !== -1) {
+      if ((selectedItem.value != null) && (selectedItem.value.callsign === newValue.value.callsign)) {
+        selectedItem.value = null;
+        updateSelectedObject(null); 
+      }
+      trackedStations.value.splice(indexToRemove, 1);
+    }
+  } else if (newValue.value.action == "Update") {
+    if (trackedStations.value != null) {
+      trackedStations.value.forEach(function(trackedStation){
+        if (trackedStation.callsign == newValue.value.callsign) {
+          trackedStation.name = newValue.value.object.name;
+          trackedStation.status = newValue.value.object.status;
+          trackedStation.lat = newValue.value.object.lat;
+          trackedStation.lon = newValue.value.object.lon;
+          trackedStation.radioStyle = newValue.value.object.radioStyle;
+          trackedStation.transmitPower = newValue.value.object.transmitPower;
+          trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
+          trackedStation.type = newValue.value.object.type;
+        }
+      });
+    }
+  }
+});
+
+watch(updateObjectEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+    return;
+  }
+  if (((newValue.value.object.type == null) && (localSelectedObjectType.value == "PRIORITYOBJECT")) || 
+      (newValue.value.object.type != null) && (localSelectedObjectType.value == "OBJECT")) {
+        // not the right objects for the selected object type
+        return;
+      }
+  if (newValue.value.action == "Create") {
+      var found = false;
+      if (trackedStations.value != null) {
+        trackedStations.value.forEach(function(trackedStation){
+          if ((!found) && (trackedStation.callsign == newValue.value.callsign)) {
+            found = true;
+          }
+        });
+      }
+
+      if(!found) {
+        newValue.value.object.name = newValue.value.object.callsignFrom;
+        newValue.value.object.callsign = newValue.value.object.callsignFrom;
+        newValue.value.object.prettyLastHeard = newValue.value.object.prettyLdtime;
+        if (newValue.value.object.alive) {
+          newValue.value.object.status = "Alive";
+        } else {
+          newValue.value.object.status = "Dead";
+        }
+        if (trackedStations.value == null) {
+          trackedStations.value = [];
+        }
+        trackedStations.value.push(newValue.value.object);
+      }
+  } else if (newValue.value.action == "Delete") {
+    const indexToRemove = trackedStations.value.findIndex(obj => obj.callsign === newValue.value.callsign);
+    if (indexToRemove !== -1) {
+      if ((selectedItem.value != null) && (selectedItem.value.callsign === newValue.value.callsign)) {
+        selectedItem.value = null;
+        updateSelectedObject(null); 
+      }
+      trackedStations.value.splice(indexToRemove, 1);
+    }
+  } else if (newValue.value.action == "Update") {
+    if (trackedStations.value != null) {
+      trackedStations.value.forEach(function(trackedStation){
+        if (trackedStation.callsign == newValue.value.callsign) {
+          trackedStation.name = newValue.value.object.name;
+          trackedStation.status = newValue.value.object.status;
+          trackedStation.lat = newValue.value.object.lat;
+          trackedStation.lon = newValue.value.object.lon;
+          trackedStation.radioStyle = newValue.value.object.radioStyle;
+          trackedStation.transmitPower = newValue.value.object.transmitPower;
+          trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
+          trackedStation.type = newValue.value.object.type;
+        }
+      });
+    }
+  }
+});
+
+watch(updateCallsignEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "CALLSIGN"){
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    var found = false;
+      if (trackedStations.value != null) {
+        trackedStations.value.forEach(function(trackedStation){
+          if ((!found) && (trackedStation.callsign == newValue.value.callsign)) {
+            found = true;
+          }
+        });
+      }
+
+    if (!found) {
+      newValue.value.object.id = newValue.value.callsign;
+      newValue.value.object.callsign = newValue.value.callsign;
+      newValue.value.object.prettyLastHeard = "";
+      newValue.value.object.status = "Heard";
+      if (trackedStations.value == null) {
+        trackedStations.value = [];
+      }
+      trackedStations.value.push(newValue.value.object);
+    }
+  } else if (newValue.value.action == "Delete") {
+    const indexToRemove = trackedStations.value.findIndex(obj => obj.callsign === newValue.value.callsign);
+    if (indexToRemove !== -1) {
+      if ((selectedItem.value != null) && (selectedItem.value.callsign === newValue.value.callsign)) {
+        selectedItem.value = null;
+        updateSelectedObject(null); 
+      }
+      trackedStations.value.splice(indexToRemove, 1);
+    }
+  } else if (newValue.value.action == "Update") {
+    if (trackedStations.value != null) {
+      trackedStations.value.forEach(function(trackedStation){
+        if (trackedStation.callsign == newValue.value.callsign) {
+          trackedStation.name = newValue.value.object.name;
+          trackedStation.country = newValue.value.object.country;
+          trackedStation.state = newValue.value.object.state;
+          trackedStation.license = newValue.value.object.license;
+          trackedStation.id = newValue.value.callsign;
+        }
+      });
+    }
+  }
+});
+
+watch(updateAllEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  // reset the world
+  populate();
 });
 
 const headers = [
@@ -131,7 +339,6 @@ function updateObjects() {
               if (objects != null) {
                 objects.forEach(function(objectItem){
                                 objectItem.id = objectItem.callsign;
-                                objectItem.name = objectItem.name;
                                 objectItem.callsign = objectItem.callsign;
                                 objectItem.prettyLastHeard = "";
                                 objectItem.status = "Heard";
