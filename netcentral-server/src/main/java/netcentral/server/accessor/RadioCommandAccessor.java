@@ -495,7 +495,6 @@ public class RadioCommandAccessor {
     }
 
     private void processBadCommand(User loggedInUser, APRSMessage msg, Net net, String transceiverSourceId) {
-        logger.warn("Unexpected message sent to net");
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), msg.getCallsignFrom(), "Bad command.  Send H for help.");
     }
 
@@ -695,7 +694,6 @@ public class RadioCommandAccessor {
         try {
             participant = participantAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
         } catch (Exception e) {
-            logger.warn("Ignoring exception getting participant: "+message.getCallsignFrom());
             participant = null;
         }
         if (participant == null) {
@@ -705,17 +703,17 @@ public class RadioCommandAccessor {
         }
         netParticipantAccessor.addParticipant(loggedInUser, net, participant);
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You checked into net "+net.getCallsign()+". Help - send H");
-        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), net.getCheckinMessage());
+        if (net.getCheckinMessage() != null) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), net.getCheckinMessage());
+        }
     }
 
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
-        logger.info("Acknowledging message");
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementAcksSent();
         transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "ack"+msg.getMessageNumber());
     }
     private void rejMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
-        logger.info("Rejecting message");
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementRejsSent();
         transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "rej"+msg.getMessageNumber());
