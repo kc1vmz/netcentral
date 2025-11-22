@@ -139,7 +139,7 @@ public class APRSObjectAccessor {
 
         if (!isTransceiverEnabledReceive(obj.getSource())) {
             logger.debug("Transceiver not enabled - "+ obj.getSource());
-            throw new HttpStatusException(HttpStatus.PRECONDITION_FAILED, "Object not provided");
+            throw new HttpStatusException(HttpStatus.PRECONDITION_FAILED, "Transceiver not enabled for receive");
         }
 
         if (obj.getInnerDigipeaters().isPresent()) {

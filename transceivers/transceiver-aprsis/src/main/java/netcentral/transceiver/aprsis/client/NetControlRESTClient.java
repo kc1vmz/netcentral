@@ -165,11 +165,14 @@ public class NetControlRESTClient {
     }
 
     private String getHostName() {
+        if (netControlConfig.getHostname().isPresent()) {
+            return netControlConfig.getHostname().get();
+        }
         try {
             InetAddress ip = InetAddress.getLocalHost();
-            return ((ip.getHostAddress()).trim());
+            return ip.getHostAddress();
         } catch(Exception ex) {
-        }        
+        }
         return null;
     }
 
