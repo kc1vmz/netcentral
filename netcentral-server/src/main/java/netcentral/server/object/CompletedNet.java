@@ -18,10 +18,11 @@ public class CompletedNet {
     private String prettyStartTime;
     private String prettyEndTime;
     private String creatorName;
+    private String checkinMessage;
 
     public CompletedNet() {
     }
-    public CompletedNet(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, ZonedDateTime endTime, String completedNetId, String creatorName) {
+    public CompletedNet(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, ZonedDateTime endTime, String completedNetId, String creatorName, String checkinMessage) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -30,6 +31,7 @@ public class CompletedNet {
         setStartTime(startTime);
         setEndTime(endTime);
         this.creatorName = creatorName;
+        this.checkinMessage = checkinMessage;
     }
     public CompletedNet(CompletedNet net) {
         if (net != null) {
@@ -41,6 +43,7 @@ public class CompletedNet {
             setStartTime(net.getStartTime());
             setEndTime(net.getEndTime());
             this.creatorName = net.getCreatorName();
+            this.checkinMessage = net.getCheckinMessage();
         }
     }
 
@@ -105,5 +108,11 @@ public class CompletedNet {
     }
     public void setCreatorName(String creatorName) {
         this.creatorName = creatorName;
+    }
+    public String getCheckinMessage() {
+        return checkinMessage;
+    }
+    public void setCheckinMessage(String checkinMessage) {
+        this.checkinMessage = checkinMessage;
     }
 }

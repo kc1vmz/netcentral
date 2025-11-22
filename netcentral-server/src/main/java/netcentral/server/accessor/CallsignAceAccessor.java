@@ -34,6 +34,8 @@ public class CallsignAceAccessor {
     private NetAccessor netAccessor;
     @Inject
     private TrackedStationAccessor trackedStationAccessor;
+    @Inject
+    private ChangePublisherAccessor changePublisherAccessor;
 
 
     public boolean isWriteable(User loggedInUser, APRSObject priorityObject, String callsignChecked) {
@@ -192,9 +194,12 @@ public class CallsignAceAccessor {
         try {
             if (existing != null) {
                 callsignAceRepository.update(aceRecord);
+                changePublisherAccessor.publishCallsignACEUpdate(callsignTarget, "Update", ace);
             } else {
                 callsignAceRepository.save(aceRecord);
+                changePublisherAccessor.publishCallsignACEUpdate(callsignTarget, "Create", ace);
             }
+
         } catch (Exception e) {
             logger.error("Could not update ACE for callsign " + callsignTarget, e);
             ace = null;
@@ -218,6 +223,7 @@ public class CallsignAceAccessor {
         try {
             if (existing != null) {
                 callsignAceRepository.update(aceRecord);
+                changePublisherAccessor.publishCallsignACEUpdate(callsignTarget, "Update", ace);
             } else {
               ace = null;
               // update only
@@ -241,7 +247,9 @@ public class CallsignAceAccessor {
 
         try {
             if (existing != null) {
+                CallsignAce ace = new CallsignAce(existing.callsign_ace_id(), existing.callsign_target(), existing.callsign_checked(), CallsignType.values()[existing.callsign_checked_type()], existing.allowed(), existing.proximity());
                 callsignAceRepository.delete(existing);
+                changePublisherAccessor.publishCallsignACEUpdate(callsignTarget, "Delete", ace);
                 ret = true;
             } 
         } catch (Exception e) {

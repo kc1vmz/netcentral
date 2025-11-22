@@ -9,12 +9,23 @@ public class SummaryMapPoints {
     private double centerLongitude;
     private double centerLatitude;
     // bounding box for map
-    private double minLatitude;
-    private double minLongitude;
-    private double maxLatitude;
-    private double maxLongitude;
+    private double minLatitude = -90;
+    private double minLongitude = -180;
+    private double maxLatitude = 90;
+    private double maxLongitude = 180;
     private List<RenderedMapItem> items;
 
+    public SummaryMapPoints() {
+    }
+    public SummaryMapPoints(double minLatitude, double maxLatitude, double minLongitude, double maxLongitude) {
+        setMinLatitude(minLatitude);
+        setMaxLatitude(maxLatitude);
+        setMinLongitude(minLongitude);
+        setMaxLongitude(maxLongitude);
+
+        setCenterLatitude((maxLatitude + minLatitude)/2);
+        setCenterLongitude((maxLongitude + minLongitude)/2);
+    }
     public double getCenterLongitude() {
         return centerLongitude;
     }

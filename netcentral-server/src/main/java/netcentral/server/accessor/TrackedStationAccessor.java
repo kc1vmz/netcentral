@@ -70,7 +70,6 @@ public class TrackedStationAccessor {
         }
         Optional<TrackedStationRecord> recOpt = trackedStationRepository.findById(id);
         if (!recOpt.isPresent()) {
-            logger.debug("Station not found");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
         }
         TrackedStationRecord rec = recOpt.get();
@@ -97,11 +96,9 @@ public class TrackedStationAccessor {
                             TrackedStationStatus.values()[rec.status()], rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
                             RadioStyle.values()[rec.radio_style()], rec.transmit_power());
             }
-            logger.debug("Station not found");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
 
         } catch (Exception e) {
-            logger.debug("Station not found");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
         }
     }

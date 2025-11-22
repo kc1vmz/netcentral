@@ -40,7 +40,7 @@ public class ScheduledNetAccessor {
                     continue;
                 }
                 ret.add(new ScheduledNet(rec.callsign(), rec.name(), rec.description(), ScheduledNetType.values()[rec.type()], rec.vfreq(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(),
-                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder()));
+                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message()));
             }
         }
 
@@ -59,7 +59,7 @@ public class ScheduledNetAccessor {
             }
             ScheduledNetRecord rec = recOpt.get();
             return new ScheduledNet(rec.callsign(), rec.name(), rec.description(), ScheduledNetType.values()[rec.type()], rec.vfreq(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(),
-                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder());
+                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message());
 
         } catch (Exception e) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net not found");
@@ -96,7 +96,7 @@ public class ScheduledNetAccessor {
                                             obj.getDayStart(),
                                             obj.getTimeStart(), 
                                             obj.getDuration(), 
-                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder());
+                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage());
         ScheduledNetRecord rec = scheduledNetRepository.save(src);
         if (rec != null) {
             changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Create", obj);
@@ -144,7 +144,7 @@ public class ScheduledNetAccessor {
                                             obj.getDayStart(),
                                             obj.getTimeStart(), 
                                             obj.getDuration(), 
-                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder());
+                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage());
 
         scheduledNetRepository.update(updatedRec);
         obj = get(loggedInUser, id);

@@ -21,6 +21,7 @@ public record NetRecord(
                 @Nullable @Size(max = 20) String lon,
                 @NonNull @NotBlank Boolean announce,
                 @NonNull @NotBlank @Size(max = 100) String creator_name,
-                @NonNull @NotBlank Boolean checkin_reminder
+                @NonNull @NotBlank Boolean checkin_reminder, 
+                @Nullable @Size(max = 50) String checkin_message
                 ) {  
 }

@@ -54,7 +54,11 @@ const mapRef = ref(null);
 const errorMessage = reactive({ value : null });
 
 function updateLocalSelectedNet(newObject) {
-  localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  if (newObject == null) {
+    localSelectedNet.ncSelectedNet = null;
+  } else {
+    localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  }
 }
 function updateLocalConfigShowTrackedStationsOnly(newVal) {
   localConfigShowTrackedStationsOnly.value = newVal.value;
@@ -142,7 +146,7 @@ function isReady() {
 }
 
 function getMapItems() {
-    if ((localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null)) {
+    if ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null)) {
       buildUrl();
 
       // dont do this for scheduled
@@ -376,7 +380,7 @@ function createObjectNo() {
 
   <!-- main page-->
 
-  <div class="grid-container" v-if="((localSelectedNet.ncSelectedNet.type == null) && (mapPoints != null) && (mapPoints.value != null) )">
+  <div class="grid-container" v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null) && (mapPoints != null) && (mapPoints.value != null) )">
         <div class="grid-item">
             <l-map style="flex:1;" ref="mapRef" @ready="isReady" v-bind:zoom="zoom" :center="center" :useGlobalLeaflet="false" v-on:click.right.native="onMapClickAdd">
               <l-tile-layer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

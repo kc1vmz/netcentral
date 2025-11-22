@@ -69,4 +69,22 @@ export function updateAll() {
     updateAllEvent.value = generateValue();
 }
 
+export const updateIgnoredEvent = reactive({ value: null });
+export function updateIgnored(payload) {
+    updateIgnoredEvent.value = JSON.parse(payload);
+}
+
+export const updateWeatherReportEvent = reactive({ value: null });
+export function updateWeatherReport(payload) {
+    updateWeatherReportEvent.value = JSON.parse(payload);
+}
+
+export const updateCallsignACEEvent = reactive({ value: null });
+export function updateCallsignACE(payload) {
+    if (payload == null) {
+        updateCallsignACEEvent.value = null;
+    } else {
+        updateCallsignACEEvent.value = JSON.parse(payload);
+    }
+}
 

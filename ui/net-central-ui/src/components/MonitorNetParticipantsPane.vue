@@ -89,7 +89,11 @@ const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 const selectedItem = ref(null);
 
 function updateLocalSelectedNet(newObject) {
-  localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  if (newObject == null) {
+    localSelectedNet.ncSelectedNet = null;
+  } else {
+    localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  }
 }
 
 // Watch for changes in the selected object ref
@@ -122,7 +126,7 @@ function getBodyRowClass(item, rowNumber) {
 watch(
   localSelectedNet,
   async () => {
-    if ((localSelectedNet.ncSelectedNet.callsign != null)  && (localSelectedNet.ncSelectedNet.type == null)) {
+    if ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null)  && (localSelectedNet.ncSelectedNet.type == null)) {
       var requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json",
@@ -162,10 +166,10 @@ watch(nudgeObject, (newNudgeObject, oldNudgeObject) => {
 
 <template>
   <!-- main page -->
-  <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign == null))">
+  <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
     <!-- no nets -->
   </div>
-  <div v-else-if="localSelectedNet.ncSelectedNet.type == null">
+  <div v-else-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
     <div class="pagesubheader">Participants</div>
     <div class="line"><hr/></div>
 

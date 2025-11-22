@@ -11,15 +11,19 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
+import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.object.Callsign;
+import netcentral.server.object.CallsignAce;
+import netcentral.server.object.IgnoreStation;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.Participant;
 import netcentral.server.object.ScheduledNet;
 import netcentral.server.object.TrackedStation;
+import netcentral.server.object.update.CallsignACEUpdatePayload;
 import netcentral.server.object.update.CallsignUpdatePayload;
 import netcentral.server.object.update.GenericUpdatePayload;
 import netcentral.server.object.update.NetMessageUpdatePayload;
@@ -27,6 +31,7 @@ import netcentral.server.object.update.NetParticipantUpdatePayload;
 import netcentral.server.object.update.NetUpdatePayload;
 import netcentral.server.object.update.ObjectUpdatePayload;
 import netcentral.server.object.update.TrackedStationUpdatePayload;
+import netcentral.server.object.update.WeatherReportUpdatePayload;
 import netcentral.server.socket.SocketIoServerRunner;
 
 @Singleton
@@ -55,7 +60,6 @@ public class ChangePublisherAccessor {
 
     private void publishDashboardUpdate() {
         if (updateDashboardCount() == 0) {
-            logger.info("Publishing Dashboard update");
             socketIoServerRunner.updateDashboard(null);
         }
     }
@@ -92,6 +96,18 @@ public class ChangePublisherAccessor {
         socketIoServerRunner.updateTrackedStation(payload);
     }
 
+    private void publishIgnoredUpdate(String payload) {
+        socketIoServerRunner.updateIgnored(payload);
+    }
+
+    private void publishWeatherReportUpdate(String payload) {
+        socketIoServerRunner.updateWeatherReport(payload);
+    }
+
+    private void publishCallsignACEUpdate(String payload) {
+        socketIoServerRunner.updateCallsignACE(payload);
+    }
+
     private void publishObjectUpdate(String payload) {
         socketIoServerRunner.updateObject(payload);
     }
@@ -122,7 +138,7 @@ public class ChangePublisherAccessor {
 
             publishNetUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing net update");
+            logger.error("Exception caught publishing net update", e);
         }
     }
 
@@ -130,7 +146,7 @@ public class ChangePublisherAccessor {
         try {
             publishAllUpdate("");
         } catch (Exception e) {
-            logger.error("Exception caught publishing net update");
+            logger.error("Exception caught publishing net update", e);
         }
     }
 
@@ -148,7 +164,7 @@ public class ChangePublisherAccessor {
 
             publishScheduledNetUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing scheduled net update");
+            logger.error("Exception caught publishing scheduled net update", e);
         }
     }
 
@@ -165,7 +181,7 @@ public class ChangePublisherAccessor {
 
             publishNetMessageUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing net message update");
+            logger.error("Exception caught publishing net message update", e);
         }
     }
 
@@ -182,7 +198,7 @@ public class ChangePublisherAccessor {
 
             publishNetParticipantUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing net participant update");
+            logger.error("Exception caught publishing net participant update", e);
         }
     }
 
@@ -199,7 +215,7 @@ public class ChangePublisherAccessor {
 
             publishParticipantUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing participant update");
+            logger.error("Exception caught publishing participant update", e);
         }
     }
 
@@ -216,7 +232,7 @@ public class ChangePublisherAccessor {
 
             publishCompletedNetUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing net update");
+            logger.error("Exception caught publishing net update", e);
         }
     }
 
@@ -233,7 +249,7 @@ public class ChangePublisherAccessor {
 
             publishTransceiverUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing transceiver update");
+            logger.error("Exception caught publishing transceiver update", e);
         }
     }
 
@@ -250,7 +266,7 @@ public class ChangePublisherAccessor {
 
             publishUserUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing user update");
+            logger.error("Exception caught publishing user update", e);
         }
     }
 
@@ -268,7 +284,7 @@ public class ChangePublisherAccessor {
 
             publishCallsignUpdate(json);
         } catch (Exception e) {
-            logger.error("Exception caught publishing callsign update");
+            logger.error("Exception caught publishing callsign update", e);
         }
    }
 
@@ -286,7 +302,64 @@ public class ChangePublisherAccessor {
 
             publishTrackedStationUpdate(json); // simple JSON
         } catch (Exception e) {
-            logger.error("Exception caught publishing tracked station update");
+            logger.error("Exception caught publishing tracked station update", e);
+        }
+    }
+
+    public void publishIgnoredUpdate(String callsign, String action, IgnoreStation object) {
+        publishDashboardUpdate();
+
+        TrackedStationUpdatePayload payload = new TrackedStationUpdatePayload();
+        payload.setCallsign(callsign);
+        payload.setAction(action);
+        TrackedStation trackedStation = new TrackedStation();
+        trackedStation.setCallsign(object.getCallsign());
+        trackedStation.setType(object.getType());
+        trackedStation.setId(object.getCallsign());
+        trackedStation.setLat(object.getLat());
+        trackedStation.setLon(object.getLon());
+        trackedStation.setLastHeard(object.getIgnoreStartTime());  // reuse this variable
+        payload.setObject(trackedStation);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishIgnoredUpdate(json); // simple JSON
+        } catch (Exception e) {
+            logger.error("Exception caught publishing ignored update", e);
+        }
+    }
+
+    public void publishCallsignACEUpdate(String callsign, String action, CallsignAce object) {
+        CallsignACEUpdatePayload payload = new CallsignACEUpdatePayload();
+        payload.setCallsign(callsign);
+        payload.setAction(action);
+        payload.setObject(object);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishCallsignACEUpdate(json); // simple JSON
+        } catch (Exception e) {
+            logger.error("Exception caught publishing tracked station update", e);
+        }
+    }
+
+    public void publishWeatherReportUpdate(String callsign, String action, APRSWeatherReport object) {
+        WeatherReportUpdatePayload payload = new WeatherReportUpdatePayload();
+        payload.setCallsign(callsign);
+        payload.setAction(action);
+        payload.setObject(object);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishWeatherReportUpdate(json); // simple JSON
+        } catch (Exception e) {
+            logger.error("Exception caught publishing tracked station update", e);
         }
     }
 
@@ -303,7 +376,7 @@ public class ChangePublisherAccessor {
 
             publishObjectUpdate(json); // simple JSON
         } catch (Exception e) {
-            logger.error("Exception caught publishing object update");
+            logger.error("Exception caught publishing object update", e);
         }
     }
 

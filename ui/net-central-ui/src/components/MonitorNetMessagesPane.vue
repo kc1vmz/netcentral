@@ -42,7 +42,11 @@ watch(updateNetMessageEvent, (newValue, oldValue) => {
 const localSelectedNet = reactive({ncSelectedNet : { callsign : null }});
 
 function updateLocalSelectedNet(newObject) {
-  localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  if (newObject == null) {
+    localSelectedNet.ncSelectedNet = null;
+  } else {
+    localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  }
 }
 
 // Watch for changes in the selected object ref
@@ -173,7 +177,7 @@ function performSendMessage() {
   </div>
 
   <!-- main page-->
-  <div v-if="((localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null))">
+  <div v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null))">
     <div class="pagesubheader">Messages</div><div><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
     <div class="line"><hr/></div>
 

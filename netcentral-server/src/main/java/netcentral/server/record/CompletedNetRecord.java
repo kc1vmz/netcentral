@@ -18,5 +18,6 @@ public record CompletedNetRecord(
                 @Nullable @Size(max = 50) String description,
                 @NonNull @NotBlank ZonedDateTime start_time,
                 @NonNull @NotBlank ZonedDateTime end_time,
-                @NonNull @NotBlank @Size(max = 100) String creator_name) {  
+                @NonNull @NotBlank @Size(max = 100) String creator_name,
+                @Nullable @Size(max = 50) String checkin_message) {  
 }

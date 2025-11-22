@@ -33,6 +33,8 @@ public class ObjectCleanupAccessor {
     private CallsignAceAccessor callsignAceAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private IgnoreStationAccessor ignoreStationAccessor;
  
 
     private boolean stop = false;
@@ -90,6 +92,8 @@ public class ObjectCleanupAccessor {
             trackedStationAccessor.deleteAllData(loggedInUser);
             // delete position reports
             callsignAccessor.deleteAllData(loggedInUser);
+            // delete all ignored stations
+            ignoreStationAccessor.deleteAllData(loggedInUser);
             // delete position reports
             callsignAceAccessor.deleteAllData(loggedInUser);
 

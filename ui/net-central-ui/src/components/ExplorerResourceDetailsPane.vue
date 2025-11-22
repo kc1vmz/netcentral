@@ -8,7 +8,7 @@ import { selectedLatestWeatherReport, updateSelectedLatestWeatherReport, selecte
 import { nudgeObject, nudge, nudgeUpdateObject, nudgeUpdate, nudgeRemoveObject, nudgeRemove  } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
-import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll } from "@/UpdateEvents.js";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateWeatherReportEvent, updateWeatherReport, updateCallsignACEEvent, updateCallsignACE } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
 
 const { socket } = useSocketIO();
@@ -24,6 +24,12 @@ socket.on("updateCallsign", (data) => {
 socket.on("updateAll", (data) => {
   updateAll(data)
 });
+socket.on("updateWeatherReport", (data) => {
+  updateWeatherReport(data)
+});
+socket.on("updateCallsignACE", (data) => {
+  updateCallsignACE(data)
+});
 
 function updateTrackedStation(data) {
     updateTrackedStationEvent.value = JSON.parse(data);
@@ -34,6 +40,67 @@ function updateObject(data) {
 function updateCallsign(data) {
     updateCallsignEvent.value = JSON.parse(data);
 }
+
+watch(updateCallsignACEEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "PRIORITYOBJECT") {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    var found = false;
+    if (accessControlList.value != null) {
+      accessControlList.value.forEach(function(ace){
+        if ((!found) && (ace.callsignTarget == newValue.value.callsign)  && (ace.callsignChecked == newValue.value.object.callsignChecked)) {
+          found = true;
+        }
+      });
+    } else {
+      accessControlList.value = [];
+    }
+
+    if (!found) {
+      accessControlList.value.push(newValue.value.object);
+    }
+  } else if (newValue.value.action == "Delete") {
+    const indexToRemove = accessControlList.value.findIndex(obj => ((obj.callsignTarget == newValue.value.callsign)  && (obj.callsignChecked == newValue.value.object.callsignChecked)));
+    if (indexToRemove !== -1) {
+      if ((selectedAce.value != null) &&  (selectedAce.callsignTarget == newValue.value.callsign) && (selectedAce.callsignChecked == newValue.value.object.callsignChecked)) {
+        selectedAce.value = null;
+      }
+      accessControlList.value.splice(indexToRemove, 1);
+    }
+  } else if (newValue.value.action == "Update") {
+    if (accessControlList.value != null) {
+      accessControlList.value.forEach(function(ace){
+        if ((ace.callsignTarget == newValue.value.callsign)  && (ace.callsignChecked == newValue.value.object.callsignChecked)) {
+          ace.type = newValue.value.object.type;
+          ace.allowed = newValue.value.object.allowed;
+          ace.proximity = newValue.value.object.proximity;
+        }
+      });
+    }
+  }
+});
+
+watch(updateWeatherReportEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "WEATHER") {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign == newValue.value.callsign)) {
+      if (weatherReports.value == null) {
+        weatherReports.value = [];
+      }
+      latestWeatherReport.value = newValue.value.object;
+      weatherReports.value.push(newValue.value.object);
+    }
+  }
+});
 
 watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -143,9 +210,10 @@ const dialogTrack = ref(null);
 const dialogTrackShow = reactive({value : false});
 const dialogUntrack = ref(null);
 const dialogUntrackShow = reactive({value : false});
-
-
-
+const dialogStartIgnoring = ref(null);
+const dialogStartIgnoringShow = reactive({value : false});
+const dialogStopIgnoring = ref(null);
+const dialogStopIgnoringShow = reactive({value : false});
 
 const accesstokenRef = reactive({value : ''});
 const localLoggedInUserRef = reactive({value : ''});
@@ -1077,6 +1145,77 @@ function performIdentify() {
       .catch(error => { console.error('Error identifying callsign:', error); })
 }
 
+
+function stopIgnoring() {
+    dialogStopIgnoringShow.value = true;
+}
+
+function stopIgnoringYes() {
+    // perform stop ignoring
+    performStopIgnoring();
+}
+
+function stopIgnoringNo() {
+    dialogStopIgnoringShow.value = false;
+}
+
+function performStopIgnoring() {
+    var CS = localSelectedObject.ncSelectedObject.callsign;
+    const requestOptions = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body: null
+    };
+    fetch(buildNetCentralUrl("/ignoreStations/"+CS), requestOptions)
+      .then(response => {
+        return response;
+      })
+      .then(data => {
+          dialogStopIgnoringShow.value = false;
+      })
+      .catch(error => { console.error('Error stopping ignoring callsign:', error); })
+}
+
+function startIgnoring() {
+    dialogStartIgnoringShow.value = true;
+}
+
+function startIgnoringYes() {
+    // perform start ignoring
+    performStartIgnoring();
+}
+
+function startIgnoringNo() {
+    dialogStartIgnoringShow.value = false;
+}
+
+function performStartIgnoring() {
+    var type = localSelectedObject.ncSelectedObject.type;
+    if (type === "ITEM") {
+      type = "OBJECT";
+    }
+    var bodyObject = { callsign : localSelectedObject.ncSelectedObject.callsign,
+              type: type
+            };
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body:JSON.stringify(bodyObject)  
+    };
+    fetch(buildNetCentralUrl("/ignoreStations"), requestOptions)
+      .then(response => {
+        return response;
+      })
+      .then(data => {
+          dialogStartIgnoringShow.value = false;
+      })
+      .catch(error => { console.error('Error starting ignoring callsign:', error); })
+}
+
 function clearPriorityReports() {
     dialogClearPriorityReportsShow.value = true;
 }
@@ -1794,6 +1933,34 @@ function performEditCallsign() {
         </dialog>
       </teleport>
     </div>
+    <div v-if="dialogStartIgnoringShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogStartIgnoringShow.value" ref="dialogStartIgnoring" @close="dialogStartIgnoringShow.value = false" class="topz">  
+          <form v-if="dialogStartIgnoringShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to ignore {{ localSelectedObject.ncSelectedObject.callsign }} from further APRS updates?
+            <br>
+            <button class="boxButton" v-on:click.native="startIgnoringYes">Yes</button>
+            <button class="boxButton" v-on:click.native="startIgnoringNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
+    <div v-if="dialogStopIgnoringShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogStopIgnoringShow.value" ref="dialogStopIgnoring" @close="dialogStopIgnoringShow.value = false" class="topz">  
+          <form v-if="dialogStopIgnoringShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to stop ignoring {{ localSelectedObject.ncSelectedObject.callsign }} and receive new APRS updates?
+            <br>
+            <button class="boxButton" v-on:click.native="stopIgnoringYes">Yes</button>
+            <button class="boxButton" v-on:click.native="stopIgnoringNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogRemoveShow.value">
       <teleport to="#modals">
         <dialog :open="dialogRemoveShow.value" ref="dialogRemove" @close="dialogRemoveShow.value = false" class="topz">  
@@ -2156,6 +2323,12 @@ function performEditCallsign() {
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
+              </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                Ignoring this station / object and do not accept new updates from APRS.
+              </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
               </div>
@@ -2459,7 +2632,7 @@ function performEditCallsign() {
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                Remove the station from Net Central.  It may be added if heard again via APRS.
+                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
               </div>
             </div>
           </Tab>
@@ -2610,7 +2783,7 @@ function performEditCallsign() {
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                Remove the station from Net Central.  It may be added if heard again via APRS.
+                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
               </div>
             </div>
           </Tab>
@@ -2679,7 +2852,7 @@ function performEditCallsign() {
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                Remove the station from Net Central.  It may be added if heard again via APRS.
+                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
               </div>
             </div>
           </Tab>
@@ -2706,6 +2879,33 @@ function performEditCallsign() {
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Edit properties of the callsign.
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                <button class="boxButton" v-on:click.native="remove">Remove</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                Remove the station from Net Central.  It may be added if heard again via APRS.
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+      </div>
+
+      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IGNORE'))">
+        <Tabs>
+          <Tab value="Details">
+            <br>Callsign: {{ localSelectedObject.ncSelectedObject.callsign }}
+            <br>Type: {{ localSelectedObject.ncSelectedObject.type }}
+            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
+            <br>Ignored since: {{ localSelectedObject.ncSelectedObject.prettyIgnoreStartTime }}
+          </Tab>
+          <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
+            <div class="grid-container-actions">
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                <button class="boxButton" v-on:click.native="stopIgnoring">Stop Ignoring</button>
+              </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                Stop ignoring this station and accept new updates from APRS.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
@@ -2775,6 +2975,12 @@ function performEditCallsign() {
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Edit properties of the callsign.
               </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
+              </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                Ignoring this station and do not accept new updates from APRS.
+              </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
               </div>
@@ -2836,6 +3042,12 @@ function performEditCallsign() {
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Edit properties of the station.
+              </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
+              </div>
+              <div v-if="accesstokenRef.value != null" class="grid-item">
+                Ignoring this station / object and do not accept new updates from APRS.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton"  v-on:click.native="remove">Remove</button>

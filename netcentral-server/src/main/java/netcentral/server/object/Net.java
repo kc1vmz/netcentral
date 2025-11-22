@@ -21,10 +21,11 @@ public class Net {
     private boolean announce;
     private String creatorName;
     private boolean checkinReminder;
+    private String checkinMessage;
 
     public Net() {
     }
-    public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, String lat, String lon, boolean announce, String creatorName, boolean checkinReminder) {
+    public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -36,6 +37,7 @@ public class Net {
         this.announce = announce;
         this.creatorName = creatorName;
         this.checkinReminder = checkinReminder;
+        this.checkinMessage = checkinMessage;
     }
     public Net(Net net) {
         if (net != null) {
@@ -51,6 +53,7 @@ public class Net {
             this.announce = net.isAnnounce();
             this.creatorName = net.getCreatorName();
             this.checkinReminder = net.isCheckinReminder();
+            this.checkinMessage = net.getCheckinMessage();
         }
     }
 
@@ -132,5 +135,11 @@ public class Net {
     }
     public void setCheckinReminder(boolean checkinReminder) {
         this.checkinReminder = checkinReminder;
+    }
+    public String getCheckinMessage() {
+        return checkinMessage;
+    }
+    public void setCheckinMessage(String checkinMessage) {
+        this.checkinMessage = checkinMessage;
     }
 }

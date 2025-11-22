@@ -21,13 +21,16 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     @Inject
     private NetConfigServerConfig netConfigServerConfig;
 
-    private final SocketIOServer server;
+    private SocketIOServer server = null;
 
-    public SocketIoServerRunner() {
+    private synchronized void setupSocket() {
+        if (this.server != null) {
+            return;
+        }
         Configuration config = new Configuration();
-        config.setHostname("localhost");
-        config.setOrigin("http://localhost"); 
-        config.setPort(8881 /*netConfigServerConfig.getUpdatePort()*/); // Separate port for Socket.IO
+//        config.setHostname("192.168.0.105");
+        config.setOrigin(netConfigServerConfig.getUpdateUrl()); // Separate URL for Socket.IO
+        config.setPort(netConfigServerConfig.getUpdatePort()); // Separate port for Socket.IO
         config.setHttpCompression(false);
         config.setWebsocketCompression(false);
         config.setUpgradeTimeout(10000000);
@@ -42,6 +45,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateDashboard(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateDashboard", payload);
         } catch (Exception e) {
@@ -50,6 +54,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateAll(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateAll", payload);
         } catch (Exception e) {
@@ -58,6 +63,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateNet(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateNet", payload);
         } catch (Exception e) {
@@ -66,6 +72,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateScheduledNet(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateScheduledNet", payload);
         } catch (Exception e) {
@@ -74,6 +81,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateCompletedNet(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateCompletedNet", payload);
         } catch (Exception e) {
@@ -82,6 +90,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateTransceiver(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateTransceiver", payload);
         } catch (Exception e) {
@@ -90,6 +99,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateUser(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateUser", payload);
         } catch (Exception e) {
@@ -98,6 +108,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateCallsign(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateCallsign", payload);
         } catch (Exception e) {
@@ -106,6 +117,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateTrackedStation(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateTrackedStation", payload);
         } catch (Exception e) {
@@ -114,6 +126,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateObject(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateObject", payload);
         } catch (Exception e) {
@@ -122,6 +135,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateNetMessage(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateNetMessage", payload);
         } catch (Exception e) {
@@ -130,6 +144,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateNetParticipant(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateNetParticipant", payload);
         } catch (Exception e) {
@@ -138,6 +153,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
     }
 
     public void updateParticipant(String payload) {
+        setupSocket();
         try {
             server.getBroadcastOperations().sendEvent("updateParticipant", payload);
         } catch (Exception e) {
@@ -145,8 +161,36 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
         }
     }
 
+   public void updateIgnored(String payload) {
+        setupSocket();
+        try {
+            server.getBroadcastOperations().sendEvent("updateIgnored", payload);
+        } catch (Exception e) {
+            logger.error("Exception caught broadcasting updateIgnored", e);
+        }
+    }
+
+   public void updateCallsignACE(String payload) {
+        setupSocket();
+        try {
+            server.getBroadcastOperations().sendEvent("updateCallsignACE", payload);
+        } catch (Exception e) {
+            logger.error("Exception caught broadcasting updateCallsignACE", e);
+        }
+    }
+
+   public void updateWeatherReport(String payload) {
+        setupSocket();
+        try {
+            server.getBroadcastOperations().sendEvent("updateWeatherReport", payload);
+        } catch (Exception e) {
+            logger.error("Exception caught broadcasting updateWeatherReport", e);
+        }
+    }
+
     @Override
     public void onApplicationEvent(StartupEvent event) {
+        setupSocket();
         server.start();
     }
 

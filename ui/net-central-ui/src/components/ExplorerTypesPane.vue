@@ -59,6 +59,12 @@ onMounted(async () => {
           <div v-else>
             <option value="IGATE">iGates</option>
           </div>
+          <div v-if="(selectedObjectType.value == 'IGNORE')">
+            <option value="IGNORE" selected>Ignored</option>
+          </div>
+          <div v-else>
+            <option value="IGNORE">Ignored</option>
+          </div>
           <div v-if="(selectedObjectType.value == 'IS')">
             <option value="IS" selected>Internet Servers</option>
           </div>

@@ -134,7 +134,8 @@ public class NetSchedulerAccessor {
             // net not started
             String completedNetId = UUID.randomUUID().toString();
             net = new Net(scheduledNet.getCallsign(), scheduledNet.getName(), scheduledNet.getDescription(), 
-                scheduledNet.getVoiceFrequency(), now, completedNetId, scheduledNet.getLat(), scheduledNet.getLon(), scheduledNet.isAnnounce(), scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder());
+                scheduledNet.getVoiceFrequency(), now, completedNetId, scheduledNet.getLat(), scheduledNet.getLon(), scheduledNet.isAnnounce(), 
+                scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder(), scheduledNet.getCheckinMessage());
             try {
                 net = netAccessor.create(user, net);
                 if (net == null) {

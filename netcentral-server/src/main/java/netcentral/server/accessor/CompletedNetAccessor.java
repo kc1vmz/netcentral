@@ -40,7 +40,7 @@ public class CompletedNetAccessor {
                     // only take those with the optional root
                     continue;
                 }
-                ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name()));
+                ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message()));
             }
         }
 
@@ -57,7 +57,7 @@ public class CompletedNetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
         CompletedNetRecord rec = recOpt.get();
-        return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name());
+        return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message());
     }
 
 
@@ -77,7 +77,7 @@ public class CompletedNetAccessor {
                                             obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             obj.getStartTime(), ZonedDateTime.now(),
-                                            obj.getCreatorName());
+                                            obj.getCreatorName(), obj.getCheckinMessage());
         CompletedNetRecord rec = completedNetRepository.save(src);
         changePublisherAccessor.publishCompletedNetUpdate(obj.getCompletedNetId(), "Create");
         return get(loggedInUser, rec.completed_net_id());

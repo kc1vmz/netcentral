@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="16" author="kc1vmz">
+    <addColumn tableName="net">
+      <column name="checkin_message" type="VARCHAR(50)" defaultValue="">
+          <constraints nullable="true" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="completed_net">
+      <column name="checkin_message" type="VARCHAR(50)" defaultValue="">
+          <constraints nullable="true" unique="false" />
+      </column>
+    </addColumn>
+    <createTable tableName="ignore_station">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="ignore_station_pk"/>
+      </column>
+      <column name="ignore_start_time" type="DATETIME">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="TINYINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

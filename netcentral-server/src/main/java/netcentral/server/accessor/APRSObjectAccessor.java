@@ -117,8 +117,12 @@ public class APRSObjectAccessor {
     private ToolsAccessor toolsAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
-    
+    @Inject
+    private IgnoreStationAccessor ignoreStationAccessor;
+    @Inject
+    private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
 
+    
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
 
         statisticsAccessor.incrementObjectsReceived();
@@ -215,7 +219,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSWeatherReport(User loggedInUser, String id, Optional<APRSWeatherReport> innerAPRSWeatherReportOpt, String source, ZonedDateTime heardTime) {
         APRSWeatherReport innerAPRSWeatherReport = innerAPRSWeatherReportOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSWeatherReport.getCallsignFrom())) {
+            return null;
+        }
         APRSWeatherReportRecord src = new APRSWeatherReportRecord(id, source, innerAPRSWeatherReport.getLdtime(), innerAPRSWeatherReport.getCallsignFrom(), innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon(), innerAPRSWeatherReport.getTime(),
                                                                     innerAPRSWeatherReport.getWindDirection(), innerAPRSWeatherReport.getWindSpeed(),
                                                                     innerAPRSWeatherReport.getGust(), innerAPRSWeatherReport.getTemperature(),
@@ -226,6 +232,15 @@ public class APRSObjectAccessor {
         
         APRSWeatherReportRecord rec = aprsWeatherReportRepository.save(src);
         trackedStationAccessor.createWeatherStation(loggedInUser, rec.callsign_from(), innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon());
+
+        APRSWeatherReport weatherReport = new APRSWeatherReport(id, innerAPRSWeatherReport.getCallsignFrom(), innerAPRSWeatherReport.getCallsignTo(), innerAPRSWeatherReport.getLdtime().toString(),
+                                                                innerAPRSWeatherReport.getWindDirection(), innerAPRSWeatherReport.getWindSpeed(),
+                                                                innerAPRSWeatherReport.getGust(), innerAPRSWeatherReport.getTemperature(),
+                                                                innerAPRSWeatherReport.getRainfallLast1Hr(), innerAPRSWeatherReport.getRainfallLast24Hr(),
+                                                                innerAPRSWeatherReport.getRainfallSinceMidnight(), innerAPRSWeatherReport.getHumidity(), innerAPRSWeatherReport.getBarometricPressure(),
+                                                                    innerAPRSWeatherReport.getLuminosity(), innerAPRSWeatherReport.getSnowfallLast24Hr(),
+                                                                0, innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon(), innerAPRSWeatherReport.getLdtime());
+        changePublisherAccessor.publishWeatherReportUpdate( innerAPRSWeatherReport.getCallsignFrom(), "Create",  weatherReport);
         return new APRSObjectResource(id, innerAPRSWeatherReport, source, heardTime);
     }
 
@@ -239,7 +254,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSUnknown(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSUnknown> innerAPRSUnknownOpt, String source, ZonedDateTime heardTime) {
         APRSUnknown innerAPRSUnknown = innerAPRSUnknownOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSUnknown.getCallsignFrom())) {
+            return null;
+        }
         APRSUnknownRecord src = new APRSUnknownRecord(id, source, heardTime, innerAPRSUnknown.getCallsignFrom(), innerAPRSUnknown.getCallsignTo(), new String(innerAPRSUnknown.getData()));
         aprsUnknownRepository.save(src);
         return new APRSObjectResource(id, innerAPRSUnknown, source, heardTime);
@@ -262,7 +279,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSTelemetry(User loggedInUser, String id, Optional<APRSTelemetry> innerAPRSTelemetryOpt, String source, ZonedDateTime heardTime) {
         APRSTelemetry innerAPRSTelemetry = innerAPRSTelemetryOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSTelemetry.getCallsignFrom())) {
+            return null;
+        }
         trackStation(loggedInUser,  innerAPRSTelemetry.getCallsignFrom(), null, null, TrackedStationType.UNKNOWN, null);
         return new APRSObjectResource(id, innerAPRSTelemetry, source, heardTime);
     }
@@ -270,7 +289,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSStatus(User loggedInUser, String id, Optional<APRSStatus> innerAPRSStatusOpt, String source, ZonedDateTime heardTime) {
         APRSStatus innerAPRSStatus = innerAPRSStatusOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSStatus.getCallsignFrom())) {
+            return null;
+        }
         TrackedStationType type = TrackedStationType.UNKNOWN;
         if (innerAPRSStatus.getStatus() != null) {
             if (innerAPRSStatus.getStatus().toUpperCase().contains("BBS")) {
@@ -294,7 +315,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSStationCapabilities(User loggedInUser, String id, Optional<APRSStationCapabilities> innerAPRSStationCapabilitiesOpt, String source, ZonedDateTime heardTime) {
         APRSStationCapabilities innerAPRSStationCapabilities = innerAPRSStationCapabilitiesOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSStationCapabilities.getCallsignFrom())) {
+            return null;
+        }
         trackStation(loggedInUser,  innerAPRSStationCapabilities.getCallsignFrom(), null, null, TrackedStationType.UNKNOWN, null);
 
         return new APRSObjectResource(id, innerAPRSStationCapabilities, source, heardTime);
@@ -303,7 +326,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSQuery(User loggedInUser, String id, Optional<APRSQuery> innerAPRSQueryOpt, String source, ZonedDateTime heardTime) {
         APRSQuery innerAPRSQuery = innerAPRSQueryOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSQuery.getCallsignFrom())) {
+            return null;
+        }
         APRSQueryRecord src = new APRSQueryRecord(id, source, heardTime, innerAPRSQuery.getCallsignFrom(), innerAPRSQuery.getQueryType(), innerAPRSQuery.getLat(), innerAPRSQuery.getLon(), innerAPRSQuery.getRadius());
         
         aprsQueryRepository.save(src);
@@ -314,7 +339,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSPosition(User loggedInUser, String id, Optional<APRSPosition> innerAPRSPositionOpt, String source, ZonedDateTime heardTime) {
         APRSPosition innerAPRSPosition = innerAPRSPositionOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSPosition.getCallsignFrom())) {
+            return null;
+        }
         String comment = innerAPRSPosition.getComment();
         if ((comment != null) && (comment.length() > MAX_COMMENT_LENGTH)) {
             logger.warn(String.format("Position comment too long from %s - %s", innerAPRSPosition.getCallsignFrom(), comment));
@@ -697,7 +724,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSObject(User loggedInUser, String id, Optional<APRSObject> innerAPRSObjectOpt, String source, ZonedDateTime heardTime) {
         APRSObject innerAPRSObject = innerAPRSObjectOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSObject.getCallsignFrom())) {
+            return null;
+        }
         List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_from(innerAPRSObject.getCallsignFrom());
         APRSObjectRecord rec;
         if ((foundRecList != null) && (!foundRecList.isEmpty())) {
@@ -723,7 +752,9 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSMicE(User loggedInUser, String id, Optional<APRSMicE> innerAPRSMicEOpt, String source, ZonedDateTime heardTime) {
         APRSMicE innerAPRSMicE = innerAPRSMicEOpt.get();
-
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMicE.getCallsignFrom())) {
+            return null;
+        }
         APRSPositionRecord src = new APRSPositionRecord(id, source, heardTime, innerAPRSMicE.getCallsignFrom(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), "",
                                                     null, null, null, null, 
                                                     null, null, innerAPRSMicE.getStatus());
@@ -747,6 +778,10 @@ public class APRSObjectAccessor {
         } else {
             // if it is not a message to a net, is it a message to one of our priority objects?
             priorityObject = netCentralPriorityObject(loggedInUser, callsignTo);
+        }
+
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMessage.getCallsignFrom())) {
+            return null;
         }
 
         String message = innerAPRSMessage.getMessage();
@@ -956,6 +991,10 @@ public class APRSObjectAccessor {
     private APRSObjectResource createAPRSMaidenheadLocatorBeacon(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSMaidenheadLocatorBeacon> innerAPRSMaidenheadLocatorBeaconOpt, String source, ZonedDateTime heardTime) {
         APRSMaidenheadLocatorBeacon innerAPRSMaidenheadLocatorBeacon = innerAPRSMaidenheadLocatorBeaconOpt.get();
 
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom())) {
+            return null;
+        }
+
         APRSMaidenheadLocatorBeaconRecord src = new APRSMaidenheadLocatorBeaconRecord(id, source, heardTime, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom(),
                                                                 innerAPRSMaidenheadLocatorBeacon.getComment(), innerAPRSMaidenheadLocatorBeacon.getGridLocator());
         aprsMaidenheadLocatorBeaconRepository.save(src);
@@ -965,6 +1004,10 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSItem(User loggedInUser, String id, Optional<APRSItem> innerAPRSItemOpt, String source, ZonedDateTime heardTime) {
         APRSItem innerAPRSItem = innerAPRSItemOpt.get();
+
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSItem.getCallsignFrom())) {
+            return null;
+        }
 
         // treat an item like an object 
 
@@ -989,6 +1032,10 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSAgrelo(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSAgrelo> innerAPRSAgreloOpt, String source, ZonedDateTime heardTime) {
         APRSAgrelo innerAPRSAgrelo = innerAPRSAgreloOpt.get();
+
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSAgrelo.getCallsignFrom())) {
+            return null;
+        }
 
         APRSAgreloRecord src = new APRSAgreloRecord(id, source, heardTime, innerAPRSAgrelo.getCallsignFrom(), innerAPRSAgrelo.getBearing(), innerAPRSAgrelo.getQuality());
         aprsAgreloRepository.save(src);
@@ -1165,10 +1212,27 @@ public class APRSObjectAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Object not found");
         }
 
+        switch (object.getType()) {
+            case ObjectType.EOC:
+            case ObjectType.SHELTER:
+            case ObjectType.MEDICAL:
+                markObjectDead(loggedInUser, object);
+                break;
+            default:
+                break;
+        }
+
         Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
         aprsObjectRepository.delete(recOpt.get());
         changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), "Delete", object);
         return null;
+    }
+
+    private void markObjectDead(User loggedInUser, APRSObject object) {
+        if ((object.getLat() == null) || (object.getLon() == null)) {
+            return;
+        }
+        transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignFrom(), object.getCallsignFrom(), object.getComment(), false, object.getLat(), object.getLon());
     }
 
     public List<APRSObject> getObjects(User loggedInUser, boolean priorityOnly) {

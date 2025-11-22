@@ -31,7 +31,14 @@ public class NetConfigServerConfig {
     private String updateUrl;
     @Value("${netcentral.update.port}")
     private Integer updatePort;
-    
+    @Value("${netcentral.map.default.latitude.min}")
+    private Integer latitudeMin;
+    @Value("${netcentral.map.default.latitude.max}")
+    private Integer latitudeMax;
+    @Value("${netcentral.map.default.longitude.min}")
+    private Integer longitudeMin;
+    @Value("${netcentral.map.default.longitude.max}")
+    private Integer longitudeMax;
     
     public String getTempDir() {
         return tempDir;
@@ -110,5 +117,29 @@ public class NetConfigServerConfig {
     }
     public void setUpdatePort(Integer updatePort) {
         this.updatePort = updatePort;
+    }
+    public Integer getLatitudeMin() {
+        return latitudeMin;
+    }
+    public void setLatitudeMin(Integer latitudeMin) {
+        this.latitudeMin = latitudeMin;
+    }
+    public Integer getLatitudeMax() {
+        return latitudeMax;
+    }
+    public void setLatitudeMax(Integer latitudeMax) {
+        this.latitudeMax = latitudeMax;
+    }
+    public Integer getLongitudeMin() {
+        return longitudeMin;
+    }
+    public void setLongitudeMin(Integer longitudeMin) {
+        this.longitudeMin = longitudeMin;
+    }
+    public Integer getLongitudeMax() {
+        return longitudeMax;
+    }
+    public void setLongitudeMax(Integer longitudeMax) {
+        this.longitudeMax = longitudeMax;
     }
 }

@@ -8,7 +8,7 @@ import { reactive, ref, watch, onMounted } from 'vue';
 import { nudgeObject, nudge, nudgeAddObject, nudgeAdd, nudgeRemoveObject } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
-import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll } from "@/UpdateEvents.js";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateIgnoredEvent, updateIgnored, updateWeatherReportEvent, updateWeatherReport } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
 
 const { socket } = useSocketIO();
@@ -21,6 +21,12 @@ socket.on("updateObject", (data) => {
 socket.on("updateAll", (data) => {
   updateAll(data)
 });
+socket.on("updateIgnored", (data) => {
+  updateIgnored(data)
+});
+socket.on("updateWeatherReport", (data) => {
+  updateWeatherReport(data)
+});
 
 function updateTrackedStation(data) {
     updateTrackedStationEvent.value = JSON.parse(data);
@@ -28,6 +34,18 @@ function updateTrackedStation(data) {
 function updateObject(data) {
     updateObjectEvent.value = JSON.parse(data);
 }
+
+watch(updateWeatherReportEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "WEATHER") {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    updateMapObjects();
+  }
+});
 
 watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -49,6 +67,21 @@ watch(updateObjectEvent, (newValue, oldValue) => {
     return;
   }
   if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+    return;
+  }
+  if (newValue.value.action == "Create") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Delete") {
+    updateMapObjects();
+  } else if (newValue.value.action == "Update") {
+  }
+});
+
+watch(updateIgnoredEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value != "IGNORE") {
     return;
   }
   if (newValue.value.action == "Create") {

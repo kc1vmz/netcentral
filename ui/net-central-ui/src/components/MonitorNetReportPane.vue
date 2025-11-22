@@ -94,7 +94,11 @@ onMounted(() => {
 });
 
 function updateLocalSelectedNet(newObject) {
-  localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  if (newObject == null) {
+    localSelectedNet.ncSelectedNet = null;
+  } else {
+    localSelectedNet.ncSelectedNet = newObject.ncSelectedNet;
+  }
 }
 
 function updateLocalCallsign(newObject) {
@@ -261,10 +265,10 @@ function performSendMessage() {
     </div>
 
     <!-- main page-->
-    <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign == null))">
+    <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
       <!-- no nets -->
     </div>
-    <div v-else-if="localSelectedNet.ncSelectedNet.type == null">
+    <div v-else-if="((localSelectedNet != null) || (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
       <div class="pagesubheader">Participant Information</div>
       <div class="line"><hr/></div>
       <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">

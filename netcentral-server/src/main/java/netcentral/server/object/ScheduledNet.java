@@ -27,12 +27,12 @@ public class ScheduledNet {
     private String prettyLastStartTime;
     private String prettyNextStartTime;
     private boolean checkinReminder;
-
+    private String checkinMessage;
     
     public ScheduledNet() {
     }
 
-    public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, boolean checkinReminder) {
+    public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, boolean checkinReminder, String checkinMessage) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -48,10 +48,11 @@ public class ScheduledNet {
         setLastStartTime(ZonedDateTime.now().minusYears(1));
         setNextStartTime(calculateNextStartTime());
         this.checkinReminder = checkinReminder;
+        this.checkinMessage = checkinMessage;
     }
 
     public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, 
-                                String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, ZonedDateTime lastStartTime, ZonedDateTime nextStartTime, boolean checkinReminder) {
+                                String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, ZonedDateTime lastStartTime, ZonedDateTime nextStartTime, boolean checkinReminder, String checkinMessage) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -67,6 +68,7 @@ public class ScheduledNet {
         setLastStartTime(lastStartTime);
         setNextStartTime(nextStartTime);
         this.checkinReminder = checkinReminder;
+        this.checkinMessage = checkinMessage;
     }
 
     public ScheduledNet(ScheduledNet scheduledNet) {
@@ -86,6 +88,7 @@ public class ScheduledNet {
             setLastStartTime(scheduledNet.getLastStartTime());
             setNextStartTime(scheduledNet.getNextStartTime());
             this.checkinReminder = scheduledNet.isCheckinReminder();
+            this.checkinMessage = scheduledNet.getCheckinMessage();
         }
     }
 
@@ -265,5 +268,11 @@ public class ScheduledNet {
     }
     public void setCheckinReminder(boolean checkinReminder) {
         this.checkinReminder = checkinReminder;
+    }
+    public String getCheckinMessage() {
+        return checkinMessage;
+    }
+    public void setCheckinMessage(String checkinMessage) {
+        this.checkinMessage = checkinMessage;
     }
 }

@@ -18,6 +18,7 @@ var dialogCreateNet = ref(null);
 var dialogCreateNetShow = reactive({ value : false });
 const accesstokenRef = reactive({ value : '' });
 const localLoggedInUserRef = reactive({ value : null });
+const netCheckinMessageRef = reactive({ value : '' });
 const netDescriptionRef = reactive({ value : '' });
 const netCreatedByRef = reactive({ value : '' });
 const netLatitudeRef = reactive({ value : '' });
@@ -104,6 +105,7 @@ function createNet() {
     netNameRef.value = '';
     netActiveRef.value = 'true';
     netDescriptionRef.value = '';
+    netCheckinMessageRef.value = '';
     netLatitudeRef.value = '';
     netLongitudeRef.value = '';
     netAnnouncedRef.value = 'true';
@@ -138,7 +140,7 @@ function performCreateNetActive() {
     }
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
-                        announce : announce , creatorName : localLoggedInUserRef.value.emailAddress, checkinReminder : checkinReminder };
+                        announce : announce , creatorName : localLoggedInUserRef.value.emailAddress, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value };
     // active net
     const requestOptions = {
       method: "POST",
@@ -175,7 +177,7 @@ function performCreateNetScheduled() {
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
                         announce : announce , creatorName : localLoggedInUserRef.value.emailAddress,
-                        type: netTypeRef.value,  dayStart: netDayStartRef.value, timeStartStr: netTimeStartStrRef.value, duration: netDurationRef.value, checkinReminder : checkinReminder };
+                        type: netTypeRef.value,  dayStart: netDayStartRef.value, timeStartStr: netTimeStartStrRef.value, duration: netDurationRef.value, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value  };
 
     // scheduled net
     const requestOptions = {
@@ -222,27 +224,31 @@ function performCreateNet() {
             <br>
               <div>
                 <label for="callsignField">Callsign:</label>
-                <input type="text" id="callsignField" v-model="netCallsignRef" />
+                <input type="text" id="callsignField" v-model="netCallsignRef"  maxlength="10"/>
               </div>
               <div>
                 <label for="nameField">Name:</label>
-                <input type="text" id="nameField" v-model="netNameRef" />
+                <input type="text" id="nameField" v-model="netNameRef" maxlength="30" />
               </div>
               <div>
                 <label for="descriptionField">Description:</label>
-                <input type="text" id="descriptionField" v-model="netDescriptionRef.value" />
+                <input type="text" id="descriptionField" v-model="netDescriptionRef.value" maxlength="50" />
+              </div>
+              <div>
+                <label for="checkinMessageField">Check-in message:</label>
+                <input type="text" id="checkinMessageField" v-model="netCheckinMessageRef.value" maxlength="50" />
               </div>
               <div>
                 <label for="voiceFrequencyField">Voice Frequency:</label>
-                <input type="text" id="voiceFrequencyField" v-model="netVoiceFrequencyRef.value" />
+                <input type="text" id="voiceFrequencyField" v-model="netVoiceFrequencyRef.value" maxlength="20"/>
               </div>
               <div>
                 <label for="latitudeField">Latitude:</label>
-                <input type="text" id="latitudeField" v-model="netLatitudeRef.value" />
+                <input type="text" id="latitudeField" v-model="netLatitudeRef.value" maxlength="20"/>
               </div>
               <div>
                 <label for="longitudeField">Longitude:</label>
-                <input type="text" id="longitudeField" v-model="netLongitudeRef.value" />
+                <input type="text" id="longitudeField" v-model="netLongitudeRef.value" maxlength="20"/>
               </div>
               <!-- announced -->
               <div>

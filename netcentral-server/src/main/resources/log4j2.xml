@@ -25,13 +25,13 @@
 		</RollingFile>
 	</Appenders>
     <Loggers>
-        <Logger name="netcentral.server" level="debug" additivity="false">
+        <Logger name="netcentral.server" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Logger name="io.micronaut" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
-		<Logger name="io.socket.client" level="ebug" additivity="false">
+		<Logger name="io.socket.client" level="info" additivity="false">
             <AppenderRef ref="fileLogger"/>
         </Logger>
         <Root level="info">

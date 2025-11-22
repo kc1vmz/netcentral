@@ -61,6 +61,10 @@ function processUpdateNetEvent(newValue) {
     if (netsRef.value.length > 0) {
       var index = getSelectedCallsignIndex();
       updateIndexes(index);
+    } else {
+      netsRef.value = null;
+        localSelectedNet.ncSelectedNet = null;
+        updateLocalSelectedNet(null); 
     }
   } else if (newValue.value.action == "Update") {
     if (netsRef.value != null) {
@@ -126,6 +130,7 @@ const previousNetCallsignRef = reactive({ value : ''});
 const accesstokenRef = reactive({ value : ''});
 const localLoggedInUserRef = reactive({ value : {}});
 const errorMessageRef = reactive({ value : ''});
+const netCheckinMessageRef = reactive({ value : ''});
 
 
 const dialogCloseNetRef = ref(null);
@@ -138,6 +143,7 @@ const dialogEditNetShowRef = reactive({ value : ''});
 
 const netName2Ref = reactive({ value : ''});
 const netDescription2Ref = reactive({ value : ''});
+const netCheckinMessage2Ref = reactive({ value : ''});
 const netCallsign2Ref = reactive({ value : ''});
 const netStartTime2Ref = reactive({ value : ''});
 const netAnnounced2Ref = reactive({ value : ''});
@@ -158,6 +164,7 @@ function updateLocalSelectedNet(net) {
     netCallsignRef.value = net.callsign;
     netNameRef.value = net.name;
     netDescriptionRef.value = net.description;    
+    netCheckinMessageRef.value = net.checkinMessage;    
     netCheckinReminderRef.value = net.checkinReminder,
     netCreatedByRef.value = net.creatorName;
     netLatitudeRef.value = net.lat;
@@ -460,6 +467,7 @@ function editNet() {
     netName2Ref.value = netNameRef.value;
     netActive2Ref.value = netActiveRef.value;
     netDescription2Ref.value = netDescriptionRef.value;
+    netCheckinMessage2Ref.value = netCheckinMessageRef.value;
     netCheckinReminderRef.value = netCheckinReminderRef.value,
     netCallsign2Ref.value  = netCallsignRef.value;
     netAnnounced2Ref.value = netAnnouncedRef.value;
@@ -489,7 +497,7 @@ function performEditNetActive() {
                         startTime : localSelectedNet.ncSelectedNet.startTime, completedNetId : localSelectedNet.ncSelectedNet.completedNetId,
                         voiceFrequency : netVoiceFrequency2Ref.value, lat : localSelectedNet.ncSelectedNet.lat, lon : localSelectedNet.ncSelectedNet.lon, 
                         announce : localSelectedNet.ncSelectedNet.announce, checkinReminder: localSelectedNet.ncSelectedNet.checkinReminder, 
-                        creatorName : localSelectedNet.ncSelectedNet.creatorName };
+                        creatorName : localSelectedNet.ncSelectedNet.creatorName, checkinMessage: netCheckinMessage2Ref.value };
     // active net
     const requestOptions = {
       method: "PUT",
@@ -507,6 +515,7 @@ function performEditNetActive() {
             localSelectedNet.ncSelectedNet.voiceFrequency = netVoiceFrequency2Ref.value;
             netDescriptionRef.value = netDescription2Ref.value;
             netVoiceFrequencyRef.value = netVoiceFrequency2Ref.value;
+            netCheckinMessageRef.value = netCheckinMessage2Ref.value;
             nudgeUpdateNet(localSelectedNet.ncSelectedNet);
         } else {
           errorMessageRef.value = "An error occurred modifying the net.";
@@ -525,7 +534,7 @@ function performEditNetScheduled() {
                         type: localSelectedNet.ncSelectedNet.type,  dayStart: localSelectedNet.ncSelectedNet.dayStart, 
                         timeStartStr: localSelectedNet.ncSelectedNet.timeStartStr, duration: localSelectedNet.ncSelectedNet.duration,
                         checkinReminder: localSelectedNet.ncSelectedNet.checkinReminder, lastStartTime: localSelectedNet.ncSelectedNet.lastStartTime,
-                        nextStartTime : localSelectedNet.ncSelectedNet.nextStartTime};
+                        nextStartTime : localSelectedNet.ncSelectedNet.nextStartTime, checkinMessage : netCheckinMessage2Ref.value};
     // scheduled net
     const requestOptions = {
       method: "PUT",
@@ -542,6 +551,7 @@ function performEditNetScheduled() {
             localSelectedNet.ncSelectedNet.description = netDescription2Ref.value;
             localSelectedNet.ncSelectedNet.voiceFrequency = netVoiceFrequencyRef.value;
             netDescriptionRef.value = netDescription2Ref.value;
+            netCheckinMessageRef.value = netCheckinMessage2Ref.value;
             netVoiceFrequencyRef.value = netVoiceFrequency2Ref.value;
             nudgeUpdateNet(localSelectedNet.ncSelectedNet);
         } else {
@@ -612,6 +622,10 @@ function performEditNet() {
               <div>
                 <label for="descriptionField">Description:</label>
                 <input type="text" id="descriptionField" v-model="netDescription2Ref.value" />
+              </div>
+              <div>
+                <label for="checkinMessageField">Check-in message:</label>
+                <input type="text" id="checkinMessageField" v-model="netCheckinMessage2Ref.value" maxlength="50" />
               </div>
               <div>
                 <label for="voiceFrequencyField">Voice Frequency:</label>

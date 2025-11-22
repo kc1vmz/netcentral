@@ -23,6 +23,7 @@ public class ScheduledNetCreateRequestExternal {
     private int duration;
     private String creatorName;
     private String checkinReminder;
+    private String checkinMessage;
     
     public ScheduledNetCreateRequestExternal() {
     }
@@ -42,10 +43,11 @@ public class ScheduledNetCreateRequestExternal {
         this.timeStartStr = req.timeStartStr();
         this.duration = req.duration();
         this.checkinReminder = req.checkinReminder();
+        this.checkinMessage = req.checkinMessage();
     }
 
     public ScheduledNetCreateRequestExternal(String callsign, String name, String description, Integer type, String voiceFrequency, String lat, String lon, 
-                                                    String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder) {
+                                                    String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder, String checkinMessage) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -59,6 +61,7 @@ public class ScheduledNetCreateRequestExternal {
         this.timeStartStr = timeStartStr;
         this.duration = duration;
         this.checkinReminder = checkinReminder;
+        this.checkinMessage = checkinMessage;
     }
 
     public String getCallsign() {
@@ -143,14 +146,14 @@ public class ScheduledNetCreateRequestExternal {
                                                 (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                                 getCreatorName(), 
                                                 getDayStart(), 0, getDuration(), lastStartTime, nextStartTime,
-                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false);
+                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage());
         } else {
             ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
                                     getLat(), getLon(), 
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
                                     getDayStart(), convertTimeStartStringToInt(getTimeStartStr()), getDuration(),
-                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false);
+                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage());
         }
         ret.setNextStartTime(ret.calculateNextStartTime());
 
@@ -190,9 +193,13 @@ public class ScheduledNetCreateRequestExternal {
     public String getCheckinReminder() {
         return checkinReminder;
     }
-
     public void setCheckinReminder(String checkinReminder) {
         this.checkinReminder = checkinReminder;
     }
-
+    public String getCheckinMessage() {
+        return checkinMessage;
+    }
+    public void setCheckinMessage(String checkinMessage) {
+        this.checkinMessage = checkinMessage;
+    }
 }

@@ -16,6 +16,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterStat
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.auth.SessionCacheAccessor;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.ObjectEOCStatus;
 import netcentral.server.enums.ObjectShelterState;
 import netcentral.server.enums.ObjectShelterStatus;
@@ -23,6 +24,7 @@ import netcentral.server.enums.TrackedStationType;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
+import netcentral.server.object.IgnoreStation;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
 import netcentral.server.object.RenderedMapItem;
@@ -64,6 +66,10 @@ public class SummaryAccessor {
     private APRSObjectAccessor aprsObjectAccessor;
     @Inject
     private ReportAccessor reportAccessor;
+    @Inject
+    private IgnoreStationAccessor ignoreStationAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
 
     public SummaryDashboard getDashboardSummary(User loggedInUser) {
@@ -216,7 +222,7 @@ public class SummaryAccessor {
 
 
     public SummaryMapPoints getNetMapPoints(User loggedInUser, String callsign, Boolean includeTrackedStations, Boolean includeInfrastructure, Boolean includeObjects, Boolean includePriorityObjects) {
-        SummaryMapPoints ret = new SummaryMapPoints();
+        SummaryMapPoints ret = new SummaryMapPoints(netConfigServerConfig.getLatitudeMin(), netConfigServerConfig.getLatitudeMax(), netConfigServerConfig.getLongitudeMin(), netConfigServerConfig.getLongitudeMax());
         List<RenderedMapItem> items = new ArrayList<>();
 
         // fix up inputs
@@ -432,7 +438,7 @@ public class SummaryAccessor {
     }
 
     public SummaryMapPoints getObjectTypeMapPoints(User loggedInUser, String objectType) {
-        SummaryMapPoints ret = new SummaryMapPoints();
+        SummaryMapPoints ret = new SummaryMapPoints(netConfigServerConfig.getLatitudeMin(), netConfigServerConfig.getLatitudeMax(), netConfigServerConfig.getLongitudeMin(), netConfigServerConfig.getLongitudeMax());
         List<RenderedMapItem> items = new ArrayList<>();
 
         if (objectType == null) {
@@ -481,6 +487,25 @@ public class SummaryAccessor {
                         if ((object.getLat() != null) && (object.getLon() != null)) {
                             RenderedMapItem item = new RenderedMapItem(
                                 object.getLon(), object.getLat(), getNameField(object), getTitleField(object), renderObject);
+                            if (item.isValid()) {
+                                item.setObject(true);
+                                items.add(item);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Exception caught building object type map points", e);
+            }
+        } else if (objectType.equalsIgnoreCase("ignore")) {
+            try {
+                List<IgnoreStation> objects = ignoreStationAccessor.getAll(loggedInUser, null);
+                if (objects != null) {
+                    for (IgnoreStation object : objects) {
+                        Object renderObject = object;
+                        if ((object.getLat() != null) && (object.getLon() != null)) {
+                            RenderedMapItem item = new RenderedMapItem(
+                                object.getLon(), object.getLat(), object.getCallsign(), object.getType().name(), renderObject);
                             if (item.isValid()) {
                                 item.setObject(true);
                                 items.add(item);

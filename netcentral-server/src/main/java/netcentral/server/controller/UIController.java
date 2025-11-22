@@ -360,7 +360,7 @@ public class UIController {
 
         Net net = new Net(messageRequest.callsign(), messageRequest.name(), messageRequest.description(), messageRequest.voiceFrequency(), 
                                 ZonedDateTime.now(), completed_net_id, messageRequest.lat(), messageRequest.lon(), announce,
-                                getUserName(loggedInUser), messageRequest.checkinReminder());
+                                getUserName(loggedInUser), messageRequest.checkinReminder(), messageRequest.checkinMessage());
         netAccessor.create(loggedInUser, net);
         return HttpResponse.seeOther(UriBuilder.of("/").path("/nets").build());
     } 

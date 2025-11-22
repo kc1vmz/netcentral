@@ -171,7 +171,7 @@ public class NetParticipantAccessor {
         List<NetParticipantRecord> participantRecs = netParticipantRepository.findByparticipant_callsign(participant.getCallsign());
         if ((participantRecs != null) && (!participantRecs.isEmpty())) {
             for (NetParticipantRecord rec: participantRecs) {
-                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false));
+                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false, null));
             }
         }
         return ret;

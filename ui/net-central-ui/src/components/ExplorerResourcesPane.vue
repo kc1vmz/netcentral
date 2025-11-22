@@ -6,7 +6,7 @@ import { ref, watch, reactive, onMounted } from 'vue';
 import { nudgeObject, nudge, nudgeUpdateObject, nudgeUpdate, nudgeRemoveObject, nudgeRemove, nudgeAddObject, nudgeAdd  } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
-import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateAllEvent } from "@/UpdateEvents.js";
+import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateCallsign, updateAll, updateAllEvent, updateIgnored, updateIgnoredEvent } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
 
 
@@ -20,6 +20,9 @@ socket.on("updateObject", (data) => {
 socket.on("updateCallsign", (data) => {
   updateCallsign(data)
 });
+socket.on("updateIgnored", (data) => {
+  updateIgnored(data)
+});
 socket.on("updateAll", (data) => {
   updateAll(data)
 });
@@ -29,9 +32,6 @@ function updateTrackedStation(data) {
 }
 function updateObject(data) {
     updateObjectEvent.value = JSON.parse(data);
-}
-function updateCallsign(data) {
-    updateCallsignEvent.value = JSON.parse(data);
 }
 
 const localSelectedObjectType = reactive({value : ""});
@@ -54,6 +54,41 @@ function populate() {
 onMounted(async () => {
   populate();
 });
+
+watch(updateIgnoredEvent, (newValue, oldValue) => {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (localSelectedObjectType.value == "IGNORE") {
+    if (newValue.value.action == "Create") {
+        var found = false;
+        if (trackedStations.value != null) {
+          trackedStations.value.forEach(function(trackedStation){
+            if ((!found) && (trackedStation.callsign == newValue.value.callsign)) {
+              found = true;
+            }
+          });
+        }
+        if (!found) {
+          if (trackedStations.value == null) {
+            trackedStations.value = [];
+          }
+          newValue.value.object.id = newValue.value.object.callsign; // UI looking for callsign 
+          trackedStations.value.push(newValue.value.object);
+        }
+    } else if (newValue.value.action == "Delete") {
+      const indexToRemove = trackedStations.value.findIndex(obj => obj.callsign === newValue.value.callsign);
+      if (indexToRemove !== -1) {
+        if ((selectedItem.value != null) && (selectedItem.value.callsign === newValue.value.callsign)) {
+          selectedItem.value = null;
+          updateSelectedObject(null); 
+        }
+        trackedStations.value.splice(indexToRemove, 1);
+      }
+    }
+  }
+});
+
 
 watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -107,6 +142,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
     }
   }
 });
+
 
 watch(updateObjectEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -253,6 +289,12 @@ const headersPriority = [
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
         { text: "Last Heard", value: "prettyLastHeard", sortable: true}];
+const headersIgnore = [
+        { text: "Callsign", value: "callsign", sortable: true },
+        { text: "Type", value: "type", sortable: true},
+        { text: "Lat", value: "lat", sortable: true},
+        { text: "Lon", value: "lon", sortable: true},
+        { text: "Ignored since", value: "prettyLastHeard", sortable: true}];  // reusing prettyLastHeard
 
 function showRow(item) {
     selectedItem.value = item;
@@ -307,6 +349,8 @@ function updateObjects() {
         url = buildNetCentralUrl('/trackedStations?type=DSTAR');
       } else if (localSelectedObjectType.value == 'CALLSIGN') {
         url = buildNetCentralUrl('/callsigns');
+      } else if (localSelectedObjectType.value == 'IGNORE') {
+        url = buildNetCentralUrl('/ignoreStations');
       }
       var requestOptions = {
         method: "GET",
@@ -339,9 +383,16 @@ function updateObjects() {
               if (objects != null) {
                 objects.forEach(function(objectItem){
                                 objectItem.id = objectItem.callsign;
-                                objectItem.callsign = objectItem.callsign;
                                 objectItem.prettyLastHeard = "";
                                 objectItem.status = "Heard";
+                            });
+              }
+              trackedStations.value = objects;
+            } else if (localSelectedObjectType.value == 'IGNORE') {
+              var objects = data;
+              if (objects != null) {
+                objects.forEach(function(objectItem){
+                                objectItem.id = objectItem.callsign;
                             });
               }
               trackedStations.value = objects;
@@ -476,6 +527,20 @@ watch(nudgeRemoveObject, (newNudgeRemoveObject, oldNudgeRemoveObject) => {
       </div>
       <div v-else>
         <EasyDataTable :headers="headersCallsign" :items="trackedStations.value" 
+        :rows-per-page="10"
+        :body-row-class-name="getBodyRowClass"
+        @click-row="showRow" buttons-pagination
+        />
+      </div>
+    </div>
+    <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IGNORE'))">
+      <div v-if="((trackedStations.value == null) || (trackedStations.value.length == 0))">
+        <br>
+        <br>
+        <br><i>No stations being ignored.</i>
+      </div>
+      <div v-else>
+        <EasyDataTable :headers="headersIgnore" :items="trackedStations.value" 
         :rows-per-page="10"
         :body-row-class-name="getBodyRowClass"
         @click-row="showRow" buttons-pagination

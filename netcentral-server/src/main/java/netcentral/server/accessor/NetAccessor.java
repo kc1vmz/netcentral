@@ -59,7 +59,7 @@ public class NetAccessor {
                     // only take those with the optional root
                     continue;
                 }
-                ret.add(new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder()));
+                ret.add(new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), rec.checkin_message()));
             }
         }
 
@@ -76,7 +76,7 @@ public class NetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
         NetRecord rec = recOpt.get();
-        return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder());
+        return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), rec.checkin_message());
     }
 
     public Net getByCallsign(User loggedInUser, String callsign) {
@@ -90,7 +90,7 @@ public class NetAccessor {
             if (rec == null) {
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
             }
-            return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder());
+            return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), rec.checkin_message());
         } catch (Exception e) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
@@ -123,7 +123,7 @@ public class NetAccessor {
         NetRecord src = new NetRecord(obj.getCallsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             ZonedDateTime.now(), completed_net_id, obj.getLat(), obj.getLon(), obj.isAnnounce(),
-                                            creatorName, obj.isCheckinReminder());
+                                            creatorName, obj.isCheckinReminder(), obj.getCheckinMessage());
         NetRecord rec = netRepository.save(src);
         if (rec != null) {
             obj.setCompletedNetId(completed_net_id);
@@ -204,7 +204,7 @@ public class NetAccessor {
         NetRecord rec = recOpt.get();
         NetRecord updatedRec = new NetRecord(rec.callsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
-                                            obj.getStartTime(), obj.getCompletedNetId(), obj.getLat(), obj.getLon(), obj.isAnnounce(), rec.creator_name(), obj.isCheckinReminder());
+                                            obj.getStartTime(), obj.getCompletedNetId(), obj.getLat(), obj.getLon(), obj.isAnnounce(), rec.creator_name(), obj.isCheckinReminder(), obj.getCheckinMessage());
 
         netRepository.update(updatedRec);
         obj = get(loggedInUser, id);
