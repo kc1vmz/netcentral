@@ -1,12 +1,12 @@
 package com.kc1vmz.netcentral.aprsobject.object.reports;
 
-public class APRSNetControlReport {
+public class APRSNetCentralReport {
     private String reportObjectType;
     private String reportType;
     private String reportData;
     private String objectName;
 
-    public APRSNetControlReport(){
+    public APRSNetCentralReport(){
     }
 
     public String getReportObjectType() {

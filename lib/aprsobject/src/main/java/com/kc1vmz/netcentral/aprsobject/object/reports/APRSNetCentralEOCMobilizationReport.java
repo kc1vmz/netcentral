@@ -2,17 +2,17 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlEOCMobilizationReport extends APRSNetControlReport {
+public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
 
     private Integer status;
     private Integer level;
     private String eocName;
     private ZonedDateTime lastReportedTime;
 
-    public APRSNetControlEOCMobilizationReport(){
+    public APRSNetCentralEOCMobilizationReport(){
         super();
     }
-    public APRSNetControlEOCMobilizationReport(String objectName, String eocName, int status, int level, ZonedDateTime lastReportedTime) {
+    public APRSNetCentralEOCMobilizationReport(String objectName, String eocName, int status, int level, ZonedDateTime lastReportedTime) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("EO"); // EOC
@@ -57,8 +57,8 @@ public class APRSNetControlEOCMobilizationReport extends APRSNetControlReport {
     public void setEocName(String eocName) {
         this.eocName = eocName;
     }
-    public static APRSNetControlEOCMobilizationReport isValid(String objectName, String message) {
-        APRSNetControlEOCMobilizationReport ret = null;
+    public static APRSNetCentralEOCMobilizationReport isValid(String objectName, String message) {
+        APRSNetCentralEOCMobilizationReport ret = null;
         if ((message != null) && (message.length() >= 14 )) {
             //"EOMO%d%d%4d%02d%02d%s", status, level, lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth(),  eocName);
             String objectType = message.substring(0, 2);
@@ -80,7 +80,7 @@ public class APRSNetControlEOCMobilizationReport extends APRSNetControlReport {
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlEOCMobilizationReport(objectName, eocName, Integer.parseInt(status), Integer.parseInt(level), time);
+                        ret = new APRSNetCentralEOCMobilizationReport(objectName, eocName, Integer.parseInt(status), Integer.parseInt(level), time);
                     } catch (Exception e) {
                         ret = null;
                     }

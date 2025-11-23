@@ -4,12 +4,12 @@ import { selectedObject , updateSelectedObject } from "@/SelectedObject.js";
 import { ref, watch, reactive, onMounted } from 'vue';
 
 watch(selectedObjectType, (newValue, oldValue) => {
-  localStorage.setItem('NetControl-explorer-type', JSON.stringify(newValue))
+  localStorage.setItem('NetCentral-explorer-type', JSON.stringify(newValue))
   updateSelectedObject( null ) ;
 });
 
 onMounted(async () => {
-  const explorerType = localStorage.getItem('NetControl-explorer-type')
+  const explorerType = localStorage.getItem('NetCentral-explorer-type')
   if (explorerType) {
     var value = JSON.parse(explorerType)
     updateSelectedObjectType(value.value);

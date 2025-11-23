@@ -2,7 +2,7 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlShelterOperationalMaterielReport extends APRSNetControlReport {
+public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentralReport {
     private int timePeriod;
     private int cots;
     private int blankets; 
@@ -14,10 +14,10 @@ public class APRSNetControlShelterOperationalMaterielReport extends APRSNetContr
     private ZonedDateTime dateReported;
 
 
-    public APRSNetControlShelterOperationalMaterielReport(){
+    public APRSNetCentralShelterOperationalMaterielReport(){
         super();
     }
-    public APRSNetControlShelterOperationalMaterielReport(String objectName, int timePeriod, int cots, int blankets, int comfort, int cleanup, int signage, int other, ZonedDateTime date, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterOperationalMaterielReport(String objectName, int timePeriod, int cots, int blankets, int comfort, int cleanup, int signage, int other, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("SH"); // shelter
@@ -93,8 +93,8 @@ public class APRSNetControlShelterOperationalMaterielReport extends APRSNetContr
     public void setDateReported(ZonedDateTime dateReported) {
         this.dateReported = dateReported;
     }
-    public static APRSNetControlShelterOperationalMaterielReport isValid(String objectName, String message) {
-        APRSNetControlShelterOperationalMaterielReport ret = null;
+    public static APRSNetCentralShelterOperationalMaterielReport isValid(String objectName, String message) {
+        APRSNetCentralShelterOperationalMaterielReport ret = null;
         if ((message != null) && (message.length() == 49)) {
             //"SHOM%d%06d%06d%06d%06d%06d%06d%04d%02d%02d",timePeriod, cots, blankets, comfort, cleanup, signage, other, dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
             
@@ -116,7 +116,7 @@ public class APRSNetControlShelterOperationalMaterielReport extends APRSNetContr
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlShelterOperationalMaterielReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(cots), Integer.parseInt(blankets),
+                        ret = new APRSNetCentralShelterOperationalMaterielReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(cots), Integer.parseInt(blankets),
                                                                         Integer.parseInt(comfort), Integer.parseInt(cleanup), Integer.parseInt(signage), Integer.parseInt(other), time, ZonedDateTime.now());
                     } catch (Exception e) {
                         ret = null;

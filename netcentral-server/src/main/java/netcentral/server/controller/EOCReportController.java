@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCContactReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCMobilizationReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCContactReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCMobilizationReport;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
@@ -64,7 +64,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetControlEOCMobilizationReport report =  reportAccessor.getEOCMobilizationInformation(loggedInUser, obj.getCallsignFrom());
+        APRSNetCentralEOCMobilizationReport report =  reportAccessor.getEOCMobilizationInformation(loggedInUser, obj.getCallsignFrom());
 
         ObjectEOCMobilizationReport ret = new ObjectEOCMobilizationReport(report.getObjectName(), report.getEocName(), obj.getComment(), ObjectType.EOC, 
                                                             obj.getLat(), obj.getLon(), obj.isAlive(), 
@@ -81,11 +81,11 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        List<APRSNetControlEOCMobilizationReport> reports =  reportAccessor.getAllEOCMobilizationInformation(loggedInUser, obj.getCallsignFrom());
+        List<APRSNetCentralEOCMobilizationReport> reports =  reportAccessor.getAllEOCMobilizationInformation(loggedInUser, obj.getCallsignFrom());
 
         List<ObjectEOCMobilizationReport> ret = new ArrayList<>();
         if (reports != null) {
-            for (APRSNetControlEOCMobilizationReport report : reports) {
+            for (APRSNetCentralEOCMobilizationReport report : reports) {
                 ret.add(new ObjectEOCMobilizationReport(report.getObjectName(), report.getEocName(), obj.getComment(), ObjectType.EOC, 
                                                             obj.getLat(), obj.getLon(), obj.isAlive(), 
                                                             ObjectEOCStatus.values()[report.getStatus()],
@@ -103,7 +103,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetControlEOCContactReport report =  reportAccessor.getEOCContactInformation(loggedInUser, obj.getCallsignFrom());
+        APRSNetCentralEOCContactReport report =  reportAccessor.getEOCContactInformation(loggedInUser, obj.getCallsignFrom());
 
         ObjectEOCContactReport ret = new ObjectEOCContactReport(report.getObjectName(), obj.getComment(), ObjectType.EOC, 
                                                             obj.getLat(), obj.getLon(), obj.isAlive(), 
@@ -120,11 +120,11 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        List<APRSNetControlEOCContactReport> reports =  reportAccessor.getAllEOCContactInformation(loggedInUser, obj.getCallsignFrom());
+        List<APRSNetCentralEOCContactReport> reports =  reportAccessor.getAllEOCContactInformation(loggedInUser, obj.getCallsignFrom());
 
         List<ObjectEOCContactReport> ret = new ArrayList<>();
         if (reports != null) {
-            for (APRSNetControlEOCContactReport report : reports) {
+            for (APRSNetCentralEOCContactReport report : reports) {
                 ret.add(new ObjectEOCContactReport(report.getObjectName(), obj.getComment(), ObjectType.EOC, 
                                                             obj.getLat(), obj.getLon(), obj.isAlive(), 
                                                             report.getDirectorName(),
@@ -142,7 +142,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetControlEOCContactReport aprsReport = new APRSNetControlEOCContactReport(obj.getCallsignFrom(), report.getDirectorName(), report.getIncidentCommanderName(), ZonedDateTime.now());
+        APRSNetCentralEOCContactReport aprsReport = new APRSNetCentralEOCContactReport(obj.getCallsignFrom(), report.getDirectorName(), report.getIncidentCommanderName(), ZonedDateTime.now());
         aprsReport = reportAccessor.addEOCContactReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -162,7 +162,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetControlEOCMobilizationReport aprsReport = new APRSNetControlEOCMobilizationReport(obj.getCallsignFrom(), report.getEocName(), report.getStatus().ordinal(), report.getLevel(), ZonedDateTime.now());
+        APRSNetCentralEOCMobilizationReport aprsReport = new APRSNetCentralEOCMobilizationReport(obj.getCallsignFrom(), report.getEocName(), report.getStatus().ordinal(), report.getLevel(), ZonedDateTime.now());
         aprsReport = reportAccessor.addEOCMobilizationReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message

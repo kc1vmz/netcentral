@@ -7,8 +7,8 @@ import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.kenwood.client.NetControlRESTClient;
-import netcentral.transceiver.kenwood.config.NetControlClientConfig;
+import netcentral.transceiver.kenwood.client.NetCentralRESTClient;
+import netcentral.transceiver.kenwood.config.NetCentralClientConfig;
 import netcentral.transceiver.kenwood.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.kenwood.object.RegisterRequest;
 import netcentral.transceiver.kenwood.object.User;
@@ -16,9 +16,9 @@ import netcentral.transceiver.kenwood.object.User;
 @Singleton
 public class RegisteredTransceiverAccessor {
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
     @Inject
     private RegisteredTransceiverConfig registeredTransceiverConfig;
 

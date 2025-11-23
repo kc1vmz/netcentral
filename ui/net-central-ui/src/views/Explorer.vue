@@ -46,13 +46,13 @@ var router = useRouter();
 
 onMounted(() => {
   redirect(getToken(), "Explorer", router);
-  const storedSizesExplorer1 = localStorage.getItem('NetControl-splitpanes-sizes-explorer-1')
+  const storedSizesExplorer1 = localStorage.getItem('NetCentral-splitpanes-sizes-explorer-1')
   if (storedSizesExplorer1) {
     paneSizes1.value = JSON.parse(storedSizesExplorer1)
   } else {
     paneSizes1.value = 50;
   }
-  const storedSizesExplorer2 = localStorage.getItem('NetControl-splitpanes-sizes-explorer-2')
+  const storedSizesExplorer2 = localStorage.getItem('NetCentral-splitpanes-sizes-explorer-2')
   if (storedSizesExplorer2) {
     paneSizes2.value = JSON.parse(storedSizesExplorer2)
   } else {
@@ -62,11 +62,11 @@ onMounted(() => {
 
 const storePaneSize1 = ({ prevPane }) => {
   paneSizes1.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-explorer-1', JSON.stringify(paneSizes1.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-explorer-1', JSON.stringify(paneSizes1.value))
 }
 const storePaneSize2 = ({ prevPane }) => {
   paneSizes2.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-explorer-2', JSON.stringify(paneSizes2.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-explorer-2', JSON.stringify(paneSizes2.value))
 }
 </script>
 

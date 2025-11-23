@@ -8,13 +8,13 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterCensusReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterOperationalFoodReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterOperationalMaterielReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterStatusReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterWorkerReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCContactReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCMobilizationReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterCensusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalFoodReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalMaterielReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStatusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterWorkerReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCContactReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCMobilizationReport;
 
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
@@ -57,8 +57,8 @@ public class ReportAccessor {
     private EOCContactReportRepository eocContactReportRepository;
 
 
-    public APRSNetControlShelterCensusReport getLatestShelterCensusReport(User loggedInUser, String callsign) {
-        APRSNetControlShelterCensusReport report = null;
+    public APRSNetCentralShelterCensusReport getLatestShelterCensusReport(User loggedInUser, String callsign) {
+        APRSNetCentralShelterCensusReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -79,7 +79,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlShelterCensusReport(latestRecord.callsign(), latestRecord.p03(), latestRecord.p47(), latestRecord.p812(), latestRecord.p1318(), latestRecord.p1965(), latestRecord.p66(), latestRecord.reported_date());
+                 report = new APRSNetCentralShelterCensusReport(latestRecord.callsign(), latestRecord.p03(), latestRecord.p47(), latestRecord.p812(), latestRecord.p1318(), latestRecord.p1965(), latestRecord.p66(), latestRecord.reported_date());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -88,8 +88,8 @@ public class ReportAccessor {
     }
 
 
-    public List<APRSNetControlShelterCensusReport> getAllLatestShelterCensusReport(User loggedInUser, String callsign) {
-        List<APRSNetControlShelterCensusReport> reports = new ArrayList<>();
+    public List<APRSNetCentralShelterCensusReport> getAllLatestShelterCensusReport(User loggedInUser, String callsign) {
+        List<APRSNetCentralShelterCensusReport> reports = new ArrayList<>();
 
         if (callsign == null) {
             logger.debug("callsign id not provided");
@@ -101,7 +101,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterCensusReportRecord rec : records) {
-                    reports.add(new APRSNetControlShelterCensusReport(rec.callsign(), rec.p03(), rec.p47(), rec.p812(), rec.p1318(), rec.p1965(), rec.p66(), rec.reported_date()));
+                    reports.add(new APRSNetCentralShelterCensusReport(rec.callsign(), rec.p03(), rec.p47(), rec.p812(), rec.p1318(), rec.p1965(), rec.p66(), rec.reported_date()));
                 }
             }
         } catch (Exception e) {
@@ -110,8 +110,8 @@ public class ReportAccessor {
         return reports;
     }
 
-    public APRSNetControlShelterStatusReport getLatestShelterStatusReport(User loggedInUser, String callsign) {
-        APRSNetControlShelterStatusReport report = null;
+    public APRSNetCentralShelterStatusReport getLatestShelterStatusReport(User loggedInUser, String callsign) {
+        APRSNetCentralShelterStatusReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -132,7 +132,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlShelterStatusReport(latestRecord.callsign(), latestRecord.status(), latestRecord.state(), latestRecord.message(), latestRecord.reported_date());
+                 report = new APRSNetCentralShelterStatusReport(latestRecord.callsign(), latestRecord.status(), latestRecord.state(), latestRecord.message(), latestRecord.reported_date());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -140,8 +140,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public APRSNetControlShelterWorkerReport getLatestShelterWorkerReport(User loggedInUser, String callsign, int shift) {
-        APRSNetControlShelterWorkerReport report = null;
+    public APRSNetCentralShelterWorkerReport getLatestShelterWorkerReport(User loggedInUser, String callsign, int shift) {
+        APRSNetCentralShelterWorkerReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -164,7 +164,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlShelterWorkerReport(latestRecord.callsign(), latestRecord.shift(), latestRecord.health(), latestRecord.mental(), latestRecord.spiritual(), 
+                 report = new APRSNetCentralShelterWorkerReport(latestRecord.callsign(), latestRecord.shift(), latestRecord.health(), latestRecord.mental(), latestRecord.spiritual(), 
                                                                 latestRecord.caseworker(), latestRecord.feeding(), latestRecord.other(), latestRecord.date());
             }
         } catch (Exception e) {
@@ -173,8 +173,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public APRSNetControlShelterOperationalFoodReport getLatestShelterOperationalFoodReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe) {
-        APRSNetControlShelterOperationalFoodReport report = null;
+    public APRSNetCentralShelterOperationalFoodReport getLatestShelterOperationalFoodReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe) {
+        APRSNetCentralShelterOperationalFoodReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -197,7 +197,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlShelterOperationalFoodReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.breakfast(), latestRecord.lunch(), latestRecord.dinner(), latestRecord.snack(), latestRecord.date(), latestRecord.reported_date());
+                 report = new APRSNetCentralShelterOperationalFoodReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.breakfast(), latestRecord.lunch(), latestRecord.dinner(), latestRecord.snack(), latestRecord.date(), latestRecord.reported_date());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -205,8 +205,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public APRSNetControlShelterOperationalMaterielReport getLatestShelterOperationalMaterielReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe) {
-        APRSNetControlShelterOperationalMaterielReport report = null;
+    public APRSNetCentralShelterOperationalMaterielReport getLatestShelterOperationalMaterielReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe) {
+        APRSNetCentralShelterOperationalMaterielReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -229,7 +229,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlShelterOperationalMaterielReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.cots(), latestRecord.blankets(), 
+                 report = new APRSNetCentralShelterOperationalMaterielReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.cots(), latestRecord.blankets(), 
                                         latestRecord.comfort(), latestRecord.cleanup(), latestRecord.signage(), latestRecord.other(), latestRecord.date(), latestRecord.reported_date());
             }
         } catch (Exception e) {
@@ -238,8 +238,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public APRSNetControlEOCMobilizationReport getEOCMobilizationInformation(User loggedInUser, String callsign) {
-        APRSNetControlEOCMobilizationReport report = null;
+    public APRSNetCentralEOCMobilizationReport getEOCMobilizationInformation(User loggedInUser, String callsign) {
+        APRSNetCentralEOCMobilizationReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -260,10 +260,10 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlEOCMobilizationReport(latestRecord.callsign(), latestRecord.eoc_name(), latestRecord.status(), latestRecord.level(), latestRecord.reported_date());
+                 report = new APRSNetCentralEOCMobilizationReport(latestRecord.callsign(), latestRecord.eoc_name(), latestRecord.status(), latestRecord.level(), latestRecord.reported_date());
             } else {
                 // default report 
-                 report = new APRSNetControlEOCMobilizationReport(callsign, "", 0, 0, ZonedDateTime.now());
+                 report = new APRSNetCentralEOCMobilizationReport(callsign, "", 0, 0, ZonedDateTime.now());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -271,8 +271,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public List<APRSNetControlEOCMobilizationReport> getAllEOCMobilizationInformation(User loggedInUser, String callsign) {
-        List<APRSNetControlEOCMobilizationReport> reports = new ArrayList<>();
+    public List<APRSNetCentralEOCMobilizationReport> getAllEOCMobilizationInformation(User loggedInUser, String callsign) {
+        List<APRSNetCentralEOCMobilizationReport> reports = new ArrayList<>();
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -283,7 +283,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCMobilizationReportRecord rec : records) {
-                    reports.add(new APRSNetControlEOCMobilizationReport(rec.callsign(), rec.eoc_name(), rec.status(), rec.level(), rec.reported_date()));
+                    reports.add(new APRSNetCentralEOCMobilizationReport(rec.callsign(), rec.eoc_name(), rec.status(), rec.level(), rec.reported_date()));
                 }
             }
         } catch (Exception e) {
@@ -292,8 +292,8 @@ public class ReportAccessor {
         return reports;
    }
 
-    public APRSNetControlEOCContactReport getEOCContactInformation(User loggedInUser, String callsign) {
-        APRSNetControlEOCContactReport report = null;
+    public APRSNetCentralEOCContactReport getEOCContactInformation(User loggedInUser, String callsign) {
+        APRSNetCentralEOCContactReport report = null;
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -314,7 +314,7 @@ public class ReportAccessor {
             }
 
             if (latestRecord != null) {
-                 report = new APRSNetControlEOCContactReport(latestRecord.callsign(), latestRecord.director_name(), latestRecord.incident_commander_name(), latestRecord.reported_date());
+                 report = new APRSNetCentralEOCContactReport(latestRecord.callsign(), latestRecord.director_name(), latestRecord.incident_commander_name(), latestRecord.reported_date());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -322,8 +322,8 @@ public class ReportAccessor {
         return report;
     }
 
-    public List<APRSNetControlEOCContactReport> getAllEOCContactInformation(User loggedInUser, String callsign) {
-        List<APRSNetControlEOCContactReport> reports = new ArrayList<>();
+    public List<APRSNetCentralEOCContactReport> getAllEOCContactInformation(User loggedInUser, String callsign) {
+        List<APRSNetCentralEOCContactReport> reports = new ArrayList<>();
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
@@ -334,7 +334,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCContactReportRecord rec : records) {
-                    reports.add(new APRSNetControlEOCContactReport(rec.callsign(), rec.director_name(), rec.incident_commander_name(), rec.reported_date()));
+                    reports.add(new APRSNetCentralEOCContactReport(rec.callsign(), rec.director_name(), rec.incident_commander_name(), rec.reported_date()));
                 }
             }
         } catch (Exception e) {
@@ -477,7 +477,7 @@ public class ReportAccessor {
     }
 
 
-    public APRSNetControlShelterCensusReport addShelterCensusReport(User loggedInUser, APRSNetControlShelterCensusReport report) {
+    public APRSNetCentralShelterCensusReport addShelterCensusReport(User loggedInUser, APRSNetCentralShelterCensusReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -495,7 +495,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlShelterStatusReport addShelterStatusReport(User loggedInUser, APRSNetControlShelterStatusReport report) {
+    public APRSNetCentralShelterStatusReport addShelterStatusReport(User loggedInUser, APRSNetCentralShelterStatusReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -513,7 +513,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlShelterWorkerReport addShelterWorkerReport(User loggedInUser, APRSNetControlShelterWorkerReport report) {
+    public APRSNetCentralShelterWorkerReport addShelterWorkerReport(User loggedInUser, APRSNetCentralShelterWorkerReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -532,7 +532,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlShelterOperationalFoodReport addShelterOperationalFoodReport(User loggedInUser, APRSNetControlShelterOperationalFoodReport report) {
+    public APRSNetCentralShelterOperationalFoodReport addShelterOperationalFoodReport(User loggedInUser, APRSNetCentralShelterOperationalFoodReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -550,7 +550,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlShelterOperationalMaterielReport addShelterOperationalMaterielReport(User loggedInUser, APRSNetControlShelterOperationalMaterielReport report) {
+    public APRSNetCentralShelterOperationalMaterielReport addShelterOperationalMaterielReport(User loggedInUser, APRSNetCentralShelterOperationalMaterielReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -569,7 +569,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlEOCMobilizationReport addEOCMobilizationReport(User loggedInUser, APRSNetControlEOCMobilizationReport report) {
+    public APRSNetCentralEOCMobilizationReport addEOCMobilizationReport(User loggedInUser, APRSNetCentralEOCMobilizationReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");
@@ -587,7 +587,7 @@ public class ReportAccessor {
         return null;
     }
 
-    public APRSNetControlEOCContactReport addEOCContactReport(User loggedInUser, APRSNetControlEOCContactReport report) {
+    public APRSNetCentralEOCContactReport addEOCContactReport(User loggedInUser, APRSNetCentralEOCContactReport report) {
         if (report == null) {
             logger.debug("Report not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Report not provided");

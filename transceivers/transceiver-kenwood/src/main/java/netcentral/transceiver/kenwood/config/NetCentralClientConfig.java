@@ -1,4 +1,4 @@
-package netcentral.transceiver.aprsis.config;
+package netcentral.transceiver.kenwood.config;
 
 import java.util.Optional;
 
@@ -6,7 +6,7 @@ import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class NetControlClientConfig {
+public class NetCentralClientConfig {
     @Value("${netcentral.config.server}")
     private String server;
     @Value("${netcentral.config.port}")
@@ -17,6 +17,7 @@ public class NetControlClientConfig {
     private String password;
     @Value("${netcentral.transceiver.hostname}")
     private Optional<String> hostname;
+
 
     public String getServer() {
         return server;

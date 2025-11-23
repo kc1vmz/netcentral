@@ -10,7 +10,7 @@ import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessage;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessageMany;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverObject;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,7 +46,7 @@ public class TransceiverCommunicationAccessor {
         }
     }
 
-    public void sendReport(User loggedInUser, APRSNetControlReport report) {
+    public void sendReport(User loggedInUser, APRSNetCentralReport report) {
         // send to all transceivers
         List<RegisteredTransceiver> transceivers = registeredTransceiverAccessor.getAll(loggedInUser);
         if ((transceivers != null) && (!transceivers.isEmpty())) {

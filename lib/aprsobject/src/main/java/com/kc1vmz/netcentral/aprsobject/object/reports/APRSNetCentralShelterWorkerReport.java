@@ -2,7 +2,7 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlShelterWorkerReport extends APRSNetControlReport {
+public class APRSNetCentralShelterWorkerReport extends APRSNetCentralReport {
     private int shift;
     private int health;
     private int mental;
@@ -12,10 +12,10 @@ public class APRSNetControlShelterWorkerReport extends APRSNetControlReport {
     private int other;
     private ZonedDateTime dateReported;
 
-    public APRSNetControlShelterWorkerReport(){
+    public APRSNetCentralShelterWorkerReport(){
         super();
     }
-    public APRSNetControlShelterWorkerReport(String objectName, int shift, int health, int mental, int spiritual, int caseworker, int feeding, int other, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterWorkerReport(String objectName, int shift, int health, int mental, int spiritual, int caseworker, int feeding, int other, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("SH"); // shelter
@@ -84,8 +84,8 @@ public class APRSNetControlShelterWorkerReport extends APRSNetControlReport {
         this.dateReported = dateReported;
     }
 
-    public static APRSNetControlShelterWorkerReport isValid(String objectName, String message) {
-        APRSNetControlShelterWorkerReport ret = null;
+    public static APRSNetCentralShelterWorkerReport isValid(String objectName, String message) {
+        APRSNetCentralShelterWorkerReport ret = null;
         if ((message != null) && (message.length() == 49)) {
             //"SHWC%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", shift, health, mental, spiritual, caseworker, feeding, other, dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
             
@@ -107,7 +107,7 @@ public class APRSNetControlShelterWorkerReport extends APRSNetControlReport {
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlShelterWorkerReport(objectName, Integer.parseInt(shift), Integer.parseInt(health), Integer.parseInt(mental), Integer.parseInt(spiritual),
+                        ret = new APRSNetCentralShelterWorkerReport(objectName, Integer.parseInt(shift), Integer.parseInt(health), Integer.parseInt(mental), Integer.parseInt(spiritual),
                                                                         Integer.parseInt(caseworker), Integer.parseInt(feeding), Integer.parseInt(other), time);
                     } catch (Exception e) {
                         ret = null;

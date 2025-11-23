@@ -5,13 +5,13 @@ import org.apache.logging.log4j.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.agw.config.NetControlClientConfig;
+import netcentral.transceiver.agw.config.NetCentralClientConfig;
 import netcentral.transceiver.agw.object.RegisterRequest;
 
 @Singleton
 public class UIAccessor {
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
 

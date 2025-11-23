@@ -2,16 +2,16 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlShelterStatusReport extends APRSNetControlReport {
+public class APRSNetCentralShelterStatusReport extends APRSNetCentralReport {
     private ZonedDateTime dateReported; 
     private int status;
     private int state;
     private String message;
 
-    public APRSNetControlShelterStatusReport(){
+    public APRSNetCentralShelterStatusReport(){
         super();
     }
-    public APRSNetControlShelterStatusReport(String objectName, int status, int state, String message, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterStatusReport(String objectName, int status, int state, String message, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("SH"); // shelter
@@ -57,8 +57,8 @@ public class APRSNetControlShelterStatusReport extends APRSNetControlReport {
     public void setMessage(String message) {
         this.message = message;
     }
-    public static APRSNetControlShelterStatusReport isValid(String objectName, String message) {
-        APRSNetControlShelterStatusReport ret = null;
+    public static APRSNetCentralShelterStatusReport isValid(String objectName, String message) {
+        APRSNetCentralShelterStatusReport ret = null;
         if ((message != null) && (message.length() >= 6)) {
             //"SHST%d%d%s", state, status, message
             
@@ -76,7 +76,7 @@ public class APRSNetControlShelterStatusReport extends APRSNetControlReport {
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now();
-                        ret = new APRSNetControlShelterStatusReport(objectName, Integer.parseInt(status),  Integer.parseInt(state), messageText, time);
+                        ret = new APRSNetCentralShelterStatusReport(objectName, Integer.parseInt(status),  Integer.parseInt(state), messageText, time);
                     } catch (Exception e) {
                         ret = null;
                     }

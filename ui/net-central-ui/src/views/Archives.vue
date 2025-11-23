@@ -53,25 +53,25 @@ var router = useRouter();
 
 onMounted(() => {
   redirect(getToken(), "Archives", router);
-  const storedSizesSetup1 = localStorage.getItem('NetControl-splitpanes-sizes-archives-1')
+  const storedSizesSetup1 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-1')
   if (storedSizesSetup1) {
     paneSizes1.value = JSON.parse(storedSizesSetup1)
   } else {
     paneSizes1.value = 50;
   }
-  const storedSizesSetup21 = localStorage.getItem('NetControl-splitpanes-sizes-archives-21')
+  const storedSizesSetup21 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-21')
   if (storedSizesSetup21) {
     paneSizes21.value = JSON.parse(storedSizesSetup21)
   } else {
     paneSizes21.value = 33;
   }
-  const storedSizesSetup22 = localStorage.getItem('NetControl-splitpanes-sizes-archives-22')
+  const storedSizesSetup22 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-22')
   if (storedSizesSetup22) {
     paneSizes22.value = JSON.parse(storedSizesSetup22)
   } else {
     paneSizes22.value = 33;
   }
-  const storedSizesSetup23 = localStorage.getItem('NetControl-splitpanes-sizes-archives-23')
+  const storedSizesSetup23 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-23')
   if (storedSizesSetup23) {
     paneSizes23.value = JSON.parse(storedSizesSetup23)
   } else {
@@ -81,21 +81,21 @@ onMounted(() => {
 
 const storePaneSize1 = ({ prevPane }) => {
   paneSizes1.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-archives-1', JSON.stringify(paneSizes1.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-archives-1', JSON.stringify(paneSizes1.value))
 }
 const storePaneSize2 = ({ prevPane }) => {
   if (prevPane.index == 0) {
     // moved the first slider
     paneSizes21.value = prevPane.size;
     paneSizes22.value = 100 - paneSizes23.value - paneSizes21.value;
-    localStorage.setItem('NetControl-splitpanes-sizes-archives-21', JSON.stringify(paneSizes21.value))
-    localStorage.setItem('NetControl-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-21', JSON.stringify(paneSizes21.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
   } else if (prevPane.index == 1) {
     // moved the second slider
     paneSizes22.value = prevPane.size;
     paneSizes23.value = 100 - paneSizes21.value - paneSizes22.value;
-    localStorage.setItem('NetControl-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
-    localStorage.setItem('NetControl-splitpanes-sizes-archives-23', JSON.stringify(paneSizes23.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-23', JSON.stringify(paneSizes23.value))
   }
 }
 </script>

@@ -1,17 +1,17 @@
 package com.kc1vmz.netcentral.aprsobject.common;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 
 public class TransceiverReport {
 
     private String transceiverId;
-    private APRSNetControlReport report;
+    private APRSNetCentralReport report;
     private String callsignFrom;
 
-    public APRSNetControlReport getReport() {
+    public APRSNetCentralReport getReport() {
         return report;
     }
-    public void setReport(APRSNetControlReport report) {
+    public void setReport(APRSNetCentralReport report) {
         this.report = report;
     }
     public String getTransceiverId() {

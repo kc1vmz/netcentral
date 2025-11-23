@@ -1,4 +1,4 @@
-package netcentral.transceiver.kiss.client;
+package netcentral.transceiver.agw.client;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -24,16 +24,16 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.kiss.config.NetControlClientConfig;
-import netcentral.transceiver.kiss.exception.LoginFailureException;
-import netcentral.transceiver.kiss.object.User;
+import netcentral.transceiver.agw.config.NetCentralClientConfig;
+import netcentral.transceiver.agw.exception.LoginFailureException;
+import netcentral.transceiver.agw.object.User;
 
 @Singleton
-public class NetControlRESTClient {
-    private static final Logger logger = LogManager.getLogger(NetControlRESTClient.class);
+public class NetCentralRESTClient {
+    private static final Logger logger = LogManager.getLogger(NetCentralRESTClient.class);
 
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
 
     private String buildURL(String tail) {
         return String.format("http://%s:%d/%s", netControlConfig.getServer(), netControlConfig.getPort(), tail);
@@ -165,11 +165,14 @@ public class NetControlRESTClient {
     }
 
     private String getHostName() {
+        if (netControlConfig.getHostname().isPresent()) {
+            return netControlConfig.getHostname().get();
+        }
         try {
             InetAddress ip = InetAddress.getLocalHost();
-            return ((ip.getHostAddress()).trim());
+            return ip.getHostAddress();
         } catch(Exception ex) {
-        }        
+        }
         return null;
     }
 

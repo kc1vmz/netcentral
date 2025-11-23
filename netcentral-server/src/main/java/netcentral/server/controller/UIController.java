@@ -18,10 +18,10 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
 import com.kc1vmz.netcentral.aprsobject.object.APRSStatus;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterCensusReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterOperationalFoodReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterOperationalMaterielReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterWorkerReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterCensusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalFoodReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalMaterielReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterWorkerReport;
 
 import io.micronaut.views.fields.FormGenerator;
 import io.micronaut.core.util.CollectionUtils;
@@ -803,10 +803,10 @@ public class UIController {
 
         List<APRSMessage> messages = new ArrayList<>();
         APRSObject obj = aprsObjectAccessor.getObject(loggedInUser, id);
-        APRSNetControlShelterCensusReport reportPopulation = null;
-        APRSNetControlShelterWorkerReport reportWorkers = null;
-        APRSNetControlShelterOperationalFoodReport reportFood = null;
-        APRSNetControlShelterOperationalMaterielReport reportMateriel = null;
+        APRSNetCentralShelterCensusReport reportPopulation = null;
+        APRSNetCentralShelterWorkerReport reportWorkers = null;
+        APRSNetCentralShelterOperationalFoodReport reportFood = null;
+        APRSNetCentralShelterOperationalMaterielReport reportMateriel = null;
 
         try {
             List<APRSMessage> messagesFrom = aprsObjectAccessor.getMessagesFrom(loggedInUser, obj.getCallsignFrom());

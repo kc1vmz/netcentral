@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.aprsis.client.NetControlRESTClient;
-import netcentral.transceiver.aprsis.config.NetControlClientConfig;
+import netcentral.transceiver.aprsis.client.NetCentralRESTClient;
+import netcentral.transceiver.aprsis.config.NetCentralClientConfig;
 import netcentral.transceiver.aprsis.object.RegisterRequest;
 import netcentral.transceiver.aprsis.object.SendMessageRequest;
 import netcentral.transceiver.aprsis.object.User;
@@ -14,9 +14,9 @@ import netcentral.transceiver.aprsis.object.User;
 @Singleton
 public class UIAccessor {
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
 

@@ -35,10 +35,10 @@ import com.kc1vmz.netcentral.parser.util.Stripper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.kiss.auth.SessionAccessor;
-import netcentral.transceiver.kiss.client.NetControlRESTClient;
+import netcentral.transceiver.kiss.client.NetCentralRESTClient;
 import netcentral.transceiver.kiss.config.APRSConfiguration;
 import netcentral.transceiver.kiss.config.FeatureConfiguration;
-import netcentral.transceiver.kiss.config.NetControlClientConfig;
+import netcentral.transceiver.kiss.config.NetCentralClientConfig;
 import netcentral.transceiver.kiss.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.kiss.config.ThreadConfiguration;
 import netcentral.transceiver.kiss.exception.LoginFailureException;
@@ -59,9 +59,9 @@ public class APRSMessageProcessor {
     @Inject
     private SessionAccessor sessionAccessor;
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
-    private NetControlClientConfig netControlClientConfig;
+    private NetCentralClientConfig netControlClientConfig;
     @Inject
     private RegisteredTransceiverConfig registeredTransceiverConfig;
     @Inject

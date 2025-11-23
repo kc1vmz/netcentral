@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
 import jakarta.inject.Inject;
@@ -48,7 +48,7 @@ public class APRSListenerAccessor {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
-    public void sendReport(String callsignFrom, APRSNetControlReport obj) {
+    public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         char end = 0x03;
         String data = new String(obj.getBytes());
         logger.info(String.format("Sending report %s: %s", obj.getObjectName(), data));

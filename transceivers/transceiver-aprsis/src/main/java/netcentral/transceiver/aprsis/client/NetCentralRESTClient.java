@@ -24,16 +24,16 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.aprsis.config.NetControlClientConfig;
+import netcentral.transceiver.aprsis.config.NetCentralClientConfig;
 import netcentral.transceiver.aprsis.exception.LoginFailureException;
 import netcentral.transceiver.aprsis.object.User;
 
 @Singleton
-public class NetControlRESTClient {
-    private static final Logger logger = LogManager.getLogger(NetControlRESTClient.class);
+public class NetCentralRESTClient {
+    private static final Logger logger = LogManager.getLogger(NetCentralRESTClient.class);
 
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
 
     private String buildURL(String tail) {
         return String.format("http://%s:%d/%s", netControlConfig.getServer(), netControlConfig.getPort(), tail);

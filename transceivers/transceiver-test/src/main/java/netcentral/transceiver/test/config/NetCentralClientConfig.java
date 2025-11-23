@@ -1,18 +1,23 @@
 package netcentral.transceiver.test.config;
 
+import java.util.Optional;
+
 import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class NetControlClientConfig {
-    @Value("${netcontrol.config.server}")
+public class NetCentralClientConfig {
+    @Value("${netcentral.config.server}")
     private String server;
-    @Value("${netcontrol.config.port}")
+    @Value("${netcentral.config.port}")
     private Integer port;
-    @Value("${netcontrol.config.user.name}")
+    @Value("${netcentral.config.user.name}")
     private String username;
-    @Value("${netcontrol.config.user.password}")
+    @Value("${netcentral.config.user.password}")
     private String password;
+    @Value("${netcentral.transceiver.hostname}")
+    private Optional<String> hostname;
+
 
     public String getServer() {
         return server;
@@ -37,5 +42,11 @@ public class NetControlClientConfig {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public Optional<String> getHostname() {
+        return hostname;
+    }
+    public void setHostname(Optional<String> hostname) {
+        this.hostname = hostname;
     }
 }

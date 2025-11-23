@@ -41,7 +41,7 @@ const selectedItem = ref(null);
 function populate() {
   trackedStations.value = null;
   selectedItem.value = null;
-  const explorerType = localStorage.getItem('NetControl-explorer-type')
+  const explorerType = localStorage.getItem('NetCentral-explorer-type')
   if (explorerType) {
     var value = JSON.parse(explorerType)
     updateLocalSelectedObjectType(value.value);

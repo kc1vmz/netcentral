@@ -18,12 +18,12 @@ export const registerPageShow = reactive({
 
 export function updateLoggedInUser(value) {
   var valueAsString = JSON.stringify(value);
-  localStorage.setItem("NetControl-user", valueAsString)
+  localStorage.setItem("NetCentral-user", valueAsString)
   loggedInUser.value = value;
 }
 
 export function getLoggedInUser() {
-  return localStorage.getItem("NetControl-user");
+  return localStorage.getItem("NetCentral-user");
 }
 
 export function updateLoggedInUserToken(value) {
@@ -31,7 +31,7 @@ export function updateLoggedInUserToken(value) {
 }
 
 export function getToken() {
-  var token = localStorage.getItem("NetControl-token");
+  var token = localStorage.getItem("NetCentral-token");
   if (token == "null") {
     token = null;
   }
@@ -42,7 +42,7 @@ export function getToken() {
 }
 
 export function getUser() {
-  var userAsString = localStorage.getItem("NetControl-user");
+  var userAsString = localStorage.getItem("NetCentral-user");
   var user = null;
   if (userAsString != "null") {
     user = JSON.parse(userAsString);
@@ -55,13 +55,13 @@ export function getUser() {
 }
 
 export function setToken(token) {
-  localStorage.setItem("NetControl-token", token);
+  localStorage.setItem("NetCentral-token", token);
   loggedInUserToken.value = token;
 }
 
 
 export function getRefreshToken() {
-  var token = localStorage.getItem("NetControl-refreshtoken");
+  var token = localStorage.getItem("NetCentral-refreshtoken");
   if (token == "null") {
     token = null;
   }
@@ -69,7 +69,7 @@ export function getRefreshToken() {
 }
 
 export function setRefreshToken(token) {
-  localStorage.setItem("NetControl-refreshtoken", token)
+  localStorage.setItem("NetCentral-refreshtoken", token)
 }
 
 

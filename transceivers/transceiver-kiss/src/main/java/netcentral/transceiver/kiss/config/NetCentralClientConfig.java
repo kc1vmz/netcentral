@@ -1,17 +1,17 @@
-package netcentral.transceiver.kenwood.config;
+package netcentral.transceiver.kiss.config;
 
 import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class NetControlClientConfig {
-    @Value("${netcontrol.config.server}")
+public class NetCentralClientConfig {
+    @Value("${netcentral.config.server}")
     private String server;
-    @Value("${netcontrol.config.port}")
+    @Value("${netcentral.config.port}")
     private Integer port;
-    @Value("${netcontrol.config.user.name}")
+    @Value("${netcentral.config.user.name}")
     private String username;
-    @Value("${netcontrol.config.user.password}")
+    @Value("${netcentral.config.user.password}")
     private String password;
 
     public String getServer() {

@@ -629,7 +629,7 @@ public class RadioCommandAccessor {
         }
     }
 
-    private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetControl) {
+    private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetCentral) {
         String operatorMessage = message.getMessage().substring(2); // go past "m "
 
         // persist the net message
@@ -639,7 +639,7 @@ public class RadioCommandAccessor {
         netMessage.setId(UUID.randomUUID().toString());
         netMessage.setMessage(operatorMessage);
         netMessage.setReceivedTime(ZonedDateTime.now());
-        if (isNetControl) {
+        if (isNetCentral) {
             netMessage.setRecipient(NetMessage.RECIPIENT_NET_CONTROL);
         } else {
             netMessage.setRecipient(NetMessage.RECIPIENT_ENTIRE_NET);
@@ -647,7 +647,7 @@ public class RadioCommandAccessor {
         netMessage = netMessageAccessor.create(loggedInUser, netMessage);
 
         // send it to all participants
-        if (!isNetControl) {
+        if (!isNetCentral) {
             List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
             if ((participants != null) && (!participants.isEmpty())) {
                 for (Participant participant : participants) {

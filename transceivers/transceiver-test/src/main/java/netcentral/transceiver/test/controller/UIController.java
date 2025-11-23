@@ -20,7 +20,7 @@ import io.micronaut.views.View;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import netcentral.transceiver.test.accessor.UIAccessor;
-import netcentral.transceiver.test.config.NetControlClientConfig;
+import netcentral.transceiver.test.config.NetCentralClientConfig;
 import netcentral.transceiver.test.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.test.object.RegisterRequest;
 import netcentral.transceiver.test.object.SendMessageRequest;
@@ -31,7 +31,7 @@ public class UIController {
     @Inject
     UIAccessor uiAccessor;
     @Inject
-    NetControlClientConfig netControlClientConfig;
+    NetCentralClientConfig netControlClientConfig;
     @Inject
     RegisteredTransceiverConfig registeredTransceiverConfig;
 

@@ -2,7 +2,7 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlShelterCensusReport extends APRSNetControlReport {
+public class APRSNetCentralShelterCensusReport extends APRSNetCentralReport {
     private ZonedDateTime dateReported; 
     private int p03;
     private int p47;
@@ -11,10 +11,10 @@ public class APRSNetControlShelterCensusReport extends APRSNetControlReport {
     private int p1965;
     private int p66;
 
-    public APRSNetControlShelterCensusReport(){
+    public APRSNetCentralShelterCensusReport(){
         super();
     }
-    public APRSNetControlShelterCensusReport(String objectName, int p03, int p47, int p812, int p1318, int p1965, int p66, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterCensusReport(String objectName, int p03, int p47, int p812, int p1318, int p1965, int p66, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("SH"); // shelter
@@ -72,8 +72,8 @@ public class APRSNetControlShelterCensusReport extends APRSNetControlReport {
     public void setDateReported(ZonedDateTime dateReported) {
         this.dateReported = dateReported;
     }
-    public static APRSNetControlShelterCensusReport isValid(String objectName, String message) {
-        APRSNetControlShelterCensusReport ret = null;
+    public static APRSNetCentralShelterCensusReport isValid(String objectName, String message) {
+        APRSNetCentralShelterCensusReport ret = null;
         if ((message != null) && (message.length() == 48)) {
             //"SHPC%06d%06d%06d%06d%06d%06d%4d%02d%02d", p03, p47, p812, p1318, p1965, p66, dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
             String objectType = message.substring(0, 2);
@@ -93,7 +93,7 @@ public class APRSNetControlShelterCensusReport extends APRSNetControlReport {
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlShelterCensusReport(objectName, Integer.parseInt(p03), Integer.parseInt(p47), Integer.parseInt(p812),
+                        ret = new APRSNetCentralShelterCensusReport(objectName, Integer.parseInt(p03), Integer.parseInt(p47), Integer.parseInt(p812),
                                              Integer.parseInt(p1318), Integer.parseInt(p1965), Integer.parseInt(p66), time);
                     } catch (Exception e) {
                         ret = null;

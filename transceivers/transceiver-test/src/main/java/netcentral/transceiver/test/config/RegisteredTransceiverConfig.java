@@ -5,13 +5,13 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class RegisteredTransceiverConfig {
-    @Value("${netcontrol.transceiver.name}")
+    @Value("${netcentral.transceiver.name}")
     private String name;
-    @Value("${netcontrol.transceiver.description}")
+    @Value("${netcentral.transceiver.description}")
     private String description;
-    @Value("${netcontrol.transceiver.type}")
+    @Value("${netcentral.transceiver.type}")
     private String type;
-    @Value("${netcontrol.transceiver.port}")
+    @Value("${netcentral.transceiver.port}")
     private Integer port;
 
     public Integer getPort() {

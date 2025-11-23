@@ -23,7 +23,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import netcentral.transceiver.agw.accessor.StatisticsAccessor;
 import netcentral.transceiver.agw.accessor.UIAccessor;
-import netcentral.transceiver.agw.config.NetControlClientConfig;
+import netcentral.transceiver.agw.config.NetCentralClientConfig;
 import netcentral.transceiver.agw.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.agw.object.RegisterRequest;
 
@@ -33,7 +33,7 @@ public class UIController {
     @Inject
     UIAccessor uiAccessor;
     @Inject
-    NetControlClientConfig netControlClientConfig;
+    NetCentralClientConfig netControlClientConfig;
     @Inject
     RegisteredTransceiverConfig registeredTransceiverConfig;
     @Inject

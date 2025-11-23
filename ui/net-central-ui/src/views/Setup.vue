@@ -62,19 +62,19 @@ var router = useRouter();
 
 onMounted(() => {
   redirect(getToken(), "Setup", router);
-  const storedSizesSetup1 = localStorage.getItem('NetControl-splitpanes-sizes-setup-1')
+  const storedSizesSetup1 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-1')
   if (storedSizesSetup1) {
     paneSizes1.value = JSON.parse(storedSizesSetup1)
   } else {
     paneSizes1.value = 50;
   }
-  const storedSizesSetup2 = localStorage.getItem('NetControl-splitpanes-sizes-setup-2')
+  const storedSizesSetup2 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-2')
   if (storedSizesSetup2) {
     paneSizes2.value = JSON.parse(storedSizesSetup2)
   } else {
     paneSizes2.value = 50;
   }
-  const storedSizesSetup3 = localStorage.getItem('NetControl-splitpanes-sizes-setup-3')
+  const storedSizesSetup3 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-3')
   if (storedSizesSetup3) {
     paneSizes3.value = JSON.parse(storedSizesSetup3)
   } else {
@@ -84,15 +84,15 @@ onMounted(() => {
 
 const storePaneSize1 = ({ prevPane }) => {
   paneSizes1.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-setup-1', JSON.stringify(paneSizes1.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-setup-1', JSON.stringify(paneSizes1.value))
 }
 const storePaneSize2 = ({ prevPane }) => {
   paneSizes2.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-setup-2', JSON.stringify(paneSizes2.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-setup-2', JSON.stringify(paneSizes2.value))
 }
 const storePaneSize3 = ({ prevPane }) => {
   paneSizes3.value = prevPane.size;
-  localStorage.setItem('NetControl-splitpanes-sizes-setup-3', JSON.stringify(paneSizes3.value))
+  localStorage.setItem('NetCentral-splitpanes-sizes-setup-3', JSON.stringify(paneSizes3.value))
 }
 
 </script>

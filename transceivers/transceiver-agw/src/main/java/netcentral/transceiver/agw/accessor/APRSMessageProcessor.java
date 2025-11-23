@@ -35,9 +35,9 @@ import com.kc1vmz.netcentral.parser.util.Stripper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.agw.auth.SessionAccessor;
-import netcentral.transceiver.agw.client.NetControlRESTClient;
+import netcentral.transceiver.agw.client.NetCentralRESTClient;
 import netcentral.transceiver.agw.config.APRSConfiguration;
-import netcentral.transceiver.agw.config.NetControlClientConfig;
+import netcentral.transceiver.agw.config.NetCentralClientConfig;
 import netcentral.transceiver.agw.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.agw.config.ThreadConfiguration;
 import netcentral.transceiver.agw.exception.LoginFailureException;
@@ -58,9 +58,9 @@ public class APRSMessageProcessor {
     @Inject
     private SessionAccessor sessionAccessor;
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
-    private NetControlClientConfig netControlClientConfig;
+    private NetCentralClientConfig netControlClientConfig;
     @Inject
     private RegisteredTransceiverConfig registeredTransceiverConfig;
     @Inject

@@ -1,4 +1,4 @@
-package netcentral.transceiver.test.client;
+package netcentral.transceiver.kiss.client;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -18,43 +18,48 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kc1vmz.netcentral.aprsobject.common.LoginRequest;
-import com.kc1vmz.netcentral.aprsobject.common.LoginResponse;
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.test.config.NetControlClientConfig;
-import netcentral.transceiver.test.exception.LoginFailureException;
+import netcentral.transceiver.kiss.config.NetCentralClientConfig;
+import netcentral.transceiver.kiss.exception.LoginFailureException;
+import netcentral.transceiver.kiss.object.User;
 
 @Singleton
-public class NetControlRESTClient {
-    private static final Logger logger = LogManager.getLogger(NetControlRESTClient.class);
+public class NetCentralRESTClient {
+    private static final Logger logger = LogManager.getLogger(NetCentralRESTClient.class);
 
     @Inject
-    private NetControlClientConfig netControlConfig;
+    private NetCentralClientConfig netControlConfig;
 
     private String buildURL(String tail) {
         return String.format("http://%s:%d/%s", netControlConfig.getServer(), netControlConfig.getPort(), tail);
     }
 
-    public APRSObjectResource create(APRSObjectResource res, String sessionId) {
+    public APRSObjectResource create(APRSObjectResource res, String sessionId) throws LoginFailureException {
+        APRSObjectResource ret = null;
         try {
             ObjectMapper objectMapper = getObjectMapper();
             ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(res);
 
             String val = post(buildURL("api/v1/APRSObjects"), sessionId, json);
-            logger.debug("response = " + val);
+            if (val != null) {
+                logger.debug("POST response = " + val);
+                ret = objectMapper.readValue(val, APRSObjectResource.class);
+            }
+        } catch (LoginFailureException e) {
+            throw new LoginFailureException();
         } catch (Exception e) {
             logger.error("Exception caught creating APRS object", e);
         }
-        APRSObjectResource ret = null;
         return ret;
     }
 
-    public LoginResponse login(String username, String password) throws Exception {
+    public User login(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(username);
         loginRequest.setPassword(password);
@@ -73,7 +78,7 @@ public class NetControlRESTClient {
         HttpResponse<?> response = client.send(request, BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             String json2 = response.body().toString();
-            LoginResponse resp = objectMapper.readValue(json2, LoginResponse.class);
+            User resp = objectMapper.readValue(json2, User.class);
             // success
             return resp;
         }
@@ -94,7 +99,7 @@ public class NetControlRESTClient {
         create(obj, sessionId);
     }
 
-    public void logout(LoginResponse loginResponse) throws Exception {
+    public void logout(User loginResponse) throws Exception {
         ObjectMapper objectMapper = getObjectMapper();
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginResponse);
@@ -109,7 +114,7 @@ public class NetControlRESTClient {
         client.send(request, BodyHandlers.discarding());
     }
 
-    public RegisteredTransceiver register(String accessToken, String name, String description, String type, Integer port) {
+    public RegisteredTransceiver register(String accessToken, String name, String description, String type, Integer port) throws LoginFailureException {
         RegisteredTransceiver ret = null;
         try {
             String fqdName = getHostName();
@@ -131,6 +136,8 @@ public class NetControlRESTClient {
 
             String val = post(buildURL("api/v1/registeredTransceivers"), accessToken, json);
             ret = objectMapper.readValue(val, RegisteredTransceiver.class);
+        } catch (LoginFailureException e) {
+            throw new LoginFailureException();
         } catch (Exception e) {
             logger.error("Exception caught registering transceiver", e);
             ret = null;
@@ -158,11 +165,14 @@ public class NetControlRESTClient {
     }
 
     private String getHostName() {
+        if (netControlConfig.getHostname().isPresent()) {
+            return netControlConfig.getHostname().get();
+        }
         try {
             InetAddress ip = InetAddress.getLocalHost();
-            return ((ip.getHostAddress()).trim());
+            return ip.getHostAddress();
         } catch(Exception ex) {
-        }        
+        }
         return null;
     }
 
@@ -173,5 +183,37 @@ public class NetControlRESTClient {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return objectMapper;
+    }
+
+    public String getAckCounter(String callsignFrom, String callsignTo) throws LoginFailureException {
+        String ret = null;
+        try {
+            String url = String.format("api/v1/callsignAckCounters/%s/%s", callsignFrom, callsignTo);
+            ret = get(buildURL(url));
+        } catch (LoginFailureException e) {
+            throw new LoginFailureException();
+        } catch (Exception e) {
+            logger.error("Exception caughtgetting ack counter", e);
+            ret = null;
+        }
+        return ret;
+    }
+
+    private String get(String uri) throws Exception {
+        HttpClient client = HttpClient.newBuilder().build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(uri))
+                .GET()
+                .build();
+
+        HttpResponse<?> response = client.send(request,  BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return response.body().toString();
+        } else if (response.statusCode() == 401) {
+            // login failed
+            throw new LoginFailureException();
+        }
+        logger.warn(String.format("Error getting ack counter from Net Central for %s: %s", uri, response.body()));
+        return null;
     }
 }

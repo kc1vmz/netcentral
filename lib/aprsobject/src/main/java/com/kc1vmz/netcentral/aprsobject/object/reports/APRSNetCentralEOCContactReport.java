@@ -2,16 +2,16 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlEOCContactReport extends APRSNetControlReport {
+public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
 
     private String directorName;
     private String incidentCommanderName;
     private ZonedDateTime lastReportedTime;
 
-    public APRSNetControlEOCContactReport(){
+    public APRSNetCentralEOCContactReport(){
         super();
     }
-    public APRSNetControlEOCContactReport(String objectName, String directorName, String incidentCommanderName, ZonedDateTime lastReportedTime) {
+    public APRSNetCentralEOCContactReport(String objectName, String directorName, String incidentCommanderName, ZonedDateTime lastReportedTime) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("EO"); // EOC
@@ -45,8 +45,8 @@ public class APRSNetControlEOCContactReport extends APRSNetControlReport {
     public void setLastReportedTime(ZonedDateTime lastReportedTime) {
         this.lastReportedTime = lastReportedTime;
     }
-    public static APRSNetControlEOCContactReport isValid(String objectName, String message) {
-        APRSNetControlEOCContactReport ret = null;
+    public static APRSNetCentralEOCContactReport isValid(String objectName, String message) {
+        APRSNetCentralEOCContactReport ret = null;
         if ((message != null) && (message.length() >= 14)) {
             //"EOCO%s:%s:%4d%02d%02d", directorName, incidentCommanderName.length(), lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth());
             String objectType = message.substring(0, 2);
@@ -68,7 +68,7 @@ public class APRSNetControlEOCContactReport extends APRSNetControlReport {
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlEOCContactReport(objectName, directorName, incidentCommanderName, time);
+                        ret = new APRSNetCentralEOCContactReport(objectName, directorName, incidentCommanderName, time);
                     } catch (Exception e) {
                         ret = null;
                     }

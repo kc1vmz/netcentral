@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCContactReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlEOCMobilizationReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlShelterStatusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCContactReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCMobilizationReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStatusReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -586,7 +586,7 @@ public class SummaryAccessor {
 
         // get latest values
         try {
-            APRSNetControlEOCContactReport contactReport = reportAccessor.getEOCContactInformation(loggedInUser, report.getCallsign());
+            APRSNetCentralEOCContactReport contactReport = reportAccessor.getEOCContactInformation(loggedInUser, report.getCallsign());
             if (contactReport != null) {
                 report.setDirectorName(contactReport.getDirectorName());
                 report.setIndicentCommanderName(contactReport.getIncidentCommanderName());
@@ -595,7 +595,7 @@ public class SummaryAccessor {
         }
 
         try {
-            APRSNetControlEOCMobilizationReport mobilizationReport = reportAccessor.getEOCMobilizationInformation(loggedInUser, report.getCallsign());
+            APRSNetCentralEOCMobilizationReport mobilizationReport = reportAccessor.getEOCMobilizationInformation(loggedInUser, report.getCallsign());
             if (mobilizationReport != null) {
                 report.setLevel(mobilizationReport.getLevel());
                 report.setStatus(ObjectEOCStatus.values()[mobilizationReport.getStatus()]);
@@ -616,7 +616,7 @@ public class SummaryAccessor {
         report.setType(ObjectType.SHELTER);
 
         try {
-            APRSNetControlShelterStatusReport subReport = reportAccessor.getLatestShelterStatusReport(loggedInUser, report.getCallsign());
+            APRSNetCentralShelterStatusReport subReport = reportAccessor.getLatestShelterStatusReport(loggedInUser, report.getCallsign());
             if (subReport != null) {
                 report.setStatus(ObjectShelterStatus.values()[subReport.getStatus()]);
                 report.setState(ObjectShelterState.values()[subReport.getState()]);

@@ -2,7 +2,7 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
-public class APRSNetControlShelterOperationalFoodReport extends APRSNetControlReport {
+public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralReport {
     private ZonedDateTime date;
     private ZonedDateTime dateReported;
     private int timePeriod;
@@ -12,10 +12,10 @@ public class APRSNetControlShelterOperationalFoodReport extends APRSNetControlRe
     private int snack;
 
 
-    public APRSNetControlShelterOperationalFoodReport(){
+    public APRSNetCentralShelterOperationalFoodReport(){
         super();
     }
-    public APRSNetControlShelterOperationalFoodReport(String objectName, int timePeriod, int breakfast, int lunch, int dinner, int snack, ZonedDateTime date, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterOperationalFoodReport(String objectName, int timePeriod, int breakfast, int lunch, int dinner, int snack, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType("SH"); // shelter
@@ -77,8 +77,8 @@ public class APRSNetControlShelterOperationalFoodReport extends APRSNetControlRe
     public void setSnack(int snack) {
         this.snack = snack;
     }
-    public static APRSNetControlShelterOperationalFoodReport isValid(String objectName, String message) {
-        APRSNetControlShelterOperationalFoodReport ret = null;
+    public static APRSNetCentralShelterOperationalFoodReport isValid(String objectName, String message) {
+        APRSNetCentralShelterOperationalFoodReport ret = null;
         if ((message != null) && (message.length() == 37)) {
             //"SHOF%d%06d%06d%06d%06d%4d%02d%02d", timePeriod, breakfast, lunch, dinner, snack, dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth()
             
@@ -98,7 +98,7 @@ public class APRSNetControlShelterOperationalFoodReport extends APRSNetControlRe
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetControlShelterOperationalFoodReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(breakfast), Integer.parseInt(lunch),
+                        ret = new APRSNetCentralShelterOperationalFoodReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(breakfast), Integer.parseInt(lunch),
                                                                         Integer.parseInt(dinner), Integer.parseInt(snack), time, ZonedDateTime.now());
                     } catch (Exception e) {
                         ret = null;

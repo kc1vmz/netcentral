@@ -110,7 +110,7 @@ const explorerMapRef = ref(null);
 const errorMessage = reactive({ value : null });
 
 onMounted(() => {
-  const explorerType = localStorage.getItem('NetControl-explorer-type')
+  const explorerType = localStorage.getItem('NetCentral-explorer-type')
   if (explorerType) {
     var value = JSON.parse(explorerType)
     updateLocalSelectedObjectType(value.value);

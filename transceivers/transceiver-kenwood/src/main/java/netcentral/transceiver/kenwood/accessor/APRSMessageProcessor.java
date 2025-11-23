@@ -37,9 +37,9 @@ import jakarta.inject.Singleton;
 import net.ab0oo.aprs.parser.APRSPacket;
 import net.ab0oo.aprs.parser.Digipeater;
 import netcentral.transceiver.kenwood.auth.SessionAccessor;
-import netcentral.transceiver.kenwood.client.NetControlRESTClient;
+import netcentral.transceiver.kenwood.client.NetCentralRESTClient;
 import netcentral.transceiver.kenwood.config.APRSConfiguration;
-import netcentral.transceiver.kenwood.config.NetControlClientConfig;
+import netcentral.transceiver.kenwood.config.NetCentralClientConfig;
 import netcentral.transceiver.kenwood.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.kenwood.config.ThreadConfiguration;
 import netcentral.transceiver.kenwood.exception.LoginFailureException;
@@ -59,9 +59,9 @@ public class APRSMessageProcessor {
     @Inject
     private SessionAccessor sessionAccessor;
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
-    private NetControlClientConfig netControlClientConfig;
+    private NetCentralClientConfig netControlClientConfig;
     @Inject
     private RegisteredTransceiverConfig registeredTransceiverConfig;
     @Inject

@@ -281,7 +281,7 @@ function getNets() {
 function getSelectedCallsignIndex() {
   var ret = 0;
   var index = 0;
-  const callsign = localStorage.getItem('NetControl-net-selected-callsign');
+  const callsign = localStorage.getItem('NetCentral-net-selected-callsign');
   if (callsign) {
     netsRef.value.forEach(function(net){
         if (net.callsign == callsign) {
@@ -328,7 +328,7 @@ function goNetPrevious() {
     nextNetIndexRef.value = getNextNetIndex();
     previousNetCallsignRef.value = netsRef.value[previousNetIndexRef.value].callsign;
     nextNetCallsignRef.value = netsRef.value[nextNetIndexRef.value].callsign;
-    localStorage.setItem('NetControl-net-selected-callsign', netsRef.value[selectedNetIndexRef.value].callsign);
+    localStorage.setItem('NetCentral-net-selected-callsign', netsRef.value[selectedNetIndexRef.value].callsign);
 }
 
 function goNetNext() {
@@ -338,7 +338,7 @@ function goNetNext() {
     nextNetIndexRef.value = getNextNetIndex();
     previousNetCallsignRef.value = netsRef.value[previousNetIndexRef.value].callsign;
     nextNetCallsignRef.value = netsRef.value[nextNetIndexRef.value].callsign;
-    localStorage.setItem('NetControl-net-selected-callsign', netsRef.value[selectedNetIndexRef.value].callsign);
+    localStorage.setItem('NetCentral-net-selected-callsign', netsRef.value[selectedNetIndexRef.value].callsign);
 }
 
 watch(nudgeUpdateNetObject, (newValue, oldValue) => {

@@ -1,11 +1,11 @@
 package netcentral.transceiver.kiss.accessor;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetControlReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 
 import io.micronaut.context.ApplicationContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.kiss.client.NetControlRESTClient;
+import netcentral.transceiver.kiss.client.NetCentralRESTClient;
 import netcentral.transceiver.kiss.exception.LoginFailureException;
 
 @Singleton
@@ -13,7 +13,7 @@ public class APRSMessageAccessor {
     @Inject
     ApplicationContext applicationContext;
     @Inject
-    private NetControlRESTClient netControlRESTClient;
+    private NetCentralRESTClient netControlRESTClient;
     @Inject
     private StatisticsAccessor statisticsAccessor;
 
@@ -62,7 +62,7 @@ public class APRSMessageAccessor {
         }
     }
 
-    public void sendReport(String callsignFrom, APRSNetControlReport obj) {
+    public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         // add message number for ack
         APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
         if (la != null) {
