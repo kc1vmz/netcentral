@@ -1,11 +1,21 @@
 import { io } from "socket.io-client";
 
-export const useSocketIO = () => {
-  var updateUrl = import.meta.env.VITE_APP_UPDATE_URL;
-  if ((updateUrl == undefined) || (updateUrl == null) || (updateUrl == '')) {
-    updateUrl = "http://localhost:8881";
+export function getSocketIOUrl() {
+  var updatePort = import.meta.env.VITE_APP_UPDATE_PORT;
+  var updateHost = import.meta.env.VITE_APP_API_HOST;
+  
+  if ((updatePort == undefined) || (updatePort == null) || (updatePort == '')) {
+    updatePort = "8881";
   }
-  const socket = io(updateUrl); 
+  if ((updateHost == undefined) || (updateHost == null) || (updateHost == '')) {
+    updateHost = window.location.hostname;
+  }
+  return "http://"+updateHost+":"+updatePort;
+}
+
+export const useSocketIO = () => {
+
+  const socket = io(getSocketIOUrl()); 
 
   return { socket };
 };

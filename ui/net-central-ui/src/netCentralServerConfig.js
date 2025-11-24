@@ -1,14 +1,13 @@
-import { ref, reactive } from 'vue';
-
-const netCentralServerUrl = reactive({
-    value: "http://localhost:8880/api/v1"
-});
-
 export function buildNetCentralUrl(remains) {
-  var apiUrl = import.meta.env.VITE_APP_API_URL;
-  if ((apiUrl != undefined) && (apiUrl != null) && (apiUrl != '')) {
-    netCentralServerUrl.value = apiUrl;
+  var apiPort = import.meta.env.VITE_APP_API_PORT;
+  var apiHost = import.meta.env.VITE_APP_API_HOST;
+  
+  if ((apiPort == undefined) || (apiPort == null) || (apiPort == '')) {
+    apiPort = "8880";
   }
-  return netCentralServerUrl.value+remains;
+  if ((apiHost == undefined) || (apiHost == null) || (apiHost == '')) {
+    apiHost = window.location.hostname;
+  }
+  return "http://"+apiHost+":"+apiPort+"/api/v1"+remains;
 }
 
