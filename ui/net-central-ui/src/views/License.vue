@@ -710,7 +710,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <button class="bigBoxButton" v-on:click.native="showMIT"><b>MIT License</b></button>
           </div>
           <div class="grid-item">
-            Show MIT License.  <br>Applies to socket-io, Node.js, Vue and SLF4J.
+            Show MIT License.  <br>Applies to socket-io, Node.js, Vue, Easy Data Table and SLF4J.
           </div>
           <div class="grid-item">
             <button class="bigBoxButton" v-on:click.native="showBSD2"><b>BSD 2 Clause License</b></button>
