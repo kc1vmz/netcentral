@@ -17,6 +17,8 @@ import router from './router'
 
 import '@fortawesome/fontawesome-free/js/all'
 
+import { getSocketIOUrl } from "@/composables/socket";
+
 // createApp(App).component('EasyDataTable', Vue3EasyDataTable).use(router).mount('#app');
 
 
@@ -26,7 +28,7 @@ const app = createApp(App);
 app.use(
   new Vue3SocketIO({
     debug: true, // Optional: Enable debug logs
-    connection: 'http://localhost:8881', // Replace with your Socket.IO server URL
+    connection: getSocketIOUrl(), //'http://192.168.0.236:8881', // Replace with your Socket.IO server URL
     // options: { path: "/my-app/" } // Optional: If your server uses a custom path
   })
 );

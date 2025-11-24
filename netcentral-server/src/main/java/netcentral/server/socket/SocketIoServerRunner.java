@@ -28,7 +28,6 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
             return;
         }
         Configuration config = new Configuration();
-//        config.setHostname("192.168.0.105");
         config.setOrigin(netConfigServerConfig.getUpdateUrl()); // Separate URL for Socket.IO
         config.setPort(netConfigServerConfig.getUpdatePort()); // Separate port for Socket.IO
         config.setHttpCompression(false);
