@@ -42,6 +42,12 @@
         <br>
         <br>APRS objects representing useful emergency resources, such as medical centers, shelters and EOCs can be created to pinpoint location.
         <br>These objects are then known to Net Central and will allow you to send specific reports similar to those used in Winlink such as shelter and mobilization reports, and have them available to anyone using APRS.
+        <br>
+        <br>
+        <br>
+        <div class="pagesubheader">Licensing</div>
+        <br>
+        <br>For license agreements, look <a href="/License">here</a>.
     </div>
   </div>
 </template>

@@ -51,6 +51,11 @@ const routes = [
     path: '/tools',
     name: 'Tools',
     component: () => import('../views/Tools.vue')
+  },
+  {
+    path: '/license',
+    name: 'License',
+    component: () => import('../views/License.vue')
   }
 ]
 
