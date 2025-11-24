@@ -1,11 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import Init from '@/components/Init.vue'
 
 const routes = [
   {
     path: '/',
+    name: 'Root',
+    component: Init
+  },
+  {
+    path: '/home',
     name: 'Home',
-    component: Home
+    component: () => import('../views/Home.vue')
   },
   {
     path: '/dashboard',
@@ -56,6 +61,11 @@ const routes = [
     path: '/license',
     name: 'License',
     component: () => import('../views/License.vue')
+  },
+  {
+    path: '/mobile',
+    name: 'Mobile',
+    component: () => import('../views/Mobile.vue')
   }
 ]
 
