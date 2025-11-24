@@ -1,5 +1,7 @@
 package netcentral.transceiver.kiss.config;
 
+import java.util.Optional;
+
 import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
@@ -13,6 +15,8 @@ public class NetCentralClientConfig {
     private String username;
     @Value("${netcentral.config.user.password}")
     private String password;
+    @Value("${netcentral.transceiver.hostname}")
+    private Optional<String> hostname;
 
     public String getServer() {
         return server;
@@ -37,5 +41,11 @@ public class NetCentralClientConfig {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public Optional<String> getHostname() {
+        return hostname;
+    }
+    public void setHostname(Optional<String> hostname) {
+        this.hostname = hostname;
     }
 }
