@@ -10,6 +10,7 @@ import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
 import { updateNetParticipantEvent, updateNetParticipant, updateCallsign, updateCallsignEvent } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+import { isMobileClient } from "@/composables/MobileLibrary";
 
 const { socket } = useSocketIO();
 socket.on("updateNetParticipant", (data) => {
@@ -265,61 +266,110 @@ function performSendMessage() {
     </div>
 
     <!-- main page-->
-    <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
-      <!-- no nets -->
-    </div>
-    <div v-else-if="((localSelectedNet != null) || (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
-      <div class="pagesubheader">Participant Information</div>
-      <div class="line"><hr/></div>
-      <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
-        <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign != null))">
-          <Tabs>
-            <Tab value="Details">
-              <br>Callsign: {{ localSelectedObject.ncSelectedObject.callsign }}
-              <br>Tactical Callsign: {{ localSelectedObject.ncSelectedObject.tacticalCallsign }}
-              <br>Start time: {{ localSelectedObject.ncSelectedObject.prettyStartTime }}
-              <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
-              <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-              <br>Radio Type: {{ localSelectedObject.ncSelectedObject.radioStyle }}
-              <br>Transmit Power: {{ localSelectedObject.ncSelectedObject.transmitPower }}
-              <br>Electrical Power: {{ localSelectedObject.ncSelectedObject.electricalPowerType }}
-              <br>Backup Electrical Power: {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}
-              <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeardTime }}
-            </Tab>
-            <Tab value="Callsign info">
+    <div v-if="(isMobileClient())">
+      <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
+        <!-- no nets -->
+      </div>
+      <div v-else-if="((localSelectedNet != null) || (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
+        <div class="mobilepagesubheader">Participant Information</div>
+        <div class="line"><hr/></div>
+        <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
+          <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign != null))">
+
+              <br><b>Callsign:</b><br>{{ localSelectedObject.ncSelectedObject.callsign }}
+              <br><b>Tactical Callsign:</b> <br>{{ localSelectedObject.ncSelectedObject.tacticalCallsign }}
+              <br><b>Start time:</b> <br>{{ localSelectedObject.ncSelectedObject.prettyStartTime }}
+              <br><b>Status:</b> <br>{{ localSelectedObject.ncSelectedObject.status }}
+              <br><b>Location:</b> <br>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
+              <br><b>Radio Type:</b> <br>{{ localSelectedObject.ncSelectedObject.radioStyle }}
+              <br><b>Transmit Power:</b> <br>{{ localSelectedObject.ncSelectedObject.transmitPower }}
+              <br><b>Electrical Power:</b> <br>{{ localSelectedObject.ncSelectedObject.electricalPowerType }}
+              <br><b>Backup Electrical Power:</b> <br>{{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}
+              <br><b>Last heard:</b> <br>{{ localSelectedObject.ncSelectedObject.prettyLastHeardTime }}
+
               <div  v-if="((localCallsignObject != null) && (localCallsignObject.value != null))">
-                <br>Name: {{ localCallsignObject.value.name }}
-                <br>Country: {{ localCallsignObject.value.country }}
-                <br>License: {{ localCallsignObject.value.license }}
+                <br><b>Name:</b> <br>{{ localCallsignObject.value.name }}
+                <br><b>Country:</b> <br>{{ localCallsignObject.value.country }}
+                <br><b>License:</b> <br>{{ localCallsignObject.value.license }}
+                <br><br>
               </div>
               <div v-else>
-                <br>
-                <br>
                 <i>No callsign information known.</i>
               </div>
-            </Tab>
-            <Tab value="Actions">
-              <div class="grid-container-actions">
-                <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))" class="grid-item">
-                  <button class="boxButton" v-on:click.native="sendMessage">Send Message</button>
-                </div>
-                <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))" class="grid-item">
-                  Send an APRS message to just this participant.
-                </div>
-                <div v-if="accesstokenRef.value != null" class="grid-item">
-                  <button class="boxButton" v-on:click.native="identify">Identify</button>
-                </div>
-                <div v-if="accesstokenRef.value != null" class="grid-item">
-                  Contact WHO-15 to determine the name, location and license for the callsign.
-                </div>
+
+              <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))">
+                <button class="boxButton" v-on:click.native="sendMessage">Send Participant Message</button>
               </div>
-            </Tab>
-          </Tabs>
+              <div v-if="accesstokenRef.value != null">
+                <button class="boxButton" v-on:click.native="identify">Identify</button>
+              </div>
+          </div>
+          <div v-else>
+            <br>
+            <br>
+            <div style="text-align: center;"><i>Click on a participant above for more information.</i></div>
+          </div>
         </div>
-        <div v-else>
-          <br>
-          <br>
-          <div style="text-align: center;"><i>Click on a participant above for more information.</i></div>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
+        <!-- no nets -->
+      </div>
+      <div v-else-if="((localSelectedNet != null) || (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
+        <div v-if="!isMobileClient()" class="pagesubheader">Participant Information</div>
+        <div v-else class="mobilepagesubheader">Participant Information</div>
+        <div class="line"><hr/></div>
+        <div v-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
+          <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign != null))">
+            <Tabs>
+              <Tab value="Details">
+                <br>Callsign: {{ localSelectedObject.ncSelectedObject.callsign }}
+                <br>Tactical Callsign: {{ localSelectedObject.ncSelectedObject.tacticalCallsign }}
+                <br>Start time: {{ localSelectedObject.ncSelectedObject.prettyStartTime }}
+                <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
+                <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
+                <br>Radio Type: {{ localSelectedObject.ncSelectedObject.radioStyle }}
+                <br>Transmit Power: {{ localSelectedObject.ncSelectedObject.transmitPower }}
+                <br>Electrical Power: {{ localSelectedObject.ncSelectedObject.electricalPowerType }}
+                <br>Backup Electrical Power: {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}
+                <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeardTime }}
+              </Tab>
+              <Tab value="Callsign info">
+                <div  v-if="((localCallsignObject != null) && (localCallsignObject.value != null))">
+                  <br>Name: {{ localCallsignObject.value.name }}
+                  <br>Country: {{ localCallsignObject.value.country }}
+                  <br>License: {{ localCallsignObject.value.license }}
+                </div>
+                <div v-else>
+                  <br>
+                  <br>
+                  <i>No callsign information known.</i>
+                </div>
+              </Tab>
+              <Tab value="Actions">
+                <div class="grid-container-actions">
+                  <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))" class="grid-item">
+                    <button class="boxButton" v-on:click.native="sendMessage">Send Message</button>
+                  </div>
+                  <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))" class="grid-item">
+                    Send an APRS message to just this participant.
+                  </div>
+                  <div v-if="accesstokenRef.value != null" class="grid-item">
+                    <button class="boxButton" v-on:click.native="identify">Identify</button>
+                  </div>
+                  <div v-if="accesstokenRef.value != null" class="grid-item">
+                    Contact WHO-15 to determine the name, location and license for the callsign.
+                  </div>
+                </div>
+              </Tab>
+            </Tabs>
+          </div>
+          <div v-else>
+            <br>
+            <br>
+            <div style="text-align: center;"><i>Click on a participant above for more information.</i></div>
+          </div>
         </div>
       </div>
     </div>

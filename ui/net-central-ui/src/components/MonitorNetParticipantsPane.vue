@@ -8,6 +8,7 @@ import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
 import { updateNetParticipantEvent, updateNetParticipant, updateParticipant, updateParticipantEvent } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+import { isMobileClient } from "@/composables/MobileLibrary";
 
 const { socket } = useSocketIO();
 socket.on("updateNetParticipant", (data) => {
@@ -162,6 +163,7 @@ watch(nudgeObject, (newNudgeObject, oldNudgeObject) => {
     nudgeObject.value = null;
   }
 });
+
 </script>
 
 <template>
@@ -170,7 +172,8 @@ watch(nudgeObject, (newNudgeObject, oldNudgeObject) => {
     <!-- no nets -->
   </div>
   <div v-else-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
-    <div class="pagesubheader">Participants</div>
+    <div v-if="!isMobileClient()" class="pagesubheader">Participants</div>
+    <div v-else class="mobilepagesubheader">Participants</div>
     <div class="line"><hr/></div>
 
     <div v-if="((netParticipants.value == null) || (netParticipants.value.length == 0))">

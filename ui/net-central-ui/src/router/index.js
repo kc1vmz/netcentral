@@ -63,9 +63,19 @@ const routes = [
     component: () => import('../views/License.vue')
   },
   {
-    path: '/mobile',
-    name: 'Mobile',
-    component: () => import('../views/Mobile.vue')
+    path: '/monitorMobile',
+    name: 'MonitorMobile',
+    component: () => import('../views/MonitorMobile.vue')
+  },
+  {
+    path: '/dashboardMobile',
+    name: 'DashboardMobile',
+    component: () => import('../views/DashboardMobile.vue')
+  },
+  {
+    path: '/homeMobile',
+    name: 'HomeMobile',
+    component: () => import('../views/HomeMobile.vue')
   }
 ]
 

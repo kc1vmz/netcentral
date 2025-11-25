@@ -5,6 +5,7 @@
         name: 'Init',
         methods: {
             isMobile() {
+                return true;
                 if( screen.width <= 760 ) {
                     return true;
                 }
@@ -15,7 +16,7 @@
         },
         created() {
             if (this.isMobile()) {
-                this.$router.push('/mobile');
+                this.$router.push('/homeMobile');
             }
             else {
                 this.$router.push('/home');

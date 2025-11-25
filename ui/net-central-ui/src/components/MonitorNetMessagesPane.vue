@@ -6,6 +6,7 @@ import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
 import { updateNetMessageEvent, updateNetMessage } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+import { isMobileClient } from "@/composables/MobileLibrary";
 
 
 const { socket } = useSocketIO();
@@ -148,6 +149,7 @@ function performSendMessage() {
     })
     .catch(error => { console.error('Error sending message:', error); })   
 }
+
 </script>
 
 <template>
@@ -178,15 +180,19 @@ function performSendMessage() {
 
   <!-- main page-->
   <div v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null))">
-    <div class="pagesubheader">Messages</div><div><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
-    <div class="line"><hr/></div>
-
+    <div>
+      <div v-if="!isMobileClient()" class="pagesubheader">Messages</div>
+      <div v-else class="mobilepagesubheader">Messages</div><div v-if="!isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
+      <div class="line"><hr/></div>
+    </div> 
     <div v-if="((netMessages.value == null) || (netMessages.value.length == 0))">
       <br>
       <div style="text-align: center;"><i>No messages.</i></div>
     </div>
     <div v-else>
       <EasyDataTable :headers="headers" :items="netMessages.value" :rows-per-page="10" buttons-pagination/>
+      <br><br>
+      <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
     </div>
   </div>
 </template>

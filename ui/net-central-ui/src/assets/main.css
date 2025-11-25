@@ -46,6 +46,17 @@ a,
     line-height: 110%;
     font-weight: 400;
 }
+.mobilepageheader {
+    font-size: 2rem;
+    line-height: 90%;
+    margin: 1rem 0 1rem 0;
+    font-weight: 600;
+}
+.mobilepagesubheader {
+    font-size: 1rem;
+    line-height: 90%;
+    font-weight: 600;
+}
 
 .boxButton2 {
   font-size: 1rem;
