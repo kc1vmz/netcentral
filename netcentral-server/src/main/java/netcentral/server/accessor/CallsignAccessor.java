@@ -1,6 +1,8 @@
 package netcentral.server.accessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,13 @@ public class CallsignAccessor {
                 ret.add(new Callsign(rec.callsign(), rec.name(), rec.country(), rec.state(), rec.license()));
             }
         }
+
+        Collections.sort(ret, new Comparator<Callsign>() {
+            @Override
+            public int compare(Callsign obj1, Callsign obj2) {
+                return obj1.getCallsign().compareTo(obj2.getCallsign());
+            }
+        });
 
         return ret;
     }

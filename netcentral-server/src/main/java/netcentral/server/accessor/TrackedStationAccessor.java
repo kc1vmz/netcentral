@@ -2,6 +2,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +61,13 @@ public class TrackedStationAccessor {
                             RadioStyle.values()[rec.radio_style()], rec.transmit_power()));
             }
         }
+
+        Collections.sort(ret, new Comparator<TrackedStation>() {
+            @Override
+            public int compare(TrackedStation obj1, TrackedStation obj2) {
+                return obj1.getCallsign().compareTo(obj2.getCallsign());
+            }
+        });
 
         return ret;
     }

@@ -366,7 +366,7 @@ function performCreateNet() {
       <br>
     </div>
   </div>
-  <i>Information about APRS nets, participants, messages and related APRS resources.</i>
+  <i>Information about APRS nets, participants, messages, questions, answers and related APRS resources.</i>
   <div class="line"><hr/></div>
 </template>
 

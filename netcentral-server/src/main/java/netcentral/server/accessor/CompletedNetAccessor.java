@@ -2,6 +2,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +45,13 @@ public class CompletedNetAccessor {
                 ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message()));
             }
         }
+
+        Collections.sort(ret, new Comparator<CompletedNet>() {
+            @Override
+            public int compare(CompletedNet obj1, CompletedNet obj2) {
+                return -1*obj1.getStartTime().compareTo(obj2.getStartTime());
+            }
+        });
 
         return ret;
     }

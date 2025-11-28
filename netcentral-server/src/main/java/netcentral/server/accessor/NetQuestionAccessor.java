@@ -2,6 +2,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,6 +46,13 @@ public class NetQuestionAccessor {
                                     rec.reminder_minutes(), rec.question_text(), rec.next_reminder_time()));
             }
         }
+
+        Collections.sort(ret, new Comparator<NetQuestion>() {
+            @Override
+            public int compare(NetQuestion obj1, NetQuestion obj2) {
+                return -1*obj1.getAskedTime().compareTo(obj2.getAskedTime());
+            }
+        });
 
         return ret;
     }

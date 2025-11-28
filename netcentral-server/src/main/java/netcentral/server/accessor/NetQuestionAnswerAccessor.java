@@ -1,6 +1,8 @@
 package netcentral.server.accessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import java.util.UUID;
@@ -39,6 +41,13 @@ public class NetQuestionAnswerAccessor {
                 ret.add(new NetQuestionAnswer(rec.net_question_answer_id(), rec.net_question_id(), rec.completed_net_id(), rec.callsign(), rec.answered_time(), rec.answer_text()));
             }
         }
+
+        Collections.sort(ret, new Comparator<NetQuestionAnswer>() {
+            @Override
+            public int compare(NetQuestionAnswer obj1, NetQuestionAnswer obj2) {
+                return -1*obj1.getAnsweredTime().compareTo(obj2.getAnsweredTime());
+            }
+        });
 
         return ret;
     }

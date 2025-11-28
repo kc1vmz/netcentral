@@ -20,25 +20,26 @@ import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.object.CompletedNet;
-import netcentral.server.object.CompletedParticipant;
+import netcentral.server.object.NetMessage;
 import netcentral.server.object.SoftwareIdentity;
 
 @Singleton
-public class NetParticipantReport {
+public class NetMessageReport {
     @Inject
     private NetConfigServerConfig netConfigServerConfig;
 
-    private static final Logger logger = LogManager.getLogger(NetParticipantReport.class);
+    private static final Logger logger = LogManager.getLogger(NetMessageReport.class);
 
     private final static int MAX_ROWS = 25;
 
-    public String createReport(CompletedNet net, List<CompletedParticipant> participants) throws FileNotFoundException {
+    public String createReport(CompletedNet net, List<NetMessage> messages) throws FileNotFoundException {
         String filename = getUniqueFileName(netConfigServerConfig.getTempReportDir(), "pdf");
         try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(new FileOutputStream(filename)));
@@ -46,9 +47,9 @@ public class NetParticipantReport {
             document.setMargins(30, 32, 30, 32);
 
             int pageCount = 1;
-            if ((participants != null) && (!participants.isEmpty())) {
+            if ((messages != null) && (!messages.isEmpty())) {
                 // calculate number of pages
-                pageCount = (participants.size() / MAX_ROWS) + 1;
+                pageCount = (messages.size() / MAX_ROWS) + 1;
             }
 
             for (int page = 1; page <= pageCount; page++) {
@@ -58,7 +59,7 @@ public class NetParticipantReport {
                 document.add(addCommunicationsLogBanner());
 
                 Table communicationsLogHeader = addCommunicationsLogHeader();
-                addCommunicationLogRows(communicationsLogHeader, participants, page);
+                addCommunicationLogRows(communicationsLogHeader, messages, page);
                 document.add(communicationsLogHeader);
 
                 document.add(addFooter(page, pageCount));
@@ -71,7 +72,7 @@ public class NetParticipantReport {
             document.close();
             return filename.substring(netConfigServerConfig.getTempReportDir().length());
         } catch (Exception e) {
-            logger.error("Exception caught creating Net Participant Report - ", e);
+            logger.error("Exception caught creating Net Message Report - ", e);
         }
         return null;
     }
@@ -91,7 +92,7 @@ public class NetParticipantReport {
         Table table = new Table(3);
         table.useAllAvailableWidth();
 
-        Cell cell1 = new Cell().add(new Paragraph("COMMUNICATIONS LOG")).setBorder(new SolidBorder(1)).setVerticalAlignment(VerticalAlignment.MIDDLE);
+        Cell cell1 = new Cell().add(new Paragraph("MESSAGE LOG")).setBorder(new SolidBorder(1)).setVerticalAlignment(VerticalAlignment.MIDDLE);
         PdfUtils.makeBold(cell1);
         table.addCell(cell1);
         Cell cell2 = new Cell().add(new Paragraph("TASK # " + taskId)).setBorder(new SolidBorder(1)).setVerticalAlignment(VerticalAlignment.MIDDLE);
@@ -131,19 +132,24 @@ public class NetParticipantReport {
     private Table addCommunicationsLogHeader() {
         Table table = new Table(4);
         table.useAllAvailableWidth();
-        Cell cell1 = new Cell().add(new Paragraph("CALLSIGN")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER);
+        UnitValue width = table.getWidth();
+        float value = width.getValue() / 100;
+        UnitValue tiny = new UnitValue(2, value*10);
+        UnitValue small = new UnitValue(2, value*15);
+        UnitValue large = new UnitValue(2, value*60);
+        Cell cell1 = new Cell().add(new Paragraph("TIME")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER).setWidth(tiny);
         PdfUtils.fixupFontBold(cell1);
         table.addCell(cell1);
 
-        Cell cell2 = new Cell().add(new Paragraph("START")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER);
+        Cell cell2 = new Cell().add(new Paragraph("FROM")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER).setWidth(small);
         PdfUtils.fixupFontBold(cell2);
         table.addCell(cell2);
 
-        Cell cell3 = new Cell().add(new Paragraph("END")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER);
+        Cell cell3 = new Cell().add(new Paragraph("TO")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER).setWidth(small);
         PdfUtils.fixupFontBold(cell3);
         table.addCell(cell3);
 
-        Cell cell4 = new Cell().add(new Paragraph("DETAILS")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER);
+        Cell cell4 = new Cell().add(new Paragraph("MESSAGE")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.CENTER).setWidth(large);
         PdfUtils.fixupFontBold(cell4);
         table.addCell(cell4);
 
@@ -201,10 +207,10 @@ public class NetParticipantReport {
      * @param messages list of messages to log
      * @param page current page number
      */
-    private void addCommunicationLogRows(Table table, List<CompletedParticipant> participants, int page) {
+    private void addCommunicationLogRows(Table table, List<NetMessage> messages, int page) {
         table.useAllAvailableWidth();
 
-        if ((participants == null) || (participants.isEmpty()) ) {
+        if ((messages == null) || (messages.isEmpty()) ) {
             return;
             // need to make this paged
         }
@@ -213,23 +219,22 @@ public class NetParticipantReport {
         int skipCount = (page - 1) * MAX_ROWS;
         int itemCount = 0;
 
-        for (CompletedParticipant participant : participants) {
+        for (NetMessage message : messages) {
             // skip to corret page of messages
             if (skipCount != 0) {
                 skipCount--;
                 continue;
             }
 
-            String timeStartStr = DateStrUtils.getTimeStr(participant.getStartTime());
-            String timeEndStr = DateStrUtils.getTimeStr(participant.getEndTime());
+            String timeStartStr = DateStrUtils.getTimeStr(message.getReceivedTime());
 
             Cell cellStartTime = new Cell().add(new Paragraph(timeStartStr));
-            Cell cellEndTime = new Cell().add(new Paragraph(timeEndStr));
-            Cell cellFrom = new Cell().add(new Paragraph((String.format("%s (%s)", participant.getCallsign(), (participant.getTacticalCallsign() == null) ? "": participant.getTacticalCallsign()))));
-            Cell cellMsg = new Cell().add(new Paragraph((String.format("%s:%s:%sW", participant.getElectricalPowerType(), participant.getRadioStyle(), participant.getTransmitPower()))));
-            table.addCell(cellFrom);
+            Cell cellFrom = new Cell().add(new Paragraph((String.format("%s", message.getCallsignFrom()))));
+            Cell cellTo = new Cell().add(new Paragraph((String.format("%s", message.getRecipient()))));
+            Cell cellMsg = new Cell().add(new Paragraph((String.format("%s", message.getMessage()))));
             table.addCell(cellStartTime);
-            table.addCell(cellEndTime);
+            table.addCell(cellFrom);
+            table.addCell(cellTo);
             table.addCell(cellMsg);
 
             itemCount++;
@@ -250,7 +255,6 @@ public class NetParticipantReport {
                 }
             }
         }
-
     }
 
     /**
@@ -265,7 +269,7 @@ public class NetParticipantReport {
         Table table = new Table(2);
         table.useAllAvailableWidth();
         table.addCell(new Cell().add(new Paragraph("Page " + pageCurrent + " of " + pageCount)).setBorder(new SolidBorder(1)));
-        Cell cell = new Cell().add(new Paragraph("309 Form")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.RIGHT);
+        Cell cell = new Cell().add(new Paragraph("Net Message Report")).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.RIGHT);
         PdfUtils.makeBold(cell);
         table.addCell(cell);
         return table;
@@ -279,7 +283,7 @@ public class NetParticipantReport {
     private Table addGenerator() {
         Table table = new Table(1);
         table.useAllAvailableWidth();
-        String text = String.format("309 communications log generated by %s %s", SoftwareIdentity.NAME, SoftwareIdentity.VERSION);
+        String text = String.format("Net Message Report generated by %s %s", SoftwareIdentity.NAME, SoftwareIdentity.VERSION);
         table.addCell(new Cell().add(new Paragraph(text)).setBorder(new SolidBorder(1)).setTextAlignment(TextAlignment.RIGHT));
         return table;
     }

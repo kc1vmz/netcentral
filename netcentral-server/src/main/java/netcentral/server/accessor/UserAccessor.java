@@ -1,6 +1,8 @@
 package netcentral.server.accessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -108,6 +110,12 @@ public class UserAccessor {
         } else {
             ret.add(userFull);
         }
+        Collections.sort(ret, new Comparator<User>() {
+            @Override
+            public int compare(User obj1, User obj2) {
+                return obj1.getEmailAddress().compareTo(obj2.getEmailAddress());
+            }
+        });
         return ret;
     }
 

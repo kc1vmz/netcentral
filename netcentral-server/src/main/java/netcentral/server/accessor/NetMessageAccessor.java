@@ -2,6 +2,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +53,13 @@ public class NetMessageAccessor {
                 ret.add(new NetMessage(rec.net_message_id(), rec.completed_net_id(), rec.callsign_from(), rec.message(), rec.received_time(), rec.recipient()));
             }
         }
+
+        Collections.sort(ret, new Comparator<NetMessage>() {
+            @Override
+            public int compare(NetMessage obj1, NetMessage obj2) {
+                return -1*obj1.getReceivedTime().compareTo(obj2.getReceivedTime());
+            }
+        });
 
         return ret;
     }

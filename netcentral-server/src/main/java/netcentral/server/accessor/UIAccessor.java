@@ -71,7 +71,7 @@ public class UIAccessor {
     public String generateCompletedNetReport(User loggedInUser, CompletedNet net) {
         try {
             List<CompletedParticipant> participants = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
-            String filename = netParticipantReport.createParticipantReport(net, participants);
+            String filename = netParticipantReport.createReport(net, participants);
             return filename;
         } catch (Exception e) {
             // ignore

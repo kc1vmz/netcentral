@@ -1,6 +1,8 @@
 package netcentral.server.accessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +45,13 @@ public class ScheduledNetAccessor {
                     rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message()));
             }
         }
+
+        Collections.sort(ret, new Comparator<ScheduledNet>() {
+            @Override
+            public int compare(ScheduledNet obj1, ScheduledNet obj2) {
+                return -1*obj1.getNextStartTime().compareTo(obj2.getNextStartTime());
+            }
+        });
 
         return ret;
     }
