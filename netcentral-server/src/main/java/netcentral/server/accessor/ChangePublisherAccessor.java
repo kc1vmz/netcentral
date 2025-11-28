@@ -20,6 +20,8 @@ import netcentral.server.object.CallsignAce;
 import netcentral.server.object.IgnoreStation;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.ScheduledNet;
 import netcentral.server.object.TrackedStation;
@@ -28,6 +30,8 @@ import netcentral.server.object.update.CallsignUpdatePayload;
 import netcentral.server.object.update.GenericUpdatePayload;
 import netcentral.server.object.update.NetMessageUpdatePayload;
 import netcentral.server.object.update.NetParticipantUpdatePayload;
+import netcentral.server.object.update.NetQuestionAnswerUpdatePayload;
+import netcentral.server.object.update.NetQuestionUpdatePayload;
 import netcentral.server.object.update.NetUpdatePayload;
 import netcentral.server.object.update.ObjectUpdatePayload;
 import netcentral.server.object.update.TrackedStationUpdatePayload;
@@ -90,6 +94,14 @@ public class ChangePublisherAccessor {
 
     private void publishCallsignUpdate(String payload) {
         socketIoServerRunner.updateCallsign(payload);
+    }
+
+    private void publishNetQuestionUpdate(String payload) {
+        socketIoServerRunner.updateNetQuestion(payload);
+    }
+
+    private void publishNetQuestionAnswerUpdate(String payload) {
+        socketIoServerRunner.updateNetQuestionAnswer(payload);
     }
 
     private void publishTrackedStationUpdate(String payload) {
@@ -288,7 +300,39 @@ public class ChangePublisherAccessor {
         }
    }
 
-    public void publishTrackedStationUpdate(String callsign, String action, TrackedStation object) {
+    public void publishNetQuestionUpdate(String callsign, String action, NetQuestion netQuestionObject) {
+        NetQuestionUpdatePayload payload = new NetQuestionUpdatePayload();
+        payload.setCallsign(callsign);
+        payload.setAction(action);
+        payload.setObject(netQuestionObject);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishNetQuestionUpdate(json);
+        } catch (Exception e) {
+            logger.error("Exception caught publishing NetQuestion update", e);
+        }
+   }
+
+    public void publishNetQuestionAnswerUpdate(String id, String action, NetQuestionAnswer netQuestionObject) {
+        NetQuestionAnswerUpdatePayload payload = new NetQuestionAnswerUpdatePayload();
+        payload.setId(id);
+        payload.setAction(action);
+        payload.setObject(netQuestionObject);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishNetQuestionAnswerUpdate(json);
+        } catch (Exception e) {
+            logger.error("Exception caught publishing NetQuestionAnswer update", e);
+        }
+   }
+
+   public void publishTrackedStationUpdate(String callsign, String action, TrackedStation object) {
         publishDashboardUpdate();
 
         TrackedStationUpdatePayload payload = new TrackedStationUpdatePayload();

@@ -21,7 +21,6 @@ const selectedItem = ref(null);
 const headersRef = ref([
   { text: "Callsign", value: "callsign", sortable: true },
   { text: "Name", value: "name", sortable: true},
-  { text: "Description", value: "decription", sortable: true},
   { text: "Start Time", value: "prettyStartTime", sortable: true},
   { text: "End Time", value: "prettyEndTime", sortable: true}
 ]);
@@ -85,6 +84,8 @@ function getBodyRowClass(item, rowNumber) {
 <template>
     <!-- main page -->
     <div>
+        <div class="pagesubheader">Archived Nets</div>
+        <div class="line"><hr/></div>
         <EasyDataTable :headers="headersRef" :items="completedNetsRef.value"
             :rows-per-page="10"
             :body-row-class-name="getBodyRowClass"

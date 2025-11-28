@@ -16,9 +16,12 @@ import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
+import netcentral.server.utils.Stripper;
 
 @Singleton
 public class RadioCommandAccessor {
@@ -42,6 +45,8 @@ public class RadioCommandAccessor {
     private static final String COMMAND_ELECTRICAL_POWER = "E";
     private static final String COMMAND_BACKUP_ELECTRICAL_POWER = "B";
     private static final String COMMAND_RADIO_STYLE = "Y";
+    private static final String COMMAND_NET_QUESTION = "Q";
+    private static final String COMMAND_NET_ANSWER = "A";
 
     @Inject
     private NetAccessor netAccessor;
@@ -57,6 +62,11 @@ public class RadioCommandAccessor {
     private NetMessageAccessor netMessageAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private NetQuestionAccessor netQuestionAccessor;
+    @Inject
+    private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
+
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {
         try {
@@ -149,6 +159,28 @@ public class RadioCommandAccessor {
                     }
                 }
                 processNetMessage(loggedInUser, msg, net, transceiverSourceId, false);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_QUESTION.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processNetQuestion(loggedInUser, msg, net, transceiverSourceId);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_ANSWER.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processNetQuestionAnswer(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
             } else if (COMMAND_NET_MESSAGE_NET_CONTROL.equalsIgnoreCase(command)) {
@@ -569,6 +601,8 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s - %s", COMMAND_STATUS, "Report your status for others to see"));
         helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_OPERATIONAL_STATUS, "Check operational status of callsign"));
         helpMessages.add(String.format("%s - %s", COMMAND_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
+        helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
+        helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
 
@@ -655,6 +689,62 @@ public class RadioCommandAccessor {
                 }
             }
         }
+    }
+
+    private void processNetQuestion(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        String operatorMessage = message.getMessage().substring(2); // go past "q "
+
+        // persist the net message
+        NetQuestion netQuestion = new NetQuestion();
+        netQuestion.setActive(true);
+        netQuestion.setAskedTime(ZonedDateTime.now());
+        netQuestion.setCompletedNetId(net.getCompletedNetId());
+        netQuestion.setNetQuestionId(UUID.randomUUID().toString());
+        netQuestion.setReminderMinutes(60);
+        netQuestion.setNextReminderTime(netQuestion.getAskedTime().plusMinutes(netQuestion.getReminderMinutes()));
+        netQuestion.setNumber(0);
+        netQuestion.setQuestionText(operatorMessage);
+        netQuestionAccessor.create(loggedInUser, netQuestion, net);
+    }
+
+    private void processNetQuestionAnswer(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        String operatorMessage = Stripper.stripWhitespace(message.getMessage().substring(2)); // go past "a "
+
+        int index = operatorMessage.indexOf(' ');
+        if (index == -1) {
+            return;  // cannot find question
+        }
+        String questionNumberStr = operatorMessage.substring(0, index);
+        int questionNumber = -1;
+        try {
+            Integer temp = Integer.parseInt(questionNumberStr);
+            questionNumber = temp;
+        } catch (Exception e) {
+        }
+
+        if (questionNumber == -1) {
+            return; // cannot find question
+        }
+        String answer = operatorMessage.substring(index+1);
+
+        NetQuestion netQuestion = null;
+        try {
+            netQuestion = netQuestionAccessor.getByQuestionNumber(loggedInUser, net.getCompletedNetId(), questionNumber);
+        } catch (Exception e) {
+        }
+
+        if (netQuestion == null) {
+            return; // did not find question
+        }
+        // persist the net message
+        NetQuestionAnswer netQuestionAnswer = new NetQuestionAnswer();
+        netQuestionAnswer.setAnsweredTime(ZonedDateTime.now());
+        netQuestionAnswer.setCompletedNetId(net.getCompletedNetId());
+        netQuestionAnswer.setNetQuestionAnswerId(UUID.randomUUID().toString());
+        netQuestionAnswer.setNetQuestionId(netQuestion.getNetQuestionId());
+        netQuestionAnswer.setAnswerText(answer);
+        netQuestionAnswer.setCallsign(message.getCallsignFrom());
+        netQuestionAnswerAccessor.create(loggedInUser, netQuestionAnswer, net);
     }
 
     private void processCheckOut(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {

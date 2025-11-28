@@ -26,7 +26,7 @@ const netMessages = reactive({value : []});
 watch(
   localSelectedCompletedNet,
   async () => {
-    if (localSelectedCompletedNet.value.callsign != null) {
+    if ((localSelectedCompletedNet.value != null) && (localSelectedCompletedNet.value.callsign != null)) {
       var requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json",

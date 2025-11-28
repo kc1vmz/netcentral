@@ -26,6 +26,8 @@ import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.NetAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.accessor.NetParticipantAccessor;
+import netcentral.server.accessor.NetQuestionAccessor;
+import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.auth.SessionAccessor;
@@ -33,6 +35,8 @@ import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
 
@@ -57,6 +61,10 @@ public class NetController {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private NetQuestionAccessor netQuestionAccessor;
+    @Inject
+    private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {
@@ -202,6 +210,72 @@ public class NetController {
 
         netAccessor.deleteAll(loggedInUser);
         netParticipantAccessor.deleteAll(loggedInUser);
+        netQuestionAccessor.deleteAllData(loggedInUser);
+        netQuestionAnswerAccessor.deleteAllData(loggedInUser);
         changePublisherAccessor.publishAllUpdate();
     }
+
+
+    @Get("/{id}/questions") 
+    public List<NetQuestion> getQuestions(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net = netAccessor.get(loggedInUser, id);
+        List<NetQuestion> messages = new ArrayList<>();
+
+        try {
+            messages = netQuestionAccessor.getAll(loggedInUser, net.getCompletedNetId());
+        } catch (Exception e) {
+            // ignore
+        }
+        return messages;
+    }
+
+    @Post("/{callsign}/questions")
+    public NetQuestion createQuestion(HttpRequest<?> request,  @PathVariable String callsign, @Body NetQuestion netQuestion) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+        Net net = netAccessor.get(loggedInUser, callsign);
+
+        try {
+            NetQuestion ret = netQuestionAccessor.create(loggedInUser, netQuestion, net);
+            return ret;
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
+    @Get("/{callsign}/questions/{questionId}/answers") 
+    public List<NetQuestionAnswer> getAnswers(HttpRequest<?> request, @PathVariable String callsign, @PathVariable String questionId) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        netAccessor.get(loggedInUser, callsign);
+        List<NetQuestionAnswer> messages = new ArrayList<>();
+
+        try {
+            messages = netQuestionAnswerAccessor.getAll(loggedInUser, questionId);
+        } catch (Exception e) {
+            // ignore
+        }
+        return messages;
+    }
+   
+    @Post("/{callsign}/questions/{questionId}/answers")
+    public NetQuestionAnswer createAnswer(HttpRequest<?> request,  @PathVariable String callsign, @PathVariable String questionId, @Body NetQuestionAnswer netQuestionAnswer) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+        Net net = netAccessor.get(loggedInUser, callsign);
+
+        try {
+            NetQuestionAnswer ret = netQuestionAnswerAccessor.create(loggedInUser, netQuestionAnswer, net);
+            return ret;
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
 }

@@ -542,6 +542,8 @@ function deleteAllNetCentralDataYes() {
     performDeleteAll('/completedNets/all/now');
     performDeleteAll('/netMessages/all/now');
     performDeleteAll('/participants/all/now');
+    performDeleteAll('/netQuestionAnswers/all/now');
+    performDeleteAll('/netQuestions/all/now');
     dialogConfirmDeleteAllNetCentralShow.value = false;
 }
 function deleteAllNetCentralDataNo() {

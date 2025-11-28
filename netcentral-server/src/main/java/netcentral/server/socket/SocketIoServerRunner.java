@@ -142,6 +142,24 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
         }
     }
 
+    public void updateNetQuestion(String payload) {
+        setupSocket();
+        try {
+            server.getBroadcastOperations().sendEvent("updateNetQuestion", payload);
+        } catch (Exception e) {
+            logger.error("Exception caught broadcasting updateNetQuestion", e);
+        }
+    }
+
+    public void updateNetQuestionAnswer(String payload) {
+        setupSocket();
+        try {
+            server.getBroadcastOperations().sendEvent("updateNetQuestionAnswer", payload);
+        } catch (Exception e) {
+            logger.error("Exception caught broadcasting updateNetQuestionAnswer", e);
+        }
+    }
+
     public void updateNetParticipant(String payload) {
         setupSocket();
         try {

@@ -19,6 +19,14 @@ export const updateNetMessageEvent = reactive({ value: null });
 export function updateNetMessage(payload) {
     updateNetMessageEvent.value = JSON.parse(payload);
 }
+export const updateNetQuestionEvent = reactive({ value: null });
+export function updateNetQuestion(payload) {
+    updateNetQuestionEvent.value = JSON.parse(payload);
+}
+export const updateNetQuestionAnswerEvent = reactive({ value: null });
+export function updateNetQuestionAnswer(payload) {
+    updateNetQuestionAnswerEvent.value = JSON.parse(payload);
+}
 export const updateNetParticipantEvent = reactive({ value: null });
 export function updateNetParticipant(payload) {
     updateNetParticipantEvent.value = JSON.parse(payload);

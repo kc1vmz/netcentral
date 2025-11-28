@@ -29,7 +29,7 @@ const netParticipants = reactive({ value : []});
 watch(
   localSelectedCompletedNet,
   async () => {
-    if (localSelectedCompletedNet.value.callsign != null) {
+    if ((localSelectedCompletedNet.value != null) && (localSelectedCompletedNet.value.callsign != null)) {
       var requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json",
@@ -66,7 +66,7 @@ watch(
     <div v-else>
         <br>
         <br>
-        <br><i>Select a net above for additional information.</i>
+        <br><i>Select a net for additional information.</i>
     </div>
 </template>
 

@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.NetParticipantReminderAccessor;
+import netcentral.server.accessor.NetQuestionReminderAccessor;
 import netcentral.server.accessor.NetSchedulerAccessor;
 import netcentral.server.accessor.ObjectBeaconAccessor;
 import netcentral.server.accessor.ObjectCleanupAccessor;
@@ -40,6 +41,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     private NetParticipantReminderAccessor netParticipantReminderAccessor;
     @Inject
+    private NetQuestionReminderAccessor netQuestionReminderAccessor;
+    @Inject
     private APRSCreateObjectQueue aprsCreateObjectQueue;
     @Inject
     private APRSObjectAccessor aprsObjectAccessor;
@@ -59,6 +62,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         startObjectBeaconThread();
         startNetParticipantReminderThread();
         startObjectCleanupThread();
+        startNetQuestionReminderThread();
     }
 
     void startReportCleanupThread() {
@@ -116,6 +120,24 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught beaconing objects", e);
+                }
+            }
+        }).start();
+    }
+
+    void startNetQuestionReminderThread() {
+        new Thread(() -> {
+            boolean run = true;
+            while (run) {
+                try {
+                    Thread.sleep(MINUTES_TO_MILLIS*1); // check every minute
+                    netQuestionReminderAccessor.sendQuestionReminders();
+                    run = netQuestionReminderAccessor.stayRunning();
+                } catch (InterruptedException e) {
+                    logger.error("Exception caught reminding net participants of questions", e);
+                    run = false;
+                } catch (Exception e) {
+                    logger.error("Exception caught reminding net participants of questions", e);
                 }
             }
         }).start();

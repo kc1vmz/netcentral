@@ -2,6 +2,7 @@ package netcentral.server.controller;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.micronaut.core.annotation.Nullable;
@@ -20,11 +21,15 @@ import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
+import netcentral.server.accessor.NetQuestionAccessor;
+import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.User;
 import netcentral.server.utils.NetParticipantReport;
 
@@ -46,6 +51,10 @@ public class CompletedNetController {
     private NetConfigServerConfig netConfigServerConfig;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private NetQuestionAccessor netQuestionAccessor;
+    @Inject
+    private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
 
 
     @Get 
@@ -115,5 +124,37 @@ public class CompletedNetController {
         completedNetAccessor.deleteAll(loggedInUser);
         completedParticipantAccessor.deleteAll(loggedInUser);
         changePublisherAccessor.publishAllUpdate();
+    }
+
+    @Get("/{completedNetId}/questions") 
+    public List<NetQuestion> getQuestions(HttpRequest<?> request, @PathVariable String completedNetId) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        CompletedNet completedNet = completedNetAccessor.get(loggedInUser, completedNetId);
+        List<NetQuestion> messages = new ArrayList<>();
+
+        try {
+            messages = netQuestionAccessor.getAll(loggedInUser, completedNet.getCompletedNetId());
+        } catch (Exception e) {
+            // ignore
+        }
+        return messages;
+    }
+
+    @Get("/{completedNetId}/questions/{questionId}/answers") 
+    public List<NetQuestionAnswer> getAnswers(HttpRequest<?> request, @PathVariable String completedNetId, @PathVariable String questionId) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        completedNetAccessor.get(loggedInUser, completedNetId);
+        List<NetQuestionAnswer> messages = new ArrayList<>();
+
+        try {
+            messages = netQuestionAnswerAccessor.getAll(loggedInUser, questionId);
+        } catch (Exception e) {
+            // ignore
+        }
+        return messages;
     }
 }

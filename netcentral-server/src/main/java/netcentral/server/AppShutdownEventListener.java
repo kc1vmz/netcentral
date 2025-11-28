@@ -5,6 +5,7 @@ import io.micronaut.context.event.ShutdownEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.NetParticipantReminderAccessor;
+import netcentral.server.accessor.NetQuestionReminderAccessor;
 import netcentral.server.accessor.NetSchedulerAccessor;
 import netcentral.server.accessor.ObjectBeaconAccessor;
 import netcentral.server.accessor.ReportCleanupAccessor;
@@ -23,6 +24,8 @@ public class AppShutdownEventListener implements ApplicationEventListener<Shutdo
     private NetParticipantReminderAccessor netParticipantReminderAccessor;
     @Inject
     private APRSCreateObjectQueue aprsCreateObjectQueue;
+    @Inject
+    private NetQuestionReminderAccessor netQuestionReminderAccessor;
 
     @Override
     public void onApplicationEvent(ShutdownEvent event) {
@@ -31,6 +34,7 @@ public class AppShutdownEventListener implements ApplicationEventListener<Shutdo
         priorityObjectBeaconAccessor.shutdownBeacon();
         netParticipantReminderAccessor.shutdown();
         aprsCreateObjectQueue.shutdown();
+        netQuestionReminderAccessor.shutdown();
 
         try {
             Thread.sleep(30000);  // may take up to 30 seconds

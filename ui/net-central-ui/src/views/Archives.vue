@@ -1,28 +1,45 @@
 <template>
   <div>
-      <PageHeaderPane title="Archived Net Information" description="Information about previous nets, including participants and messages."/>
+      <PageHeaderPane title="Archived Net Information" description="Information about previous nets, including participants, messages, questions and answers."/>
       <div>
-        <splitpanes class="default-theme" horizontal style="height: 100vh; width: 100%" @resized="storePaneSize1" v-model="paneSizes1">
-          <pane min-size="10" max-size="60" style="width: 100%" :size="paneSizes1">
-            <div class="content">
-              <ArchivedNetsListPane/> 
-            </div>
-          </pane>
-          <pane style="width: 100%" :size="100-paneSizes1">
-            <splitpanes vertical  @resized="storePaneSize2" v-model="paneSizes21">
-              <pane :size="paneSizes21">
+        <splitpanes class="default-theme" vertical style="height: 100vh; width: 100%" @resized="storePaneSizesAll">
+          <pane min-size="10" max-size="80" :size="paneSizes1">
+            <splitpanes horizontal @resized="storePaneSizesLeft">
+              <pane :size="paneSizes4">
+                <div class="content">
+                  <ArchivedNetsListPane/> 
+                </div>
+              </pane>
+              <pane :size="paneSizes5">
                 <div class="content">
                   <ArchivedNetDetailsPane/> 
                 </div>
               </pane>
-              <pane :size="paneSizes22">
-                <div class="content">
-                  <ArchivedNetParticipantsPane/> 
-                </div>
-              </pane>
-              <pane :size="paneSizes23">
+            </splitpanes>
+          </pane>
+
+          <pane min-size="10" max-size="80" :size="paneSizes2">
+            <div class="content">
+              <ArchivedNetParticipantsPane/> 
+            </div>
+          </pane>
+
+
+          <pane min-size="10" max-size="80" :size="paneSizes3">
+            <splitpanes horizontal @resized="storePaneSizesRight">
+              <pane :size="paneSizes6">
                 <div class="content">
                   <ArchivedNetMessagesPane/> 
+                </div>
+              </pane>
+              <pane :size="paneSizes7">
+                <div class="content">
+                  <ArchivedNetQuestionsPane/>
+                </div>
+              </pane>
+              <pane :size="paneSizes8">
+                <div class="content">
+                  <ArchivedNetQuestionAnswersPane/>
                 </div>
               </pane>
             </splitpanes>
@@ -39,16 +56,23 @@ import ArchivedNetsListPane from '@/components/ArchivedNetsListPane.vue'
 import ArchivedNetDetailsPane from '@/components/ArchivedNetDetailsPane.vue'
 import ArchivedNetParticipantsPane from '@/components/ArchivedNetParticipantsPane.vue'
 import ArchivedNetMessagesPane from '@/components/ArchivedNetMessagesPane.vue'
+import ArchivedNetQuestionAnswersPane from '@/components/ArchivedNetQuestionAnswersPane.vue'
+import ArchivedNetQuestionsPane from '@/components/ArchivedNetQuestionsPane.vue'
+
 import PageHeaderPane from '@/components/PageHeaderPane.vue'
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";
 import { selectedObject , updateSelectedObject, setSelectedObjectionSelectionValue } from "@/SelectedObject.js";
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router';
 
-const paneSizes1 = ref(50)
-const paneSizes21 = ref(33)
-const paneSizes22 = ref(33)
-const paneSizes23 = ref(34)
+const paneSizes1 = ref(34)
+const paneSizes2 = ref(33)
+const paneSizes3 = ref(33)
+const paneSizes4 = ref(50)
+const paneSizes5 = ref(50)
+const paneSizes6 = ref(33)
+const paneSizes7 = ref(33)
+const paneSizes8 = ref(34)
 var router = useRouter();
 
 onMounted(() => {
@@ -57,45 +81,86 @@ onMounted(() => {
   if (storedSizesSetup1) {
     paneSizes1.value = JSON.parse(storedSizesSetup1)
   } else {
-    paneSizes1.value = 50;
+    paneSizes1.value = 34;
   }
-  const storedSizesSetup21 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-21')
-  if (storedSizesSetup21) {
-    paneSizes21.value = JSON.parse(storedSizesSetup21)
+  const storedSizesSetup2 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-2')
+  if (storedSizesSetup2) {
+    paneSizes2.value = JSON.parse(storedSizesSetup2)
   } else {
-    paneSizes21.value = 33;
+    paneSizes2.value = 33;
   }
-  const storedSizesSetup22 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-22')
-  if (storedSizesSetup22) {
-    paneSizes22.value = JSON.parse(storedSizesSetup22)
+  const storedSizesSetup3 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-3')
+  if (storedSizesSetup3) {
+    paneSizes3.value = JSON.parse(storedSizesSetup3)
   } else {
-    paneSizes22.value = 33;
+    paneSizes3.value = 33;
   }
-  const storedSizesSetup23 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-23')
-  if (storedSizesSetup23) {
-    paneSizes23.value = JSON.parse(storedSizesSetup23)
+  const storedSizesSetup4 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-4')
+  if (storedSizesSetup4) {
+    paneSizes4.value = JSON.parse(storedSizesSetup4)
   } else {
-    paneSizes23.value = 34;
+    paneSizes4.value = 50;
+  }
+  const storedSizesSetup5 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-5')
+  if (storedSizesSetup5) {
+    paneSizes5.value = JSON.parse(storedSizesSetup5)
+  } else {
+    paneSizes5.value = 50;
+  }
+  const storedSizesSetup6 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-6')
+  if (storedSizesSetup6) {
+    paneSizes6.value = JSON.parse(storedSizesSetup6)
+  } else {
+    paneSizes6.value = 34;
+  }
+  const storedSizesSetup7 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-7')
+  if (storedSizesSetup7) {
+    paneSizes7.value = JSON.parse(storedSizesSetup7)
+  } else {
+    paneSizes7.value = 33;
+  }
+  const storedSizesSetup8 = localStorage.getItem('NetCentral-splitpanes-sizes-archives-8')
+  if (storedSizesSetup8) {
+    paneSizes8.value = JSON.parse(storedSizesSetup8)
+  } else {
+    paneSizes8.value = 33;
   }
 })
 
-const storePaneSize1 = ({ prevPane }) => {
-  paneSizes1.value = prevPane.size;
-  localStorage.setItem('NetCentral-splitpanes-sizes-archives-1', JSON.stringify(paneSizes1.value))
-}
-const storePaneSize2 = ({ prevPane }) => {
+const storePaneSizesRight = ({ prevPane }) => {
   if (prevPane.index == 0) {
-    // moved the first slider
-    paneSizes21.value = prevPane.size;
-    paneSizes22.value = 100 - paneSizes23.value - paneSizes21.value;
-    localStorage.setItem('NetCentral-splitpanes-sizes-archives-21', JSON.stringify(paneSizes21.value))
-    localStorage.setItem('NetCentral-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
-  } else if (prevPane.index == 1) {
-    // moved the second slider
-    paneSizes22.value = prevPane.size;
-    paneSizes23.value = 100 - paneSizes21.value - paneSizes22.value;
-    localStorage.setItem('NetCentral-splitpanes-sizes-archives-22', JSON.stringify(paneSizes22.value))
-    localStorage.setItem('NetCentral-splitpanes-sizes-archives-23', JSON.stringify(paneSizes23.value))
+    var total = paneSizes6.value + paneSizes7.value;
+    paneSizes6.value = prevPane.size;
+    paneSizes7.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-6', JSON.stringify(paneSizes6.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-7', JSON.stringify(paneSizes7.value))
+  } else {
+    var total = paneSizes7.value + paneSizes8.value;
+    paneSizes7.value = prevPane.size;
+    paneSizes8.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-7', JSON.stringify(paneSizes7.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-8', JSON.stringify(paneSizes8.value))
+  }
+}
+const storePaneSizesLeft = ({ prevPane }) => {
+    paneSizes4.value = prevPane.size;
+    paneSizes5.value = 100 - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-4', JSON.stringify(paneSizes4.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-5', JSON.stringify(paneSizes5.value))
+}
+const storePaneSizesAll  = ({ prevPane }) => {
+  if (prevPane.index == 0) {
+    var total = paneSizes1.value + paneSizes2.value;
+    paneSizes1.value = prevPane.size;
+    paneSizes2.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-1', JSON.stringify(paneSizes1.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-2', JSON.stringify(paneSizes2.value))
+  } else {
+    var total = paneSizes2.value + paneSizes3.value;
+    paneSizes2.value = prevPane.size;
+    paneSizes3.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-2', JSON.stringify(paneSizes2.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-archives-3', JSON.stringify(paneSizes3.value))
   }
 }
 </script>

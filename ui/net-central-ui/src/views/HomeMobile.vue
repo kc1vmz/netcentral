@@ -21,6 +21,8 @@
     <br><b>L</b> - list net participants, their callsigns, status, location, and voice freqency monitored
     <br><b>P callsign</b> - ping callsign to test connectivity
     <br><b>O callsign</b> - get known operational status of a station by its callsign
+    <br><b>Q</b> - send a question to all participants in net
+    <br><b>A n</b> - answer question n sent to the net
     <br><b>H</b> - display help message of all commands
     <br>
     <br><b>CI, CO, T, F, X, E, B, and Y</b> can all be combined in a single message  (ex: CI X 50 E COMM B SO)
