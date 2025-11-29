@@ -30,8 +30,6 @@ public class NetQuestionAccessor {
     @Inject
     private NetQuestionRepository netQuestionRepository;
     @Inject
-    private NetParticipantAccessor netParticipantAccessor;
-    @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
@@ -77,7 +75,7 @@ public class NetQuestionAccessor {
         return ret;
     }
 
-    public NetQuestion create(User loggedInUser, NetQuestion obj, Net net) {
+    public NetQuestion create(User loggedInUser, NetQuestion obj, Net net, List<Participant> netParticipants) {
         if (obj == null) {
             logger.debug("Net Question is null");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net Question not provided");
@@ -104,7 +102,6 @@ public class NetQuestionAccessor {
 
             // tell the participants about the question
             try {
-                List<Participant> netParticipants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
                 if (netParticipants != null) {
                     String message = String.format("Net msg %d: %s", obj.getNumber(), obj.getQuestionText());
                     for (Participant netParticipant : netParticipants) {

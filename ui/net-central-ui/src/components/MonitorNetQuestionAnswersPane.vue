@@ -22,7 +22,7 @@ watch(updateNetQuestionAnswerEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedNetQuestion.value != null) && (localSelectedNetQuestion.value.netQuestionId !== newValue.value.id)) {
+  if ((localSelectedNetQuestion.value == null) || (localSelectedNetQuestion.value.netQuestionId !== newValue.value.id)) {
     // not this question
     return;
   }
@@ -30,7 +30,7 @@ watch(updateNetQuestionAnswerEvent, (newValue, oldValue) => {
     var found = false;
     if (netQuestionAnswers.value != null) {
       netQuestionAnswers.value.forEach(function(question){
-        if ((!found) && (question.netQuestionAnswerId == newValue.value.netQuestionAnswerId)) {
+        if ((!found) && (question.netQuestionAnswerId == newValue.value.object.netQuestionAnswerId)) {
           found = true;
         }
       });

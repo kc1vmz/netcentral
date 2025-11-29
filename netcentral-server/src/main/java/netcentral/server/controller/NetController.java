@@ -238,8 +238,15 @@ public class NetController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
         Net net = netAccessor.get(loggedInUser, callsign);
 
+        List<Participant> netParticipants = new ArrayList<>();
         try {
-            NetQuestion ret = netQuestionAccessor.create(loggedInUser, netQuestion, net);
+            List<Participant> netParticipantsTemp = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+            netParticipants = netParticipantsTemp;
+        } catch (Exception e) {
+        }
+
+        try {
+            NetQuestion ret = netQuestionAccessor.create(loggedInUser, netQuestion, net, netParticipants);
             return ret;
         } catch (Exception e) {
             // ignore

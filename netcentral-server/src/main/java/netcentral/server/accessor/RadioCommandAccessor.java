@@ -46,6 +46,7 @@ public class RadioCommandAccessor {
     private static final String COMMAND_BACKUP_ELECTRICAL_POWER = "B";
     private static final String COMMAND_RADIO_STYLE = "Y";
     private static final String COMMAND_NET_QUESTION = "Q";
+    private static final String COMMAND_NET_QUESTION_LIST = "QL";
     private static final String COMMAND_NET_ANSWER = "A";
 
     @Inject
@@ -181,6 +182,17 @@ public class RadioCommandAccessor {
                     }
                 }
                 processNetQuestionAnswer(loggedInUser, msg, net, transceiverSourceId);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_QUESTION_LIST.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processNetQuestionList(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
             } else if (COMMAND_NET_MESSAGE_NET_CONTROL.equalsIgnoreCase(command)) {
@@ -603,6 +615,7 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s - %s", COMMAND_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
         helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
+        helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
 
@@ -704,7 +717,15 @@ public class RadioCommandAccessor {
         netQuestion.setNextReminderTime(netQuestion.getAskedTime().plusMinutes(netQuestion.getReminderMinutes()));
         netQuestion.setNumber(0);
         netQuestion.setQuestionText(operatorMessage);
-        netQuestionAccessor.create(loggedInUser, netQuestion, net);
+
+        List<Participant> netParticipants = new ArrayList<>();
+        try {
+            List<Participant> netParticipantsTemp = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+            netParticipants = netParticipantsTemp;
+        } catch (Exception e) {
+        }
+
+        netQuestionAccessor.create(loggedInUser, netQuestion, net, netParticipants);
     }
 
     private void processNetQuestionAnswer(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
@@ -745,6 +766,13 @@ public class RadioCommandAccessor {
         netQuestionAnswer.setAnswerText(answer);
         netQuestionAnswer.setCallsign(message.getCallsignFrom());
         netQuestionAnswerAccessor.create(loggedInUser, netQuestionAnswer, net);
+    }
+
+    private void processNetQuestionList(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        Participant participant = new Participant();
+        participant.setCallsign(message.getCallsignFrom());
+
+        netParticipantAccessor.sendQuestionReminderForParticipant(loggedInUser, net, participant);
     }
 
     private void processCheckOut(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {

@@ -25,7 +25,7 @@ watch(updateNetQuestionEvent, (newValue, oldValue) => {
     var found = false;
     if (netQuestions.value != null) {
       netQuestions.value.forEach(function(question){
-        if ((!found) && (question.netQuestionId == newValue.value.netQuestionId)) {
+        if ((!found) && (question.netQuestionId == newValue.value.object.netQuestionId)) {
           found = true;
         }
       });

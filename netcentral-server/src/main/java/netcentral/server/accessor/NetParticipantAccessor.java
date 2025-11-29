@@ -16,6 +16,8 @@ import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
@@ -40,6 +42,12 @@ public class NetParticipantAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private NetQuestionAccessor netQuestionAccessor;
+    @Inject
+    private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
+    @Inject
+    private TransceiverCommunicationAccessor transceiverMessageAccessor;
 
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {
@@ -123,11 +131,70 @@ public class NetParticipantAccessor {
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
             changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Create", hydrateParticipant(loggedInUser,participant));
+            sendQuestionReminderForParticipant(loggedInUser, net, participant);
         } catch (Exception e) {
             logger.warn("Exception caught adding participant", e);
         }
 
         return getAllParticipants(loggedInUser, net); 
+    }
+
+    public void sendQuestionReminderForParticipant(User user, Net net, Participant netParticipant) {
+        List<NetQuestion> netQuestions = new ArrayList<>();
+        boolean anySent = false;
+
+        try {
+            List<NetQuestion> netQuestionsTemp = netQuestionAccessor.getAll(user, net.getCompletedNetId());
+            netQuestions = netQuestionsTemp;
+        } catch (Exception e) {
+        }
+
+        if (netQuestions.isEmpty()) {
+            return;
+        }
+
+        // for each question, get answers. see if participant answered the question. if not ask them again
+        List<NetQuestionAnswer> netQuestionAnswers = new ArrayList<>();
+        for (NetQuestion netQuestion : netQuestions) {
+            try {
+                List<NetQuestionAnswer> netQuestionAnswersTemp = netQuestionAnswerAccessor.getAll(user, netQuestion.getNetQuestionId());
+                netQuestionAnswers = netQuestionAnswersTemp;
+            } catch (Exception e) {
+            }
+
+            boolean found = false;
+
+            for (NetQuestionAnswer netQuestionAnswer : netQuestionAnswers) {
+                if (netQuestionAnswer.getCallsign().equals(netParticipant.getCallsign())) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                // send a reminder
+                try {
+                    String logMessage = String.format("Question reminder sent to %s for question %d in net %s", netParticipant.getCallsign(), netQuestion.getNumber(), net.getCallsign());
+                    logger.info(logMessage);
+                    String message = String.format("Net msg %d: %s", netQuestion.getNumber(), netQuestion.getQuestionText());
+                    transceiverMessageAccessor.sendMessage(user, net.getCallsign(), netParticipant.getCallsign(), "Remember to answer the following question for net "+net.getCallsign());
+                    transceiverMessageAccessor.sendMessage(user, net.getCallsign(), netParticipant.getCallsign(), message);
+                    anySent = true;
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        if (!anySent) {
+            // send a reminder
+            try {
+                String message = "No unanswered questions";
+                logger.info(message);
+                transceiverMessageAccessor.sendMessage(user, net.getCallsign(), netParticipant.getCallsign(), message);
+            } catch (Exception e) {
+            }
+        }
+
     }
 
     public List<Participant> removeParticipant(User loggedInUser, Net net, Participant participant) {

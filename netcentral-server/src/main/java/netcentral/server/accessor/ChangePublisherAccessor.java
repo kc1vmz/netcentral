@@ -48,7 +48,10 @@ public class ChangePublisherAccessor {
     @Inject
     private SocketIoServerRunner socketIoServerRunner;
 
-    private synchronized int updateDashboardCount() {
+    private synchronized int updateDashboardCount(boolean reset) {
+        if (reset) {
+            dashboardUpdateCount = 0;
+        }
         if (dashboardUpdateCount < 100) {
             dashboardUpdateCount++;
             ZonedDateTime now = ZonedDateTime.now();
@@ -62,8 +65,8 @@ public class ChangePublisherAccessor {
         return dashboardUpdateCount;
     }
 
-    private void publishDashboardUpdate() {
-        if (updateDashboardCount() == 0) {
+    private void publishDashboardUpdate(boolean force) {
+        if (updateDashboardCount(force) == 0) {
             socketIoServerRunner.updateDashboard(null);
         }
     }
@@ -137,7 +140,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishNetUpdate(String completedNetId, String action, Net obj) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
         NetUpdatePayload payload = new NetUpdatePayload();
         payload.setId(completedNetId);
         payload.setAction(action);
@@ -163,7 +166,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishScheduledNetUpdate(String callsign, String action, ScheduledNet obj) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
         NetUpdatePayload payload = new NetUpdatePayload();
         payload.setCallsign(callsign);
         payload.setAction(action);
@@ -181,7 +184,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishNetMessageUpdate(String callsign, String action, NetMessage obj) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
         NetMessageUpdatePayload payload = new NetMessageUpdatePayload();
         payload.setCallsign(callsign);
         payload.setAction(action);
@@ -198,7 +201,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishNetParticipantUpdate(String callsign, String action, Participant obj) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
         NetParticipantUpdatePayload payload = new NetParticipantUpdatePayload();
         payload.setCallsign(callsign);
         payload.setAction(action);
@@ -215,7 +218,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishParticipantUpdate(String callsign, String action, Participant obj) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
         NetParticipantUpdatePayload payload = new NetParticipantUpdatePayload(); // same object as netparticipant
         payload.setCallsign(callsign);
         payload.setAction(action);
@@ -232,7 +235,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishCompletedNetUpdate(String completedNetId, String action) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
 
         GenericUpdatePayload payload = new GenericUpdatePayload();
         payload.setId(completedNetId);
@@ -249,7 +252,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishTransceiverUpdate(String id, String action) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
 
         GenericUpdatePayload payload = new GenericUpdatePayload();
         payload.setId(id);
@@ -266,7 +269,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishUserUpdate(String id, String action) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(true);
 
         GenericUpdatePayload payload = new GenericUpdatePayload();
         payload.setId(id);
@@ -283,7 +286,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishCallsignUpdate(String callsign, String action, Callsign callsignObject) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(false);
 
         CallsignUpdatePayload payload = new CallsignUpdatePayload();
         payload.setCallsign(callsign);
@@ -333,7 +336,7 @@ public class ChangePublisherAccessor {
    }
 
    public void publishTrackedStationUpdate(String callsign, String action, TrackedStation object) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(false);
 
         TrackedStationUpdatePayload payload = new TrackedStationUpdatePayload();
         payload.setCallsign(callsign);
@@ -351,7 +354,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishIgnoredUpdate(String callsign, String action, IgnoreStation object) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(false);
 
         TrackedStationUpdatePayload payload = new TrackedStationUpdatePayload();
         payload.setCallsign(callsign);
@@ -408,7 +411,7 @@ public class ChangePublisherAccessor {
     }
 
     public void publishObjectUpdate(String callsign, String action, APRSObject object) {
-        publishDashboardUpdate();
+        publishDashboardUpdate(false);
         ObjectUpdatePayload payload = new ObjectUpdatePayload();
         payload.setCallsign(callsign);
         payload.setAction(action);
