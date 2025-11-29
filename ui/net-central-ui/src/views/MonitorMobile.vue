@@ -3,6 +3,8 @@
   <br><br><MonitorNetParticipantsPane/> 
   <br><br><MonitorNetReportPane/> 
   <br><br><MonitorNetMessagesPane/> 
+  <br><br><MonitorNetQuestionsPane/>
+  <br><br><MonitorNetQuestionAnswersPane/>
   <br><br><MonitorNetMapPaneMobile/> 
 </template>
 
@@ -12,6 +14,8 @@ import MonitorNetParticipantsPane from '@/components/MonitorNetParticipantsPane.
 import MonitorNetMessagesPane from '@/components/MonitorNetMessagesPane.vue'
 import MonitorNetReportPane from '@/components/MonitorNetReportPane.vue'
 import MonitorPageHeaderPaneMobile from '@/components/MonitorPageHeaderPaneMobile.vue'
+import MonitorNetQuestionsPane from '@/components/MonitorNetQuestionsPane.vue'
+import MonitorNetQuestionAnswersPane from '@/components/MonitorNetQuestionAnswersPane.vue'
 import { selectedNet , updateSelectedNet, setSelectedNetSelectionValue } from "@/SelectedNet.js";
 import { ref, onMounted, watch } from 'vue'
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";

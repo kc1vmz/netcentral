@@ -219,7 +219,7 @@ function getBodyRowClass(item, rowNumber) {
         @click-row="showRow" 
         buttons-pagination/>
       <br><br>
-      <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
     </div>
+    <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
   </div>
 </template>

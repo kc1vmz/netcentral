@@ -192,7 +192,7 @@ function performSendMessage() {
     <div v-else>
       <EasyDataTable :headers="headers" :items="netMessages.value" :rows-per-page="10" buttons-pagination/>
       <br><br>
-      <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
     </div>
+    <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
   </div>
 </template>
