@@ -21,7 +21,7 @@
     <micronaut.runtime>netty</micronaut.runtime>
     <micronaut.aot.enabled>false</micronaut.aot.enabled>
     <micronaut.aot.packageName>transceiver.test.aot.generated</micronaut.aot.packageName>
-    <exec.mainClass>transceiver.test.Application</exec.mainClass>
+    <exec.mainClass>netcentral.transceiver.test.Application</exec.mainClass>
   </properties>
 
   <dependencies>
@@ -215,21 +215,17 @@
     </dependency>
   </dependencies>
   <build>
+  <plugins>
+      <plugin>
+        <groupId>io.micronaut.maven</groupId>
+        <artifactId>micronaut-maven-plugin</artifactId>
+        <configuration>
+          <configFile>aot-${packaging}.properties</configFile>
+        </configuration>
+      </plugin>
+  </plugins>
   <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>io.micronaut.maven</groupId>
-          <artifactId>micronaut-maven-plugin</artifactId>
-          <configuration>
-            <testResourcesDependencies>
-              <dependency>
-                <groupId>io.micronaut.testresources</groupId>
-                <artifactId>micronaut-test-resources-jdbc-mysql</artifactId>
-              </dependency>
-            </testResourcesDependencies>
-            <configFile>aot-${packaging}.properties</configFile>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>

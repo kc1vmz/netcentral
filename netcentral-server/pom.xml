@@ -222,21 +222,17 @@
     </dependency>
   </dependencies>
   <build>
-    <pluginManagement>
-          <plugins>
+  <plugins>
       <plugin>
         <groupId>io.micronaut.maven</groupId>
         <artifactId>micronaut-maven-plugin</artifactId>
         <configuration>
-          <testResourcesDependencies>
-            <dependency>
-              <groupId>io.micronaut.testresources</groupId>
-              <artifactId>micronaut-test-resources-jdbc-mysql</artifactId>
-            </dependency>
-          </testResourcesDependencies>
           <configFile>aot-${packaging}.properties</configFile>
         </configuration>
       </plugin>
+  </plugins>
+    <pluginManagement>
+      <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
