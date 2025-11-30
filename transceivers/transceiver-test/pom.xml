@@ -223,13 +223,13 @@
           <configFile>aot-${packaging}.properties</configFile>
         </configuration>
       </plugin>
-  </plugins>
-  <pluginManagement>
-      <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.14.1</version>
           <configuration>
+            <source>21</source>
+            <target>21</target>
             <!-- Uncomment to enable incremental compilation -->
             <!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
             <annotationProcessorPaths combine.children="append">
@@ -290,6 +290,9 @@
             </compilerArgs>
           </configuration>
         </plugin>
+  </plugins>
+  <pluginManagement>
+      <plugins>
       </plugins>
     </pluginManagement>
   </build>
