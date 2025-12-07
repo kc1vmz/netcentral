@@ -39,7 +39,7 @@ public class RadioCommandAccessor {
     private static final String COMMAND_HELP = "H";
     private static final String COMMAND_STATUS = "S";
     private static final String COMMAND_OPERATIONAL_STATUS = "O";
-    private static final String COMMAND_VOICE_FREQUENCY = "D";
+    private static final String COMMAND_VOICE_FREQUENCY = "F";
     private static final String COMMAND_ACK = "ack";
     private static final String COMMAND_REJ = "rej";
     private static final String COMMAND_TRANSMIT_POWER = "X";
@@ -701,7 +701,7 @@ public class RadioCommandAccessor {
             for (Participant participant1 : participants) {
                 Participant participant = participantAccessor.get(loggedInUser, participant1.getCallsign());  // get current participant info
                 participantMessages.add(String.format("%s (%s) - v:%s - %s", participant.getCallsign(), 
-                                                    (participant.getTacticalCallsign() == null) ? "" : participant.getTacticalCallsign(),
+                                                    (participant1.getTacticalCallsign() == null) ? "" : participant1.getTacticalCallsign(),
                                                     participant.getVoiceFrequency(), participant.getStatus()));
             }
         }

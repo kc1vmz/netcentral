@@ -18,8 +18,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.UserRole;
-import netcentral.server.object.CompletedExpectedParticipant;
-import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
@@ -49,11 +47,6 @@ public class NetAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
-    @Inject
-    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
-    @Inject
-    private CompletedExpectedParticipantAccessor completedExpectedParticipantAccessor;
-
 
     public List<Net> getAll(User loggedInUser, String root) {
         List<NetRecord> recs = netRepository.findAll();
