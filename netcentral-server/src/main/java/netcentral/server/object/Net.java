@@ -22,10 +22,13 @@ public class Net {
     private String creatorName;
     private boolean checkinReminder;
     private String checkinMessage;
+    private boolean open;
+    private boolean participantInviteAllowed;
 
     public Net() {
     }
-    public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage) {
+    public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, 
+                        String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage, boolean open, boolean participantInviteAllowed) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -38,6 +41,8 @@ public class Net {
         this.creatorName = creatorName;
         this.checkinReminder = checkinReminder;
         this.checkinMessage = checkinMessage;
+        this.open = open;
+        this.participantInviteAllowed = participantInviteAllowed;
     }
     public Net(Net net) {
         if (net != null) {
@@ -54,6 +59,8 @@ public class Net {
             this.creatorName = net.getCreatorName();
             this.checkinReminder = net.isCheckinReminder();
             this.checkinMessage = net.getCheckinMessage();
+            this.open = net.isOpen();
+            this.participantInviteAllowed = net.isParticipantInviteAllowed();
         }
     }
 
@@ -141,5 +148,17 @@ public class Net {
     }
     public void setCheckinMessage(String checkinMessage) {
         this.checkinMessage = checkinMessage;
+    }
+    public boolean isOpen() {
+        return open;
+    }
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+    public boolean isParticipantInviteAllowed() {
+        return participantInviteAllowed;
+    }
+    public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
+        this.participantInviteAllowed = participantInviteAllowed;
     }
 }

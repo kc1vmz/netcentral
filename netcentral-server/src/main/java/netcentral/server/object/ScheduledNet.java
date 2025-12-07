@@ -28,11 +28,15 @@ public class ScheduledNet {
     private String prettyNextStartTime;
     private boolean checkinReminder;
     private String checkinMessage;
+    private boolean open;
+    private boolean participantInviteAllowed;
     
     public ScheduledNet() {
     }
 
-    public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, boolean checkinReminder, String checkinMessage) {
+    public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, String lat, String lon,
+                                boolean announce, String creatorName, int dayStart, int timeStart, int duration, boolean checkinReminder, String checkinMessage,
+                            boolean open, boolean participantInviteAllowed ) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -49,10 +53,14 @@ public class ScheduledNet {
         setNextStartTime(calculateNextStartTime());
         this.checkinReminder = checkinReminder;
         this.checkinMessage = checkinMessage;
+        this.open = open;
+        this.participantInviteAllowed = participantInviteAllowed;
     }
 
     public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, 
-                                String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, int duration, ZonedDateTime lastStartTime, ZonedDateTime nextStartTime, boolean checkinReminder, String checkinMessage) {
+                                String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, 
+                                int duration, ZonedDateTime lastStartTime, ZonedDateTime nextStartTime, boolean checkinReminder, String checkinMessage,
+                                boolean open, boolean participantInviteAllowed) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -69,6 +77,8 @@ public class ScheduledNet {
         setNextStartTime(nextStartTime);
         this.checkinReminder = checkinReminder;
         this.checkinMessage = checkinMessage;
+        this.open = open;
+        this.participantInviteAllowed = participantInviteAllowed;
     }
 
     public ScheduledNet(ScheduledNet scheduledNet) {
@@ -89,6 +99,8 @@ public class ScheduledNet {
             setNextStartTime(scheduledNet.getNextStartTime());
             this.checkinReminder = scheduledNet.isCheckinReminder();
             this.checkinMessage = scheduledNet.getCheckinMessage();
+            this.open = scheduledNet.isOpen();
+            this.participantInviteAllowed = scheduledNet.isParticipantInviteAllowed();
         }
     }
 
@@ -274,5 +286,17 @@ public class ScheduledNet {
     }
     public void setCheckinMessage(String checkinMessage) {
         this.checkinMessage = checkinMessage;
+    }
+    public boolean isOpen() {
+        return open;
+    }
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+    public boolean isParticipantInviteAllowed() {
+        return participantInviteAllowed;
+    }
+    public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
+        this.participantInviteAllowed = participantInviteAllowed;
     }
 }

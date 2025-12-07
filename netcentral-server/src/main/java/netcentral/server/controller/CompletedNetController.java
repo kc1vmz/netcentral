@@ -20,6 +20,7 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.ChangePublisherAccessor;
+import netcentral.server.accessor.CompletedExpectedParticipantAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
@@ -27,6 +28,7 @@ import netcentral.server.accessor.NetQuestionAccessor;
 import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
 import netcentral.server.object.NetMessage;
@@ -64,6 +66,8 @@ public class CompletedNetController {
     private NetQuestionAccessor netQuestionAccessor;
     @Inject
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
+    @Inject
+    private CompletedExpectedParticipantAccessor completedExpectedParticipantAccessor;
 
 
     @Get 
@@ -90,6 +94,17 @@ public class CompletedNetController {
         CompletedNet net = completedNetAccessor.get(loggedInUser, id);
 
         List<CompletedParticipant> ret = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+        return ret;
+    }
+
+    @Get("/{id}/expectedParticipants") 
+    public List<CompletedExpectedParticipant> getExpectedParticipants(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        CompletedNet net = completedNetAccessor.get(loggedInUser, id);
+
+        List<CompletedExpectedParticipant> ret = completedExpectedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
         return ret;
     }
 
@@ -123,7 +138,19 @@ public class CompletedNetController {
                 });
             }
 
-            String filename = netParticipantReport.createReport(net, participants);
+            List<CompletedExpectedParticipant> expectedParticipants = completedExpectedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+
+            if (expectedParticipants != null) {
+                Collections.sort(expectedParticipants, new Comparator<CompletedExpectedParticipant>() {
+                    @Override
+                    public int compare(CompletedExpectedParticipant p1, CompletedExpectedParticipant p2) {
+                        return p1.getCallsign().compareTo(p2.getCallsign());
+                    }
+                });
+            }
+
+
+            String filename = netParticipantReport.createReport(net, participants, expectedParticipants);
 
             filename = netConfigServerConfig.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
@@ -241,6 +268,7 @@ public class CompletedNetController {
 
         completedNetAccessor.deleteAll(loggedInUser);
         completedParticipantAccessor.deleteAll(loggedInUser);
+        completedExpectedParticipantAccessor.deleteAll(loggedInUser);
         changePublisherAccessor.publishAllUpdate();
     }
 

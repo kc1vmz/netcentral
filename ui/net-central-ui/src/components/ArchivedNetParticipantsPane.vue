@@ -25,6 +25,7 @@ watch(selectedCompletedNet, (newSelectedCompletedNet, oldSelectedCompletedNet) =
 });
 
 const netParticipants = reactive({ value : []});
+const netExpectedParticipants = reactive({ value : []});
 
 watch(
   localSelectedCompletedNet,
@@ -41,12 +42,45 @@ watch(
         .then(response => response.json())
         .then(data => {
             netParticipants.value = data;
+            fetch(buildNetCentralUrl('/completedNets/'+localSelectedCompletedNet.value.completedNetId+'/expectedParticipants'), requestOptions)
+              .then(response => response.json())
+              .then(data => {
+                  netExpectedParticipants.value = data;
+
+                  // find missing and tweak / add
+                  netExpectedParticipants.value.forEach(function(expectedParticipant){
+                      if (!isParticipantHere(netParticipants, expectedParticipant)) {
+                        // tweak it and add it 
+                        expectedParticipant.status = "Absent";
+                        expectedParticipant.tacticalCallsign = "";
+                        expectedParticipant.prettyStartTime = "";
+                        expectedParticipant.lat = "";
+                        expectedParticipant.lat = "";
+                        expectedParticipant.lon = "";
+                        expectedParticipant.prettyLastHeardTime = "";
+                        netParticipants.value.push(expectedParticipant);
+                    }});
+
+                })
+              .catch(error => { console.error('Error getting net participants from server:', error); })
         })
         .catch(error => { console.error('Error getting net participants from server:', error); })
     }
   },
   { immediate: true }
 )
+
+function isParticipantHere(participantList, participant){
+    var found = false;
+    participantList.value.forEach(function(participantItem) {
+      var participantCallsignPieces = participantItem.callsign.split("-"); 
+      if ((!found) && (participant.callsign == participantCallsignPieces[0])) {
+          found = true;
+      }});
+    return found;
+}
+
+
 </script>
 
 <template>

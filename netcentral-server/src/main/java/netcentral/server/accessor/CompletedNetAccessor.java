@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,9 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.UserRole;
+import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.User;
 import netcentral.server.record.CompletedNetRecord;
@@ -31,6 +34,10 @@ public class CompletedNetAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
+    @Inject
+    private CompletedExpectedParticipantAccessor completedExpectedParticipantAccessor;
 
     public List<CompletedNet> getAll(User loggedInUser, String root) {
         List<CompletedNetRecord> recs = completedNetRepository.findAll();
@@ -42,7 +49,8 @@ public class CompletedNetAccessor {
                     // only take those with the optional root
                     continue;
                 }
-                ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message()));
+                ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message(),
+                                    rec.open(), rec.participant_invite_allowed()));
             }
         }
 
@@ -66,7 +74,8 @@ public class CompletedNetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
         CompletedNetRecord rec = recOpt.get();
-        return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message());
+        return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message(),
+                                    rec.open(), rec.participant_invite_allowed());
     }
 
 
@@ -86,8 +95,21 @@ public class CompletedNetAccessor {
                                             obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             obj.getStartTime(), ZonedDateTime.now(),
-                                            obj.getCreatorName(), obj.getCheckinMessage());
+                                            obj.getCreatorName(), obj.getCheckinMessage(),
+                                            obj.isOpen(), obj.isParticipantInviteAllowed());
         CompletedNetRecord rec = completedNetRepository.save(src);
+
+        try {
+            List <ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, obj);
+            if (expectedParticipants != null) {
+                for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+                    CompletedExpectedParticipant completedExpectedParticipant = new CompletedExpectedParticipant(expectedParticipant.getCallsign(), obj.getCompletedNetId(), UUID.randomUUID().toString());
+                    completedExpectedParticipantAccessor.create(loggedInUser, obj, completedExpectedParticipant);
+                }
+            }
+        } catch (Exception e) {
+        }
+
         changePublisherAccessor.publishCompletedNetUpdate(obj.getCompletedNetId(), "Create");
         return get(loggedInUser, rec.completed_net_id());
     }

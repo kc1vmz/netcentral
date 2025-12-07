@@ -2,6 +2,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.TrackedStationType;
+import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
 import netcentral.server.object.Net;
@@ -43,6 +46,8 @@ public class UIAccessor {
     private NetParticipantReport netParticipantReport;
     @Inject
     private CompletedParticipantAccessor completedParticipantAccessor;
+    @Inject
+    private CompletedExpectedParticipantAccessor completedExpectedParticipantAccessor;
 
     public void endNet(User loggedInUser, String callsign) {
         logger.debug("Ending net " + callsign);
@@ -71,7 +76,28 @@ public class UIAccessor {
     public String generateCompletedNetReport(User loggedInUser, CompletedNet net) {
         try {
             List<CompletedParticipant> participants = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
-            String filename = netParticipantReport.createReport(net, participants);
+
+            if (participants != null) {
+                Collections.sort(participants, new Comparator<CompletedParticipant>() {
+                    @Override
+                    public int compare(CompletedParticipant p1, CompletedParticipant p2) {
+                        return p1.getCallsign().compareTo(p2.getCallsign());
+                    }
+                });
+            }
+
+            List<CompletedExpectedParticipant> expectedParticipants = completedExpectedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+
+            if (expectedParticipants != null) {
+                Collections.sort(expectedParticipants, new Comparator<CompletedExpectedParticipant>() {
+                    @Override
+                    public int compare(CompletedExpectedParticipant p1, CompletedExpectedParticipant p2) {
+                        return p1.getCallsign().compareTo(p2.getCallsign());
+                    }
+                });
+            }
+
+            String filename = netParticipantReport.createReport(net, participants, expectedParticipants);
             return filename;
         } catch (Exception e) {
             // ignore

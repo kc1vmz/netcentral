@@ -22,6 +22,8 @@ public record NetRecord(
                 @NonNull @NotBlank Boolean announce,
                 @NonNull @NotBlank @Size(max = 100) String creator_name,
                 @NonNull @NotBlank Boolean checkin_reminder, 
-                @Nullable @Size(max = 50) String checkin_message
+                @Nullable @Size(max = 50) String checkin_message,
+                @NonNull @NotBlank Boolean open, 
+                @NonNull @NotBlank Boolean participant_invite_allowed
                 ) {  
 }

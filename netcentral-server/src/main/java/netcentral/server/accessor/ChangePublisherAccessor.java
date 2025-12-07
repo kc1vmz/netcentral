@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.CallsignAce;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.IgnoreStation;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
@@ -28,6 +29,7 @@ import netcentral.server.object.TrackedStation;
 import netcentral.server.object.update.CallsignACEUpdatePayload;
 import netcentral.server.object.update.CallsignUpdatePayload;
 import netcentral.server.object.update.GenericUpdatePayload;
+import netcentral.server.object.update.NetExpectedParticipantUpdatePayload;
 import netcentral.server.object.update.NetMessageUpdatePayload;
 import netcentral.server.object.update.NetParticipantUpdatePayload;
 import netcentral.server.object.update.NetQuestionAnswerUpdatePayload;
@@ -135,6 +137,10 @@ public class ChangePublisherAccessor {
         socketIoServerRunner.updateNetParticipant(payload);
     }
 
+    private void publishNetExpectedParticipantUpdate(String payload) {
+        socketIoServerRunner.updateNetExpectedParticipant(payload);
+    }
+
     private void publishParticipantUpdate(String payload) {
         socketIoServerRunner.updateParticipant(payload);
     }
@@ -214,6 +220,23 @@ public class ChangePublisherAccessor {
             publishNetParticipantUpdate(json);
         } catch (Exception e) {
             logger.error("Exception caught publishing net participant update", e);
+        }
+    }
+
+    public void publishNetExpectedParticipantUpdate(String callsign, String action, ExpectedParticipant obj) {
+        publishDashboardUpdate(true);
+        NetExpectedParticipantUpdatePayload payload = new NetExpectedParticipantUpdatePayload();
+        payload.setCallsign(callsign);
+        payload.setAction(action);
+        payload.setObject(obj);
+
+        try {
+            ObjectWriter ow = getObjectWriter();
+            String json = ow.writeValueAsString(payload);
+
+            publishNetExpectedParticipantUpdate(json);
+        } catch (Exception e) {
+            logger.error("Exception caught publishing net expected participant update", e);
         }
     }
 

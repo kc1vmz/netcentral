@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ScheduledNetType;
 import netcentral.server.enums.UserRole;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.ScheduledNet;
 import netcentral.server.object.User;
 import netcentral.server.record.ScheduledNetRecord;
@@ -30,6 +31,8 @@ public class ScheduledNetAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
 
     public List<ScheduledNet> getAll(User loggedInUser, String root) {
         List<ScheduledNetRecord> recs = scheduledNetRepository.findAll();
@@ -42,7 +45,7 @@ public class ScheduledNetAccessor {
                     continue;
                 }
                 ret.add(new ScheduledNet(rec.callsign(), rec.name(), rec.description(), ScheduledNetType.values()[rec.type()], rec.vfreq(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(),
-                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message()));
+                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message(), rec.open(), rec.participant_invite_allowed()));
             }
         }
 
@@ -68,7 +71,7 @@ public class ScheduledNetAccessor {
             }
             ScheduledNetRecord rec = recOpt.get();
             return new ScheduledNet(rec.callsign(), rec.name(), rec.description(), ScheduledNetType.values()[rec.type()], rec.vfreq(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(),
-                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message());
+                    rec.day_start(), rec.time_start(), rec.duration(), rec.last_start_time(), rec.next_start_time(), rec.checkin_reminder(), rec.checkin_message(), rec.open(), rec.participant_invite_allowed());
 
         } catch (Exception e) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net not found");
@@ -105,7 +108,7 @@ public class ScheduledNetAccessor {
                                             obj.getDayStart(),
                                             obj.getTimeStart(), 
                                             obj.getDuration(), 
-                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage());
+                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage(), obj.isOpen(), obj.isParticipantInviteAllowed());
         ScheduledNetRecord rec = scheduledNetRepository.save(src);
         if (rec != null) {
             changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Create", obj);
@@ -153,7 +156,7 @@ public class ScheduledNetAccessor {
                                             obj.getDayStart(),
                                             obj.getTimeStart(), 
                                             obj.getDuration(), 
-                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage());
+                                            obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage(), obj.isOpen(), obj.isParticipantInviteAllowed());
 
         scheduledNetRepository.update(updatedRec);
         obj = get(loggedInUser, id);
@@ -179,11 +182,27 @@ public class ScheduledNetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net not found");
         }
 
+        // delete expected participants
+        deleteExpectedParticipants(loggedInUser, net);
+
         ScheduledNetRecord rec = recOpt.get();
         scheduledNetRepository.delete(rec);
         changePublisherAccessor.publishScheduledNetUpdate(rec.callsign(), "Delete", net);
 
         return null;
+    }
+
+    private void deleteExpectedParticipants(User loggedInUser, ScheduledNet net) {
+        try {
+            List <ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+            if (expectedParticipants != null) {
+                for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+                    netExpectedParticipantAccessor.removeExpectedParticipant(loggedInUser, net, expectedParticipant);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught deleting expected participants", e);
+        }
     }
 
     public ScheduledNet deleteAll(User loggedInUser) {

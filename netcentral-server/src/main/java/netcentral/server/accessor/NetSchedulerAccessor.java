@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ScheduledNetType;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.Participant;
@@ -26,6 +27,8 @@ public class NetSchedulerAccessor {
 
     @Inject
     private ScheduledNetAccessor scheduledNetAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
     private NetAccessor netAccessor;
     @Inject
@@ -135,7 +138,7 @@ public class NetSchedulerAccessor {
             String completedNetId = UUID.randomUUID().toString();
             net = new Net(scheduledNet.getCallsign(), scheduledNet.getName(), scheduledNet.getDescription(), 
                 scheduledNet.getVoiceFrequency(), now, completedNetId, scheduledNet.getLat(), scheduledNet.getLon(), scheduledNet.isAnnounce(), 
-                scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder(), scheduledNet.getCheckinMessage());
+                scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder(), scheduledNet.getCheckinMessage(), scheduledNet.isOpen(), scheduledNet.isParticipantInviteAllowed());
             try {
                 net = netAccessor.create(user, net);
                 if (net == null) {
@@ -149,8 +152,19 @@ public class NetSchedulerAccessor {
             } catch (Exception e) {
                 logger.info("Exception caught looking for net " + scheduledNet.getCallsign(), e);
             }
+
+            // move over the expected participants
+            try {
+                List<ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(user, scheduledNet);
+                if (expectedParticipants != null) {
+                    for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+                        netExpectedParticipantAccessor.addExpectedParticipant(user, net, expectedParticipant);
+                    }
+                }
+            } catch (Exception e) {
+                logger.info("Exception caught adding expected participants to new net " + scheduledNet.getCallsign(), e);
+            }
         } else {
-//            logger.info(String.format("Net %s is already started", scheduledNet.getCallsign()));
         }
     }
 

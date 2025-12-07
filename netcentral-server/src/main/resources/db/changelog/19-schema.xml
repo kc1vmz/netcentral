@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="19" author="kc1vmz">
+    <addColumn tableName="net">
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="net">
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="scheduled_net">
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="scheduled_net">
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="completed_net">
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <addColumn tableName="completed_net">
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <createTable tableName="net_expected_participant">
+      <column name="net_expected_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_expected_participantPK"/>
+      </column>
+      <column name="net_callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="completed_expected_participant">
+      <column name="completed_expected_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="completed_expected_participantPK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

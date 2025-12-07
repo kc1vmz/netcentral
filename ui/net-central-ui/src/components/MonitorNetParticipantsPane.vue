@@ -17,6 +17,47 @@ socket.on("updateNetParticipant", (data) => {
 socket.on("updateParticipant", (data) => {
   updateParticipant(data)
 });
+socket.on("updateNetExpectedParticipant", (data) => {
+  updateNetExpectedParticipant(data)
+});
+
+function updateNetExpectedParticipant(data) {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if ((localSelectedNet.ncSelectedNet == null) || ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign !== data.callsign))) {
+    // not this net
+    return;
+  }
+  if (data.action == "Create") {
+    var found = false;
+    if (netParticipants.value != null) {
+      netParticipants.value.forEach(function(netParticipant){
+        var root = netParticipant.callsign.split("-")[0];
+        if ((!found) && (root == data.object.callsign)) {
+          found = true;  // correct net and participant
+        }
+      });
+      if (found) {
+        return;
+      }
+    } else {
+      netParticipants.value = [];
+    }
+    var expectedParticipant = data.object;
+    // tweak it and add it 
+    expectedParticipant.status = "Absent";
+    expectedParticipant.tacticalCallsign = "";
+    expectedParticipant.prettyStartTime = "";
+    expectedParticipant.lat = "";
+    expectedParticipant.lat = "";
+    expectedParticipant.lon = "";
+    expectedParticipant.prettyLastHeardTime = "";
+    netParticipants.value.push(expectedParticipant);
+  } else if (data.action == "Delete") {
+    removeExpectedParticipant(data.object.callsign);
+  }
+}
 
 watch(updateNetParticipantEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -41,6 +82,7 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
       netParticipants.value = [];
     }
     netParticipants.value.push(newValue.value.object);
+    removeExpectedParticipant(newValue.value.object.callsign);
   } else if (newValue.value.action == "Delete") {
     const indexToRemove = netParticipants.value.findIndex(obj => obj.callsign === newValue.value.object.callsign);
     if (indexToRemove !== -1) {
@@ -49,6 +91,7 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
         updateSelectedObject(null); 
       }
       netParticipants.value.splice(indexToRemove, 1);
+      getExpectedParticipants(localSelectedNet);
     }
   } else if (newValue.value.action == "Update") {
     if (netParticipants.value != null) {
@@ -69,6 +112,14 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
     }
   }
 });
+
+function removeExpectedParticipant(callsign) {
+    var root = callsign.split("-")[0];
+    const indexToRemove = netParticipants.value.findIndex(obj => (obj.callsign === root));
+    if (indexToRemove !== -1) {
+      netParticipants.value.splice(indexToRemove, 1);
+    }
+}
 
 watch(updateParticipantEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -103,6 +154,7 @@ watch(selectedNet, (newSelectedNet, oldSelectedNet) => {
 });
 
 const netParticipants = reactive({ value : [] });
+const netExpectedParticipants = reactive({ value : [] });
 const headers = [
         { text: "Callsign", value: "callsign", sortable: true },
         { text: "Tactical Callsign", value: "tacticalCallsign", sortable: true},
@@ -127,6 +179,12 @@ function getBodyRowClass(item, rowNumber) {
 watch(
   localSelectedNet,
   async () => {
+    getParticipants(localSelectedNet);
+  },
+  { immediate: true }
+)
+
+function getParticipants(localSelectedNet) {
     if ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null)  && (localSelectedNet.ncSelectedNet.type == null)) {
       var requestOptions = {
         method: "GET",
@@ -142,12 +200,57 @@ watch(
             netParticipants.value = data;
             updateSelectedObject(null);
             selectedItem.value = null;
+            getExpectedParticipants(localSelectedNet);
         })
         .catch(error => { console.error('Error getting net participants from server:', error); })
     }
-  },
-  { immediate: true }
-)
+}
+
+function getExpectedParticipants(localSelectedNet) {
+    if ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null)  && (localSelectedNet.ncSelectedNet.type == null)) {
+      var requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json",
+                    "SessionID" : getToken()
+          },
+        body: null
+      };
+      // only for active nets
+      fetch(buildNetCentralUrl('/nets/'+localSelectedNet.ncSelectedNet.callsign+'/expectedParticipants'), requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            netExpectedParticipants.value = data;
+
+            // see who is missing and add them
+            if (netExpectedParticipants.value != null) {
+                netExpectedParticipants.value.forEach(function(expectedParticipant){
+                    if (!isParticipantHere(netParticipants, expectedParticipant)) {
+                      // tweak it and add it 
+                      expectedParticipant.status = "Absent";
+                      expectedParticipant.tacticalCallsign = "";
+                      expectedParticipant.prettyStartTime = "";
+                      expectedParticipant.lat = "";
+                      expectedParticipant.lat = "";
+                      expectedParticipant.lon = "";
+                      expectedParticipant.prettyLastHeardTime = "";
+                      netParticipants.value.push(expectedParticipant);
+                  }});
+            }
+
+        })
+        .catch(error => { console.error('Error getting net expected participants from server:', error); })
+    }
+}
+
+function isParticipantHere(participantList, participant){
+    var found = false;
+    participantList.value.forEach(function(participantItem) {
+      var participantCallsignPieces = participantItem.callsign.split("-"); 
+      if ((!found) && (participant.callsign == participantCallsignPieces[0])) {
+          found = true;
+      }});
+    return found;
+}
 
 watch(nudgeObject, (newNudgeObject, oldNudgeObject) => {
   if (newNudgeObject.value != null) {

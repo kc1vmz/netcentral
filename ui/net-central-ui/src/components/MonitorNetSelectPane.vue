@@ -109,6 +109,8 @@ const netTypeRef = reactive({ value : ''});
 const netNameRef = reactive({ value : ''});
 const netDescriptionRef = reactive({ value : ''});
 const netCheckinReminderRef = reactive({ value : 'true'});
+const netOpenRef = reactive({ value : true});
+const netParticipantInviteAllowedRef = reactive({ value : true});
 const netCreatedByRef = reactive({ value : ''});
 const netLatitudeRef = reactive({ value : ''});
 const netLongitudeRef = reactive({ value : ''});
@@ -120,6 +122,8 @@ const netTimeStartStrRef = reactive({ value : ''});
 const netVoiceFrequencyRef = reactive({ value : ''});
 const netAnnouncedRef = reactive({ value : ''});
 const netAnnouncedMessageRef = reactive({ value : ''});
+const netExpectedCallsignsRef = reactive({ value : ''});
+const netExpectedCallsigns2Ref = reactive({ value : ''});
 
 const selectedNetIndexRef = reactive({ value : 1});
 const previousNetIndexRef = reactive({ value : 0});
@@ -131,7 +135,6 @@ const accesstokenRef = reactive({ value : ''});
 const localLoggedInUserRef = reactive({ value : {}});
 const errorMessageRef = reactive({ value : ''});
 const netCheckinMessageRef = reactive({ value : ''});
-
 
 const dialogCloseNetRef = ref(null);
 const dialogDeleteNetRef = ref(null);
@@ -160,12 +163,16 @@ const netTimeStartStr2Ref = reactive({ value : ''});
 function updateLocalSelectedNet(net) {
   updateSelectedNet(net);
   localSelectedNet.ncSelectedNet = net;
+  netExpectedCallsignsRef.value = '';
   if ((net != null) && (net.callsign != null)) {
+    getExpectedParticipants(net.callsign);
     netCallsignRef.value = net.callsign;
     netNameRef.value = net.name;
     netDescriptionRef.value = net.description;    
     netCheckinMessageRef.value = net.checkinMessage;    
-    netCheckinReminderRef.value = net.checkinReminder,
+    netCheckinReminderRef.value = net.checkinReminder;
+    netOpenRef.value = net.open;
+    netParticipantInviteAllowedRef.value = net.participantInviteAllowed;
     netCreatedByRef.value = net.creatorName;
     netLatitudeRef.value = net.lat;
     netLongitudeRef.value = net.lon
@@ -276,6 +283,26 @@ function getNets() {
 
         })
       .catch(error => { console.error('Error getting nets from server:', error); })
+}
+
+function getExpectedParticipants(netCallsign) {
+    var expectedParticipants = [];
+    var callsigns = '';
+    fetch(buildNetCentralUrl('/nets/'+netCallsign+'/expectedParticipants'), getGetRequestOptions())
+      .then(response => response.json())
+      .then(data => {
+          expectedParticipants = data;
+          if (expectedParticipants) {
+            expectedParticipants.forEach(function(expectedParticipant){
+              if (callsigns.length > 0) {
+                callsigns += ',';
+              }
+              callsigns += expectedParticipant.callsign;
+            });
+          }
+          netExpectedCallsignsRef.value = callsigns;
+      })
+      .catch(error => { console.error('Error getting expected net participants from server:', error); })
 }
 
 function getSelectedCallsignIndex() {
@@ -468,7 +495,8 @@ function editNet() {
     netActive2Ref.value = netActiveRef.value;
     netDescription2Ref.value = netDescriptionRef.value;
     netCheckinMessage2Ref.value = netCheckinMessageRef.value;
-    netCheckinReminderRef.value = netCheckinReminderRef.value,
+//    netOpenRef.value = net.open;
+    netExpectedCallsigns2Ref.value = netExpectedCallsignsRef.value;
     netCallsign2Ref.value  = netCallsignRef.value;
     netAnnounced2Ref.value = netAnnouncedRef.value;
     netVoiceFrequency2Ref.value = netVoiceFrequencyRef.value;
@@ -497,7 +525,8 @@ function performEditNetActive() {
                         startTime : localSelectedNet.ncSelectedNet.startTime, completedNetId : localSelectedNet.ncSelectedNet.completedNetId,
                         voiceFrequency : netVoiceFrequency2Ref.value, lat : localSelectedNet.ncSelectedNet.lat, lon : localSelectedNet.ncSelectedNet.lon, 
                         announce : localSelectedNet.ncSelectedNet.announce, checkinReminder: localSelectedNet.ncSelectedNet.checkinReminder, 
-                        creatorName : localSelectedNet.ncSelectedNet.creatorName, checkinMessage: netCheckinMessage2Ref.value };
+                        creatorName : localSelectedNet.ncSelectedNet.creatorName, checkinMessage: netCheckinMessage2Ref.value,
+                        open: localSelectedNet.ncSelectedNet.open, participantInviteAllowed: localSelectedNet.ncSelectedNet.participantInviteAllowed  };
     // active net
     const requestOptions = {
       method: "PUT",
@@ -534,7 +563,8 @@ function performEditNetScheduled() {
                         type: localSelectedNet.ncSelectedNet.type,  dayStart: localSelectedNet.ncSelectedNet.dayStart, 
                         timeStartStr: localSelectedNet.ncSelectedNet.timeStartStr, duration: localSelectedNet.ncSelectedNet.duration,
                         checkinReminder: localSelectedNet.ncSelectedNet.checkinReminder, lastStartTime: localSelectedNet.ncSelectedNet.lastStartTime,
-                        nextStartTime : localSelectedNet.ncSelectedNet.nextStartTime, checkinMessage : netCheckinMessage2Ref.value};
+                        nextStartTime : localSelectedNet.ncSelectedNet.nextStartTime, checkinMessage : netCheckinMessage2Ref.value,
+                        open: localSelectedNet.ncSelectedNet.open, participantInviteAllowed: localSelectedNet.ncSelectedNet.participantInviteAllowed };
     // scheduled net
     const requestOptions = {
       method: "PUT",
@@ -566,10 +596,51 @@ function performEditNetScheduled() {
 function performEditNet() {
     if (netActive2Ref.value) {
       performEditNetActive();
+      if (netExpectedCallsigns2Ref.value != netExpectedCallsignsRef.value) {
+        performEditNetExpectedParticipantsActive();
+      }
+
     } else {
       performEditNetScheduled();
+      if (netExpectedCallsigns2Ref.value != netExpectedCallsignsRef.value) {
+        performEditNetExpectedParticipantsScheduled();
+      }
     }
 }
+
+function performEditNetExpectedParticipants(res) {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : getToken()
+        },
+      body: JSON.stringify(netExpectedCallsigns2Ref.value)
+    };
+    fetch(buildNetCentralUrl("/"+res+"/"+netCallsignRef.value+"/expectedParticipants/requests"), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+          netExpectedCallsignsRef.value = netExpectedCallsigns2Ref.value;
+          var net = localSelectedNet.ncSelectedNet;
+          updateSelectedNet(null);
+          updateSelectedNet(net);
+        } else {
+          errorMessageRef.value = "An error occurred modifying the expected participants.";
+        }
+        return response.json();
+      })
+      .then(data => {
+      })
+      .catch(error => { console.error('Error modifying the expected participants:', error); })   
+
+}
+function performEditNetExpectedParticipantsActive() {
+  performEditNetExpectedParticipants("nets");
+}
+
+function performEditNetExpectedParticipantsScheduled() {
+  performEditNetExpectedParticipants("scheduledNets");
+}
+
 </script>
 
 <template>
@@ -655,6 +726,26 @@ function performEditNet() {
                   <div v-else>
                     Remind participants to check out? No
                   </div>
+              </div>
+              <div>
+                  <div v-if="(netOpenRef.value == true)">
+                    Open participation? Yes
+                  </div>
+                  <div v-else>
+                    Open participation? No
+                  </div>
+              </div>
+              <div v-if="(netOpenRef.value == false)">
+                  <div v-if="(netParticipantInviteAllowedRef.value == true)">
+                    Participants can invite? Yes
+                  </div>
+                  <div v-else>
+                    Participants can invite? No
+                  </div>
+              </div>
+              <div>
+                <label for="expectedCallsignsField">Expected participant callsigns:</label>
+                <input type="text" id="expectedCallsignsField" v-model="netExpectedCallsigns2Ref.value"/>
               </div>
               <!-- scheduled vs now  -->
               <div>
@@ -750,8 +841,8 @@ function performEditNet() {
     <!-- main page -->
     <div v-if="((netsRef.value != null) && (netsRef.value.length > 0))">
       <div class="grid-container">
-        <div class="pagesubheader grid-item">{{netCallsignRef.value}}
-        </div>
+        <div v-if="netOpenRef.value" class="pagesubheader grid-item"> {{netCallsignRef.value}} <i class="fa-solid fa-unlock"></i></div>
+        <div v-else class="pagesubheader grid-item"> {{netCallsignRef.value}} <i class="fa-solid fa-lock"></i></div>
         <div class="grid-item">
         </div>
 

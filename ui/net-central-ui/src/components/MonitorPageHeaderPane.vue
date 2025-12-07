@@ -19,6 +19,9 @@ var dialogCreateNetShow = reactive({ value : false });
 const accesstokenRef = reactive({ value : '' });
 const localLoggedInUserRef = reactive({ value : null });
 const netCheckinMessageRef = reactive({ value : '' });
+const netExpectedCallsignsRef = reactive({ value : '' });
+const netOpenRef = reactive({value : 'true'});
+const netParticipantInviteAllowedRef = reactive({value : true});
 const netDescriptionRef = reactive({ value : '' });
 const netCreatedByRef = reactive({ value : '' });
 const netLatitudeRef = reactive({ value : '' });
@@ -106,6 +109,9 @@ function createNet() {
     netActiveRef.value = 'true';
     netDescriptionRef.value = '';
     netCheckinMessageRef.value = '';
+    netExpectedCallsignsRef.value = '';
+    netOpenRef.value = 'true';
+    netParticipantInviteAllowedRef.value = 'true';
     netLatitudeRef.value = '';
     netLongitudeRef.value = '';
     netAnnouncedRef.value = 'true';
@@ -138,9 +144,18 @@ function performCreateNetActive() {
     if (netCheckinReminderRef.value == 'true') {
       checkinReminder = true;
     }
+    var open = false;
+    if (netOpenRef.value == 'true') {
+      open = true;
+    }
+    var inviteAllowed = false;
+    if (netParticipantInviteAllowedRef.value == 'true') {
+      inviteAllowed = true;
+    }
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
-                        announce : announce , creatorName : localLoggedInUserRef.value.emailAddress, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value };
+                        announce : announce , creatorName : localLoggedInUserRef.value.emailAddress, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value,
+                        open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value };
     // active net
     const requestOptions = {
       method: "POST",
@@ -149,7 +164,7 @@ function performCreateNetActive() {
         },
       body: JSON.stringify(bodyObject)
     };
-    fetch(buildNetCentralUrl("/nets"), requestOptions)
+    fetch(buildNetCentralUrl("/nets/requests"), requestOptions)
       .then(response => {
         if (response.status == 200) {
             dialogCreateNetShow.value = false;
@@ -174,10 +189,19 @@ function performCreateNetScheduled() {
     if (netCheckinReminderRef.value == 'true') {
       checkinReminder = true;
     }
+    var open = false;
+    if (netOpenRef.value == 'true') {
+      open = true;
+    }
+    var inviteAllowed = false;
+    if (netParticipantInviteAllowedRef.value == 'true') {
+      inviteAllowed = true;
+    }
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
                         announce : announce , creatorName : localLoggedInUserRef.value.emailAddress,
-                        type: netTypeRef.value,  dayStart: netDayStartRef.value, timeStartStr: netTimeStartStrRef.value, duration: netDurationRef.value, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value  };
+                        type: netTypeRef.value,  dayStart: netDayStartRef.value, timeStartStr: netTimeStartStrRef.value, duration: netDurationRef.value, checkinReminder : checkinReminder,
+                        checkinMessage: netCheckinMessageRef.value, open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value };
 
     // scheduled net
     const requestOptions = {
@@ -264,6 +288,24 @@ function performCreateNet() {
                     <option value="true" selected>Yes</option>
                     <option value="false">No</option>
                   </select>
+              </div>
+              <div>
+                  <label for="openField">Open or closed participation?</label>
+                  <select name="openField" id="netOpenRef" v-model="netOpenRef.value" style="display: inline;">
+                    <option value="true" selected>Open</option>
+                    <option value="false">Closed</option>
+                  </select>
+              </div>
+              <div v-if="netOpenRef.value === 'false'">
+                  <label for="participantInviteAllowedField">Allow participant invites?</label>
+                  <select name="participantInviteAllowedField" id="netParticipantInviteAllowedRef" v-model="netParticipantInviteAllowedRef.value" style="display: inline;">
+                    <option value="true" selected>Yes</option>
+                    <option value="false">No</option>
+                  </select>
+              </div>
+              <div>
+                <label for="expectedCallsignsField">Expected participant callsigns:</label>
+                <input type="text" id="expectedCallsignsField" v-model="netExpectedCallsignsRef.value"/>
               </div>
               <!-- scheduled vs now  -->
               <div>

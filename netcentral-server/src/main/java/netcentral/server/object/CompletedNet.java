@@ -19,10 +19,13 @@ public class CompletedNet {
     private String prettyEndTime;
     private String creatorName;
     private String checkinMessage;
+    private boolean open;
+    private boolean participantInviteAllowed;
 
     public CompletedNet() {
     }
-    public CompletedNet(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, ZonedDateTime endTime, String completedNetId, String creatorName, String checkinMessage) {
+    public CompletedNet(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, ZonedDateTime endTime, String completedNetId,
+                                String creatorName, String checkinMessage, boolean open, boolean participantInviteAllowed) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -32,6 +35,8 @@ public class CompletedNet {
         setEndTime(endTime);
         this.creatorName = creatorName;
         this.checkinMessage = checkinMessage;
+        this.open = open;
+        this.participantInviteAllowed = participantInviteAllowed;
     }
     public CompletedNet(CompletedNet net) {
         if (net != null) {
@@ -44,6 +49,8 @@ public class CompletedNet {
             setEndTime(net.getEndTime());
             this.creatorName = net.getCreatorName();
             this.checkinMessage = net.getCheckinMessage();
+            this.open = net.isOpen();
+            this.participantInviteAllowed = net.isParticipantInviteAllowed();
         }
     }
 
@@ -114,5 +121,17 @@ public class CompletedNet {
     }
     public void setCheckinMessage(String checkinMessage) {
         this.checkinMessage = checkinMessage;
+    }
+    public boolean isOpen() {
+        return open;
+    }
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+    public boolean isParticipantInviteAllowed() {
+        return participantInviteAllowed;
+    }
+    public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
+        this.participantInviteAllowed = participantInviteAllowed;
     }
 }

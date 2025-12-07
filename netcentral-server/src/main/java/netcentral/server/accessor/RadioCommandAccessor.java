@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.NetQuestion;
@@ -48,6 +49,7 @@ public class RadioCommandAccessor {
     private static final String COMMAND_NET_QUESTION = "Q";
     private static final String COMMAND_NET_QUESTION_LIST = "QL";
     private static final String COMMAND_NET_ANSWER = "A";
+    private static final String COMMAND_NET_INVITE = "INV";
 
     @Inject
     private NetAccessor netAccessor;
@@ -67,6 +69,8 @@ public class RadioCommandAccessor {
     private NetQuestionAccessor netQuestionAccessor;
     @Inject
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
 
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {
@@ -237,6 +241,17 @@ public class RadioCommandAccessor {
                     }
                 }
                 processHelp(loggedInUser, msg, net, transceiverSourceId);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_INVITE.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processInvite(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
             } else if (COMMAND_STATUS.equalsIgnoreCase(command)) {
@@ -580,6 +595,61 @@ public class RadioCommandAccessor {
         }
     }
 
+    private void processInvite(User loggedInUser, APRSMessage msg, Net net, String transceiverSourceId) {
+        if (!net.isParticipantInviteAllowed()) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), msg.getCallsignFrom(), 
+                                                            String.format("You cannot invite others to this net."));
+            return;
+        }
+
+        List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+
+        String messageString = msg.getMessage();
+        String callsignList = messageString.substring(4); // go past "INV "
+        String [] callsigns = callsignList.split("[\\s,]+");
+        if (callsigns != null) {
+            for (String callsign : callsigns) {
+                if ((callsign != null) && (callsign.length() > 0)) {
+                    // are they in the net already?
+                    if (participants != null) {
+                        boolean found = false;
+                        for (Participant participant : participants) {
+                            if (participant.getCallsign().split("-")[0].equals(callsign)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            // already in net - try next invited participant
+                            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), msg.getCallsignFrom(), 
+                                                                            String.format("Callsign already in this net."));
+                            continue;
+                        }
+                    }
+
+                    if (!net.isOpen()) {
+                        ExpectedParticipant expectedParticipant = new ExpectedParticipant(callsign);
+                        try {
+                            netExpectedParticipantAccessor.addExpectedParticipant(loggedInUser, net, expectedParticipant);
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    try {
+                        List<TrackedStation> heardStations = trackedStationAccessor.getByRoot(loggedInUser, callsign);
+                        if (heardStations != null) {
+                            for (TrackedStation heardStation : heardStations) {
+                                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), heardStation.getCallsign(), 
+                                                            String.format("You have been invited to net %s - send CI to check in", net.getCallsign()));
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }
+    }
+
     private void processStatus(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
         Participant participant = participantAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
         if (participant == null) {
@@ -616,6 +686,7 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
         helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
+        helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
 
@@ -797,6 +868,7 @@ public class RadioCommandAccessor {
         Participant participant = new Participant();
         participant.setCallsign(message.getCallsignFrom());
 
+        // already in this net?
         List<Net> nets = netParticipantAccessor.getAllNets(loggedInUser, participant);
         if ((nets != null) && (!nets.isEmpty())) {
             // check if in this net
@@ -808,6 +880,34 @@ public class RadioCommandAccessor {
                 }
             }
         }
+
+        // is this net closed and you are allowed in?
+        if (!net.isOpen()) {
+            try { 
+                List<ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+                if ((expectedParticipants == null) || (expectedParticipants.isEmpty())) {
+                    transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Access denied");
+                    return; // no one allowed in - get out
+                }
+                boolean found = false;
+                for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+                    if (expectedParticipant.getCallsign().equals(getCallsignRoot(message.getCallsignFrom()))) {
+                        found = true;
+                        break;
+                    }
+
+                }
+                if (!found) {
+                    transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Access denied");
+                    return; // not in list - get out
+                }
+
+            } catch (Exception e) {
+                logger.error("Exception caught checking closed net membership", e);
+                return; // get out - can't be sure
+            }
+        }
+
 
         try {
             participant = participantAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
@@ -824,6 +924,14 @@ public class RadioCommandAccessor {
         if (net.getCheckinMessage() != null) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), net.getCheckinMessage());
         }
+    }
+
+    private String getCallsignRoot(String callsignFrom) {
+        int index = -1;
+        if ((index = callsignFrom.indexOf("-")) != -1) {
+            return callsignFrom.substring(0, index);
+        }
+        return callsignFrom;
     }
 
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {

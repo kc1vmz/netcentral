@@ -26,6 +26,8 @@ public record ScheduledNetRecord(
                 @NonNull @NotBlank ZonedDateTime last_start_time,
                 @NonNull @NotBlank ZonedDateTime next_start_time,
                 @NonNull @NotBlank Boolean checkin_reminder,
-                @Nullable @Size(max = 50) String checkin_message
+                @Nullable @Size(max = 50) String checkin_message,
+                @NonNull @NotBlank Boolean open, 
+                @NonNull @NotBlank Boolean participant_invite_allowed
                 ) {  
 }

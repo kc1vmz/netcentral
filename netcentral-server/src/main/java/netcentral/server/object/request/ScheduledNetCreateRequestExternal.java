@@ -2,9 +2,12 @@ package netcentral.server.object.request;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.micronaut.serde.annotation.Serdeable;
 import netcentral.server.enums.ScheduledNetType;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.ScheduledNet;
 
 @Serdeable
@@ -24,7 +27,10 @@ public class ScheduledNetCreateRequestExternal {
     private String creatorName;
     private String checkinReminder;
     private String checkinMessage;
-    
+    private boolean open;
+    private boolean participantInviteAllowed; 
+    private String expectedCallsigns;
+   
     public ScheduledNetCreateRequestExternal() {
     }
 
@@ -44,10 +50,14 @@ public class ScheduledNetCreateRequestExternal {
         this.duration = req.duration();
         this.checkinReminder = req.checkinReminder();
         this.checkinMessage = req.checkinMessage();
+        this.open = req.open();
+        this.participantInviteAllowed = req.participantInviteAllowed();
+        this.expectedCallsigns = req.expectedCallsigns();
     }
 
     public ScheduledNetCreateRequestExternal(String callsign, String name, String description, Integer type, String voiceFrequency, String lat, String lon, 
-                                                    String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder, String checkinMessage) {
+                                                    String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder, String checkinMessage,
+                                                    boolean open, boolean participantInviteAllowed, String expectedCallsigns) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -62,6 +72,9 @@ public class ScheduledNetCreateRequestExternal {
         this.duration = duration;
         this.checkinReminder = checkinReminder;
         this.checkinMessage = checkinMessage;
+        this.open = open;
+        this.participantInviteAllowed = participantInviteAllowed;
+        this.expectedCallsigns = expectedCallsigns;
     }
 
     public String getCallsign() {
@@ -146,16 +159,37 @@ public class ScheduledNetCreateRequestExternal {
                                                 (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                                 getCreatorName(), 
                                                 getDayStart(), 0, getDuration(), lastStartTime, nextStartTime,
-                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage());
+                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(),isOpen(), isParticipantInviteAllowed()
+                                            );
         } else {
             ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
                                     getLat(), getLon(), 
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
                                     getDayStart(), convertTimeStartStringToInt(getTimeStartStr()), getDuration(),
-                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage());
+                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(), isOpen(), isParticipantInviteAllowed());
         }
         ret.setNextStartTime(ret.calculateNextStartTime());
+
+        return ret;
+    }
+
+    public List<ExpectedParticipant> getExpectedParticipants() {
+        List<ExpectedParticipant> ret = new ArrayList<>();
+
+        try {
+            if (expectedCallsigns != null) {
+                String [] callsigns = expectedCallsigns.split("[\\s,]+");
+                if (callsigns != null) {
+                    for (String callsign : callsigns) {
+                        if ((callsign != null) && (callsign.length()>0)) {
+                            ret.add(new ExpectedParticipant(callsign));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
 
         return ret;
     }
@@ -201,5 +235,23 @@ public class ScheduledNetCreateRequestExternal {
     }
     public void setCheckinMessage(String checkinMessage) {
         this.checkinMessage = checkinMessage;
+    }
+    public boolean isOpen() {
+        return open;
+    }
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+    public boolean isParticipantInviteAllowed() {
+        return participantInviteAllowed;
+    }
+    public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
+        this.participantInviteAllowed = participantInviteAllowed;
+    }
+    public String getExpectedCallsigns() {
+        return expectedCallsigns;
+    }
+    public void setExpectedCallsigns(String expectedCallsigns) {
+        this.expectedCallsigns = expectedCallsigns;
     }
 }

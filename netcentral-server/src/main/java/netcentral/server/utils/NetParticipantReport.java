@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,8 +28,10 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
+import netcentral.server.object.Report309Entry;
 import netcentral.server.object.SoftwareIdentity;
 
 @Singleton
@@ -38,9 +43,11 @@ public class NetParticipantReport {
 
     private final static int MAX_ROWS = 25;
 
-    public String createReport(CompletedNet net, List<CompletedParticipant> participants) throws FileNotFoundException {
+    public String createReport(CompletedNet net, List<CompletedParticipant> participants,  List<CompletedExpectedParticipant> expectedParticipants) throws FileNotFoundException {
         String filename = getUniqueFileName(netConfigServerConfig.getTempReportDir(), "pdf");
         try {
+            List<Report309Entry> entries = buildReportEntries(participants, expectedParticipants);
+
             PdfDocument pdf = new PdfDocument(new PdfWriter(new FileOutputStream(filename)));
             Document document = new Document(pdf);
             document.setMargins(30, 32, 30, 32);
@@ -58,7 +65,7 @@ public class NetParticipantReport {
                 document.add(addCommunicationsLogBanner());
 
                 Table communicationsLogHeader = addCommunicationsLogHeader();
-                addCommunicationLogRows(communicationsLogHeader, participants, page);
+                addCommunicationLogRows(communicationsLogHeader, entries, page);
                 document.add(communicationsLogHeader);
 
                 document.add(addFooter(page, pageCount));
@@ -74,6 +81,45 @@ public class NetParticipantReport {
             logger.error("Exception caught creating Net Participant Report - ", e);
         }
         return null;
+    }
+
+    private List<Report309Entry> buildReportEntries(List<CompletedParticipant> participants, List<CompletedExpectedParticipant> expectedParticipants) {
+        List<Report309Entry> ret = new ArrayList<>();
+
+        if (participants != null) {
+            for (CompletedParticipant participant : participants) {
+                ret.add(new Report309Entry(participant));
+            }
+        }
+
+        if (expectedParticipants != null) {
+            for (CompletedExpectedParticipant expectedParticipant : expectedParticipants) {
+                if (participants != null) {
+                    // make sure they didnt show up before adding to list
+                    boolean found = false;
+                    for (CompletedParticipant participant : participants) {
+                        if (expectedParticipant.getCallsign().equals(participant.getCallsign().split("-")[0])) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        ret.add(new Report309Entry(expectedParticipant));
+                    }
+                } else {
+                    ret.add(new Report309Entry(expectedParticipant));
+                }
+            }
+        }
+
+        Collections.sort(ret, new Comparator<Report309Entry>() {
+            @Override
+            public int compare(Report309Entry p1, Report309Entry p2) {
+                return p1.getFrom().compareTo(p2.getFrom());
+            }
+        });
+
+        return ret;
     }
 
     public String getUniqueFileName(String directory, String extension) {
@@ -201,10 +247,10 @@ public class NetParticipantReport {
      * @param messages list of messages to log
      * @param page current page number
      */
-    private void addCommunicationLogRows(Table table, List<CompletedParticipant> participants, int page) {
+    private void addCommunicationLogRows(Table table, List<Report309Entry> entries, int page) {
         table.useAllAvailableWidth();
 
-        if ((participants == null) || (participants.isEmpty()) ) {
+        if ((entries == null) || (entries.isEmpty()) ) {
             return;
             // need to make this paged
         }
@@ -213,20 +259,17 @@ public class NetParticipantReport {
         int skipCount = (page - 1) * MAX_ROWS;
         int itemCount = 0;
 
-        for (CompletedParticipant participant : participants) {
+        for (Report309Entry entry : entries) {
             // skip to corret page of messages
             if (skipCount != 0) {
                 skipCount--;
                 continue;
             }
 
-            String timeStartStr = DateStrUtils.getTimeStr(participant.getStartTime());
-            String timeEndStr = DateStrUtils.getTimeStr(participant.getEndTime());
-
-            Cell cellStartTime = new Cell().add(new Paragraph(timeStartStr));
-            Cell cellEndTime = new Cell().add(new Paragraph(timeEndStr));
-            Cell cellFrom = new Cell().add(new Paragraph((String.format("%s (%s)", participant.getCallsign(), (participant.getTacticalCallsign() == null) ? "": participant.getTacticalCallsign()))));
-            Cell cellMsg = new Cell().add(new Paragraph((String.format("%s:%s:%sW", participant.getElectricalPowerType(), participant.getRadioStyle(), participant.getTransmitPower()))));
+            Cell cellStartTime = new Cell().add(new Paragraph(entry.getStartTime()));
+            Cell cellEndTime = new Cell().add(new Paragraph(entry.getEndTime()));
+            Cell cellFrom = new Cell().add(new Paragraph(entry.getFrom()));
+            Cell cellMsg = new Cell().add(new Paragraph(entry.getMessage()));
             table.addCell(cellFrom);
             table.addCell(cellStartTime);
             table.addCell(cellEndTime);

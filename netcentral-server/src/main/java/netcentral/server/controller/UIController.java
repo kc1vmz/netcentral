@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.kc1vmz.netcentral.aprsobject.common.NetCentralServerStatistics;
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
@@ -352,15 +351,18 @@ public class UIController {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
-        String completed_net_id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
+        boolean remind = false;
+        if (messageRequest.checkinReminder() != null) {
+            remind = true;
+        }
         boolean announce = false;
         if (messageRequest.announce() != null) {
             announce = true;
         }
 
         Net net = new Net(messageRequest.callsign(), messageRequest.name(), messageRequest.description(), messageRequest.voiceFrequency(), 
-                                ZonedDateTime.now(), completed_net_id, messageRequest.lat(), messageRequest.lon(), announce,
-                                getUserName(loggedInUser), messageRequest.checkinReminder(), messageRequest.checkinMessage());
+                                null, null, messageRequest.lat(), messageRequest.lon(), announce,
+                                getUserName(loggedInUser), remind, messageRequest.checkinMessage(), messageRequest.open(), messageRequest.participantInviteAllowed());
         netAccessor.create(loggedInUser, net);
         return HttpResponse.seeOther(UriBuilder.of("/").path("/nets").build());
     } 

@@ -19,5 +19,7 @@ public record CompletedNetRecord(
                 @NonNull @NotBlank ZonedDateTime start_time,
                 @NonNull @NotBlank ZonedDateTime end_time,
                 @NonNull @NotBlank @Size(max = 100) String creator_name,
-                @Nullable @Size(max = 50) String checkin_message) {  
+                @Nullable @Size(max = 50) String checkin_message,
+                @NonNull @NotBlank Boolean open, 
+                @NonNull @NotBlank Boolean participant_invite_allowed) {  
 }

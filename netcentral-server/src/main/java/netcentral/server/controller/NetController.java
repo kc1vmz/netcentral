@@ -24,6 +24,7 @@ import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.NetAccessor;
+import netcentral.server.accessor.NetExpectedParticipantAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.accessor.NetParticipantAccessor;
 import netcentral.server.accessor.NetQuestionAccessor;
@@ -33,12 +34,14 @@ import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.NetQuestion;
 import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
+import netcentral.server.object.request.NetCreateRequestExternal;
 
 @Controller("/api/v1/nets") 
 @Secured(SecurityRule.IS_ANONYMOUS) 
@@ -65,6 +68,8 @@ public class NetController {
     private NetQuestionAccessor netQuestionAccessor;
     @Inject
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {
@@ -72,6 +77,20 @@ public class NetController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         return netAccessor.create(loggedInUser, obj);
+    }
+
+    @Post("/requests")
+    public Net createFromRequest(HttpRequest<?> request,  @Body NetCreateRequestExternal obj) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net =  netAccessor.create(loggedInUser, obj.getNet());
+
+        List<ExpectedParticipant> expectedParticipants = obj.getExpectedParticipants();
+        for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+            netExpectedParticipantAccessor.addExpectedParticipant(loggedInUser, net, expectedParticipant);
+        }
+        return net;
     }
 
     @Get 
@@ -104,10 +123,10 @@ public class NetController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         Net net = netAccessor.get(loggedInUser, id);
-        netAccessor.delete(loggedInUser, net.getCallsign());
-
         // create a completed net
         completedNetAccessor.create(loggedInUser, net);
+
+        netAccessor.delete(loggedInUser, net.getCallsign());
     }
 
     @Get("/{id}/participants") 
@@ -167,6 +186,93 @@ public class NetController {
         return ret;
     }
 
+    @Get("/{id}/expectedParticipants") 
+    public List<ExpectedParticipant> getExpectedParticipants(HttpRequest<?> request, @PathVariable String id) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net = netAccessor.get(loggedInUser, id);
+
+        List<ExpectedParticipant> ret = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+        return ret;
+    }
+
+    @Post("/{id}/expectedParticipants/{callsign}")
+    public List<ExpectedParticipant> addExpectedParticipant(HttpRequest<?> request, @PathVariable String id, @PathVariable String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net = netAccessor.get(loggedInUser, id);
+        ExpectedParticipant participant = null;
+        try {
+            participant = netExpectedParticipantAccessor.get(loggedInUser, callsign);
+        } catch (Exception e) {
+            participant = null;
+        }
+
+        if (participant == null) {
+            participant = new ExpectedParticipant(callsign);
+            netExpectedParticipantAccessor.addExpectedParticipant(loggedInUser, net, participant);
+        }
+        List<ExpectedParticipant> ret = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+        return ret;
+    }
+
+    @Post("/{id}/expectedParticipants/requests")
+    public List<ExpectedParticipant> resetExpectedParticipants(HttpRequest<?> request, @PathVariable String id, @Body String expectedCallsigns) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        expectedCallsigns = expectedCallsigns.substring(1, expectedCallsigns.length()-1);
+        Net net = netAccessor.get(loggedInUser, id);
+        try {
+            // remove existing
+            List<ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+            if (expectedParticipants != null) {
+                for (ExpectedParticipant expectedParticipant : expectedParticipants) {
+                    netExpectedParticipantAccessor.removeExpectedParticipant(loggedInUser, net, expectedParticipant);
+                }
+            }
+
+            // add back new callsigns
+            if (expectedCallsigns != null) {
+                String [] callsigns = expectedCallsigns.split("[\\s,]+");
+                if (callsigns != null) {
+                    for (String callsign : callsigns) {
+                        if ((callsign != null) && (callsign.length()>0)) {
+                            netExpectedParticipantAccessor.addExpectedParticipant(loggedInUser, net, new ExpectedParticipant(callsign));
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        List<ExpectedParticipant> ret = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+        return ret;
+    }
+
+    @Delete("/{id}/expectedParticipants/{callsign}")
+    public List<ExpectedParticipant> deleteExpectedParticipant(HttpRequest<?> request, @PathVariable String id, @PathVariable String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net = netAccessor.get(loggedInUser, id);
+        ExpectedParticipant participant = null;
+        try {
+            participant = netExpectedParticipantAccessor.get(loggedInUser, callsign);
+        } catch (Exception e) {
+            participant = null;
+        }
+
+        if (participant != null) {
+            participant = new ExpectedParticipant(callsign);
+            netExpectedParticipantAccessor.removeExpectedParticipant(loggedInUser, net, participant);
+        }
+        List<ExpectedParticipant> ret = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+        return ret;
+    }
+
     @Get("/{id}/messages") 
     public List<APRSMessage> getMessages(HttpRequest<?> request, @PathVariable String id) {
         String token = sessionAccessor.getTokenFromSession(request);
@@ -212,6 +318,7 @@ public class NetController {
         netParticipantAccessor.deleteAll(loggedInUser);
         netQuestionAccessor.deleteAllData(loggedInUser);
         netQuestionAnswerAccessor.deleteAllData(loggedInUser);
+        netExpectedParticipantAccessor.deleteAll(loggedInUser);
         changePublisherAccessor.publishAllUpdate();
     }
 

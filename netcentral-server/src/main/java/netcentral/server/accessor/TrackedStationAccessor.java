@@ -72,6 +72,31 @@ public class TrackedStationAccessor {
         return ret;
     }
 
+    public List<TrackedStation> getByRoot(User loggedInUser, String rootcallsign) {
+        List<TrackedStation> ret = new ArrayList<>();
+        if (rootcallsign == null) {
+            return ret;
+        }
+        
+        try {
+            List<TrackedStationRecord> recs = trackedStationRepository.findAll();
+            if (recs != null) {
+                for (TrackedStationRecord rec : recs) {
+                    if (rec.callsign().startsWith(rootcallsign)) {
+                        ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationType.values()[rec.type()], rec.name(), rec.description(), rec.callsign(), rec.lat(),
+                                    rec.lon(), rec.frequency_tx(), rec.frequency_rx(), rec.tone(), rec.last_heard_time(), rec.tracking_active(),
+                                    TrackedStationStatus.values()[rec.status()], 
+                                    rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
+                                    RadioStyle.values()[rec.radio_style()], rec.transmit_power()));
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return ret;
+    }
+
     public TrackedStation get(User loggedInUser, String id) {
         if (id == null) {
             logger.debug("null id");
