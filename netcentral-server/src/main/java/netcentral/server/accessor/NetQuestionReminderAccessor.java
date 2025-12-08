@@ -110,7 +110,12 @@ public class NetQuestionReminderAccessor {
                 }
 
                 try {
-                    ZonedDateTime nextReminderTime = netQuestion.getAskedTime().plusMinutes(netQuestion.getReminderMinutes());
+
+                    ZonedDateTime nextReminderTime = netQuestion.getNextReminderTime();
+                    if (nextReminderTime == null) {
+                        nextReminderTime = netQuestion.getAskedTime();
+                    }
+                    nextReminderTime = nextReminderTime.plusMinutes(netQuestion.getReminderMinutes());
                     netQuestion.setNextReminderTime(nextReminderTime);
                     netQuestionAccessor.update(user, netQuestion.getNetQuestionId(), netQuestion);
                 } catch (Exception e) {
