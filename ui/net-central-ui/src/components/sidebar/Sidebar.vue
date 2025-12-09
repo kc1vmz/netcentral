@@ -15,6 +15,7 @@ function toggleLiveUpdate() {
 import SidebarLink from './SidebarLink.vue'
 import { collapsed, toggleSidebar, sidebarWidth } from './state.js'
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";
+import { netCentralVersion } from "@/composables/version";
 
 export default {
   props: {},
@@ -63,6 +64,9 @@ export default {
           Auto-update: Off
           <button class="boxButton" v-on:click.native="toggleLiveUpdate">Turn on</button>
         </div>
+        <br>
+        <div>Version</div>
+        <div>{{ netCentralVersion }}</div>
       </div>
     </span>
     <span class="collapse-icon" :class="{ 'rotate-180': collapsed }" @click="toggleSidebar">
@@ -102,6 +106,9 @@ export default {
           Auto-update: Off
           <button class="boxButton" v-on:click.native="toggleLiveUpdate">Turn on</button>
         </div>
+        <br>
+        <div>Version</div>
+        <div>{{ netCentralVersion }}</div>
       </div>
     </span>
     <span class="collapse-icon" :class="{ 'rotate-180': collapsed }" @click="toggleSidebar">
