@@ -139,4 +139,4 @@ Follow the configuration steps above and start each service.
 
 ## License
 
-No license has been selected to govern reuse or sharing.  Once that decision is made, the license will be added.
+This software is licensed under GPL v3.  For more information, see LICENSE file
