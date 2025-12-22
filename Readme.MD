@@ -139,4 +139,4 @@ Follow the configuration steps above and start each service.
 
 ## License
 
-This software is licensed under GPL v3.  For more information, see LICENSE file
+This software is licensed under GPL v3.  For more information, see LICENSE file.
