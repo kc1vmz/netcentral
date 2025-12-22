@@ -1,5 +1,25 @@
 package netcentral.transceiver.aprsis.accessor;
 
+/*
+    Net Central
+    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+*/
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -56,7 +76,7 @@ public class APRSListenerAccessor {
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         String data = new String(obj.getBytes());
         logger.debug(String.format("Sending report %s: %s", obj.getObjectName(), data));
-        String aprsMessage = callsignFrom + ">APRS:{{E"+String.format("%-9s", obj.getObjectName())+data+"\r\n";  // TODO - get non-experimental code
+        String aprsMessage = callsignFrom + ">APANC1:{{E"+String.format("%-9s", obj.getObjectName())+data+"\r\n";
 
         writeLock.lock();
         try {
@@ -75,7 +95,7 @@ public class APRSListenerAccessor {
 
     public void sendMessage(String callsignFrom, String callsignTo, String messageText) {
         logger.debug(String.format("Sending message from %s to %s: %s", callsignFrom, callsignTo, messageText));
-        String aprsMessage = callsignFrom + ">APRS::"+String.format("%-9s", callsignTo)+":"+messageText+"\r\n";
+        String aprsMessage = callsignFrom + ">APANC1::"+String.format("%-9s", callsignTo)+":"+messageText+"\r\n";
 
         writeLock.lock();
         try {
@@ -94,7 +114,7 @@ public class APRSListenerAccessor {
 
     public void sendBulletin(String callsignFrom, String bulletinId, String messageText) {
         logger.debug(String.format("Sending bulletin from %s to %s: %s", callsignFrom, bulletinId, messageText));
-        String aprsMessage = callsignFrom + ">APRS::"+bulletinId+"     :"+messageText+"\r\n";
+        String aprsMessage = callsignFrom + ">APANC1::"+bulletinId+"     :"+messageText+"\r\n";
 
         writeLock.lock();
         try {
@@ -124,10 +144,8 @@ public class APRSListenerAccessor {
 
         // time[7]lat[8]sym[/]lon[9]sym[>]meta[7]comment[36]
         String time = APRSTime.convertZonedDateTimeToDDHHMM(ZonedDateTime.now());
-//        String lat = "4201.  N";
-//        String lon = "07132.  W";
 
-        aprsMessage = String.format("%s>APRS:;%s%s%s%s/%s%s%s\r\n", objectName, String.format("%-9s", objectName), ud, time, lat, lon, "c", messageText);
+        aprsMessage = String.format("%s>APANC1:;%s%s%s%s/%s%s%s\r\n", objectName, String.format("%-9s", objectName), ud, time, lat, lon, "c", messageText);
         writeLock.lock();
         try {
             if (sender != null) {

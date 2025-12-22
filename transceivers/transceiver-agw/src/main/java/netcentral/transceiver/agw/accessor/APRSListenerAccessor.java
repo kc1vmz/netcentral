@@ -1,5 +1,25 @@
 package netcentral.transceiver.agw.accessor;
 
+/*
+    Net Central
+    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+*/
+
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -62,25 +82,14 @@ public class APRSListenerAccessor {
     public void sendMessage(String callsignFrom, String callsignTo, String messageText) {
         logger.info(String.format("Sending message from %s to %s: %s", callsignFrom, callsignTo, messageText));
         String aprsMessage = ":"+String.format("%-9s", callsignTo)+":"+messageText; 
-//        String aprsMessage = String.format("%-9s", callsignTo)+":"+messageText; 
-// KC1VMZ-11>APRS,qAR,W1DMR-1::WHO-15   :K1FFK{K
-// KC1VMZ-11>WIDE2::WHO-15   :AB1PH{1D
-// KC1VMZ-11>APRS:::WHO-15   :AB1PH{18
-// KC1VMZ-11>APRS::WHO-15   :K1FFK{1A
 
-/*
- * [0L] KC1VMZ-11>APRS:WIDE2-1:WHO-15   :AB1PH{1C
-   [0H] W1FDC>APSAR,W1BKW-3,UNCAN,WIDE2*:=4413.41N/06936.40Wd[:W1FDC
- */
-        //[0L] KC1VMZ-11>WHO-15:WHO-15   :AB1PH{14
-//        byte [] packet = buildPacket(callsignFrom, callsignTo, messageText);
         List<String> digipeaters = new ArrayList<>();
         digipeaters.add("WIDE1-1");
         digipeaters.add("WIDE2-1");
         writeLock.lock();
         try {
             if (client != null) {
-                AgwCommand cmd = new AgwCommand((byte) (tncConfiguration.getChannel()), (byte)'K', callsignFrom, "APZ1241", aprsMessage, digipeaters);
+                AgwCommand cmd = new AgwCommand((byte) (tncConfiguration.getChannel()), (byte)'K', callsignFrom, "APANC1", aprsMessage, digipeaters);
                 client.writeV(cmd);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
@@ -96,7 +105,7 @@ public class APRSListenerAccessor {
 
     public void sendBulletin(String callsignFrom, String bulletinId, String messageText) {
         logger.info(String.format("Sending bulletin from %s to %s: %s", callsignFrom, bulletinId, messageText));
-        String aprsMessage = callsignFrom + ">APRS::"+bulletinId+"     :"+messageText;
+        String aprsMessage = callsignFrom + ">APANC1::"+bulletinId+"     :"+messageText;
         List<String> digipeaters = new ArrayList<>();
         digipeaters.add("WIDE1-1");
         digipeaters.add("WIDE2-1");
