@@ -1,4 +1,4 @@
-package netcentral.transceiver.aprsis.object;
+package com.kc1vmz.netcentral.common.object;
 
 /*
     Net Central

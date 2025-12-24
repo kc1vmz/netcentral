@@ -21,6 +21,7 @@
     <module>aprsobject</module>
     <module>logger</module>
     <module>parser</module>
+    <module>netcentral-common</module>
   </modules>
 
 </project>

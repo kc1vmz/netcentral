@@ -1,4 +1,4 @@
-package netcentral.transceiver.test.exception;
+package com.kc1vmz.netcentral.common;
 
 /*
     Net Central
@@ -20,12 +20,7 @@ package netcentral.transceiver.test.exception;
     http://www.kc1vmz.com
 */
 
-public class LoginFailureException extends Exception {
-    public LoginFailureException() {
-        super();
+public class Main {
+    public static void main(String[] args) {
     }
-    public LoginFailureException(String msg) {
-        super(msg);
-    }
-
 }

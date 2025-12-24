@@ -21,12 +21,12 @@ package netcentral.transceiver.kenwood.accessor;
 */
 
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
+import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 
 import io.micronaut.context.ApplicationContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.kenwood.client.NetCentralRESTClient;
-import netcentral.transceiver.kenwood.exception.LoginFailureException;
 
 @Singleton
 public class APRSMessageAccessor {

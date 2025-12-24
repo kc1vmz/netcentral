@@ -1,4 +1,4 @@
-package netcentral.transceiver.agw.object;
+package com.kc1vmz.netcentral.common.object;
 
 /*
     Net Central
@@ -20,15 +20,9 @@ package netcentral.transceiver.agw.object;
     http://www.kc1vmz.com
 */
 
-import java.util.List;
+import com.kc1vmz.netcentral.common.enums.UserRole;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import io.micronaut.serde.annotation.Serdeable;
-import netcentral.transceiver.agw.enums.UserRole;
-
-@Serdeable
-public class User {
+public class NetCentralServerUser {
     private String id;
     private String emailAddress;
     private Callsign callsign;
@@ -38,21 +32,18 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @JsonIgnore
-    private List<String> organizationIds;
-
-    public User(){
+    public NetCentralServerUser(){
         this.role = UserRole.UNKNOWN;
     }
-    public User(String id){
+    public NetCentralServerUser(String id){
         this.id = id;
         this.role = UserRole.UNKNOWN;
     }
-    public User(String id, UserRole role){
+    public NetCentralServerUser(String id, UserRole role){
         this.id = id;
         this.role = role;
     }
-    public User(String id, String emailAddress, String password, UserRole role, String callsign, String firstName, String lastName) {
+    public NetCentralServerUser(String id, String emailAddress, String password, UserRole role, String callsign, String firstName, String lastName) {
         this.id = id;
         this.emailAddress = emailAddress;
         this.password = password;
@@ -101,12 +92,6 @@ public class User {
     }
     public void setRole(UserRole role) {
         this.role = role;
-    }
-    public List<String> getOrganizationIds() {
-        return organizationIds;
-    }
-    public void setOrganization_ids(List<String> organizationIds) {
-        this.organizationIds = organizationIds;
     }
     public String getFirstName() {
         return firstName;

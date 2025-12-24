@@ -23,13 +23,14 @@ package netcentral.transceiver.aprsis.accessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.aprsis.client.NetCentralRESTClient;
 import netcentral.transceiver.aprsis.config.NetCentralClientConfig;
 import netcentral.transceiver.aprsis.object.RegisterRequest;
 import netcentral.transceiver.aprsis.object.SendMessageRequest;
-import netcentral.transceiver.aprsis.object.User;
 
 @Singleton
 public class UIAccessor {
@@ -48,7 +49,7 @@ public class UIAccessor {
             if (sourceId == null) {
                 return;
             }
-            User loginResponse = netControlRESTClient.login(netControlConfig.getUsername(), netControlConfig.getPassword());
+            NetCentralServerUser loginResponse = netControlRESTClient.login(netControlConfig.getUsername(), netControlConfig.getPassword());
             netControlRESTClient.sendMessage(loginResponse.getAccessToken(), sourceId, messageRequest.callsign(), messageRequest.to_callsign(), messageRequest.message());
             netControlRESTClient.logout(loginResponse);
         } catch (Exception e) {

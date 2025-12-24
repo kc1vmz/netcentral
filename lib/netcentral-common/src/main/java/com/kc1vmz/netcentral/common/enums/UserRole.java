@@ -1,4 +1,4 @@
-package netcentral.transceiver.kiss.exception;
+package com.kc1vmz.netcentral.common.enums;
 
 /*
     Net Central
@@ -20,12 +20,6 @@ package netcentral.transceiver.kiss.exception;
     http://www.kc1vmz.com
 */
 
-public class LoginFailureException extends Exception {
-    public LoginFailureException() {
-        super();
-    }
-    public LoginFailureException(String msg) {
-        super(msg);
-    }
-
+public enum UserRole {
+    UNKNOWN, SYSTEM, SYSADMIN, ADMIN, USER, NONE
 }

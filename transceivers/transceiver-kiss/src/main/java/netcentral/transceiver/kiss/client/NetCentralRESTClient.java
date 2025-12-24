@@ -41,12 +41,12 @@ import com.kc1vmz.netcentral.aprsobject.common.LoginRequest;
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
+import com.kc1vmz.netcentral.common.exception.LoginFailureException;
+import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.kiss.config.NetCentralClientConfig;
-import netcentral.transceiver.kiss.exception.LoginFailureException;
-import netcentral.transceiver.kiss.object.User;
 
 @Singleton
 public class NetCentralRESTClient {
@@ -79,7 +79,7 @@ public class NetCentralRESTClient {
         return ret;
     }
 
-    public User login(String username, String password) throws Exception {
+    public NetCentralServerUser login(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(username);
         loginRequest.setPassword(password);
@@ -98,7 +98,7 @@ public class NetCentralRESTClient {
         HttpResponse<?> response = client.send(request, BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             String json2 = response.body().toString();
-            User resp = objectMapper.readValue(json2, User.class);
+            NetCentralServerUser resp = objectMapper.readValue(json2, NetCentralServerUser.class);
             // success
             return resp;
         }
@@ -119,7 +119,7 @@ public class NetCentralRESTClient {
         create(obj, sessionId);
     }
 
-    public void logout(User loginResponse) throws Exception {
+    public void logout(NetCentralServerUser loginResponse) throws Exception {
         ObjectMapper objectMapper = getObjectMapper();
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginResponse);

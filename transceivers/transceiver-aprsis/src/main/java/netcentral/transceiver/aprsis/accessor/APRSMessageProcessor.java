@@ -49,6 +49,8 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.common.exception.LoginFailureException;
+import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
@@ -56,20 +58,17 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.ab0oo.aprs.parser.APRSPacket;
 import net.ab0oo.aprs.parser.Digipeater;
-import netcentral.transceiver.aprsis.auth.SessionAccessor;
 import netcentral.transceiver.aprsis.client.NetCentralRESTClient;
 import netcentral.transceiver.aprsis.config.APRSConfiguration;
 import netcentral.transceiver.aprsis.config.NetCentralClientConfig;
 import netcentral.transceiver.aprsis.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.aprsis.config.ThreadConfiguration;
-import netcentral.transceiver.aprsis.exception.LoginFailureException;
-import netcentral.transceiver.aprsis.object.User;
 
 @Singleton
 public class APRSMessageProcessor {
     private static final Logger logger = LogManager.getLogger(APRSMessageProcessor.class);
 
-    private User loginResponse = null;
+    private NetCentralServerUser loginResponse = null;
     private RegisteredTransceiver registeredTransceiver = null;
 
     @Inject
@@ -78,8 +77,6 @@ public class APRSMessageProcessor {
     private APRSMessageAccessor aprsMessageAccessor;
     @Inject 
     private APRSConfiguration aprsConfiguration;
-    @Inject
-    private SessionAccessor sessionAccessor;
     @Inject
     private NetCentralRESTClient netControlRESTClient;
     @Inject
@@ -93,8 +90,6 @@ public class APRSMessageProcessor {
 
 
     private ExecutorService executorService = null;
-
-    private User systemUser = null;
 
     private synchronized RegisteredTransceiver getRegisteredTransceiver() {
         if (loginResponse == null) {
@@ -124,9 +119,6 @@ public class APRSMessageProcessor {
     }
 
     public void processPacket(APRSPacket packet) {
-        if (systemUser == null) {
-            systemUser = sessionAccessor.getSystemUser();
-        }
         if (executorService == null) {
             logger.debug("Initializing thread pool for scan execution");
             executorService = Executors.newFixedThreadPool(threadConfiguration.getCount());

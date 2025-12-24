@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
+import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -31,7 +32,6 @@ import netcentral.transceiver.kenwood.client.NetCentralRESTClient;
 import netcentral.transceiver.kenwood.config.NetCentralClientConfig;
 import netcentral.transceiver.kenwood.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.kenwood.object.RegisterRequest;
-import netcentral.transceiver.kenwood.object.User;
 
 @Singleton
 public class RegisteredTransceiverAccessor {
@@ -62,7 +62,7 @@ public class RegisteredTransceiverAccessor {
         String id = null;
         try {
             if ((registeredTransceiver == null) || (registeredTransceiver.getId() == null)) {
-                User loginResponse = netControlRESTClient.login(netControlConfig.getUsername(), netControlConfig.getPassword());
+                NetCentralServerUser loginResponse = netControlRESTClient.login(netControlConfig.getUsername(), netControlConfig.getPassword());
                 if (loginResponse == null) {
                     return null;
                 }

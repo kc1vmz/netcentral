@@ -1,4 +1,4 @@
-package netcentral.transceiver.kenwood.object;
+package com.kc1vmz.netcentral.common.object;
 
 /*
     Net Central

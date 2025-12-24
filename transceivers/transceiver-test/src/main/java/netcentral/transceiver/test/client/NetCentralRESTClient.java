@@ -42,11 +42,11 @@ import com.kc1vmz.netcentral.aprsobject.common.LoginResponse;
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
+import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.test.config.NetCentralClientConfig;
-import netcentral.transceiver.test.exception.LoginFailureException;
 
 @Singleton
 public class NetCentralRESTClient {

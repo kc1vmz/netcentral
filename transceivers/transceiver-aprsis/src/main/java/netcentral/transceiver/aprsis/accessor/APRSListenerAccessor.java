@@ -34,6 +34,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
+import com.kc1vmz.netcentral.common.object.APRSAuthenticationInfo;
+import com.kc1vmz.netcentral.common.object.APRSServer;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
 import jakarta.inject.Inject;
@@ -43,8 +45,6 @@ import net.ab0oo.aprs.parser.Parser;
 import netcentral.transceiver.aprsis.config.APRSConfiguration;
 import netcentral.transceiver.aprsis.config.FeatureConfiguration;
 import netcentral.transceiver.aprsis.config.ThreadConfiguration;
-import netcentral.transceiver.aprsis.object.APRSAuthenticationInfo;
-import netcentral.transceiver.aprsis.object.APRSServer;
 
 @Singleton
 public class APRSListenerAccessor {

@@ -1,4 +1,4 @@
-package netcentral.transceiver.aprsis.exception;
+package com.kc1vmz.netcentral.common.object;
 
 /*
     Net Central
@@ -20,12 +20,24 @@ package netcentral.transceiver.aprsis.exception;
     http://www.kc1vmz.com
 */
 
-public class LoginFailureException extends Exception {
-    public LoginFailureException() {
-        super();
+public class Callsign {
+    private String callsign;
+
+    public Callsign() {
     }
-    public LoginFailureException(String msg) {
-        super(msg);
+    public Callsign(String callsign) {
+        this.callsign = callsign;
+    }
+    public Callsign(Callsign callsign) {
+        if (callsign != null) {
+            this.callsign = callsign.getCallsign();
+        }
     }
 
+    public String getCallsign() {
+        return callsign;
+    }
+    public void setCallsign(String callsign) {
+        this.callsign = callsign;
+    }
 }

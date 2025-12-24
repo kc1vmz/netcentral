@@ -49,34 +49,31 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.common.exception.LoginFailureException;
+import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.agw.auth.SessionAccessor;
 import netcentral.transceiver.agw.client.NetCentralRESTClient;
 import netcentral.transceiver.agw.config.APRSConfiguration;
 import netcentral.transceiver.agw.config.NetCentralClientConfig;
 import netcentral.transceiver.agw.config.RegisteredTransceiverConfig;
 import netcentral.transceiver.agw.config.ThreadConfiguration;
-import netcentral.transceiver.agw.exception.LoginFailureException;
 import netcentral.transceiver.agw.object.AgwResponse2;
-import netcentral.transceiver.agw.object.User;
 
 @Singleton
 public class APRSMessageProcessor {
     private static final Logger logger = LogManager.getLogger(APRSMessageProcessor.class);
 
-    private User loginResponse = null;
+    private NetCentralServerUser loginResponse = null;
     private RegisteredTransceiver registeredTransceiver = null;
 
     @Inject
     private ThreadConfiguration threadConfiguration;
     @Inject 
     private APRSMessageAccessor aprsMessageAccessor;
-    @Inject
-    private SessionAccessor sessionAccessor;
     @Inject
     private NetCentralRESTClient netControlRESTClient;
     @Inject
@@ -92,13 +89,7 @@ public class APRSMessageProcessor {
 
     private ExecutorService executorService = null;
 
-    private User systemUser = null;
-
-
     public void processPacket(AgwResponse2 packet) {
-        if (systemUser == null) {
-            systemUser = sessionAccessor.getSystemUser();
-        }
         if (executorService == null) {
             logger.debug("Initializing thread pool for scan execution");
             executorService = Executors.newFixedThreadPool(threadConfiguration.getCount());

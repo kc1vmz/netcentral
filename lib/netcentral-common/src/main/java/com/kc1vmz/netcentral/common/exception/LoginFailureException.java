@@ -1,4 +1,4 @@
-package netcentral.transceiver.agw.exception;
+package com.kc1vmz.netcentral.common.exception;
 
 /*
     Net Central

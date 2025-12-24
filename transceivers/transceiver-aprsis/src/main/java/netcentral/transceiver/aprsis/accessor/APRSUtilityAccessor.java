@@ -23,9 +23,9 @@ package netcentral.transceiver.aprsis.accessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.common.object.APRSAuthenticationInfo;
 
 import jakarta.inject.Singleton;
-import netcentral.transceiver.aprsis.object.APRSAuthenticationInfo;
 import netcentral.transceiver.aprsis.object.SoftwareIdentity;
 
 @Singleton
