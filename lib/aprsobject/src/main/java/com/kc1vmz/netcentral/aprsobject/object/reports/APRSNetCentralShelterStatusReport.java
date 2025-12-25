@@ -34,8 +34,8 @@ public class APRSNetCentralShelterStatusReport extends APRSNetCentralReport {
     public APRSNetCentralShelterStatusReport(String objectName, int status, int state, String message, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("SH"); // shelter
-        this.setReportType("ST"); // Population census
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_STATUS);
         if ((status < 1) || (status > 2)) {
             status = 0;
         }
@@ -85,8 +85,8 @@ public class APRSNetCentralShelterStatusReport extends APRSNetCentralReport {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("SH")) {
-                if (reportType.equalsIgnoreCase("ST")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_STATUS)) {
                     String state = message.substring(4, 5);
                     String status = message.substring(5, 6);
                     String messageText = "";

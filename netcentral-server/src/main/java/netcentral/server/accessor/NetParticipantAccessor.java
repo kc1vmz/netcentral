@@ -28,10 +28,13 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetCheckInOutReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
@@ -68,6 +71,8 @@ public class NetParticipantAccessor {
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {
@@ -147,9 +152,15 @@ public class NetParticipantAccessor {
         }
         try {
             String nid = net.getCallsign()+"."+participant.getCallsign();
-            NetParticipantRecord rec = new NetParticipantRecord(nid,net.getCallsign(), participant.getCallsign(), ZonedDateTime.now(), null);
+            NetParticipantRecord rec = new NetParticipantRecord(nid, net.getCallsign(), participant.getCallsign(), ZonedDateTime.now(), null);
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
+
+            if (netConfigServerConfig.isFederated()) {
+                APRSNetCentralNetCheckInOutReport reportCheckin = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), true);
+                transceiverMessageAccessor.sendReport(loggedInUser, reportCheckin);
+            }
+
             changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Create", hydrateParticipant(loggedInUser,participant));
             sendQuestionReminderForParticipant(loggedInUser, net, participant);
         } catch (Exception e) {
@@ -246,6 +257,11 @@ public class NetParticipantAccessor {
         netParticipantRepository.delete(participantRec);
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Delete", hydrateParticipant(loggedInUser,participant));
 
+        if (netConfigServerConfig.isFederated()) {
+            APRSNetCentralNetCheckInOutReport reportCheckout = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), false);
+            transceiverMessageAccessor.sendReport(loggedInUser, reportCheckout);
+        }
+
         return getAllParticipants(loggedInUser, net); 
     }
 
@@ -258,7 +274,7 @@ public class NetParticipantAccessor {
         List<NetParticipantRecord> participantRecs = netParticipantRepository.findByparticipant_callsign(participant.getCallsign());
         if ((participantRecs != null) && (!participantRecs.isEmpty())) {
             for (NetParticipantRecord rec: participantRecs) {
-                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false, null, true, true));
+                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false, null, true, true, false));
             }
         }
         return ret;

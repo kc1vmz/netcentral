@@ -44,11 +44,12 @@ public class Net {
     private String checkinMessage;
     private boolean open;
     private boolean participantInviteAllowed;
+    private boolean remote;
 
     public Net() {
     }
     public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, 
-                        String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage, boolean open, boolean participantInviteAllowed) {
+                        String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage, boolean open, boolean participantInviteAllowed, boolean remote) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -63,6 +64,7 @@ public class Net {
         this.checkinMessage = checkinMessage;
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
+        this.remote = remote;
     }
     public Net(Net net) {
         if (net != null) {
@@ -81,6 +83,7 @@ public class Net {
             this.checkinMessage = net.getCheckinMessage();
             this.open = net.isOpen();
             this.participantInviteAllowed = net.isParticipantInviteAllowed();
+            this.remote = net.isRemote();
         }
     }
 
@@ -180,5 +183,11 @@ public class Net {
     }
     public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
         this.participantInviteAllowed = participantInviteAllowed;
+    }
+    public boolean isRemote() {
+        return remote;
+    }
+    public void setRemote(boolean remote) {
+        this.remote = remote;
     }
 }

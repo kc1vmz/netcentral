@@ -59,7 +59,9 @@ public class NetConfigServerConfig {
     private Integer longitudeMin;
     @Value("${netcentral.map.default.longitude.max}")
     private Integer longitudeMax;
-    
+    @Value("${netcentral.federated}")
+    private Boolean federated;
+
     public String getTempDir() {
         return tempDir;
     }
@@ -161,5 +163,11 @@ public class NetConfigServerConfig {
     }
     public void setLongitudeMax(Integer longitudeMax) {
         this.longitudeMax = longitudeMax;
+    }
+    public Boolean isFederated() {
+        return federated;
+    }
+    public void setFederated(Boolean federated) {
+        this.federated = federated;
     }
 }

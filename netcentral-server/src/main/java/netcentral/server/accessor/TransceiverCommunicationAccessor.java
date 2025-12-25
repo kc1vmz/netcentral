@@ -73,6 +73,7 @@ public class TransceiverCommunicationAccessor {
             for (RegisteredTransceiver transceiver : transceivers) {
                 if (transceiver.isEnabledTransmit()) {
                     TransceiverReport msg = new TransceiverReport();
+                    msg.setCallsignFrom(report.getObjectName());
                     msg.setReport(report);
                     msg.setTransceiverId(transceiver.getId());
                     sendReport(transceiver, msg);

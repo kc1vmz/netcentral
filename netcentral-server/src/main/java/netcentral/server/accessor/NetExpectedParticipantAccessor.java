@@ -163,14 +163,23 @@ public class NetExpectedParticipantAccessor {
     }
 
     public List<ExpectedParticipant> getExpectedParticipants(User loggedInUser, Net net) {
+        if (net.isRemote()) {
+            return new ArrayList<>();
+        }
         return getExpectedParticipants(loggedInUser, net.getCallsign(), net.getCompletedNetId());
     }
 
     public List<ExpectedParticipant> addExpectedParticipant(User loggedInUser, Net net, ExpectedParticipant participant) {
+        if (net.isRemote()) {
+            return new ArrayList<>();
+        }
         return addExpectedParticipant(loggedInUser, net.getCallsign(), net.getCompletedNetId(), participant);
     }
 
     public List<ExpectedParticipant> removeExpectedParticipant(User loggedInUser, Net net, ExpectedParticipant participant) {
+        if (net.isRemote()) {
+            return new ArrayList<>();
+        }
         return removeExpectedParticipant(loggedInUser, net.getCallsign(), net.getCompletedNetId(), participant);
     }
 
@@ -200,5 +209,4 @@ public class NetExpectedParticipantAccessor {
         netExpectedParticipantRepository.deleteAll();
         return null;
     }
-
 }

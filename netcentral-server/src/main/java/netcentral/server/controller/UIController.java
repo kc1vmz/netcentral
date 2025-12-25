@@ -382,7 +382,7 @@ public class UIController {
 
         Net net = new Net(messageRequest.callsign(), messageRequest.name(), messageRequest.description(), messageRequest.voiceFrequency(), 
                                 null, null, messageRequest.lat(), messageRequest.lon(), announce,
-                                getUserName(loggedInUser), remind, messageRequest.checkinMessage(), messageRequest.open(), messageRequest.participantInviteAllowed());
+                                getUserName(loggedInUser), remind, messageRequest.checkinMessage(), messageRequest.open(), messageRequest.participantInviteAllowed(), false);
         netAccessor.create(loggedInUser, net);
         return HttpResponse.seeOther(UriBuilder.of("/").path("/nets").build());
     } 

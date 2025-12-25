@@ -37,8 +37,8 @@ public class APRSNetCentralShelterCensusReport extends APRSNetCentralReport {
     public APRSNetCentralShelterCensusReport(String objectName, int p03, int p47, int p812, int p1318, int p1965, int p66, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("SH"); // shelter
-        this.setReportType("PC"); // Population census
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_POPULATION_CENSUS);
         String data = String.format("%06d%06d%06d%06d%06d%06d%4d%02d%02d", p03, p47, p812, p1318, p1965, p66, 
                                         dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
         this.setReportData(data);
@@ -99,8 +99,8 @@ public class APRSNetCentralShelterCensusReport extends APRSNetCentralReport {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("SH")) {
-                if (reportType.equalsIgnoreCase("PC")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_POPULATION_CENSUS)) {
                     String p03 = message.substring(4, 10);
                     String p47 = message.substring(10, 16);
                     String p812 = message.substring(16, 22);

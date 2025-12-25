@@ -115,6 +115,10 @@ public class RadioCommandAccessor {
         Participant participant = new Participant();
         participant.setCallsign(message.getCallsignFrom());
 
+        if (net.isRemote()) {
+            return false;
+        }
+
         List<Net> nets = netParticipantAccessor.getAllNets(loggedInUser, participant);
         if ((nets != null) && (!nets.isEmpty())) {
             // check if in this net
@@ -143,6 +147,10 @@ public class RadioCommandAccessor {
     }
 
     private void processMessage(User loggedInUser, APRSMessage msg, Net net, String transceiverSourceId) {
+        if (net.isRemote()) {
+            return; // do not process any of these messages - they are not yours
+        }
+
         // message is for this net - act and respond
         boolean ackOrRejPerformed = false;
         String message = preStrip(msg.getMessage());
@@ -768,6 +776,10 @@ public class RadioCommandAccessor {
     }
 
     private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetCentral) {
+        if (net.isRemote()) {
+            return;
+        }
+
         String operatorMessage = message.getMessage().substring(2); // go past "m "
 
         // persist the net message

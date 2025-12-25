@@ -130,7 +130,7 @@ public class NetCreateRequestExternal {
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
                                     (getCheckinReminder().equalsIgnoreCase("true")) ? true : false,
-                                    getCheckinMessage(), isOpen(), isParticipantInviteAllowed());
+                                    getCheckinMessage(), isOpen(), isParticipantInviteAllowed(), false);
         return ret;
     }
 

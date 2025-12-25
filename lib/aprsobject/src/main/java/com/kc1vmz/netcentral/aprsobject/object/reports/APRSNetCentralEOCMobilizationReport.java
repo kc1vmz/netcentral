@@ -35,8 +35,8 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
     public APRSNetCentralEOCMobilizationReport(String objectName, String eocName, int status, int level, ZonedDateTime lastReportedTime) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("EO"); // EOC
-        this.setReportType("MO"); // mobilization
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_MOBILIZATION);
         if ((status < 1) || (status > 3)) {
             status = 0;
         }
@@ -84,8 +84,8 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("EO")) {
-                if (reportType.equalsIgnoreCase("MO")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_MOBILIZATION)) {
                     String status = message.substring(4, 5);
                     String level = message.substring(5, 6);
 

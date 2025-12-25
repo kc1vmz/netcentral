@@ -40,8 +40,8 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
     public APRSNetCentralShelterOperationalMaterielReport(String objectName, int timePeriod, int cots, int blankets, int comfort, int cleanup, int signage, int other, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("SH"); // shelter
-        this.setReportType("OM"); // operational - food
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_MATERIEL);
         if ((timePeriod < 1) || (timePeriod > 3)) {
             timePeriod = 0;
         }
@@ -121,8 +121,8 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("SH")) {
-                if (reportType.equalsIgnoreCase("OM")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_MATERIEL)) {
                     String timeframe = message.substring(4, 5);
                     String cots = message.substring(5, 11);
                     String blankets = message.substring(11, 17);

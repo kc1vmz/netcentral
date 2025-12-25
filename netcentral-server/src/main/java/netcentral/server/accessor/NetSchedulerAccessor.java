@@ -158,7 +158,7 @@ public class NetSchedulerAccessor {
             String completedNetId = UUID.randomUUID().toString();
             net = new Net(scheduledNet.getCallsign(), scheduledNet.getName(), scheduledNet.getDescription(), 
                 scheduledNet.getVoiceFrequency(), now, completedNetId, scheduledNet.getLat(), scheduledNet.getLon(), scheduledNet.isAnnounce(), 
-                scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder(), scheduledNet.getCheckinMessage(), scheduledNet.isOpen(), scheduledNet.isParticipantInviteAllowed());
+                scheduledNet.getCreatorName(), scheduledNet.isCheckinReminder(), scheduledNet.getCheckinMessage(), scheduledNet.isOpen(), scheduledNet.isParticipantInviteAllowed(), false);
             try {
                 net = netAccessor.create(user, net);
                 if (net == null) {

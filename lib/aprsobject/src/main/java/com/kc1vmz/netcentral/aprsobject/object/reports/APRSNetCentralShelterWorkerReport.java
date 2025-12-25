@@ -38,8 +38,8 @@ public class APRSNetCentralShelterWorkerReport extends APRSNetCentralReport {
     public APRSNetCentralShelterWorkerReport(String objectName, int shift, int health, int mental, int spiritual, int caseworker, int feeding, int other, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("SH"); // shelter
-        this.setReportType("WC"); // Worker census
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_WORKER_CENSUS);
         if ((shift < 1) || (shift > 3)) {
             shift = 0;
         }
@@ -112,8 +112,8 @@ public class APRSNetCentralShelterWorkerReport extends APRSNetCentralReport {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("SH")) {
-                if (reportType.equalsIgnoreCase("WC")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_WORKER_CENSUS)) {
                     String shift = message.substring(4, 5);
                     String health = message.substring(5, 11);
                     String mental = message.substring(11, 17);

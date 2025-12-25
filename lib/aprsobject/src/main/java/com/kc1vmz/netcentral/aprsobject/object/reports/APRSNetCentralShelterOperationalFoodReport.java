@@ -38,8 +38,8 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
     public APRSNetCentralShelterOperationalFoodReport(String objectName, int timePeriod, int breakfast, int lunch, int dinner, int snack, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("SH"); // shelter
-        this.setReportType("OF"); // operational - food
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_FOOD);
         if ((timePeriod < 1) || (timePeriod > 3)) {
             timePeriod = 0;
         }
@@ -105,8 +105,8 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("SH")) {
-                if (reportType.equalsIgnoreCase("OF")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_FOOD)) {
                     String timeframe = message.substring(4, 5);
                     String breakfast = message.substring(5, 11);
                     String lunch = message.substring(11, 17);

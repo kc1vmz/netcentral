@@ -34,8 +34,8 @@ public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
     public APRSNetCentralEOCContactReport(String objectName, String directorName, String incidentCommanderName, ZonedDateTime lastReportedTime) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType("EO"); // EOC
-        this.setReportType("CO"); // contact
+        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC);
+        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_CONTACT);
         String data = String.format("%s:%s:%4d%02d%02d",
                                             (directorName.length() > 25) ? directorName.substring(0, 25) : directorName, 
                                             (incidentCommanderName.length() > 25) ? incidentCommanderName.substring(0, 25) : incidentCommanderName, 
@@ -72,8 +72,8 @@ public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
-            if (objectType.equalsIgnoreCase("EO")) {
-                if (reportType.equalsIgnoreCase("CO")) {
+            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_CONTACT)) {
                     String remainder = message.substring(4);
                     String [] varFields = remainder.split(":");
                     if ((varFields == null) || (varFields.length != 3)) {

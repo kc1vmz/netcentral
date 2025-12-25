@@ -30,6 +30,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpStatus;
@@ -79,7 +82,7 @@ public class NetAccessor {
                     continue;
                 }
                 ret.add(new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), 
-                                    rec.checkin_message(), rec.open(), rec.participant_invite_allowed()));
+                                    rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote()));
             }
         }
 
@@ -97,7 +100,7 @@ public class NetAccessor {
         }
         NetRecord rec = recOpt.get();
         return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(),
-                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed());
+                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote());
     }
 
     public Net getByCallsign(User loggedInUser, String callsign) {
@@ -112,7 +115,7 @@ public class NetAccessor {
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
             }
             return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(),
-                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed());
+                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote());
         } catch (Exception e) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
@@ -137,6 +140,11 @@ public class NetAccessor {
         } catch (Exception e) {
         }
 
+        if (obj.isRemote()) {
+            logger.debug("New net cannot be remote");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "New net cannot be remote");
+        }
+
         String creatorName = obj.getCreatorName();
         if (creatorName == null) {
             creatorName = loggedInUser.getEmailAddress();
@@ -146,7 +154,7 @@ public class NetAccessor {
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             ZonedDateTime.now(), completed_net_id, obj.getLat(), obj.getLon(), obj.isAnnounce(),
                                             creatorName, obj.isCheckinReminder(), obj.getCheckinMessage(),
-                                            obj.isOpen(), obj.isParticipantInviteAllowed());
+                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote());
         NetRecord rec = netRepository.save(src);
         if (rec != null) {
             obj.setCompletedNetId(completed_net_id);
@@ -163,7 +171,14 @@ public class NetAccessor {
                     announcement = String.format("APRS Net %s started", obj.getCallsign());
                 }
                 transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
-                transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign())); // ; send H for commands
+                transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
+
+                if (netConfigServerConfig.isFederated()) {
+                    APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(obj.getCallsign(), obj.getName(), obj.getDescription());
+                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
+                    APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(obj.getCallsign(), ZonedDateTime.now());
+                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
+                }
 
                 // also put the object into our ecosystem
                 ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), obj.getCallsign(), obj.getDescription(), obj.getLat(), obj.getLon());
@@ -219,6 +234,10 @@ public class NetAccessor {
         if ((obj.getName() == null) || (obj.getName().isEmpty()) || (obj.getName().isBlank())) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid name");
         }
+        if (obj.isRemote()) {
+            logger.debug("Cannot update remote net");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Cannot update remote net");
+        }
 
         Optional<NetRecord> recOpt = netRepository.findById(id);
         if (!recOpt.isPresent()) {
@@ -228,7 +247,7 @@ public class NetAccessor {
         NetRecord updatedRec = new NetRecord(rec.callsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             obj.getStartTime(), obj.getCompletedNetId(), obj.getLat(), obj.getLon(), obj.isAnnounce(), rec.creator_name(), obj.isCheckinReminder(), obj.getCheckinMessage(),
-                                            obj.isOpen(), obj.isParticipantInviteAllowed());
+                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote());
 
         netRepository.update(updatedRec);
         obj = get(loggedInUser, id);
@@ -265,20 +284,22 @@ public class NetAccessor {
         try {
             net = get(loggedInUser, id);
 
-            List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
-            if ((participants != null) && (!participants.isEmpty())) {
-                // if there are participants, remove them before delete
-                for (Participant participant : participants)  {
-                    try {
-                        transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), String.format("APRS Net %s ended", net.getCallsign()));
-                        netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+            if (!net.isRemote()) {
+                List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+                if ((participants != null) && (!participants.isEmpty())) {
+                    // if there are participants, remove them before delete
+                    for (Participant participant : participants)  {
+                        try {
+                            transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), String.format("APRS Net %s ended", net.getCallsign()));
+                            netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
 
-                        // if they are not participating in other nets, remove the participant completely
-                        List<Net> participantNets = netParticipantAccessor.getAllNets(loggedInUser, participant);
-                        if ((participantNets == null) || (participantNets.isEmpty())) {
-                            participantAccessor.delete(loggedInUser, participant.getCallsign());
+                            // if they are not participating in other nets, remove the participant completely
+                            List<Net> participantNets = netParticipantAccessor.getAllNets(loggedInUser, participant);
+                            if ((participantNets == null) || (participantNets.isEmpty())) {
+                                participantAccessor.delete(loggedInUser, participant.getCallsign());
+                            }
+                        } catch (Exception e) {
                         }
-                    } catch (Exception e) {
                     }
                 }
             }
@@ -286,24 +307,32 @@ public class NetAccessor {
             net = null;
             logger.error("Could not clean up net participants");
         }
-    
+
         NetRecord rec = recOpt.get();
         netRepository.delete(rec);
 
-        if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
-            // announce the object and send the bulletin
-            transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("APRS Net %s ended", rec.callsign()), false, rec.lat(), rec.lon());
-            transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
-        }
-
-        // also remove the object from our ecosystem
-        ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
-        deleteObject(loggedInUser, objectCreateRequest);
-
         if (net != null) {
+            if (!net.isRemote()) {
+                if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
+                    // announce the object and send the bulletin
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("APRS Net %s ended", rec.callsign()), false, rec.lat(), rec.lon());
+                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
+                }
+
+                if (netConfigServerConfig.isFederated()) {
+                    APRSNetCentralNetSecureReport reportSecure = new APRSNetCentralNetSecureReport(rec.callsign(), ZonedDateTime.now());
+                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportSecure);
+                }
+
+                // also remove the object from our ecosystem
+                ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
+                deleteObject(loggedInUser, objectCreateRequest);
+
+                statisticsAccessor.incrementNetsClosed();
+            }
             changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Delete", net);
         }
-        statisticsAccessor.incrementNetsClosed();
+
         return null;
     }
 

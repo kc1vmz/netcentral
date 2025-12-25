@@ -44,6 +44,7 @@ public record NetRecord(
                 @NonNull @NotBlank Boolean checkin_reminder, 
                 @Nullable @Size(max = 50) String checkin_message,
                 @NonNull @NotBlank Boolean open, 
-                @NonNull @NotBlank Boolean participant_invite_allowed
+                @NonNull @NotBlank Boolean participant_invite_allowed,
+                @NonNull @NotBlank Boolean remote
                 ) {  
 }

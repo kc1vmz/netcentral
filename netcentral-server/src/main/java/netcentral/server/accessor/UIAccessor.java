@@ -30,6 +30,8 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.TrackedStationType;
@@ -172,6 +174,10 @@ public class UIAccessor {
     }
 
     public void sendNetMessage(User loggedInUser, Net net, String message) {
+        if (net.isRemote()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net is remote");
+        }
+
         List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
         ZonedDateTime time = ZonedDateTime.now();
         NetMessage msg = new NetMessage(UUID.randomUUID().toString(), net.getCompletedNetId(), net.getCallsign(), message, time);

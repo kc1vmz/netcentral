@@ -144,6 +144,7 @@ const netAnnouncedRef = reactive({ value : ''});
 const netAnnouncedMessageRef = reactive({ value : ''});
 const netExpectedCallsignsRef = reactive({ value : ''});
 const netExpectedCallsigns2Ref = reactive({ value : ''});
+const netRemoteRef = reactive({ value : false});
 
 const selectedNetIndexRef = reactive({ value : 1});
 const previousNetIndexRef = reactive({ value : 0});
@@ -198,6 +199,7 @@ function updateLocalSelectedNet(net) {
     netLongitudeRef.value = net.lon
     netDurationRef.value = net.duration;
     netDayStartRef.value = convertDay(net.dayStart);
+    netRemoteRef.value = net.remote;
 
     netTypeRef.value = convertType(net.type);
     if (net.type == null) {
@@ -206,6 +208,7 @@ function updateLocalSelectedNet(net) {
     } else {
       // scheduled
       netActiveRef.value = false;
+      netRemoteRef.value = false;
       netStartTimeRef.value = net.prettyNextStartTime;
       if (netTypeRef.value == '5') {
         netTimeStartStrRef.value = net.prettyNextStartTime;
@@ -231,6 +234,9 @@ function updateLocalSelectedNet(net) {
       } else {
         netAnnouncedMessageRef.value = "Will not be announced";
       }
+    }
+    if (net.remote) {
+        netAnnouncedMessageRef.value = "Remote Net";
     }
   }
 }
@@ -432,6 +438,7 @@ function getData() {
     netAnnouncedRef.value ='';
     netVoiceFrequencyRef.value = '';
     netActiveRef.value = true;
+    netRemoteRef.value = false;
     errorMessageRef.value = null;
     getNets();
 }
@@ -510,6 +517,10 @@ function performDeleteNet() {
 }
 
 function editNet() {
+    if (netRemoteRef.value) {
+      return;
+    }
+
     dialogEditNetShowRef.value = true;
     netName2Ref.value = netNameRef.value;
     netActive2Ref.value = netActiveRef.value;
@@ -865,8 +876,7 @@ function performEditNetExpectedParticipantsScheduled() {
         <div v-else class="pagesubheader grid-item"> {{netCallsignRef.value}} <i class="fa-solid fa-lock"></i></div>
         <div class="grid-item">
         </div>
-
-          <div class="grid-item">
+          <div v-if="(!(netRemoteRef.value))" class="grid-item">
             <div v-if="(netActiveRef.value)" class="grid-item">
               <button class="boxButton" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))" v-on:click.native="editNet">Edit Net</button>
               <button class="boxButton" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))" v-on:click.native="closeNet">Secure Net</button>
