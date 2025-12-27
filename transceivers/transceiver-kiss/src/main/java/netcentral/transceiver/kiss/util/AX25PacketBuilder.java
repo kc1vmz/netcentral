@@ -37,7 +37,7 @@ public class AX25PacketBuilder {
         if (withDest) {
             aprsMessage = String.format("%s%-9s:%s",command, msgDest, data);
         } else {
-            aprsMessage = String.format("%s:%s",command, data);
+            aprsMessage = String.format("%s%s",command, data);
         }
         if (packet.getDigipeaters() != null) {
             digipeaterCount = packet.getDigipeaters().size();
