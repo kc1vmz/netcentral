@@ -153,6 +153,8 @@ public class APRSObjectAccessor {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private NetConfigServerConfig netConfigServerConfig;
+    @Inject
+    private ParticipantAccessor participantAccessor;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -294,42 +296,56 @@ public class APRSObjectAccessor {
     }
 
     private void processFederatedPacket(@SuppressWarnings("unused") User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime) {
-        String data = new String(innerAPRSUserDefined.getData());
-        String objectName = innerAPRSUserDefined.getCallsignFrom();
+        try {
+            String data = new String(innerAPRSUserDefined.getData());
+            String objectName = innerAPRSUserDefined.getCallsignFrom();
 
-        APRSNetCentralNetAnnounceReport r4 = APRSNetCentralNetAnnounceReport.isValid(objectName, data);
-        if (r4 != null) {
-            // a new net has been created
-            processFederatedNetCreation(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r4);
-            return;
-        }
-        APRSNetCentralNetStartReport r1 = APRSNetCentralNetStartReport.isValid(objectName, data);
-        if (r1 != null) {
-            // a net has started - mark it as such
-            processFederatedNetStart(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r1);
-            return;
-        }
-        APRSNetCentralNetSecureReport r2 = APRSNetCentralNetSecureReport.isValid(objectName, data);
-        if (r2 != null) {
-            // a net has been secured - mark it as such
-            processFederatedNetSecure(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r2);
-            return;
-        }
-        APRSNetCentralNetCheckInOutReport r3 = APRSNetCentralNetCheckInOutReport.isValid(objectName, data);
-        if (r3 != null) {
-            // someone checked in or out of a net
-            processFederatedNetCheckInOut(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r3);
-            return;
-        }
-        APRSNetCentralPriorityObjectAnnounceReport r5 = APRSNetCentralPriorityObjectAnnounceReport.isValid(objectName, data);
-        if (r5 != null) {
-            // an object is really a priority object - mark it as such
-            processFederatedPriorityObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r5);
-            return;
+            APRSNetCentralNetAnnounceReport r4 = APRSNetCentralNetAnnounceReport.isValid(objectName, data);
+            if (r4 != null) {
+                // a new net has been created
+                processFederatedNetCreation(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r4);
+                return;
+            }
+            APRSNetCentralNetStartReport r1 = APRSNetCentralNetStartReport.isValid(objectName, data);
+            if (r1 != null) {
+                // a net has started - mark it as such
+                processFederatedNetStart(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r1);
+                return;
+            }
+            APRSNetCentralNetSecureReport r2 = APRSNetCentralNetSecureReport.isValid(objectName, data);
+            if (r2 != null) {
+                // a net has been secured - mark it as such
+                processFederatedNetSecure(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r2);
+                return;
+            }
+            APRSNetCentralNetCheckInOutReport r3 = APRSNetCentralNetCheckInOutReport.isValid(objectName, data);
+            if (r3 != null) {
+                // someone checked in or out of a net
+                processFederatedNetCheckInOut(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r3);
+                return;
+            }
+            APRSNetCentralPriorityObjectAnnounceReport r5 = APRSNetCentralPriorityObjectAnnounceReport.isValid(objectName, data);
+            if (r5 != null) {
+                // an object is really a priority object - mark it as such
+                processFederatedPriorityObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r5);
+                return;
+            }
+        } catch (Exception e) {
         }
     }
 
     private void processFederatedPriorityObjectAnnounce(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralPriorityObjectAnnounceReport report) {
+        ObjectType type = ObjectType.STANDARD;
+        if (report.getType().equals("EOC")) {
+            type = ObjectType.EOC;
+        } else if (report.getType().equals("MEDICAL")) {
+            type = ObjectType.MEDICAL;
+        } else if (report.getType().equals("SHELTER")) {
+            type = ObjectType.SHELTER;
+        }
+        if (type != ObjectType.STANDARD) {
+            updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), type);
+        }
     }
 
     private void processFederatedNetCheckInOut(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetCheckInOutReport report) {
@@ -345,13 +361,22 @@ public class APRSObjectAccessor {
             return;
         }
 
-        Participant participant = new Participant(report.getCallsign(), "Unknown", null, heardTime, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 
+        Participant participant = null;
+        try {
+            participant = new Participant(report.getReportData(), "Unknown", null, heardTime, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 
                                         RadioStyle.UNKNOWN, 0, null, heardTime);
+            Participant cparticipant = participantAccessor.create(loggedInUser, participant);
+            participant = cparticipant;
+        } catch (Exception e) {
+        }
 
-        if (report.isCheckIn()) {
-            netParticipantAccessor.addParticipant(loggedInUser, net, participant);
-        } else {
-            netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+        try {
+            if (report.isCheckIn()) {
+                netParticipantAccessor.addParticipant(loggedInUser, net, participant);
+            } else {
+                netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+            }
+        } catch (Exception e) {
         }
     }
 
@@ -368,7 +393,12 @@ public class APRSObjectAccessor {
             return;
         }
 
-        netAccessor.delete(loggedInUser, net.getCallsign());
+        try {
+            netAccessor.delete(loggedInUser, net.getCallsign());
+
+            updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
+        } catch (Exception e) {
+        }
     }
 
     private void processFederatedNetStart(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetStartReport report) {
@@ -379,13 +409,42 @@ public class APRSObjectAccessor {
             net = null;
         }
 
-        if ((net == null) || ((net != null) && (!net.isRemote()))) {
-            // either does not exist in our db or is a local net
-            return;
-        }
+        try {
+            if (net == null) {
+                // not in db yet, create placeholder
+                net = new Net(innerAPRSUserDefined.getCallsignFrom(), " ", " ", "", report.getStartTime(),
+                                        UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
+                netAccessor.create(loggedInUser, net);
 
-        net.setStartTime(report.getStartTime());
-        netAccessor.update(loggedInUser, net.getCallsign(), net);
+                updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
+                return;
+            } else if (!net.isRemote()) {
+                // is local - skip
+                return;
+            }
+
+            // is a remote net
+            net.setStartTime(report.getStartTime());
+            netAccessor.update(loggedInUser, net.getCallsign(), net);
+
+            updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
+        } catch (Exception e) {
+        }
+    }
+
+    private void updateFederatedObjectType(String callsignFrom, ObjectType type) {
+        // make the generic object a Net
+        try {
+            List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_from(callsignFrom);
+            if ((foundRecList != null) && (!foundRecList.isEmpty())) {
+                // objects get overwritten, not created new
+                APRSObjectRecord first = foundRecList.get(0);
+                APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), first.source(), first.callsign_from(), first.callsign_to(), first.heard_time(), first.alive(), first.lat(),
+                                                                        first.lon(), first.time(), first.comment(), type.ordinal());
+                aprsObjectRepository.update(updated);
+            }
+        } catch (Exception e) {
+        }
     }
 
     private void processFederatedNetCreation(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetAnnounceReport report) {
@@ -396,14 +455,30 @@ public class APRSObjectAccessor {
             net = null;
         }
 
-        if (net != null) {
-            // ruh roe - someone using the same name as a net we've seen
-            return;
-        }
+        try {
+            if (net != null) {
+                // previously created
+                if (!net.isRemote()) {
+                    // this is a local net here - get out
+                    logger.warn("Net creation message seen for local net "+ innerAPRSUserDefined.getCallsignFrom());
+                } else {
+                    // this is an existing remote net - lets update
+                    net.setName(report.getName());
+                    net.setDescription(report.getDescription());
+                    netAccessor.update(loggedInUser, net.getCallsign(), net);
 
-        net = new Net(innerAPRSUserDefined.getCallsignFrom(), report.getName(), report.getDescription(), "", heardTime,
-                                UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
-        netAccessor.create(loggedInUser, net);
+                    updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
+                }
+                return;
+            }
+
+            net = new Net(innerAPRSUserDefined.getCallsignFrom(), report.getName(), report.getDescription(), "", heardTime,
+                                    UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
+            netAccessor.create(loggedInUser, net);
+
+            updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
+        } catch (Exception e) {
+        }
     }
 
     private boolean isFederatedPacket(APRSUserDefined innerAPRSUserDefined) {
@@ -911,6 +986,13 @@ public class APRSObjectAccessor {
         }
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
+
+        if (source.equals("NETCENTRAL")) {
+            // this is a locally created object - send out the creation report
+            APRSNetCentralPriorityObjectAnnounceReport report = new APRSNetCentralPriorityObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
+                                                                                        innerAPRSObject.getCallsignFrom(), innerAPRSObject.getComment());
+            transceiverCommunicationAccessor.sendReport(loggedInUser, report);
+        }
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
 

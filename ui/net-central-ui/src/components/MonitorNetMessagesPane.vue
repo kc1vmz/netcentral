@@ -202,7 +202,7 @@ function performSendMessage() {
   <div v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null))">
     <div>
       <div v-if="!isMobileClient()" class="pagesubheader">Messages</div>
-      <div v-else class="mobilepagesubheader">Messages</div><div v-if="!isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
+      <div v-else class="mobilepagesubheader">Messages</div><div v-if="!isMobileClient() && (!localSelectedNet.ncSelectedNet.remote)"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
       <div class="line"><hr/></div>
     </div> 
     <div v-if="((netMessages.value == null) || (netMessages.value.length == 0))">
@@ -213,6 +213,6 @@ function performSendMessage() {
       <EasyDataTable :headers="headers" :items="netMessages.value" :rows-per-page="10" buttons-pagination/>
       <br><br>
     </div>
-    <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
+    <div v-if="isMobileClient() && (!localSelectedNet.ncSelectedNet.remote)"><button class="boxButton" v-on:click.native="sendMessage">Send Message</button></div>
   </div>
 </template>

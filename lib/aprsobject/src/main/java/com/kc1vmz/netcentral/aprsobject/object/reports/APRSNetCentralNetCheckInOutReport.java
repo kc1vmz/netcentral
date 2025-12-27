@@ -34,6 +34,7 @@ public class APRSNetCentralNetCheckInOutReport extends APRSNetCentralReport {
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET);
         this.setReportType((checkIn) ? APRSNetCentralReportConstants.REPORT_TYPE_NET_CHECKIN : APRSNetCentralReportConstants.REPORT_TYPE_NET_CHECKOUT);
         this.setReportData(callsign);
+        this.setCheckIn(checkIn);
     }
 
     public String getCallsign() {

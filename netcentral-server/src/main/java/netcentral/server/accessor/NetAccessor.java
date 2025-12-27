@@ -140,11 +140,6 @@ public class NetAccessor {
         } catch (Exception e) {
         }
 
-        if (obj.isRemote()) {
-            logger.debug("New net cannot be remote");
-            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "New net cannot be remote");
-        }
-
         String creatorName = obj.getCreatorName();
         if (creatorName == null) {
             creatorName = loggedInUser.getEmailAddress();
@@ -160,31 +155,37 @@ public class NetAccessor {
             obj.setCompletedNetId(completed_net_id);
             if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null)) {
                 // announce the object and send the bulletin
-                String announcement = "";
-                if ((obj.getVoiceFrequency() != null) && (!obj.getVoiceFrequency().isEmpty())) {
-                    if ((obj.getVoiceFrequency().length() == 10) || (obj.getVoiceFrequency().length() == 20)) {
-                        // must be properly formatted 10 or 20 byte - see below
-                        announcement = String.format("%s APRS Net %s started", obj.getVoiceFrequency(), obj.getCallsign());
+                if (!obj.isRemote()) {
+                    // only for local nets
+                    String announcement = "";
+                    if ((obj.getVoiceFrequency() != null) && (!obj.getVoiceFrequency().isEmpty())) {
+                        if ((obj.getVoiceFrequency().length() == 10) || (obj.getVoiceFrequency().length() == 20)) {
+                            // must be properly formatted 10 or 20 byte - see below
+                            announcement = String.format("%s APRS Net %s started", obj.getVoiceFrequency(), obj.getCallsign());
+                        }
                     }
-                }
-                if (announcement.isEmpty()) {
-                    announcement = String.format("APRS Net %s started", obj.getCallsign());
-                }
-                transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
-                transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
+                    if (announcement.isEmpty()) {
+                        announcement = String.format("APRS Net %s started", obj.getCallsign());
+                    }
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
+                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
 
-                if (netConfigServerConfig.isFederated()) {
-                    APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(obj.getCallsign(), obj.getName(), obj.getDescription());
-                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
-                    APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(obj.getCallsign(), ZonedDateTime.now());
-                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
+                    if (netConfigServerConfig.isFederated()) {
+                        APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(obj.getCallsign(), obj.getName(), obj.getDescription());
+                        transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
+                        APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(obj.getCallsign(), ZonedDateTime.now());
+                        transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
+                    }
                 }
 
                 // also put the object into our ecosystem
                 ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), obj.getCallsign(), obj.getDescription(), obj.getLat(), obj.getLon());
                 upObject(loggedInUser, objectCreateRequest);
+
+                if (!obj.isRemote()) {
+                    statisticsAccessor.incrementNetsStarted();
+                }
             }
-            statisticsAccessor.incrementNetsStarted();
             changePublisherAccessor.publishNetUpdate(obj.getCompletedNetId(), "Create", obj);
             return obj;
         }
@@ -234,10 +235,6 @@ public class NetAccessor {
         if ((obj.getName() == null) || (obj.getName().isEmpty()) || (obj.getName().isBlank())) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid name");
         }
-        if (obj.isRemote()) {
-            logger.debug("Cannot update remote net");
-            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Cannot update remote net");
-        }
 
         Optional<NetRecord> recOpt = netRepository.findById(id);
         if (!recOpt.isPresent()) {
@@ -254,7 +251,7 @@ public class NetAccessor {
 
         // announce changes in object
         if (obj != null) {
-            if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null)) {
+            if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null) && (!obj.isRemote())) {
                 transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), String.format("APRS Net %s updated", obj.getCallsign()), true, obj.getLat(), obj.getLon());
             }
         }
@@ -324,12 +321,13 @@ public class NetAccessor {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportSecure);
                 }
 
-                // also remove the object from our ecosystem
-                ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
-                deleteObject(loggedInUser, objectCreateRequest);
-
                 statisticsAccessor.incrementNetsClosed();
             }
+
+            // also remove the object from our ecosystem
+            ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
+            deleteObject(loggedInUser, objectCreateRequest);
+
             changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Delete", net);
         }
 

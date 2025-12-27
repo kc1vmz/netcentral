@@ -226,7 +226,7 @@ function getBodyRowClass(item, rowNumber) {
   <div v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null) && (localSelectedNet.ncSelectedNet.type == null))">
     <div>
       <div v-if="!isMobileClient()" class="pagesubheader">Questions</div>
-      <div v-else class="mobilepagesubheader">Questions</div><div v-if="!isMobileClient()"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
+      <div v-else class="mobilepagesubheader">Questions</div><div v-if="!isMobileClient() && (!localSelectedNet.ncSelectedNet.remote)"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
       <div class="line"><hr/></div>
     </div> 
     <div v-if="((netQuestions.value == null) || (netQuestions.value.length == 0))">
@@ -240,6 +240,6 @@ function getBodyRowClass(item, rowNumber) {
         buttons-pagination/>
       <br><br>
     </div>
-    <div v-if="isMobileClient()"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
+    <div v-if="isMobileClient() && (!localSelectedNet.ncSelectedNet.remote)"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
   </div>
 </template>

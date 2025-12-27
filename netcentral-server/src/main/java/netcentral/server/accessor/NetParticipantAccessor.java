@@ -156,7 +156,7 @@ public class NetParticipantAccessor {
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
 
-            if (netConfigServerConfig.isFederated()) {
+            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetCheckInOutReport reportCheckin = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), true);
                 transceiverMessageAccessor.sendReport(loggedInUser, reportCheckin);
             }
@@ -245,19 +245,21 @@ public class NetParticipantAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Not a net participant");
         }
 
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, participant.getCallsign());
+        if (!net.isRemote()) {
+            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, participant.getCallsign());
 
-        String completed_participant_id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
-        ZonedDateTime startTime = participantRec.start_time();
-        completedParticipantRepository.save(new CompletedParticipantRecord(completed_participant_id, net.getCompletedNetId(), participant.getCallsign(), startTime, ZonedDateTime.now(),
-                            (trackedStation != null) ? trackedStation.getElectricalPowerType().ordinal() : ElectricalPowerType.UNKNOWN.ordinal(),
-                            (trackedStation != null) ? trackedStation.getRadioStyle().ordinal() : RadioStyle.UNKNOWN.ordinal(),
-                            (trackedStation != null) ? trackedStation.getTransmitPower() : 0, participant.getTacticalCallsign()));
+            String completed_participant_id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
+            ZonedDateTime startTime = participantRec.start_time();
+            completedParticipantRepository.save(new CompletedParticipantRecord(completed_participant_id, net.getCompletedNetId(), participant.getCallsign(), startTime, ZonedDateTime.now(),
+                                (trackedStation != null) ? trackedStation.getElectricalPowerType().ordinal() : ElectricalPowerType.UNKNOWN.ordinal(),
+                                (trackedStation != null) ? trackedStation.getRadioStyle().ordinal() : RadioStyle.UNKNOWN.ordinal(),
+                                (trackedStation != null) ? trackedStation.getTransmitPower() : 0, participant.getTacticalCallsign()));
+        }
 
         netParticipantRepository.delete(participantRec);
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Delete", hydrateParticipant(loggedInUser,participant));
 
-        if (netConfigServerConfig.isFederated()) {
+        if (netConfigServerConfig.isFederated() && !net.isRemote()) {
             APRSNetCentralNetCheckInOutReport reportCheckout = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), false);
             transceiverMessageAccessor.sendReport(loggedInUser, reportCheckout);
         }

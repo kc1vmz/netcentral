@@ -98,6 +98,10 @@ public class NetController {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
+        if (obj.isRemote()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Cannot create remote net");
+        }
+
         return netAccessor.create(loggedInUser, obj);
     }
 
@@ -135,6 +139,10 @@ public class NetController {
     public Net update(HttpRequest<?> request,  @PathVariable String id, @Body Net obj) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        if (obj.isRemote()) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Cannot update remote net");
+        }
 
         return netAccessor.update(loggedInUser, id, obj);
     }
