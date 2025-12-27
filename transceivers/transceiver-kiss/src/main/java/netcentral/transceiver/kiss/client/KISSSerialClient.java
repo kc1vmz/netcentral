@@ -65,24 +65,16 @@ public class KISSSerialClient {
             activePort.setNumStopBits(1);
             activePort.setParity(0);
             activePort.setFlowControl(0);
-        }
 
-        // initialize KISS
-        byte [] kissInit = new byte[3]; // \x1B@K
-        kissInit[0] = 0x1B;
-        kissInit[1] = '@';
-        kissInit[2] = 'K';
-//        write(kissInit);
-
-        if (initCommands != null) {
-            for (String initCommand : initCommands) {
-                write(initCommand.getBytes());
-                pause(1000);
-                read();
-                pause(1000);
+            if (initCommands != null) {
+                for (String initCommand : initCommands) {
+                    write(initCommand.getBytes());
+                    pause(1000);
+                    read();
+                    pause(1000);
+                }
             }
         }
-
     }
     public void disconnect() {
         // Close the port

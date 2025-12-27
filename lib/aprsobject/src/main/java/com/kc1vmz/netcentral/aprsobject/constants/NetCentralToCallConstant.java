@@ -1,4 +1,4 @@
-package netcentral.transceiver.kiss.config;
+package com.kc1vmz.netcentral.aprsobject.constants;
 
 /*
     Net Central
@@ -20,26 +20,6 @@ package netcentral.transceiver.kiss.config;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.context.annotation.Value;
-import jakarta.inject.Singleton;
-
-@Singleton
-public class APRSConfiguration {
-    @Value("${aprs.config.callsign}")
-    private String callsign;
-    @Value("${aprs.config.digipeaters}")
-    private String digipeaters;
-
-    public String getCallsign() {
-        return callsign;
-    }
-    public void setCallsign(String callsign) {
-        this.callsign = callsign;
-    }
-    public String getDigipeaters() {
-        return digipeaters;
-    }
-    public void setDigipeaters(String digipeaters) {
-        this.digipeaters = digipeaters;
-    }
+public class NetCentralToCallConstant {
+    public static final String TOCALL_NC1 = "APANC1";
 }

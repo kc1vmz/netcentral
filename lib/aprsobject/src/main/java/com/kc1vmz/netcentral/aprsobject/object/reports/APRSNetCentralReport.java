@@ -61,7 +61,7 @@ public class APRSNetCentralReport {
     }
 
     public byte [] getBytes() {
-        String ret = String.format("%s%s%-9s%s", reportObjectType, reportType, objectName, reportData);
+        String ret = String.format("%s%s%s", reportObjectType, reportType, reportData);
         return ret.getBytes();
     }
 }

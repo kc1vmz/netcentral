@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralUserDefinedPacketConstant;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.AGWRaw;
 import com.kc1vmz.netcentral.aprsobject.object.APRSAgrelo;
@@ -50,11 +51,17 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetCheckInOutReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObjectAnnounceReport;
 
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
@@ -64,6 +71,7 @@ import netcentral.server.enums.WinlinkSessionState;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.Participant;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
 import netcentral.server.object.WinlinkSessionCacheEntry;
@@ -124,6 +132,8 @@ public class APRSObjectAccessor {
     @Inject
     private NetAccessor netAccessor;
     @Inject
+    private NetParticipantAccessor netParticipantAccessor;
+    @Inject
     private APRSObjectRepository aprsObjectRepository;
     @Inject
     private APRSStatusRepository aprsStatusRepository;
@@ -141,6 +151,8 @@ public class APRSObjectAccessor {
     private IgnoreStationAccessor ignoreStationAccessor;
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -264,13 +276,146 @@ public class APRSObjectAccessor {
         return new APRSObjectResource(id, innerAPRSWeatherReport, source, heardTime);
     }
 
-
     private APRSObjectResource createAPRSUserDefined(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSUserDefined> innerAPRSUserDefinedOpt, String source, ZonedDateTime heardTime) {
         APRSUserDefined innerAPRSUserDefined = innerAPRSUserDefinedOpt.get();
+
+        // could be for us in a federated setup
+        if (netConfigServerConfig.isFederated()) {
+
+            String dataStr = new String(innerAPRSUserDefined.getData());
+            logger.info("User defined packet data - " + dataStr);
+
+            if (isFederatedPacket(innerAPRSUserDefined)) {
+                processFederatedPacket(loggedInUser, id, innerAPRSUserDefined, source, heardTime);
+            }
+        }
 
         return new APRSObjectResource(id, innerAPRSUserDefined, source, heardTime);
     }
 
+    private void processFederatedPacket(@SuppressWarnings("unused") User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime) {
+        String data = new String(innerAPRSUserDefined.getData());
+        String objectName = innerAPRSUserDefined.getCallsignFrom();
+
+        APRSNetCentralNetAnnounceReport r4 = APRSNetCentralNetAnnounceReport.isValid(objectName, data);
+        if (r4 != null) {
+            // a new net has been created
+            processFederatedNetCreation(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r4);
+            return;
+        }
+        APRSNetCentralNetStartReport r1 = APRSNetCentralNetStartReport.isValid(objectName, data);
+        if (r1 != null) {
+            // a net has started - mark it as such
+            processFederatedNetStart(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r1);
+            return;
+        }
+        APRSNetCentralNetSecureReport r2 = APRSNetCentralNetSecureReport.isValid(objectName, data);
+        if (r2 != null) {
+            // a net has been secured - mark it as such
+            processFederatedNetSecure(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r2);
+            return;
+        }
+        APRSNetCentralNetCheckInOutReport r3 = APRSNetCentralNetCheckInOutReport.isValid(objectName, data);
+        if (r3 != null) {
+            // someone checked in or out of a net
+            processFederatedNetCheckInOut(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r3);
+            return;
+        }
+        APRSNetCentralPriorityObjectAnnounceReport r5 = APRSNetCentralPriorityObjectAnnounceReport.isValid(objectName, data);
+        if (r5 != null) {
+            // an object is really a priority object - mark it as such
+            processFederatedPriorityObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r5);
+            return;
+        }
+    }
+
+    private void processFederatedPriorityObjectAnnounce(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralPriorityObjectAnnounceReport report) {
+    }
+
+    private void processFederatedNetCheckInOut(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetCheckInOutReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+        Participant participant = new Participant(report.getCallsign(), "Unknown", null, heardTime, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 
+                                        RadioStyle.UNKNOWN, 0, null, heardTime);
+
+        if (report.isCheckIn()) {
+            netParticipantAccessor.addParticipant(loggedInUser, net, participant);
+        } else {
+            netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+        }
+    }
+
+    private void processFederatedNetSecure(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetSecureReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+        netAccessor.delete(loggedInUser, net.getCallsign());
+    }
+
+    private void processFederatedNetStart(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetStartReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+        net.setStartTime(report.getStartTime());
+        netAccessor.update(loggedInUser, net.getCallsign(), net);
+    }
+
+    private void processFederatedNetCreation(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetAnnounceReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if (net != null) {
+            // ruh roe - someone using the same name as a net we've seen
+            return;
+        }
+
+        net = new Net(innerAPRSUserDefined.getCallsignFrom(), report.getName(), report.getDescription(), "", heardTime,
+                                UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
+        netAccessor.create(loggedInUser, net);
+    }
+
+    private boolean isFederatedPacket(APRSUserDefined innerAPRSUserDefined) {
+        boolean federated = false;
+        if ((innerAPRSUserDefined != null) && 
+            (innerAPRSUserDefined.getDti() == NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND) && 
+            (innerAPRSUserDefined.getUserId().equals(""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND)) && 
+            (innerAPRSUserDefined.getPacketType().equals(""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE))) {
+            federated = true;
+        }
+        return federated;
+    }
 
     private APRSObjectResource createAPRSUnknown(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSUnknown> innerAPRSUnknownOpt, String source, ZonedDateTime heardTime) {
         APRSUnknown innerAPRSUnknown = innerAPRSUnknownOpt.get();

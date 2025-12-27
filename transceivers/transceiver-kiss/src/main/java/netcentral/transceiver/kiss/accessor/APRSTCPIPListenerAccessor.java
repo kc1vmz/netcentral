@@ -31,6 +31,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralToCallConstant;
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralUserDefinedPacketConstant;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
@@ -78,10 +80,12 @@ public class APRSTCPIPListenerAccessor {
         KISSPacket packet = new KISSPacket();
         packet.setCallsignFrom(callsignFrom);
         packet.setCallsignTo(obj.getObjectName());
-        packet.setApplicationName(aprsConfiguration.getApplicationName());
+        packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
-        packet.setData(obj.getReportData());
-        byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, "{{E"); // TODO - get non-experimental packet
+        packet.setData(new String(obj.getBytes()));
+        byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND+
+                                                                        NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID+
+                                                                        NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE);
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
         writeLock.lock();
@@ -122,7 +126,7 @@ public class APRSTCPIPListenerAccessor {
         KISSPacket packet = new KISSPacket();
         packet.setCallsignFrom(callsignFrom);
         packet.setCallsignTo(callsignTo);
-        packet.setApplicationName(aprsConfiguration.getApplicationName());
+        packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(messageText);
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
@@ -150,7 +154,7 @@ public class APRSTCPIPListenerAccessor {
         KISSPacket packet = new KISSPacket();
         packet.setCallsignFrom(callsignFrom);
         packet.setCallsignTo(callsignTo);
-        packet.setApplicationName(aprsConfiguration.getApplicationName());
+        packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(messageText);
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
@@ -176,7 +180,7 @@ public class APRSTCPIPListenerAccessor {
         logger.info(String.format("Sending object %s: %s", objectName,  messageText));
         KISSPacket packet = new KISSPacket();
         packet.setCallsignFrom(aprsConfiguration.getCallsign());
-        packet.setApplicationName(aprsConfiguration.getApplicationName());
+        packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
 
         String aprsMessage = null;

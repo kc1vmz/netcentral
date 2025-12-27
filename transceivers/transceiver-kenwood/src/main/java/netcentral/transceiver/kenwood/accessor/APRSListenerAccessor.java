@@ -29,6 +29,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralToCallConstant;
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralUserDefinedPacketConstant;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
@@ -72,8 +74,11 @@ public class APRSListenerAccessor {
         char end = 0x03;
         String data = new String(obj.getBytes());
         logger.info(String.format("Sending report %s: %s", obj.getObjectName(), data));
-        String aprsMessage = "{{E"+String.format("%-9s", obj.getObjectName())+data+"\r";
-        
+        String aprsMessage = String.format("%c%c%c%s\r",
+                                NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND,
+                                NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID,
+                                NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE, 
+                                data);        
         writeLock.lock();
         try {
             if (client != null) {
@@ -386,7 +391,7 @@ public class APRSListenerAccessor {
         try {
             client.enableReception(channel);
             client.enableCallsign(channel, callsign);
-            client.enableUnprotoAPRS(channel, "APANC1");
+            client.enableUnprotoAPRS(channel,  NetCentralToCallConstant.TOCALL_NC1);
 //            client.enableTransparentMode(channel);
         } catch (IOException e) {
            logger.error("Exception caught", e);

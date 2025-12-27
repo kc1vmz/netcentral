@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.NetCentralToCallConstant;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
@@ -89,7 +90,7 @@ public class APRSListenerAccessor {
         writeLock.lock();
         try {
             if (client != null) {
-                AgwCommand cmd = new AgwCommand((byte) (tncConfiguration.getChannel()), (byte)'K', callsignFrom, "APANC1", aprsMessage, digipeaters);
+                AgwCommand cmd = new AgwCommand((byte) (tncConfiguration.getChannel()), (byte)'K', callsignFrom, NetCentralToCallConstant.TOCALL_NC1, aprsMessage, digipeaters);
                 client.writeV(cmd);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
@@ -105,7 +106,7 @@ public class APRSListenerAccessor {
 
     public void sendBulletin(String callsignFrom, String bulletinId, String messageText) {
         logger.info(String.format("Sending bulletin from %s to %s: %s", callsignFrom, bulletinId, messageText));
-        String aprsMessage = callsignFrom + ">APANC1::"+bulletinId+"     :"+messageText;
+        String aprsMessage = callsignFrom + ">"+NetCentralToCallConstant.TOCALL_NC1+"::"+bulletinId+"     :"+messageText;
         List<String> digipeaters = new ArrayList<>();
         digipeaters.add("WIDE1-1");
         digipeaters.add("WIDE2-1");
