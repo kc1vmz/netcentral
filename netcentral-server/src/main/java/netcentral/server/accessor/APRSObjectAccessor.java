@@ -410,7 +410,7 @@ public class APRSObjectAccessor {
         boolean federated = false;
         if ((innerAPRSUserDefined != null) && 
             (innerAPRSUserDefined.getDti() == NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND) && 
-            (innerAPRSUserDefined.getUserId().equals(""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND)) && 
+            (innerAPRSUserDefined.getUserId().equals(""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID)) && 
             (innerAPRSUserDefined.getPacketType().equals(""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE))) {
             federated = true;
         }

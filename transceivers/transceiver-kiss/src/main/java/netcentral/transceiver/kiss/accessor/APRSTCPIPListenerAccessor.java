@@ -83,7 +83,7 @@ public class APRSTCPIPListenerAccessor {
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(new String(obj.getBytes()));
-        byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND+
+        byte [] packetBytesAX = AX25PacketBuilder.buildReportPacket(packet, ""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND+
                                                                         NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID+
                                                                         NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE);
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);

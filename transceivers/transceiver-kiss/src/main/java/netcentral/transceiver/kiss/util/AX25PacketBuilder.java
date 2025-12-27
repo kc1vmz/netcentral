@@ -24,7 +24,7 @@ import netcentral.transceiver.kiss.object.KISSPacket;
 
 public class AX25PacketBuilder {
 
-    public static byte[] buildPacket(KISSPacket packet, String command) {
+    public static byte[] buildPacketGeneric(KISSPacket packet, String command, boolean withDest) {
         String callFrom = getCallsignRoot(packet.getCallsignFrom());
         byte callFromSSID = (byte) getCallsignSSID(packet.getCallsignFrom());
         String callTo = packet.getApplicationName();
@@ -33,7 +33,12 @@ public class AX25PacketBuilder {
         String data = packet.getData();
         int digipeaterCount = 0;
 
-        String aprsMessage = String.format("%s%-9s:%s",command, msgDest, data);
+        String aprsMessage;
+        if (withDest) {
+            aprsMessage = String.format("%s%-9s:%s",command, msgDest, data);
+        } else {
+            aprsMessage = String.format("%s:%s",command, data);
+        }
         if (packet.getDigipeaters() != null) {
             digipeaterCount = packet.getDigipeaters().size();
         }
@@ -111,6 +116,14 @@ public class AX25PacketBuilder {
         }
 
         return ret;
+    }
+
+    public static byte[] buildPacket(KISSPacket packet, String command) {
+        return buildPacketGeneric(packet, command, true);
+    }
+
+    public static byte[] buildReportPacket(KISSPacket packet, String command) {
+        return buildPacketGeneric(packet, command, false);
     }
 
     public static byte[] buildPacketWithoutDigipeaters(KISSPacket packet, String command) {
