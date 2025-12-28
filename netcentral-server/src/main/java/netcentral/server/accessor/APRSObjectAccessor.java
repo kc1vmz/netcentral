@@ -365,11 +365,11 @@ public class APRSObjectAccessor {
 
     private void processFederatedPriorityObjectAnnounce(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralPriorityObjectAnnounceReport report) {
         ObjectType type = ObjectType.STANDARD;
-        if (report.getType().equals("EOC")) {
+        if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_EOC)) {
             type = ObjectType.EOC;
-        } else if (report.getType().equals("MEDICAL")) {
+        } else if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_MEDICAL)) {
             type = ObjectType.MEDICAL;
-        } else if (report.getType().equals("SHELTER")) {
+        } else if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_SHELTER)) {
             type = ObjectType.SHELTER;
         }
         if (type != ObjectType.STANDARD) {

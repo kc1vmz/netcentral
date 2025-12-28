@@ -34,6 +34,7 @@ import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.NetParticipantReminderAccessor;
 import netcentral.server.accessor.NetQuestionReminderAccessor;
+import netcentral.server.accessor.NetReportAccessor;
 import netcentral.server.accessor.NetSchedulerAccessor;
 import netcentral.server.accessor.ObjectBeaconAccessor;
 import netcentral.server.accessor.ObjectCleanupAccessor;
@@ -70,6 +71,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     private ObjectCleanupAccessor objectCleanupAccessor;
     @Inject
     private SessionAccessor sessionAccessor;
+    @Inject
+    private NetReportAccessor netReportAccessor;
 
     private static final long MINUTES_TO_MILLIS = 60000L;
 
@@ -83,6 +86,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         startNetParticipantReminderThread();
         startObjectCleanupThread();
         startNetQuestionReminderThread();
+        startNetReportThread();
     }
 
     void startReportCleanupThread() {
@@ -178,6 +182,24 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught reminding net participants", e);
+                }
+            }
+        }).start();
+    }
+
+    void startNetReportThread() {
+        new Thread(() -> {
+            boolean run = true;
+            while (run) {
+                try {
+                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetReportMinutes());
+                    netReportAccessor.sendReports();
+                    run = netReportAccessor.stayRunning();
+                } catch (InterruptedException e) {
+                    logger.error("Exception caught reporting nets", e);
+                    run = false;
+                } catch (Exception e) {
+                    logger.error("Exception caught reporting nets", e);
                 }
             }
         }).start();

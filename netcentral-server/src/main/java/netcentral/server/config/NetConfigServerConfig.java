@@ -61,6 +61,8 @@ public class NetConfigServerConfig {
     private Integer longitudeMax;
     @Value("${netcentral.federated}")
     private Boolean federated;
+    @Value("${netcentral.net.report.minutes}")
+    private Integer netReportMinutes;
 
     public String getTempDir() {
         return tempDir;
@@ -169,5 +171,11 @@ public class NetConfigServerConfig {
     }
     public void setFederated(Boolean federated) {
         this.federated = federated;
+    }
+    public Integer getNetReportMinutes() {
+        return netReportMinutes;
+    }
+    public void setNetReportMinutes(Integer netReportMinutes) {
+        this.netReportMinutes = netReportMinutes;
     }
 }
