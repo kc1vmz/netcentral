@@ -2,6 +2,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
+import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -34,7 +36,7 @@ public class APRSNetCentralNetStartReport extends APRSNetCentralReport {
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_NET_START);
-        String data = startTime.toString();
+        String data = PrettyZonedDateTimeFormatter.formatISO8601(startTime);
         this.setReportData(data);
         this.setStartTime(startTime);
     }

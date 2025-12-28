@@ -30,6 +30,12 @@ public class PrettyZonedDateTimeFormatter {
         }
         return String.format("%d-%02d-%02d %02d:%02d:%02d", dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
     }
+    public static String formatISO8601(ZonedDateTime dt) {
+        if (dt == null) {
+            return "";
+        }
+        return String.format("%d-%02d-%02dT%02d:%02d:%02dZ", dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
+    }
     public static String format(LocalDateTime dt) {
         if (dt == null) {
             return "";

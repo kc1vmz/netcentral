@@ -40,7 +40,7 @@ public class KISSSerialClient {
 
     public void connect(String comPort, int baudRate, List<String> initCommands) {
         SerialPort[] comPorts = SerialPort.getCommPorts();
-        int index = 0;
+        int index = -1;
         if (comPorts.length == 0) {
             logger.error("No serial ports found.");
             return;
@@ -51,6 +51,12 @@ public class KISSSerialClient {
                     break;
                 }
             }
+        }
+
+        if (index == -1) {
+            // did not find the port specified
+            logger.error("Could not find serial port: "+comPort);
+            return;
         }
 
         // Select the first available port (you might need to adjust this)
@@ -78,7 +84,9 @@ public class KISSSerialClient {
     }
     public void disconnect() {
         // Close the port
-        activePort.closePort();
+        if (activePort != null) {
+            activePort.closePort();
+        }
         activePort = null;
     }
 
@@ -124,6 +132,10 @@ public class KISSSerialClient {
     }
 
     public void write(byte [] data) {
+        if (activePort == null) {
+            throw new NullPointerException("No active com port");
+        }
+
         activePort.writeBytes(data, data.length);
         logger.info("Sent: " + new String(data));
     }

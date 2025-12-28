@@ -23,17 +23,25 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 public class APRSNetCentralNetMessageReport extends APRSNetCentralReport {
 
     private String messageText;
+    private String recipient;
+    public final static String RECIPIENT_ALL = "A";
+    public final static String RECIPIENT_NET_CONTROL = "C";
 
     public APRSNetCentralNetMessageReport(){
         super();
     }
-    public APRSNetCentralNetMessageReport(String objectName, String messageText) {
+    public APRSNetCentralNetMessageReport(String objectName, boolean all, String messageText) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_NET_MESSAGE);
-        this.setReportData(messageText);
         this.setMessageText(messageText);
+        if (all) {
+            this.setRecipient(RECIPIENT_ALL);
+        } else {
+            this.setRecipient(RECIPIENT_NET_CONTROL);
+        }
+        this.setReportData(this.getRecipient()+messageText);
     }
 
     public String getMessageText() {
@@ -41,6 +49,12 @@ public class APRSNetCentralNetMessageReport extends APRSNetCentralReport {
     }
     public void setMessageText(String messageText) {
         this.messageText = messageText;
+    }
+    public String getRecipient() {
+        return recipient;
+    }
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
     
     public static APRSNetCentralNetMessageReport isValid(String objectName, String message) {
@@ -51,9 +65,14 @@ public class APRSNetCentralNetMessageReport extends APRSNetCentralReport {
 
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET)) {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_NET_MESSAGE)) {
-                    String remainder = message.substring(4);
+                    String remainder = message.substring(5);
+                    String recipient = message.substring(4, 5);
+                    boolean all = true;
+                    if (recipient.equals(RECIPIENT_NET_CONTROL)) {
+                        all = false;
+                    }
                     try {
-                        ret = new APRSNetCentralNetMessageReport(objectName, remainder);
+                        ret = new APRSNetCentralNetMessageReport(objectName, all, remainder);
                     } catch (Exception e) {
                         ret = null;
                     }

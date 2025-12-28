@@ -346,7 +346,7 @@ public class NetController {
         }
 
         if (netConfigServerConfig.isFederated()) {
-            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), message);
+            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), true, message);
             transceiverCommunicationAccessor.sendReport(loggedInUser, report);
         }
 

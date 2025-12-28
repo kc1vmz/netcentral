@@ -812,7 +812,7 @@ public class RadioCommandAccessor {
         }
 
         if (netConfigServerConfig.isFederated()) {
-            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), netMessage.getMessage());
+            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), !isNetCentral, netMessage.getMessage());
             transceiverMessageAccessor.sendReport(loggedInUser, report);
         }
     }

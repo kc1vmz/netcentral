@@ -397,7 +397,11 @@ public class APRSObjectAccessor {
         netMessage.setId(UUID.randomUUID().toString());
         netMessage.setMessage(report.getMessageText());
         netMessage.setReceivedTime(ZonedDateTime.now());
-        netMessage.setRecipient(NetMessage.RECIPIENT_ENTIRE_NET);
+        if (report.getRecipient().equals(APRSNetCentralNetMessageReport.RECIPIENT_ALL)) {
+            netMessage.setRecipient(NetMessage.RECIPIENT_ENTIRE_NET);
+        } else {
+            netMessage.setRecipient(NetMessage.RECIPIENT_NET_CONTROL);
+        }
 
         netMessage = netMessageAccessor.create(loggedInUser, netMessage);
     }
