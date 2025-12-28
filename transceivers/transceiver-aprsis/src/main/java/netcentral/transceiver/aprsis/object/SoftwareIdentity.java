@@ -22,5 +22,5 @@ package netcentral.transceiver.aprsis.object;
 
 public class SoftwareIdentity {
     public final static String NAME = "Net Central APRS-IS Transceiver";
-    public final static String VERSION = "1.0.2";
+    public final static String VERSION = "1.0.3";
 }

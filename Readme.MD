@@ -189,12 +189,12 @@ Follow the configuration steps above and run each service from a command shell.
 
 Each service can be found in its /target subdirectory after the build has completed.  
   
-netcentral-server-1.0.2.jar  
-transceiver-agw-1.0.2.jar  
-transceiver-aprsis-1.0.2.jar  
-transceiver-kenwood-1.0.2.jar  
-transceiver-kiss-1.0.2.jar  
-transceiver-test-1.0.2.jar  
+netcentral-server-1.0.3.jar  
+transceiver-agw-1.0.3.jar  
+transceiver-aprsis-1.0.3.jar  
+transceiver-kenwood-1.0.3.jar  
+transceiver-kiss-1.0.3.jar  
+transceiver-test-1.0.3.jar  
 
 To run the JAR file, specify:  
     java -jar jar-file-name
