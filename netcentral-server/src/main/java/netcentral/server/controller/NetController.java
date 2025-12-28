@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
 
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -54,6 +55,7 @@ import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.auth.SessionAccessor;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -92,6 +94,8 @@ public class NetController {
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {
@@ -340,6 +344,12 @@ public class NetController {
                 transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), message);
             }
         }
+
+        if (netConfigServerConfig.isFederated()) {
+            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), message);
+            transceiverCommunicationAccessor.sendReport(loggedInUser, report);
+        }
+
         return "{ \"message\" : \""+message+"\"}";
     }
 
