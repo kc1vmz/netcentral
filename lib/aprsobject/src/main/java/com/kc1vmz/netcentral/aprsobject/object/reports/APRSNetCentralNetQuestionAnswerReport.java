@@ -67,7 +67,7 @@ public class APRSNetCentralNetQuestionAnswerReport extends APRSNetCentralReport 
             String reportType = message.substring(2, 4);
 
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET)) {
-                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_NET_QUESTION)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_NET_ANSWER)) {
                     String remainder = message.substring(4);
                     String senderCallsign = null;
                     String questionNumber = null;
