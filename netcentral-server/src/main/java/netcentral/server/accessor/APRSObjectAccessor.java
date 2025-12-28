@@ -1109,7 +1109,7 @@ public class APRSObjectAccessor {
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
 
-        if (source.equals("NETCENTRAL")) {
+        if (source.equals("NETCENTRAL") && netConfigServerConfig.isFederated()) {
             // this is a locally created object - send out the creation report
             APRSNetCentralPriorityObjectAnnounceReport report = new APRSNetCentralPriorityObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
                                                                                         innerAPRSObject.getCallsignFrom(), innerAPRSObject.getComment());
