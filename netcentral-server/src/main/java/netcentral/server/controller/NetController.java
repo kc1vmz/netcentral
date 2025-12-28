@@ -416,9 +416,10 @@ public class NetController {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
         Net net = netAccessor.get(loggedInUser, callsign);
+        NetQuestion netQuestion = netQuestionAccessor.get(loggedInUser, questionId);
 
         try {
-            NetQuestionAnswer ret = netQuestionAnswerAccessor.create(loggedInUser, netQuestionAnswer, net);
+            NetQuestionAnswer ret = netQuestionAnswerAccessor.create(loggedInUser, netQuestion, netQuestionAnswer, net);
             return ret;
         } catch (Exception e) {
             // ignore

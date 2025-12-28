@@ -53,6 +53,9 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetCheckInOutReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionAnswerReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObjectAnnounceReport;
@@ -71,6 +74,8 @@ import netcentral.server.enums.WinlinkSessionState;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
+import netcentral.server.object.NetQuestion;
+import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.Participant;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
@@ -155,6 +160,12 @@ public class APRSObjectAccessor {
     private NetConfigServerConfig netConfigServerConfig;
     @Inject
     private ParticipantAccessor participantAccessor;
+    @Inject
+    private NetMessageAccessor netMessageAccessor;
+    @Inject
+    private NetQuestionAccessor netQuestionAccessor;
+    @Inject
+    private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -330,6 +341,24 @@ public class APRSObjectAccessor {
                 processFederatedPriorityObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r5);
                 return;
             }
+            APRSNetCentralNetMessageReport r6 = APRSNetCentralNetMessageReport.isValid(objectName, data);
+            if (r6 != null) {
+                // net message
+                processFederatedNetMessage(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r6);
+                return;
+            }
+            APRSNetCentralNetQuestionReport r7 = APRSNetCentralNetQuestionReport.isValid(objectName, data);
+            if (r7 != null) {
+                // net message
+                processFederatedNetQuestion(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r7);
+                return;
+            }
+            APRSNetCentralNetQuestionAnswerReport r8 = APRSNetCentralNetQuestionAnswerReport.isValid(objectName, data);
+            if (r8 != null) {
+                // net message
+                processFederatedNetQuestionAnswer(loggedInUser, id, innerAPRSUserDefined, source, heardTime, r8);
+                return;
+            }
         } catch (Exception e) {
         }
     }
@@ -346,6 +375,95 @@ public class APRSObjectAccessor {
         if (type != ObjectType.STANDARD) {
             updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), type);
         }
+    }
+
+    private void processFederatedNetMessage(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetMessageReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+        // persist the net message
+        NetMessage netMessage = new NetMessage();
+        netMessage.setCallsignFrom(innerAPRSUserDefined.getCallsignFrom());
+        netMessage.setCompletedNetId(net.getCompletedNetId());
+        netMessage.setId(UUID.randomUUID().toString());
+        netMessage.setMessage(report.getMessageText());
+        netMessage.setReceivedTime(ZonedDateTime.now());
+        netMessage.setRecipient(NetMessage.RECIPIENT_ENTIRE_NET);
+
+        netMessage = netMessageAccessor.create(loggedInUser, netMessage);
+    }
+
+    private void processFederatedNetQuestion(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetQuestionReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+        // persist the net message
+        NetQuestion netQuestion = new NetQuestion();
+        netQuestion.setActive(true);
+        netQuestion.setAskedTime(ZonedDateTime.now());
+        netQuestion.setCompletedNetId(net.getCompletedNetId());
+        netQuestion.setNetQuestionId(UUID.randomUUID().toString());
+        netQuestion.setReminderMinutes(0);
+        netQuestion.setNextReminderTime(null);
+        netQuestion.setNumber(Integer.parseInt(report.getQuestionNumber()));
+        netQuestion.setQuestionText(report.getQuestionText());
+
+
+        netQuestionAccessor.create(loggedInUser, netQuestion, net, null);
+
+    }
+
+    private void processFederatedNetQuestionAnswer(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetQuestionAnswerReport report) {
+        Net net = null;
+        try {
+            net = netAccessor.getByCallsign(loggedInUser, innerAPRSUserDefined.getCallsignFrom());
+        } catch (Exception e) {
+            net = null;
+        }
+
+        if ((net == null) || ((net != null) && (!net.isRemote()))) {
+            // either does not exist in our db or is a local net
+            return;
+        }
+
+
+        NetQuestion netQuestion = null;
+        try {
+            netQuestion = netQuestionAccessor.getByQuestionNumber(loggedInUser, net.getCompletedNetId(), Integer.parseInt(report.getQuestionNumber()));
+        } catch (Exception e) {
+        }
+
+        if (netQuestion == null) {
+            return; // did not find question
+        }
+        // persist the net message
+        NetQuestionAnswer netQuestionAnswer = new NetQuestionAnswer();
+        netQuestionAnswer.setAnsweredTime(ZonedDateTime.now());
+        netQuestionAnswer.setCompletedNetId(net.getCompletedNetId());
+        netQuestionAnswer.setNetQuestionAnswerId(UUID.randomUUID().toString());
+        netQuestionAnswer.setNetQuestionId(netQuestion.getNetQuestionId());
+        netQuestionAnswer.setAnswerText(report.setAnswerText());
+        netQuestionAnswer.setCallsign(report.getSenderCallsign());
+        netQuestionAnswerAccessor.create(loggedInUser, netQuestion, netQuestionAnswer, net);
+
     }
 
     private void processFederatedNetCheckInOut(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralNetCheckInOutReport report) {

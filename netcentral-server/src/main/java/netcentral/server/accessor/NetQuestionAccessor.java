@@ -31,10 +31,13 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetQuestion;
@@ -53,6 +56,8 @@ public class NetQuestionAccessor {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
     public List<NetQuestion> getAll(User loggedInUser, String completedNetId) {
         List<NetQuestionRecord> recs = netQuestionRepository.findBycompleted_net_id(completedNetId);
@@ -95,6 +100,21 @@ public class NetQuestionAccessor {
         return ret;
     }
 
+    public NetQuestion get(User loggedInUser, String id) {
+        NetQuestion ret = null;
+        try {
+            Optional<NetQuestionRecord> recOpt = netQuestionRepository.findById(id);
+            if (recOpt.isPresent()) {
+                NetQuestionRecord rec = recOpt.get();
+                ret = new NetQuestion(rec.net_question_id(), rec.completed_net_id(), rec.number(), rec.asked_time(), rec.active(), 
+                                        rec.reminder_minutes(), rec.question_text(), rec.next_reminder_time());
+            }
+        } catch (Exception e) {
+        }
+
+        return ret;
+    }
+
     public NetQuestion create(User loggedInUser, NetQuestion obj, Net net, List<Participant> netParticipants) {
         if (obj == null) {
             logger.debug("Net Question is null");
@@ -120,15 +140,22 @@ public class NetQuestionAccessor {
         if (rec != null) {
             changePublisherAccessor.publishNetQuestionUpdate(obj.getCompletedNetId(), "Create", obj);
 
-            // tell the participants about the question
-            try {
-                if (netParticipants != null) {
-                    String message = String.format("Net msg %d: %s", obj.getNumber(), obj.getQuestionText());
-                    for (Participant netParticipant : netParticipants) {
-                        transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), netParticipant.getCallsign(), message);
+            if (!net.isRemote()) {
+                // tell the participants about the question
+                try {
+                    if (netParticipants != null) {
+                        String message = String.format("Net msg %d: %s", obj.getNumber(), obj.getQuestionText());
+                        for (Participant netParticipant : netParticipants) {
+                            transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), netParticipant.getCallsign(), message);
+                        }
                     }
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
+
+                if (netConfigServerConfig.isFederated()) {
+                    APRSNetCentralNetQuestionReport report = new APRSNetCentralNetQuestionReport(net.getCallsign(), ""+number, obj.getQuestionText());
+                    transceiverCommunicationAccessor.sendReport(loggedInUser, report);
+                }
             }
             return obj;
         }

@@ -20,6 +20,9 @@ public class APRSNetCentralReportConstants {
     public static final String REPORT_TYPE_NET_SECURE = "NE";
     public static final String REPORT_TYPE_NET_CHECKIN = "CI";
     public static final String REPORT_TYPE_NET_CHECKOUT = "CO";
+    public static final String REPORT_TYPE_NET_MESSAGE = "MS";
+    public static final String REPORT_TYPE_NET_QUESTION = "MQ";
+    public static final String REPORT_TYPE_NET_ANSWER = "MA";
 
     public static final String REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE = "PA";
 }

@@ -30,12 +30,16 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionAnswerReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
+import netcentral.server.object.NetQuestion;
 import netcentral.server.object.NetQuestionAnswer;
 import netcentral.server.object.User;
 import netcentral.server.record.NetQuestionAnswerRecord;
@@ -51,6 +55,8 @@ public class NetQuestionAnswerAccessor {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
     public List<NetQuestionAnswer> getAll(User loggedInUser, String netQuestionId) {
         List<NetQuestionAnswerRecord> recs = netQuestionAnswerRepository.findBynet_question_id(netQuestionId);
@@ -72,7 +78,7 @@ public class NetQuestionAnswerAccessor {
         return ret;
     }
 
-    public NetQuestionAnswer create(User loggedInUser, NetQuestionAnswer obj, Net net) {
+    public NetQuestionAnswer create(User loggedInUser, NetQuestion question, NetQuestionAnswer obj, Net net) {
         if (obj == null) {
             logger.debug("Net Question Answer is null");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net Question Answer not provided");
@@ -90,7 +96,14 @@ public class NetQuestionAnswerAccessor {
             changePublisherAccessor.publishNetQuestionAnswerUpdate(obj.getNetQuestionId(), "Create", obj);
 
             // thank participant for answer
-            transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), obj.getCallsign(), "Thank you for your answer");
+            if (!net.isRemote()) {
+                transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), obj.getCallsign(), "Thank you for your answer");
+
+                if (netConfigServerConfig.isFederated()) {
+                    APRSNetCentralNetQuestionAnswerReport report = new APRSNetCentralNetQuestionAnswerReport(net.getCallsign(), obj.getCallsign(), ""+question.getNumber(), obj.getAnswerText());
+                    transceiverCommunicationAccessor.sendReport(loggedInUser, report);
+                }
+            }
             return obj;
         }
         logger.debug("Net Question Answer not created");

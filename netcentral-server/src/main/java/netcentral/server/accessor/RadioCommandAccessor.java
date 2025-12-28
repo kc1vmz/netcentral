@@ -29,9 +29,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetConfigServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -91,6 +93,8 @@ public class RadioCommandAccessor {
     private NetQuestionAnswerAccessor netQuestionAnswerAccessor;
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
+    @Inject
+    private NetConfigServerConfig netConfigServerConfig;
 
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {
@@ -776,10 +780,6 @@ public class RadioCommandAccessor {
     }
 
     private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetCentral) {
-        if (net.isRemote()) {
-            return;
-        }
-
         String operatorMessage = message.getMessage().substring(2); // go past "m "
 
         // persist the net message
@@ -796,6 +796,11 @@ public class RadioCommandAccessor {
         }
         netMessage = netMessageAccessor.create(loggedInUser, netMessage);
 
+        if (net.isRemote()) {
+            // nothing more to do here
+            return;
+        }
+
         // send it to all participants
         if (!isNetCentral) {
             List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
@@ -804,6 +809,11 @@ public class RadioCommandAccessor {
                     transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), netMessage.getMessage());
                 }
             }
+        }
+
+        if (netConfigServerConfig.isFederated()) {
+            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), netMessage.getMessage());
+            transceiverMessageAccessor.sendReport(loggedInUser, report);
         }
     }
 
@@ -868,7 +878,7 @@ public class RadioCommandAccessor {
         netQuestionAnswer.setNetQuestionId(netQuestion.getNetQuestionId());
         netQuestionAnswer.setAnswerText(answer);
         netQuestionAnswer.setCallsign(message.getCallsignFrom());
-        netQuestionAnswerAccessor.create(loggedInUser, netQuestionAnswer, net);
+        netQuestionAnswerAccessor.create(loggedInUser, netQuestion, netQuestionAnswer, net);
     }
 
     private void processNetQuestionList(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
