@@ -1284,18 +1284,22 @@ public class APRSObjectAccessor {
             List<APRSObjectRecord> recList = aprsObjectRepository.findAll();
             if (!recList.isEmpty()) {
                 for (APRSObjectRecord rec : recList) {
+                    boolean remote = true;
+                    if (rec.source().equals("NETCENTRAL")) {
+                        remote = false;
+                    }
                     if (priorityOnly){
                         badrec = rec;
                         if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
                                 (ObjectType.values()[rec.type()] == ObjectType.MEDICAL)) {  //|| (ObjectType.values()[rec.type()] == ObjectType.NET) - remove nets
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                            ObjectType.values()[rec.type()]));
+                                            ObjectType.values()[rec.type()], remote));
                         }
                     } else {
                         ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                            ObjectType.values()[rec.type()]));
+                                            ObjectType.values()[rec.type()], remote));
                     }
                 }
             }
@@ -1324,12 +1328,12 @@ public class APRSObjectAccessor {
                                     (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()]));
+                                                ObjectType.values()[rec.type()], false));
                             }
                         } else {
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()]));
+                                                ObjectType.values()[rec.type()], false));
                         }
                     }
                 }
@@ -1346,9 +1350,13 @@ public class APRSObjectAccessor {
             Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
             if (!recOpt.isEmpty()) {
                 APRSObjectRecord rec = recOpt.get(); // should only be one
+                boolean remote = true;
+                if (rec.source().equals("NETCENTRAL")) {
+                    remote = false;
+                }
                 ret = new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                ObjectType.values()[rec.type()]);
+                                ObjectType.values()[rec.type()], remote);
             }
         } catch (Exception e) {
         }
@@ -1362,9 +1370,13 @@ public class APRSObjectAccessor {
             List<APRSObjectRecord> recList = aprsObjectRepository.findBycallsign_from(callsign);
             if ((recList != null) && (!recList.isEmpty())) {
                 APRSObjectRecord rec = recList.get(0); // should only be one
+                boolean remote = true;
+                if (rec.source().equals("NETCENTRAL")) {
+                    remote = false;
+                }
                 ret = new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                ObjectType.values()[rec.type()]);
+                                ObjectType.values()[rec.type()], remote);
             }
         } catch (Exception e) {
         }

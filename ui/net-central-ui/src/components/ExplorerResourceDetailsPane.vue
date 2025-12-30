@@ -2580,65 +2580,72 @@ function performEditCallsign() {
               <br> No shelter materiel report found.
             </div>
           </Tab>
-          <Tab v-if="(localSelectedObject.ncSelectedObject.source == 'NETCENTRAL')" value="Access">
-            <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
-              <b>Only the following callsigns have the ability to send report updates:</b>
-              <div class="grid-container-access-control">
-                <div>
-                  <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
-                    :body-row-class-name="getAceRowClass"
-                    @click-row="clickAce" buttons-pagination
-                  />
-                </div>
-                <div>
-                  <!-- buttons -->
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+          <Tab value="Access">
+            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
+              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
+                <b>Only the following callsigns have the ability to send report updates:</b>
+                <div class="grid-container-access-control">
+                  <div>
+                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
+                      :body-row-class-name="getAceRowClass"
+                      @click-row="clickAce" buttons-pagination
+                    />
                   </div>
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                  <div>
+                    <!-- buttons -->
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+                    </div>
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div v-else>
+                <br>
+                <br> Access open to all.
+                <br>
+                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
               </div>
             </div>
             <div v-else>
               <br>
-              <br> Access open to all.
+              <br> This object is managed by another Net Central server.  It cannot be changed here.
               <br>
-              <button class="boxButton" v-on:click.native="aceAdd">Add</button>
             </div>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="shelterUpdateStatus">Update status</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update shelter status.
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="shelterUpdateCensus">Update census</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update population census by age cohort
               </div>
 
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="shelterUpdateWorker">Update worker census</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update shelter worker census by category.
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="shelterUpdateOperationalFood">Update food</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update shelter food information by meal (today, tomorrow, needs).
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="shelterUpdateOperationalMateriel">Update materiel</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update shelter materiel information by type (today, tomorrow, needs).
               </div>
 
@@ -2751,46 +2758,53 @@ function performEditCallsign() {
               <br> No EOC contact reports found.
             </div>
           </Tab>
-          <Tab v-if="(localSelectedObject.ncSelectedObject.source == 'NETCENTRAL')" value="Access">
-            <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
-              <b>Only the following callsigns have the ability to send report updates:</b>
-              <div class="grid-container-access-control">
-                <div>
-                  <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
-                    :body-row-class-name="getAceRowClass"
-                    @click-row="clickAce" buttons-pagination
-                  />
-                </div>
-                <div>
-                  <!-- buttons -->
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+          <Tab value="Access">
+            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
+              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
+                <b>Only the following callsigns have the ability to send report updates:</b>
+                <div class="grid-container-access-control">
+                  <div>
+                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
+                      :body-row-class-name="getAceRowClass"
+                      @click-row="clickAce" buttons-pagination
+                    />
                   </div>
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                  <div>
+                    <!-- buttons -->
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+                    </div>
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div v-else>
+                <br>
+                <br> Access open to all.
+                <br>
+                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
               </div>
             </div>
             <div v-else>
               <br>
-              <br> Access open to all.
+              <br> This object is managed by another Net Central server.  It cannot be changed here.
               <br>
-              <button class="boxButton" v-on:click.native="aceAdd">Add</button>
             </div>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="eocUpdateContacts">Update contacts</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update EOC contact information, including director and incident commander names.
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 <button class="boxButton" v-on:click.native="eocUpdateMobilization">Update status</button>
               </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.source == 'NETCENTRAL'))" class="grid-item">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (!localSelectedObject.ncSelectedObject.remote))" class="grid-item">
                 Update EOC mobilization state
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
@@ -2832,32 +2846,39 @@ function performEditCallsign() {
           <Tab value="Workers">
             Medical worker information
           </Tab>
-          <Tab  v-if="(localSelectedObject.ncSelectedObject.source == 'NETCENTRAL')" value="Access">
-            <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
-              <b>Only the following callsigns have the ability to send report updates:</b>
-              <div class="grid-container-access-control">
-                <div>
-                  <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
-                    :body-row-class-name="getAceRowClass"
-                    @click-row="clickAce" buttons-pagination
-                  />
-                </div>
-                <div>
-                  <!-- buttons -->
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+          <Tab value="Access">
+            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
+              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
+                <b>Only the following callsigns have the ability to send report updates:</b>
+                <div class="grid-container-access-control">
+                  <div>
+                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
+                      :body-row-class-name="getAceRowClass"
+                      @click-row="clickAce" buttons-pagination
+                    />
                   </div>
-                  <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
-                    <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                  <div>
+                    <!-- buttons -->
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+                    </div>
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div v-else>
+                <br>
+                <br> Access open to all.
+                <br>
+                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
               </div>
             </div>
             <div v-else>
               <br>
-              <br> Access open to all.
+              <br> This object is managed by another Net Central server.  It cannot be changed here.
               <br>
-              <button class="boxButton" v-on:click.native="aceAdd">Add</button>
             </div>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">

@@ -41,10 +41,11 @@ public class APRSObject implements APRSPacketInterface {
     private byte dti;
     private String prettyLdtime;
     private ObjectType type;
+    private boolean remote;
 
     public APRSObject(){
     }
-    public APRSObject(String id, String callsignFrom, String callsignTo, boolean alive, String lat, String lon, String time, ZonedDateTime ldtime, String comment, ObjectType type) {
+    public APRSObject(String id, String callsignFrom, String callsignTo, boolean alive, String lat, String lon, String time, ZonedDateTime ldtime, String comment, ObjectType type, boolean remote) {
         this.id = id;
         this.callsignFrom = callsignFrom;
         this.callsignTo = callsignTo;
@@ -56,6 +57,7 @@ public class APRSObject implements APRSPacketInterface {
         this.comment = comment;
         this.prettyLdtime = PrettyZonedDateTimeFormatter.format(ldtime);
         this.type = type;
+        this.remote = remote;
     }
     @Override
     public byte [] getData() {
@@ -151,6 +153,12 @@ public class APRSObject implements APRSPacketInterface {
     }
     public void setType(ObjectType type) {
         this.type = type;
+    }
+    public boolean isRemote() {
+        return remote;
+    }
+    public void setRemote(boolean remote) {
+        this.remote = remote;
     }
 }
 
