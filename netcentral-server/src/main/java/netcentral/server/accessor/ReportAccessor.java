@@ -85,7 +85,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findAll();
+            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findBycallsign(callsign);
             ShelterCensusReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -117,7 +117,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findAll();
+            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterCensusReportRecord rec : records) {
@@ -138,7 +138,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterStatusReportRecord> records = shelterStatusReportRepository.findAll();
+            List<ShelterStatusReportRecord> records = shelterStatusReportRepository.findBycallsign(callsign);
             ShelterStatusReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -168,7 +168,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterWorkerReportRecord> records = shelterWorkerReportRepository.findAll();
+            List<ShelterWorkerReportRecord> records = shelterWorkerReportRepository.findBycallsign(callsign);
             ShelterWorkerReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -201,7 +201,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findAll();
+            List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findBycallsign(callsign);
             ShelterOperationalFoodReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -233,7 +233,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findAll();
+            List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findBycallsign(callsign);
             ShelterOperationalMaterielReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -266,7 +266,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findAll();
+            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findBycallsign(callsign);
             EOCMobilizationReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -299,7 +299,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findAll();
+            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCMobilizationReportRecord rec : records) {
@@ -320,7 +320,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<EOCContactReportRecord> records = eocContactReportRepository.findAll();
+            List<EOCContactReportRecord> records = eocContactReportRepository.findBycallsign(callsign);
             EOCContactReportRecord latestRecord = null;
             ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
             
@@ -350,7 +350,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<EOCContactReportRecord> records = eocContactReportRepository.findAll();
+            List<EOCContactReportRecord> records = eocContactReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCContactReportRecord rec : records) {
@@ -363,14 +363,66 @@ public class ReportAccessor {
         return reports;
    }
 
-	public void deleteAllEOCMobilizationInformation(User loggedInUser, String callsign) {
+   public void deleteAllData(User loggedInUser) {
+        deleteAllEOCInformation(loggedInUser);
+        deleteAllShelterInformation(loggedInUser);
+   }
+
+	public void deleteAllData(User loggedInUser, ZonedDateTime before) {
+        deleteAllEOCInformation(loggedInUser, before);
+        deleteAllShelterInformation(loggedInUser, before);
+    }
+
+    private void deleteAllEOCInformation(User loggedInUser, ZonedDateTime before) {
+        try {
+            eocContactReportRepository.deleteByReported_date(before);
+            eocMobilizationReportRepository.deleteByReported_date(before);
+        } catch (Exception e) {
+            logger.error("Exception caught deleting EOC reports", e);
+        }
+    }
+
+    private void deleteAllShelterInformation(User loggedInUser, ZonedDateTime before) {
+        try {
+            shelterCensusReportRepository.deleteByReported_date(before);
+            shelterOperationalFoodReportRepository.deleteByReported_date(before);
+            shelterOperationalMaterielReportRepository.deleteByReported_date(before);
+            shelterStatusReportRepository.deleteByReported_date(before);
+            shelterWorkerReportRepository.deleteByReported_date(before);
+        } catch (Exception e) {
+            logger.error("Exception caught deleting shelter reports", e);
+        }
+    }
+
+    private void deleteAllShelterInformation(User loggedInUser) {
+        try {
+            shelterCensusReportRepository.deleteAll();
+            shelterOperationalFoodReportRepository.deleteAll();
+            shelterOperationalMaterielReportRepository.deleteAll();
+            shelterStatusReportRepository.deleteAll();
+            shelterWorkerReportRepository.deleteAll();
+        } catch (Exception e) {
+            logger.error("Exception caught deleting all Shelter reports", e);
+        }
+	}
+
+    private void deleteAllEOCInformation(User loggedInUser) {
+        try {
+            eocContactReportRepository.deleteAll();
+            eocMobilizationReportRepository.deleteAll();
+        } catch (Exception e) {
+            logger.error("Exception caught deleting all EOC reports", e);
+        }
+	}
+
+    public void deleteAllEOCMobilizationInformation(User loggedInUser, String callsign) {
         if (callsign == null) {
             logger.debug("callsign id not provided");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
         }
 
         try {
-            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findAll();
+            List<EOCMobilizationReportRecord> records = eocMobilizationReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCMobilizationReportRecord rec : records) {
@@ -389,7 +441,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<EOCContactReportRecord> records = eocContactReportRepository.findAll();
+            List<EOCContactReportRecord> records = eocContactReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (EOCContactReportRecord rec : records) {
@@ -408,7 +460,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findAll();
+            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterCensusReportRecord rec : records) {
@@ -427,7 +479,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findAll();
+            List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterOperationalFoodReportRecord rec : records) {
@@ -446,7 +498,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findAll();
+            List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterOperationalMaterielReportRecord rec : records) {
@@ -465,7 +517,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterWorkerReportRecord> records = shelterWorkerReportRepository.findAll();
+            List<ShelterWorkerReportRecord> records = shelterWorkerReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterWorkerReportRecord rec : records) {
@@ -484,7 +536,7 @@ public class ReportAccessor {
         }
 
         try {
-            List<ShelterStatusReportRecord> records = shelterStatusReportRepository.findAll();
+            List<ShelterStatusReportRecord> records = shelterStatusReportRepository.findBycallsign(callsign);
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterStatusReportRecord rec : records) {

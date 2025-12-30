@@ -1,5 +1,8 @@
 package netcentral.server.repository.report;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -27,4 +30,6 @@ import netcentral.server.record.report.ShelterStatusReportRecord;
 
 @JdbcRepository(dialect = Dialect.MYSQL) 
 public interface ShelterStatusReportRepository extends CrudRepository<ShelterStatusReportRecord, String> { 
+    public List<ShelterStatusReportRecord> findBycallsign(String callsign);
+    public void deleteByReported_date(ZonedDateTime reported_date);
 }

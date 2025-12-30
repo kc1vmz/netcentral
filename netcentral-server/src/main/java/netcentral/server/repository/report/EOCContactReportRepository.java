@@ -1,5 +1,8 @@
 package netcentral.server.repository.report;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -27,4 +30,6 @@ import netcentral.server.record.report.EOCContactReportRecord;
 
 @JdbcRepository(dialect = Dialect.MYSQL) 
 public interface EOCContactReportRepository extends CrudRepository<EOCContactReportRecord, String> { 
+    public List<EOCContactReportRecord> findBycallsign(String callsign);
+    public void deleteByReported_date(ZonedDateTime reported_date);
 }

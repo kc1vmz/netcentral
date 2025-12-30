@@ -872,7 +872,7 @@ function performEditNetExpectedParticipantsScheduled() {
     <!-- main page -->
     <div v-if="((netsRef.value != null) && (netsRef.value.length > 0))">
       <div class="grid-container">
-        <div v-if="netOpenRef.value" class="pagesubheader grid-item"> {{netCallsignRef.value}} <i class="fa-solid fa-unlock"></i></div>
+        <div v-if="netOpenRef.value" class="pagesubheader grid-item"> {{netCallsignRef.value}}</div>
         <div v-else class="pagesubheader grid-item"> {{netCallsignRef.value}} <i class="fa-solid fa-lock"></i></div>
         <div class="grid-item">
         </div>

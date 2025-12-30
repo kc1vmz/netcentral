@@ -55,6 +55,8 @@ public class ObjectCleanupAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private IgnoreStationAccessor ignoreStationAccessor;
+    @Inject
+    private ReportAccessor reportAccessor;
  
 
     private boolean stop = false;
@@ -116,6 +118,8 @@ public class ObjectCleanupAccessor {
             ignoreStationAccessor.deleteAllData(loggedInUser);
             // delete position reports
             callsignAceAccessor.deleteAllData(loggedInUser);
+            // delete all reports
+            reportAccessor.deleteAllData(loggedInUser);
 
             changePublisherAccessor.publishAllUpdate();
         } catch (Exception e) {

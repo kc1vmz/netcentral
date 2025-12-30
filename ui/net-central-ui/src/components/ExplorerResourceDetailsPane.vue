@@ -393,6 +393,7 @@ function getGetRequestOptions() {
 }
 
 function fetchACL() {
+  accessControlList.value = null;
   fetch(buildNetCentralUrl('/accessControlLists/'+localSelectedObject.ncSelectedObject.callsign), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
@@ -406,7 +407,21 @@ function fetchACL() {
     })
     .catch(error => { console.error('Error getting access control list from server:', error); })
 }
+
 function fetchShelterReports() {
+  shelterStatusReport.value = null;
+  shelterWorkersReport1.value = null;
+  shelterWorkersReport2.value = null;
+  shelterWorkersReport3.value = null;
+  shelterCensusReport.value = null;
+  shelterCensusReports.value = null;
+  shelterOperationalFoodReport1.value = null;
+  shelterOperationalFoodReport2.value = null;
+  shelterOperationalFoodReport3.value = null;
+  shelterOperationalMaterielReport1.value = null;
+  shelterOperationalMaterielReport2.value = null;
+  shelterOperationalMaterielReport3.value = null;
+
   fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/status'), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
@@ -554,6 +569,11 @@ function fetchShelterReports() {
 }
 
 function fetchEOCReports() {
+    eocMobilizationReport.value = null;
+    eocMobilizationReports.value = null;
+    eocContactReport.value = null;
+    eocContactReports.value = null;
+
     fetch(buildNetCentralUrl('/eocReports/'+localSelectedObject.ncSelectedObject.callsign+'/mobilizations/latest'), getGetRequestOptions())
       .then(response => {
           if (response.status == 200) {

@@ -134,6 +134,7 @@ const netTypeRef = reactive({ value : ''});
 const netNameRef = reactive({ value : ''});
 const netDescriptionRef = reactive({ value : ''});
 const netCheckinReminderRef = reactive({ value : 'true'});
+const netOpenRef = reactive({ value : true});
 const netCreatedByRef = reactive({ value : ''});
 const netLatitudeRef = reactive({ value : ''});
 const netLongitudeRef = reactive({ value : ''});
@@ -190,7 +191,8 @@ function updateLocalSelectedNet(net) {
     netNameRef.value = net.name;
     netDescriptionRef.value = net.description;    
     netCheckinMessageRef.value = net.checkinMessage;    
-    netCheckinReminderRef.value = net.checkinReminder,
+    netCheckinReminderRef.value = net.checkinReminder;
+    netOpenRef.value = net.open;
     netCreatedByRef.value = net.creatorName;
     netLatitudeRef.value = net.lat;
     netLongitudeRef.value = net.lon
@@ -541,7 +543,9 @@ function performEditNet() {
         </option>
       </select>
         <br>
-        <br><div class="mobilepagesubheader grid-item">Net {{netCallsignRef.value}}</div>
+        <br>
+        <div v-if="netOpenRef.value" class="mobilepagesubheader grid-item">Net {{netCallsignRef.value}}</div>
+        <div v-else class="mobilepagesubheader grid-item">Net {{netCallsignRef.value}} <i class="fa-solid fa-lock"></i></div>
         <br><b>Name:</b>
         <br>{{netNameRef.value}}
         <br><b>Description:</b>
