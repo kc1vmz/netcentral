@@ -1,5 +1,7 @@
 package netcentral.server.object;
 
+import java.time.ZonedDateTime;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -23,12 +25,14 @@ package netcentral.server.object;
 public class ObjectEOCContact {
     private String directorName;
     private String incidentCommanderName;
+    private ZonedDateTime reportTime;
 
     public ObjectEOCContact() {
     }
-    public ObjectEOCContact(String directorName, String incidentCommanderName) {
+    public ObjectEOCContact(String directorName, String incidentCommanderName, ZonedDateTime reportTime) {
         setDirectorName(directorName);
         setIncidentCommanderName(incidentCommanderName);
+        setReportTime(reportTime);
     }
     public String getDirectorName() {
         return directorName;
@@ -41,5 +45,11 @@ public class ObjectEOCContact {
     }
     public void setIncidentCommanderName(String incidentCommanderName) {
         this.incidentCommanderName = incidentCommanderName;
+    }
+    public ZonedDateTime getReportTime() {
+        return reportTime;
+    }
+    public void setReportTime(ZonedDateTime reportTime) {
+        this.reportTime = reportTime;
     }
 }

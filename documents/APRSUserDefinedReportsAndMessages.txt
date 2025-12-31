@@ -1,23 +1,88 @@
+Introduction
+
+Net Central will manage a set of "priority" objects that have data specific to its type.
+While objects will broadcast themselves as APRS objects through position packets, they can maintain significantly more information that can be queried from Net Central or APRS clients.
 
 Envelope
 
-Output as APRS User Defined packet
-   {{E---------data
+Output as APRS User Defined packet ({) with object callsign as callsign-from.
+    {ZNXXYYdata
 
-    {{ user defined report
-    --------- - sender callsign
+    { user-defined packet identifier
+    Z user id
+    N packet type
+    XX object type
+    YY report type
     data - report specific packet
 
-Input as put operation
-    Send data as message to object callsign
+    As APRS User Defined packets are not yet routable via APRS-IS, they are useful for communicating between multiple Net Central servers over RF.
+
+Input as APRS Message (:) to object callsign
+
+    : message packet identifier
+    XX object type
+    YY report type
+    data - report specific packet
 
 
-Shelter
+Object Types
 
-Census
+    EO - EOC
+    SH - Shelter
+    MC - Medical Center
+    NE - Net
+    PO - Priority Object (general)
 
-    SHPC---------AAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
-    --------- - 9 digit callsign
+EOC Reports
+
+    There are the following EOC reports:
+        Contact (CO) - names specific to this EOC
+        Mobilization (MO) - status of EOC mobilization
+
+EOC Contact Report
+
+    EOCOYYYYMMDDHHmmSSDNAME:ICNAME
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+    HH - hour of specific day this report is for
+    mm - minute of specific day this report is for
+    SS - second of specific day this report is for
+    DNAME - Director name 25 characters max
+    : - separator
+    ICNAME - Incident commander name 25 characters max
+    : - separator
+
+    This report is read / write for the object specified by callsign.
+
+EOC Mobilization Report
+
+    EOMOxyYYYYMMDDHHmmSSName
+    x - status (0=UNKNOWN, 1=NORMAL, 2=DRILL, 3=PARTIAL, 4=FULL)
+    y - level (1-5)
+    YYYY - year of specific day this report is for
+    MM - month of specific day this report is for
+    DD - day of specific day this report is for
+    HH - hour of specific day this report is for
+    mm - minute of specific day this report is for
+    SS - second of specific day this report is for
+    Name - optional 30 character EOC name
+
+    This report is read / write for the object specified by callsign.
+
+
+Shelter Reports
+
+    There are the following Shelter reports:
+        Census (PC) - population counts by cohort per date
+        Operational food (OF) - food items available and needed
+        Operational materiel (OM) - materiel items available and needed
+        Status (ST) - the status of a Shelter
+        Worker census (WC) - numbers of workers per shift per date
+
+Shelter Census Report
+
+    SHPCAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
     AAAAAA - population 0-3  (0 padded)
     BBBBBB - population 4-7  (0 padded)
     CCCCCC - population 8-12  (0 padded)
@@ -28,11 +93,12 @@ Census
     MM - month of specific day this report is for
     DD - day of specific day this report is for
 
-Operational Food
+    This report is read / write for the object specified by callsign.
 
-    SHOF---------XAAAAAABBBBBBCCCCCCDDDDDDYYYYMMDD
-    --------- - 9 digit callsign
-    X - (1= TODAY, 2= TOMORROW, 3= NEEDED )
+Shelter Operational Food Report
+
+    SHOFXAAAAAABBBBBBCCCCCCDDDDDDYYYYMMDD
+    X - (1 = On hand, 2 = Required, 3 = Used )
     AAAAAA - breakfast  (0 padded)
     BBBBBB - lunch  (0 padded)
     CCCCCC - dinner  (0 padded)
@@ -41,11 +107,12 @@ Operational Food
     MM - month of specific day this report is for
     DD - day of specific day this report is for
 
-Operational Materiel
+    This report is read / write for the object specified by callsign.
 
-    SHOM---------XAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
-    --------- - 9 digit callsign
-    X - (1= TODAY, 2= TOMORROW, 3= NEEDED )
+Shelter Operational Materiel Report
+
+    SHOMXAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
+    X - (1 = On hand, 2 = Required, 3 = Used )
     AAAAAA - cots  (0 padded)
     BBBBBB - blankets  (0 padded)
     CCCCCC - comfort  (0 padded)
@@ -56,20 +123,22 @@ Operational Materiel
     MM - month of specific day this report is for
     DD - day of specific day this report is for
 
+    This report is read / write for the object specified by callsign.
 
-Status
+Shelter Status Report
 
-    SHST---------xyMESSAGE
-    --------- - 9 digit callsign
+    SHSTxyMESSAGE
     x - (0=UNKNOWN, 1=CLOSED, 2=OPEN)
     y - (0=UNKNOWN, 1=STANDBY, 2=ACTIVE)
     MESSAGE - optional 40 characters for status
 
+    This report always represents the current status.
 
-workers
+    This report is read / write for the object specified by callsign.
 
-    SHWC---------XAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
-    --------- - 9 digit callsign
+Shelter Worker Census Report
+
+    SHWCXAAAAAABBBBBBCCCCCCDDDDDDEEEEEEFFFFFFYYYYMMDD
     X - (Shift 1, 2 or 3)
     AAAAAA - health  (0 padded)
     BBBBBB - mental  (0 padded)
@@ -81,30 +150,110 @@ workers
     MM - month of specific day this report is for
     DD - day of specific day this report is for
 
+    This report is read / write for the object specified by callsign.
 
-EOC
 
-Contact
+Medical Center Reports
 
-    EOCO---------DNAME:ICNAME:YYYYMMDD
-    --------- - 9 digit callsign
-    DNAME - Director name 25 characters max
+    There are the following Medical Center reports:
+        TBD
+
+
+Net Reports
+
+    There are the following Net reports:
+        Net Created (NA) - information about a newly created net
+        Net Started (NS) - the time that a net was started
+        Net Secured (NE) - the time that a net was secured
+        Net check-in (CI) - a participant checked into a net
+        Net check-out (CO) - a participant checked out of a net
+        Message sent (MS) - a message sent as part of a net
+        Question sent (MQ) - a question sent as part of a net
+        Answer sent (MA) - an answer sent as part of a net 
+
+Net Created Report
+
+    NENAname:description
+    name - name of net
     : - separator
-    ICNAME - Incident commander name 25 characters max
+    description - description of net
+
+    Descriptions may be truncated due to packet length restrictions.
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Net Started Report
+
+    NENSYYYYMMDDHHmmSS
+    YYYY - year that net started
+    MM - month that net started
+    DD - day that net started
+    HH - hour that net started (24 hour time)
+    mm - minute that net started 
+    SS - second that net started
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Net Secured Report
+    NENEYYYYMMDDHHmmSS
+    YYYY - year that net was secured
+    MM - month that net was secured
+    DD - day that net was secured
+    HH - hour that net was secured (24 hour time)
+    mm - minute that net was secured 
+    SS - second that net was secured
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Net Check-in Report
+    NECIcallsign
+    callsign - callsign of net participant
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Net Check-out Report
+    NECOcallsign
+    callsign - callsign of net participant
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Message Sent Report
+    NEMSxMessage
+    x - recipient of message (C - Net Central only, A - all net participants)
+    Message - message text
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Question Sent Report
+    NEMQnumber:questiontext
+    number - the question number for the question in the net
+    questiontext - the text of the question
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+Answer Sent Report
+    NEMAcallsign:number:answertext
+    callsign - callsign of participant answering question
+    number - the question number for the question in the net
+    answertext - the text of the answer
+
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+
+Priority Object (General) Reports
+
+    There are the following Priority Object (General) reports:
+        Priority Object Announcement (PA) - announce the specifics of a priority object
+
+Priority Object Announcement Report
+
+    POPAtype:name:description
+    type - (EO - EOC, MC - Medical Center, SH - Sheltler)
     : - separator
-    YYYY - year of specific day this report is for
-    MM - month of specific day this report is for
-    DD - day of specific day this report is for
+    name - name of priority object known to Net Central
+    : - separator
+    description - description of priority object known to Net Central
 
+    Descriptions may be truncated due to packet length restrictions.
 
-mobilization
-
-    EOMO---------XYYYYMMDDMESSAGE
-    --------- - 9 digit callsign
-    x - status (0=UNKNOWN, 1=NORMAL, 2=PARTIAL, 3=FULL)
-    y - level (1-5)
-    YYYY - year of specific day this report is for
-    MM - month of specific day this report is for
-    DD - day of specific day this report is for
-    MESSAGE - optional 30 character EOC name
-
+    This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.

@@ -23,7 +23,12 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 import java.time.ZonedDateTime;
 
 public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentralReport {
-    private int timePeriod;
+    public final static int REPORT_INFOTYPE_UNKNOWN = 0;
+    public final static int REPORT_INFOTYPE_ONHAND = 1;
+    public final static int REPORT_INFOTYPE_REQUIRE = 2;
+    public final static int REPORT_INFOTYPE_USED = 3;
+
+    private int infoType;
     private int cots;
     private int blankets; 
     private int comfort; 
@@ -37,19 +42,19 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
     public APRSNetCentralShelterOperationalMaterielReport(){
         super();
     }
-    public APRSNetCentralShelterOperationalMaterielReport(String objectName, int timePeriod, int cots, int blankets, int comfort, int cleanup, int signage, int other, ZonedDateTime date, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterOperationalMaterielReport(String objectName, int infoType, int cots, int blankets, int comfort, int cleanup, int signage, int other, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_MATERIEL);
-        if ((timePeriod < 1) || (timePeriod > 3)) {
-            timePeriod = 0;
+        if ((infoType != REPORT_INFOTYPE_ONHAND) && (infoType != REPORT_INFOTYPE_REQUIRE) && (infoType != REPORT_INFOTYPE_USED)) {
+            infoType = REPORT_INFOTYPE_UNKNOWN;
         }
-        String data = String.format("%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", timePeriod, cots, blankets, comfort, cleanup, signage, other, 
+        String data = String.format("%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", infoType, cots, blankets, comfort, cleanup, signage, other, 
                                         dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
         this.setReportData(data);
 
-        this.timePeriod = timePeriod;
+        this.infoType = infoType;
         this.cots = cots;
         this.blankets = blankets; 
         this.comfort = comfort; 
@@ -59,11 +64,11 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
         this.date = date;
         this.dateReported = dateReported;
     }
-    public int getTimePeriod() {
-        return timePeriod;
+    public int getInfoType() {
+        return infoType;
     }
-    public void setTimePeriod(int timePeriod) {
-        this.timePeriod = timePeriod;
+    public void setInfoType(int infoType) {
+        this.infoType = infoType;
     }
     public int getCots() {
         return cots;
@@ -123,7 +128,7 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
 
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_MATERIEL)) {
-                    String timeframe = message.substring(4, 5);
+                    String infoType = message.substring(4, 5);
                     String cots = message.substring(5, 11);
                     String blankets = message.substring(11, 17);
                     String comfort = message.substring(17, 23);
@@ -136,7 +141,7 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetCentralShelterOperationalMaterielReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(cots), Integer.parseInt(blankets),
+                        ret = new APRSNetCentralShelterOperationalMaterielReport(objectName, Integer.parseInt(infoType), Integer.parseInt(cots), Integer.parseInt(blankets),
                                                                         Integer.parseInt(comfort), Integer.parseInt(cleanup), Integer.parseInt(signage), Integer.parseInt(other), time, ZonedDateTime.now());
                     } catch (Exception e) {
                         ret = null;

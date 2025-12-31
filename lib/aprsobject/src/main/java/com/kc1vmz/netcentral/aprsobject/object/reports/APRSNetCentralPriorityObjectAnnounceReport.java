@@ -22,9 +22,9 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 public class APRSNetCentralPriorityObjectAnnounceReport extends APRSNetCentralReport {
 
-    public static final String OBJECT_TYPE_EOC = "EOC";
-    public static final String OBJECT_TYPE_SHELTER = "SHELTER";
-    public static final String OBJECT_TYPE_MEDICAL = "MEDICAL";
+    public static final String OBJECT_TYPE_EOC = "EO";
+    public static final String OBJECT_TYPE_SHELTER = "SH";
+    public static final String OBJECT_TYPE_MEDICAL = "MC";
 
     private String type;
     private String name;

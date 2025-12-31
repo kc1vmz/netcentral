@@ -20,7 +20,6 @@ package netcentral.server.controller;
     http://www.kc1vmz.com
 */
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,7 +161,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralEOCContactReport aprsReport = new APRSNetCentralEOCContactReport(obj.getCallsignFrom(), report.getDirectorName(), report.getIncidentCommanderName(), ZonedDateTime.now());
+        APRSNetCentralEOCContactReport aprsReport = new APRSNetCentralEOCContactReport(obj.getCallsignFrom(), report.getDirectorName(), report.getIncidentCommanderName(), report.getReportTime());
         aprsReport = reportAccessor.addEOCContactReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -182,7 +181,7 @@ public class EOCReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralEOCMobilizationReport aprsReport = new APRSNetCentralEOCMobilizationReport(obj.getCallsignFrom(), report.getEocName(), report.getStatus().ordinal(), report.getLevel(), ZonedDateTime.now());
+        APRSNetCentralEOCMobilizationReport aprsReport = new APRSNetCentralEOCMobilizationReport(obj.getCallsignFrom(), report.getEocName(), report.getStatus().ordinal(), report.getLevel(), report.getReportTime());
         aprsReport = reportAccessor.addEOCMobilizationReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message

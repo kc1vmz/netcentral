@@ -21,5 +21,5 @@ package netcentral.server.enums;
 */
 
 public enum ObjectShelterReportingTimeframe {
-    UNKNOWN, TODAY, TOMORROW, NEEDED;
+    UNKNOWN, ON_HAND, REQUIRED, USED;
 }

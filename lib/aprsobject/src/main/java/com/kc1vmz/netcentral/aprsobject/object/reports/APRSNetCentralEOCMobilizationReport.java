@@ -22,7 +22,14 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
+import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
+
 public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
+    public final static int STATUS_TYPE_UNKNOWN = 0;
+    public final static int STATUS_TYPE_NORMAL = 1;
+    public final static int STATUS_TYPE_DRILL = 2;
+    public final static int STATUS_TYPE_PARTIAL = 3;
+    public final static int STATUS_TYPE_FULL = 4;
 
     private Integer status;
     private Integer level;
@@ -37,13 +44,13 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_MOBILIZATION);
-        if ((status < 1) || (status > 3)) {
-            status = 0;
+        if ((status < STATUS_TYPE_NORMAL) || (status > STATUS_TYPE_FULL)) {
+            status = STATUS_TYPE_UNKNOWN;
         }
         if ((level < 1) || (level > 5)) {
             level = 0;
         }
-        String data = String.format("%d%d%4d%02d%02d%s", status, level, lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth(), 
+        String data = String.format("%d%d%s%s", status, level,  PrettyZonedDateTimeFormatter.formatAPRSReport(lastReportedTime), 
                                         (eocName.length() > 30) ? eocName.substring(0, 30) : eocName);
         this.setReportData(data);
         this.setEocName(eocName);
@@ -79,8 +86,8 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
     }
     public static APRSNetCentralEOCMobilizationReport isValid(String objectName, String message) {
         APRSNetCentralEOCMobilizationReport ret = null;
-        if ((message != null) && (message.length() >= 14 )) {
-            //"EOMO%d%d%4d%02d%02d%s", status, level, lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth(),  eocName);
+        if ((message != null) && (message.length() >= 20 )) {
+            //"EOMO%d%d%14s%s", status, level, time, eocName);
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
@@ -88,18 +95,14 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_MOBILIZATION)) {
                     String status = message.substring(4, 5);
                     String level = message.substring(5, 6);
-
-                    String year = message.substring(6, 10);
-                    String month = message.substring(10, 12);
-                    String day = message.substring(12, 14);
-
+                    String timeStr = message.substring(6, 20);
                     String eocName = "";
-                    if (message.length() > 14) {
-                        eocName = message.substring(14);
+                    if (message.length() > 20) {
+                        eocName = message.substring(20);
                     }
 
                     try {
-                        ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
+                        ZonedDateTime time = PrettyZonedDateTimeFormatter.fromAPRSReport(timeStr);
                         ret = new APRSNetCentralEOCMobilizationReport(objectName, eocName, Integer.parseInt(status), Integer.parseInt(level), time);
                     } catch (Exception e) {
                         ret = null;

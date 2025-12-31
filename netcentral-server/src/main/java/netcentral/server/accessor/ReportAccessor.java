@@ -611,7 +611,7 @@ public class ReportAccessor {
         }
 
         try {
-            ShelterOperationalFoodReportRecord rec = new ShelterOperationalFoodReportRecord(UUID.randomUUID().toString(), report.getObjectName(), report.getTimePeriod(), report.getBreakfast(),
+            ShelterOperationalFoodReportRecord rec = new ShelterOperationalFoodReportRecord(UUID.randomUUID().toString(), report.getObjectName(), report.getInfoType(), report.getBreakfast(),
                                                                             report.getLunch(), report.getDinner(), report.getSnack(), ZonedDateTime.now(), report.getDateReported());
             shelterOperationalFoodReportRepository.save(rec);
             return report;
@@ -629,7 +629,7 @@ public class ReportAccessor {
         }
 
         try {
-            ShelterOperationalMaterielReportRecord rec = new ShelterOperationalMaterielReportRecord(UUID.randomUUID().toString(), report.getObjectName(), report.getTimePeriod(),
+            ShelterOperationalMaterielReportRecord rec = new ShelterOperationalMaterielReportRecord(UUID.randomUUID().toString(), report.getObjectName(), report.getInfoType(),
                                                                 report.getCots(), report.getBlankets(), report.getComfort(), report.getCleanup(), report.getSignage(), report.getOther(),
                                                                 report.getDate(), report.getDateReported());
             shelterOperationalMaterielReportRepository.save(rec);
@@ -667,7 +667,7 @@ public class ReportAccessor {
 
         try {
             EOCContactReportRecord rec = new EOCContactReportRecord(UUID.randomUUID().toString(), report.getObjectName(), report.getDirectorName(), report.getIncidentCommanderName(),
-                                                                        ZonedDateTime.now());
+                                                                        report.getLastReportedTime());
             eocContactReportRepository.save(rec);
             return report;
         } catch (Exception e) {

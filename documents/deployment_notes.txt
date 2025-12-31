@@ -1,31 +1,213 @@
-General
-
-Update .env file with public IP address in VITE_APP_API_URL
-
-Linux
-
-Install everything - Java, Node.JS, 
-get java JAVA_HOME right
-
-change temp space in net central application.properties to linux path
-set owner to other than root: 
-  example: sudo chown jrokicki /tmp/netcentral/
-
-linux does not like port numbers in use below 1024
-Run:
-sudo apt-get install libcap2-bin
-readlink -f `which node`     (gives you NODE_PATH)
-sudo setcap cap_net_bind_service=+ep NODE_PATH
-
-open ports 8880 and 80 on server firewall - allow API and web ui 
+This document attempts to describe all of the steps and nuances of deploying Net Central onto different operating systems.
+It is best to get Net Central running against an APRS-IS server then add radio support.  This is to prove that Net Central is working pefore introducing the nuances of each radio.
 
 
-Windows
-change temp space in net central application.properties to Windows path
+Overview
+
+The following steps are expected for all operating systems:
+  Install Java 21 JDK
+  Install MySQL (preferrably 8)
+  Initialize MySQL for Net Central
+  Install Maven
+  Get Net Central source code
+  Install VS Code (optional)
+  Configure Net Central environment variables
+  Build Net Central
+  Pre-run configuration steps
+  Run Net Central
+  Configure Net Central
+  Conclusion
+
+
+Install Java 21 JDK
+
+The Java 21 JDK can be downloaded from https://www.oracle.com/java/technologies/downloads/#java21
+Be sure that JAVA_HOME is properly set to allow Maven and Net Central to work later in this process.
+
+The easiest way to install Java 21 on Linux is to run the following command:   sudo apt install default-jdk -y
+
+
+Install MySQL
+
+MySQL can be downloaded from https://dev.mysql.com/downloads/mysql/
+I have only tested with MySQL 8.
+
+The easiest way to install MySQL on Linux is to run the following command: sudo apt install mariadb-server
+
+
+Initialize MySQL
+
+Once MySQL is installed, you need to create the schema/database and the Net Central user to access it.
+
+The following SQL can be executed against the MySQL server:
+
+  create schema netcentral;
+  create user 'netcentral'@'localhost' IDENTIFIED BY 'netcentral';
+  grant all privileges on netcentral.* to 'netcentral'@'localhost';
+  flush privileges;
+
+
+Install Maven
+
+Maven is a build tool used to build the Java components of Net Central.
+
+To download and install Maven, see https://maven.apache.org/download.cgi
+On Linux, the easiest way is to run :
+  sudo apt update
+  sudo apt install maven -y
+On Windows, download from the above link and install.
+
+
+Get Net Central source code
+
+Net Central source code is available on Github at https://github.com/kc1vmz/netcentral
+
+To download the source code, select the options from the green Code button.
+
+To download a git client, see https://git-scm.com/ and follow the instructions for download and install.
+The easiest way to to this on Linux is to run "sudo apt-get install git"
+
+Quick notes on SSH downloads - to configure SSH downloads, perform the following commands to configure:
+  git config --global user.name "your_git_username"
+  git config --global user.email "your_email_address"
+  ssh-keygen -t ed25519 -C "your_email_address"
+Then copy the public key to Github via the "SSH and GPG keys" page on your account settings.
+
+
+Install VS Code (optional)
+
+If you choose to build and run in VS Code, you can download and install VS Code at https://code.visualstudio.com/download
+
+The easiest way to download and install VS Code on Linux is to run the command: sudo apt install code
+Run "code" from a terminal to start VS Code.
+
+
+Configure Net Central environment variables
+
+At a minimum, the following environment variables need to be set:
+
+  NETCENTRAL_APRS_CALLSIGN=YourCallsign
+  NETCENTRAL_TRANS_APRSIS_PASSCODE=YourAPRSISpasscode
+  NETCENTRAL_TRANS_APRSIS_CALLSIGN=YourCallsign
+  NETCENTRAL_SERVER_TEMP_DIR=TempLocationForLogsAndReports
+
+The following values should be used in future steps for initializing Net Central:
+  NETCENTRAL_SERVER_USERNAME=serviceAccountName
+  NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
+
+  NETCENTRAL_TRANS_APRSIS_QUERY=r/42.222/-71.57/500
+  This can represent an APRS-IS server query for your location. See https://www.aprs-is.net/javAPRSFilter.aspx for more details.
+
+Make sure that you create the following directories based on your value of TempLocationForLogsAndReports above
+  mkdir %NETCENTRAL_SERVER_TEMP_DIR%
+  mkdir %NETCENTRAL_SERVER_TEMP_DIR%\logs
+  mkdir %NETCENTRAL_SERVER_TEMP_DIR%\reports
+
+On Linux, make sure to set the owner to someone other than root: 
+  example: sudo chown USERNAME %NETCENTRAL_SERVER_TEMP_DIR%
+
+
+Each additional transceiver (KISS, Kenwood, others) have their own environment variables as well.  See the end of this document for all variables.
+
+For Windows, use the Advanced options to set system-wide environment variables so all apps (Command Prompt, VS Code, etc) can see them.
+For Linux, add the variables into the /etc/environment file or equivalent for your Linux distribution.
+
+
+Build Net Central
+
+To build Net Central using Maven, change directory to where you downloaded the Net Central source code and run "mvn clean install".
+To build Net Central using VS Code, open the folder where Net Central source code was downloaded. It will automatically build all of the components.
+
+
+Pre-run configuration steps
+
+Before running Net Central, there are a few operating system nuances you must be aware of and perform actions to mitigate.
+
+Linux does not like port numbers in use below 1024 by non-root users, so the following steps must be performed to allow the UI to run properly: 
+  sudo apt-get install libcap2-bin
+  readlink -f `which node`     (gives you NODE_PATH)
+  sudo setcap cap_net_bind_service=+ep NODE_PATH
+
+You must open ports 8880 and 80 on server firewall to allow API and UI to work properly.
+
+Optional - If you choose to make you Net Central UI available on a public IP address (beyond your local LAN), update .ui/net-central/.env file with public IP address in VITE_APP_API_URL
+
+
+Run Net Central Server and UI
+
+To run Net Central server from a command prompt / terminal, do the following:
+  From the Net Central source code directory, change directory to ./netcentral-server/target
+  Run "ls netcentral-server*.jar" or  "dir netcentral-server*.jar" to find the jar filename
+  Run "java -jar filename.jar" using the file name (with version) from last step
+
+To run Net Central APRS-IS transceiver from a command prompt / terminal, do the following:
+  From the Net Central source code directory, change directory to ./transceivers/transceiver-aprsis/target
+  Run  "ls transceiver*.jar" or "dir transceiver*.jar" to find the jar filename
+  Run "java -jar filename.jar" using the file name (with version) from last step
+  You will see log errors until you complete the configuration below.
+
+To run Net Central UI from a command prompt / terminal on Linux, do the following:
+  From the Net Central source code directory, change directory to ./ui/net-central-ui
+  Run "npm run dev" to start the UI.
+  If the UI does not start, you may need to install Node.JS
+    nvm install --lts
+    npm install
+
+To run Net Central UI from a command prompt / terminal on Windows, do the following:
+  Do all steps from a Linux subsystem such as Ubuntu or Debian
+  From the Net Central source code directory, change directory to ./ui/net-central-ui
+  Run "npm run dev" to start the UI.
+  If the UI does not start, you may need to install Node.JS
+    nvm install --lts
+    npm install
+
+
+Configure Net Central
+
+Once Net Central is running you must complete the configuration to allow the software to function correctly.
+
+Use a web browser to connect to app - http:\\localhost
+You must register the owner user - see Register menu to left.  This user will be the system administrator unless others are promoted later.
+You must register a service account - see the same Register menu to left, use service account username and password from environment variables above.  This allows the transceivers to talk to the server.
+Once the two users are registered, log in as the owner user - see Login menu to left
+Promote the service account - see Setup menu, select service account, Setup/Users - promote service account 
+Enable the APRS-IS transceiver to send and receive data - see Setup menu - select APRS-IS transceiver, select Actions pane, press Enable Receive and confirm. Repeat for Transmit.
+
+
+Adding radio support via KISS
+
+Once you have proven that Net Central is working, you can add radio support.
+
+Before starting, you can either stop the APRS-IS transceiver process, or leave it running and disable receive and transmit capabilities via the Setup menu.
+You can optionally delete all of the previously heard APRS data using the Tools menu.
+
+If using KISS via serial port, know the com port being used.
+If using KISS via Bluetooth, pair the radio with the server and assign it a com port to be used.
+
+Update the following environment variables
+  NETCENTRAL_TRANS_KISS_TNC_BAUD=1200
+  NETCENTRAL_TRANS_KISS_TNC_PORT=COM4
+
+Ensure the port and baud rate values match what you are using.
+
+To run Net Central KISS transceiver from a command prompt / terminal, do the following:
+  From the Net Central source code directory, change directory to ./transceivers/transceiver-kiss/target
+  Run  "ls transceiver*.jar" or "dir transceiver*.jar" to find the jar filename
+  Run "java -jar filename.jar" using the file name (with version) from last step
+
+Enable transceiver to send and receive - see Setup menu - select KISS transceiver, select Actions pane, press Enable Receive and confirm. Repeat for Transmit.
 
 
 
-Environment variables
+Conclusion
+
+Net Central should now be up and running!
+
+Verify that you are seeing new APRS objects using the Dashboard or Explorer pages in the UI.
+
+
+
+Addendum - Environment variables
 
 Mandatory
 NETCENTRAL_SERVER_TMP_DIR

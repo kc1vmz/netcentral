@@ -31,6 +31,7 @@ public class ObjectEOCMobilization {
     private String eocName;
     private ObjectEOCStatus status;
     private Integer level;
+    private ZonedDateTime reportTime;
 
     public ObjectEOCMobilization() {
     }
@@ -38,6 +39,7 @@ public class ObjectEOCMobilization {
         setEocName(eocName);
         setStatus(status);
         setLevel(level);
+        setReportTime(lastReportedTime);
     }
     public ObjectEOCStatus getStatus() {
         return status;
@@ -56,6 +58,12 @@ public class ObjectEOCMobilization {
     }
     public void setEocName(String eocName) {
         this.eocName = eocName;
+    }
+    public ZonedDateTime getReportTime() {
+        return reportTime;
+    }
+    public void setReportTime(ZonedDateTime reportTime) {
+        this.reportTime = reportTime;
     }
 }
 

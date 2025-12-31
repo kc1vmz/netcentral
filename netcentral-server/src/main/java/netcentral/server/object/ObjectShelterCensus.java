@@ -1,5 +1,7 @@
 package netcentral.server.object;
 
+import java.time.ZonedDateTime;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -27,17 +29,19 @@ public class ObjectShelterCensus {
     private Integer population1318;
     private Integer population1965;
     private Integer population66;
+    private ZonedDateTime reportTime;
 
 
     public ObjectShelterCensus() {
     }
-    public ObjectShelterCensus(Integer population03, Integer population47, Integer population812, Integer population1318, Integer population1965, Integer population66) {
+    public ObjectShelterCensus(Integer population03, Integer population47, Integer population812, Integer population1318, Integer population1965, Integer population66, ZonedDateTime reportTime) {
         setPopulation03(population03);
         setPopulation47(population47);
         setPopulation812(population812);
         setPopulation1318(population1318);
         setPopulation1965(population1965);
         setPopulation66(population66);
+        setReportTime(reportTime);
     }
     public Integer getPopulation03() {
         return population03;
@@ -74,6 +78,12 @@ public class ObjectShelterCensus {
     }
     public void setPopulation66(Integer population66) {
         this.population66 = population66;
+    }
+    public ZonedDateTime getReportTime() {
+        return reportTime;
+    }
+    public void setReportTime(ZonedDateTime reportTime) {
+        this.reportTime = reportTime;
     }
 }
 

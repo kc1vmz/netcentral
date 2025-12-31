@@ -293,43 +293,43 @@ public class PriorityObjectCommandAccessor {
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.TODAY);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodToday: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodHave: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending food (today) report", e);
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.TOMORROW);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodTmrw: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodReq: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending food (tomorrow) report", e);
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.NEEDED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodNeed: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodUsed: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending food (needed) report", e);
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.TODAY);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatToday: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatHave: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending materiel (today) report", e);
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.TOMORROW);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatTmrw: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatReq: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending materiel (tomorrow) report", e);
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.NEEDED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatNeed: "+report.getReportData());
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatUsed: "+report.getReportData());
         } catch (Exception e) {
            logger.error("Exception caught sending materiel (needed) report", e);
         }

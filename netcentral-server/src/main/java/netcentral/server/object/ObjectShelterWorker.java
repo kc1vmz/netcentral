@@ -30,11 +30,12 @@ public class ObjectShelterWorker {
     private int caseworker;
     private int feeding;
     private int other;
+    private ZonedDateTime reportTime;
 
     public ObjectShelterWorker() {
     }
     public ObjectShelterWorker(String callsign, int shift, int health, int mental, int spiritual, int caseworker, int feeding, int other, 
-                                                ZonedDateTime lastReportedTime) {
+                                                ZonedDateTime reportTime) {
         setShift(shift);
         setHealth(health);
         setMental(mental);
@@ -42,6 +43,7 @@ public class ObjectShelterWorker {
         setCaseworker(caseworker);
         setFeeding(feeding);
         setOther(other);
+        setReportTime(reportTime);
     }
 
     public int getShift() {
@@ -85,6 +87,12 @@ public class ObjectShelterWorker {
     }
     public void setOther(int other) {
         this.other = other;
+    }
+    public ZonedDateTime getReportTime() {
+        return reportTime;
+    }
+    public void setReportTime(ZonedDateTime reportTime) {
+        this.reportTime = reportTime;
     }
 }
 

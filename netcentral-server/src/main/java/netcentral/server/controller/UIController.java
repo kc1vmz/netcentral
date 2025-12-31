@@ -854,8 +854,8 @@ public class UIController {
         if (obj.getType().equals(ObjectType.SHELTER)) {
             reportPopulation = reportAccessor.getLatestShelterCensusReport(loggedInUser, obj.getCallsignFrom());
             reportWorkers = reportAccessor.getLatestShelterWorkerReport(loggedInUser, obj.getCallsignFrom(), 1);
-            reportFood = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.TODAY);
-            reportMateriel = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.TODAY);
+            reportFood = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.ON_HAND);
+            reportMateriel = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.ON_HAND);
             shelter = true;
         } else if (obj.getType().equals(ObjectType.MEDICAL)) {
             medical = true;

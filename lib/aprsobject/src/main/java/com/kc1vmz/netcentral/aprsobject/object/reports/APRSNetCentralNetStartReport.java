@@ -36,7 +36,7 @@ public class APRSNetCentralNetStartReport extends APRSNetCentralReport {
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_NET_START);
-        String data = PrettyZonedDateTimeFormatter.formatISO8601(startTime);
+        String data = PrettyZonedDateTimeFormatter.formatAPRSReport(startTime);
         this.setReportData(data);
         this.setStartTime(startTime);
     }
@@ -57,7 +57,7 @@ public class APRSNetCentralNetStartReport extends APRSNetCentralReport {
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NET)) {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_NET_START)) {
                     String remainder = message.substring(4);
-                    ZonedDateTime startTime = ZonedDateTime.parse(remainder);
+                    ZonedDateTime startTime = PrettyZonedDateTimeFormatter.fromAPRSReport(remainder);
                     try {
                         ret = new APRSNetCentralNetStartReport(objectName, startTime);
                     } catch (Exception e) {

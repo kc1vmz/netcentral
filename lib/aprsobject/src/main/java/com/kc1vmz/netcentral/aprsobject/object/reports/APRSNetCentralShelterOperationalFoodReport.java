@@ -23,9 +23,14 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 import java.time.ZonedDateTime;
 
 public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralReport {
+    public final static int REPORT_INFOTYPE_UNKNOWN = 0;
+    public final static int REPORT_INFOTYPE_ONHAND = 1;
+    public final static int REPORT_INFOTYPE_REQUIRE = 2;
+    public final static int REPORT_INFOTYPE_USED = 3;
+
     private ZonedDateTime date;
     private ZonedDateTime dateReported;
-    private int timePeriod;
+    private int infoType;
     private int breakfast;
     private int lunch;
     private int dinner; 
@@ -35,21 +40,21 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
     public APRSNetCentralShelterOperationalFoodReport(){
         super();
     }
-    public APRSNetCentralShelterOperationalFoodReport(String objectName, int timePeriod, int breakfast, int lunch, int dinner, int snack, ZonedDateTime date, ZonedDateTime dateReported) {
+    public APRSNetCentralShelterOperationalFoodReport(String objectName, int infoType, int breakfast, int lunch, int dinner, int snack, ZonedDateTime date, ZonedDateTime dateReported) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_FOOD);
-        if ((timePeriod < 1) || (timePeriod > 3)) {
-            timePeriod = 0;
+        if ((infoType != REPORT_INFOTYPE_ONHAND) && (infoType != REPORT_INFOTYPE_REQUIRE) && (infoType != REPORT_INFOTYPE_USED)) {
+            infoType = REPORT_INFOTYPE_UNKNOWN;
         }
-        String data = String.format("%d%06d%06d%06d%06d%4d%02d%02d", timePeriod, breakfast, lunch, dinner, snack, 
+        String data = String.format("%d%06d%06d%06d%06d%4d%02d%02d", infoType, breakfast, lunch, dinner, snack, 
                                         dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
         this.setReportData(data);
 
         this.date = date;
         this.dateReported = dateReported;
-        this.timePeriod = timePeriod;
+        this.infoType = infoType;
         this.breakfast = breakfast;
         this.lunch = lunch;
         this.dinner = dinner; 
@@ -67,11 +72,11 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
     public void setDateReported(ZonedDateTime dateReported) {
         this.dateReported = dateReported;
     }
-    public int getTimePeriod() {
-        return timePeriod;
+    public int getInfoType() {
+        return infoType;
     }
-    public void setTimePeriod(int timePeriod) {
-        this.timePeriod = timePeriod;
+    public void setInfoType(int infoType) {
+        this.infoType = infoType;
     }
     public int getBreakfast() {
         return breakfast;
@@ -107,7 +112,7 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
 
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_OPERATIONAL_FOOD)) {
-                    String timeframe = message.substring(4, 5);
+                    String infoType = message.substring(4, 5);
                     String breakfast = message.substring(5, 11);
                     String lunch = message.substring(11, 17);
                     String dinner = message.substring(17, 23);
@@ -118,7 +123,7 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
 
                     try {
                         ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
-                        ret = new APRSNetCentralShelterOperationalFoodReport(objectName, Integer.parseInt(timeframe), Integer.parseInt(breakfast), Integer.parseInt(lunch),
+                        ret = new APRSNetCentralShelterOperationalFoodReport(objectName, Integer.parseInt(infoType), Integer.parseInt(breakfast), Integer.parseInt(lunch),
                                                                         Integer.parseInt(dinner), Integer.parseInt(snack), time, ZonedDateTime.now());
                     } catch (Exception e) {
                         ret = null;

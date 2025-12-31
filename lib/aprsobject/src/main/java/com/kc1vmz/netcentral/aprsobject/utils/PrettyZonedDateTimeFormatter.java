@@ -36,10 +36,28 @@ public class PrettyZonedDateTimeFormatter {
         }
         return String.format("%d-%02d-%02dT%02d:%02d:%02dZ", dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
     }
+    public static String formatAPRSReport(ZonedDateTime dt) {
+        if (dt == null) {
+            return "";
+        }
+        return String.format("%d%02d%02d%02d%02d%02d", dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
+    }
     public static String format(LocalDateTime dt) {
         if (dt == null) {
             return "";
         }
         return String.format("%d-%02d-%02d %02d:%02d:%02d", dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(), dt.getHour(), dt.getMinute(), dt.getSecond());
+    }
+    public static ZonedDateTime fromAPRSReport(String time) {
+        if ((time == null) || (time.length() != 15)) {
+            return null;
+        }
+        return ZonedDateTime.parse(String.format("%d-%02d-%02dT%02d:%02d:%02dZ", 
+                                                            time.substring(0, 4),       // year
+                                                            time.substring(4, 6),       // month
+                                                            time.substring(6, 8),       // day
+                                                            time.substring(8, 10),       // hour
+                                                            time.substring(10, 12),       // minute
+                                                            time.substring(12)));     // second
     }
 }

@@ -257,6 +257,7 @@ const incidentCommanderNameRef = reactive({value : ''});
 const eocNameRef = reactive({value : ''});
 const messageRef = reactive({value : ''});
 const statusRef = reactive({value : 1});
+const reportDateRef = reactive({value : ''});
 const levelRef = reactive({value : 1});
 const stateRef = reactive({value : 1});
 const population03Ref = reactive({value : 0});
@@ -823,6 +824,7 @@ function shelterUpdateOperationalMateriel() {
     cleanupRef.value = 0;
     signageRef.value = 0;
     otherRef.value = 0;
+    reportDateRef.value = getCurrentDayString();
     timeframeRef.value = 1;
 
     dialogShelterUpdateOperationalMaterielShow.value = true;
@@ -848,7 +850,8 @@ function performShelterUpdateOperationalMateriel() {
                         comfort : comfortRef.value,
                         cleanup : cleanupRef.value,
                         signage : signageRef.value,
-                        other : otherRef.value
+                        other : otherRef.value,
+                        reportTime : getReportTime(reportDateRef.value)
                     };
 
     const requestOptions = {
@@ -875,6 +878,7 @@ function shelterUpdateOperationalFood() {
     lunchRef.value = 0;
     dinnerRef.value = 0;
     snackRef.value = 0;
+    reportDateRef.value = getCurrentDayString();
     dialogShelterUpdateOperationalFoodShow.value = true;
 }
 
@@ -896,7 +900,8 @@ function performShelterUpdateOperationalFood() {
                         breakfast : breakfastRef.value,
                         lunch : lunchRef.value,
                         dinner : dinnerRef.value,
-                        snack : snackRef.value
+                        snack : snackRef.value,
+                        reportTime : getReportTime(reportDateRef.value)
                     };
 
     const requestOptions = {
@@ -926,6 +931,7 @@ function shelterUpdateWorker() {
     caseworkerRef.value = 0;
     feedingRef.value = 0;
     otherRef.value = 0;
+    reportDateRef.value = getCurrentDayString();
     dialogShelterUpdateWorkerShow.value = true;
 }
 
@@ -949,7 +955,8 @@ function performShelterUpdateWorker() {
                         spiritual : spiritualRef.value,
                         caseworker : caseworkerRef.value,
                         feeding : feedingRef.value,
-                        other : otherRef.value
+                        other : otherRef.value,
+                        reportTime : getReportTime(reportDateRef.value)
                     };
 
     const requestOptions = {
@@ -977,6 +984,7 @@ function shelterUpdateCensus() {
     population1318Ref.value = 0;
     population1965Ref.value = 0;
     population66Ref.value = 0;
+    reportDateRef.value = getCurrentDayString();
     dialogShelterUpdateCensusShow.value = true;
 }
 
@@ -1000,7 +1008,8 @@ function performShelterUpdateCensus() {
                         population812 : population812Ref.value,
                         population1318 : population1318Ref.value,
                         population1965 : population1965Ref.value,
-                        population66 : population66Ref.value
+                        population66 : population66Ref.value,
+                        reportTime : getReportTime(reportDateRef.value)
                     };
 
     const requestOptions = {
@@ -1066,10 +1075,19 @@ function performShelterUpdateStatus() {
       .catch(error => { console.error('Error updating shelter status:', error); })
 }
 
+function getCurrentDayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getReportTime(dateStr) {
+  return dateStr+"T00:00:00Z";
+}
+
 function eocUpdateMobilization() {
     eocNameRef.value = '';
     statusRef.value = 0;
     levelRef.value = 0;
+    reportDateRef.value = getCurrentDayString();
     dialogEOCUpdateMobilizationShow.value = true;
 }
 
@@ -1089,7 +1107,8 @@ function performEOCUpdateMobilization() {
     var bodyObject = { 
                         eocName : eocNameRef.value,
                         status : statusRef.value,
-                        level : levelRef.value
+                        level : levelRef.value,
+                        reportTime : getReportTime(reportDateRef.value)
                     };
 
     const requestOptions = {
@@ -1113,6 +1132,7 @@ function performEOCUpdateMobilization() {
 function eocUpdateContacts() {
     incidentCommanderNameRef.value = '';
     directorNameRef.value = '';
+    reportDateRef.value = getCurrentDayString();
     dialogEOCUpdateContactsShow.value = true;
 }
 
@@ -1131,7 +1151,8 @@ function performEOCUpdateContacts() {
 
     var bodyObject = { 
                         directorName : directorNameRef.value,
-                        incidentCommanderName : incidentCommanderNameRef.value
+                        incidentCommanderName : incidentCommanderNameRef.value,
+                        reportTime : getReportTime(reportDateRef.value)
                      };
 
     const requestOptions = {
@@ -1663,11 +1684,15 @@ function performEditCallsign() {
             Update the shelter materiel information by time period and type. 
             <br>
               <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
+              <div>
                   <label for="timeframeField">Timeframe:</label>
                   <select name="timeframeField" id="timeframe" v-model="timeframeRef.value" style="display: inline;">
-                      <option value="1" selected>Today</option>
-                      <option value="2">Expected tomorrow</option>
-                      <option value="3">Needed tomorrow</option>
+                      <option value="1" selected>On-hand</option>
+                      <option value="2">Required</option>
+                      <option value="3">Used</option>
                   </select>
               </div>
               <div>
@@ -1713,11 +1738,15 @@ function performEditCallsign() {
             Update the shelter food information by time period and meal types. 
             <br>
               <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
+              <div>
                   <label for="timeframeField">Timeframe:</label>
                   <select name="timeframeField" id="timeframe" v-model="timeframeRef.value" style="display: inline;">
-                      <option value="1" selected>Today</option>
-                      <option value="2">Expected tomorrow</option>
-                      <option value="3">Needed tomorrow</option>
+                      <option value="1" selected>On-hand</option>
+                      <option value="2">Required</option>
+                      <option value="3">Used</option>
                   </select>
               </div>
               <div>
@@ -1755,6 +1784,10 @@ function performEditCallsign() {
             <div class="line"><hr/></div>
             Update the shelter worker census by job classification. 
             <br>
+              <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
               <div>
                   <label for="shiftField">Status:</label>
                   <select name="shiftField" id="shift" v-model="shiftRef.value" style="display: inline;">
@@ -1805,6 +1838,10 @@ function performEditCallsign() {
             <div class="line"><hr/></div>
             Update the shelter population census by age cohort. 
             <br>
+              <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
               <div>
                 <label for="population03">Ages 0 - 3:</label>
                 <input style="padding: 5px;" type="number" id="population03" v-model="population03Ref.value"/>
@@ -1886,6 +1923,10 @@ function performEditCallsign() {
             Update the EOC mobilization name, status and level. 
             <br>
               <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
+              <div>
                 <label for="eocName">EOC name:</label>
                 <input type="text" id="eocName" v-model="eocNameRef.value"/>
               </div>
@@ -1894,8 +1935,9 @@ function performEditCallsign() {
                   <select name="statusField" id="status" v-model="statusRef.value" style="display: inline;">
                       <option value="0" selected>Unknown</option>
                       <option value="1">Normal</option>
-                      <option value="2">Partial</option>
-                      <option value="3">Full</option>
+                      <option value="2">Drill</option>
+                      <option value="3">Partial</option>
+                      <option value="4">Full</option>
                   </select>
               </div>
               <div>
@@ -1927,6 +1969,10 @@ function performEditCallsign() {
             <div class="line"><hr/></div>
             Update the EOC contacts. 
             <br>
+              <div>
+                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
+                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+              </div>
               <div>
                 <label for="directorName">EOC director name:</label>
                 <input style="padding: 5px;" type="text" id="directorName" v-model="directorNameRef.value"/>

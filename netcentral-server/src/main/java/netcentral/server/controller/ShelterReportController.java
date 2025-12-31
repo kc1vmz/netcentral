@@ -216,7 +216,7 @@ public class ShelterReportController {
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
         APRSNetCentralShelterCensusReport aprsReport = new APRSNetCentralShelterCensusReport(obj.getCallsignFrom(), report.getPopulation03(), report.getPopulation47(), report.getPopulation812(),
-                                                                report.getPopulation1318(), report.getPopulation1965(), report.getPopulation66(), ZonedDateTime.now());
+                                                                report.getPopulation1318(), report.getPopulation1965(), report.getPopulation66(), report.getReportTime());
         aprsReport = reportAccessor.addShelterCensusReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -236,7 +236,7 @@ public class ShelterReportController {
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
         APRSNetCentralShelterWorkerReport aprsReport = new APRSNetCentralShelterWorkerReport(obj.getCallsignFrom(), report.getShift(), report.getHealth(), report.getMental(), report.getSpiritual(),
-                                                                        report.getCaseworker(), report.getFeeding(), report.getOther(), ZonedDateTime.now());
+                                                                        report.getCaseworker(), report.getFeeding(), report.getOther(), report.getReportTime());
         aprsReport = reportAccessor.addShelterWorkerReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -255,12 +255,9 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        ZonedDateTime today = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        ZonedDateTime tomorrow = today.plusDays(1);
-
         APRSNetCentralShelterOperationalFoodReport aprsReport = new APRSNetCentralShelterOperationalFoodReport(obj.getCallsignFrom(), report.getTimeframe().ordinal(), report.getBreakfast(), report.getLunch(), report.getDinner(),
                                                                                 report.getSnack(),
-                                                                                (report.getTimeframe().equals(ObjectShelterReportingTimeframe.TODAY)) ? today : tomorrow, ZonedDateTime.now());
+                                                                                report.getReportTime(), ZonedDateTime.now());
         aprsReport = reportAccessor.addShelterOperationalFoodReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -279,12 +276,9 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        ZonedDateTime today = ZonedDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        ZonedDateTime tomorrow = today.plusDays(1);
-
-        APRSNetCentralShelterOperationalMaterielReport aprsReport = new APRSNetCentralShelterOperationalMaterielReport(obj.getCallsignFrom(), report.getTimeframe().ordinal(),report.getCots(),
+        APRSNetCentralShelterOperationalMaterielReport aprsReport = new APRSNetCentralShelterOperationalMaterielReport(obj.getCallsignFrom(), report.getTimeframe().ordinal(), report.getCots(),
                                                                                 report.getBlankets(), report.getComfort(), report.getCleanup(), report.getSignage(), report.getOther(),
-                                                                                (report.getTimeframe().equals(ObjectShelterReportingTimeframe.TODAY)) ? today : tomorrow, ZonedDateTime.now());
+                                                                                report.getReportTime(), ZonedDateTime.now());
         aprsReport = reportAccessor.addShelterOperationalMaterielReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message

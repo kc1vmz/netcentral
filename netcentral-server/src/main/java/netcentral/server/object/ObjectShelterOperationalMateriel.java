@@ -1,5 +1,7 @@
 package netcentral.server.object;
 
+import java.time.ZonedDateTime;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -30,12 +32,12 @@ public class ObjectShelterOperationalMateriel {
     private Integer cleanup;
     private Integer signage;
     private Integer other;
-
+    private ZonedDateTime reportTime;
 
     public ObjectShelterOperationalMateriel() {
     }
     public ObjectShelterOperationalMateriel(ObjectShelterReportingTimeframe timeframe, Integer cots, 
-                                                        Integer blankets, Integer comfort, Integer cleanup, Integer signage, Integer other) {
+                                                        Integer blankets, Integer comfort, Integer cleanup, Integer signage, Integer other, ZonedDateTime reportTime) {
         setTimeframe(timeframe);
         setCots(cots);
         setBlankets(blankets);
@@ -43,6 +45,7 @@ public class ObjectShelterOperationalMateriel {
         setCleanup(cleanup);
         setSignage(signage);
         setOther(other);
+        setReportTime(reportTime);
     }
 
     public ObjectShelterReportingTimeframe getTimeframe() {
@@ -86,6 +89,12 @@ public class ObjectShelterOperationalMateriel {
     }
     public void setOther(Integer other) {
         this.other = other;
+    }
+    public ZonedDateTime getReportTime() {
+        return reportTime;
+    }
+    public void setReportTime(ZonedDateTime reportTime) {
+        this.reportTime = reportTime;
     }
 }
 

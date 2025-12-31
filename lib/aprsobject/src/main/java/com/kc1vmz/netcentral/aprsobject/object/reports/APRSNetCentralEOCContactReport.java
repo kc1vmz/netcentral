@@ -22,6 +22,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 
 import java.time.ZonedDateTime;
 
+import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
+
 public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
 
     private String directorName;
@@ -36,15 +38,13 @@ public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC);
         this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_CONTACT);
-        String data = String.format("%s:%s:%4d%02d%02d",
+        String data = String.format("%s%s:%s", PrettyZonedDateTimeFormatter.formatAPRSReport(lastReportedTime),
                                             (directorName.length() > 25) ? directorName.substring(0, 25) : directorName, 
-                                            (incidentCommanderName.length() > 25) ? incidentCommanderName.substring(0, 25) : incidentCommanderName, 
-                                            lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth());
+                                            (incidentCommanderName.length() > 25) ? incidentCommanderName.substring(0, 25) : incidentCommanderName);
         this.setReportData(data);
         this.setDirectorName(directorName);
         this.setIncidentCommanderName(incidentCommanderName);
-
-        this.lastReportedTime = lastReportedTime;
+        this.setLastReportedTime(lastReportedTime);
     }
 
     public String getDirectorName() {
@@ -68,26 +68,24 @@ public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
     public static APRSNetCentralEOCContactReport isValid(String objectName, String message) {
         APRSNetCentralEOCContactReport ret = null;
         if ((message != null) && (message.length() >= 14)) {
-            //"EOCO%s:%s:%4d%02d%02d", directorName, incidentCommanderName.length(), lastReportedTime.getYear(), lastReportedTime.getMonthValue(), lastReportedTime.getDayOfMonth());
+            //"EOCO%s%s:%s", time, directorName, incidentCommanderName);
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
 
             if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC)) {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_CONTACT)) {
-                    String remainder = message.substring(4);
+                    String timeStr = message.substring(4, 18);
+                    String remainder = message.substring(18);
                     String [] varFields = remainder.split(":");
-                    if ((varFields == null) || (varFields.length != 3)) {
+                    if ((varFields == null) || (varFields.length != 2)) {
                         return ret;
                     }
 
                     String directorName = varFields[0];
                     String incidentCommanderName = varFields[1];
-                    String year = varFields[2].substring(0, 4);
-                    String month = varFields[2].substring(4, 6);
-                    String day = varFields[2].substring(6);
 
                     try {
-                        ZonedDateTime time = ZonedDateTime.now().withYear(Integer.parseInt(year)).withMonth(Integer.parseInt(month)).withDayOfMonth(Integer.parseInt(day)).withHour(0).withMinute(0);
+                        ZonedDateTime time = PrettyZonedDateTimeFormatter.fromAPRSReport(timeStr);
                         ret = new APRSNetCentralEOCContactReport(objectName, directorName, incidentCommanderName, time);
                     } catch (Exception e) {
                         ret = null;
