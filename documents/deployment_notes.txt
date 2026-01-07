@@ -1,10 +1,13 @@
 This document attempts to describe all of the steps and nuances of deploying Net Central onto different operating systems.
-It is best to get Net Central running against an APRS-IS server then add radio support.  This is to prove that Net Central is working pefore introducing the nuances of each radio.
+It is best to get Net Central running against an APRS-IS server then add radio support.  This is to prove that Net Central is working before introducing the nuances of each radio.
+
+For Linux, this guide assumes you are NOT running as root.
 
 
 Overview
 
 The following steps are expected for all operating systems:
+  Getting Started
   Install Java 21 JDK
   Install MySQL (preferrably 8)
   Initialize MySQL for Net Central
@@ -13,10 +16,17 @@ The following steps are expected for all operating systems:
   Install VS Code (optional)
   Configure Net Central environment variables
   Build Net Central
+  Installing NodeJS
   Pre-run configuration steps
   Run Net Central
   Configure Net Central
   Conclusion
+
+
+Getting Started
+
+If running on Linux, make sure you have all of the most recent updates by running the following command: sudo apt update
+If running on Windows, make sure you have applied all available updates.
 
 
 Install Java 21 JDK
@@ -39,12 +49,24 @@ Initialize MySQL
 
 Once MySQL is installed, you need to create the schema/database and the Net Central user to access it.
 
-The following SQL can be executed against the MySQL server:
+The easiest way to execute this SQL against a MySQL server on Linux is to run the following command: sudo mysql -u root -p
+Note: there is no password by default
+
+The following SQL should be executed against the MySQL server:
 
   create schema netcentral;
   create user 'netcentral'@'localhost' IDENTIFIED BY 'netcentral';
   grant all privileges on netcentral.* to 'netcentral'@'localhost';
   flush privileges;
+
+If you wish to change the default databasename / username / password from netcentral / netcentral, the syntax is as follows:
+
+  create schema databasename;
+  create user 'your_username'@'localhost' IDENTIFIED BY 'your_password';
+  grant all privileges on databasename.* to 'your_username'@'localhost';
+  flush privileges;
+
+Make note of what you use for later steps when setting environment variables.
 
 
 Install Maven
@@ -53,7 +75,6 @@ Maven is a build tool used to build the Java components of Net Central.
 
 To download and install Maven, see https://maven.apache.org/download.cgi
 On Linux, the easiest way is to run :
-  sudo apt update
   sudo apt install maven -y
 On Windows, download from the above link and install.
 
@@ -63,6 +84,9 @@ Get Net Central source code
 Net Central source code is available on Github at https://github.com/kc1vmz/netcentral
 
 To download the source code, select the options from the green Code button.
+
+If you wish to download a TAR or ZIP file of sources without the need of a git client, select the latest source from dialog that popped up.
+Or select the specific tag for the code you with to run and download the source.
 
 To download a git client, see https://git-scm.com/ and follow the instructions for download and install.
 The easiest way to to this on Linux is to run "sudo apt-get install git"
@@ -98,13 +122,17 @@ The following values should be used in future steps for initializing Net Central
   NETCENTRAL_TRANS_APRSIS_QUERY=r/42.222/-71.57/500
   This can represent an APRS-IS server query for your location. See https://www.aprs-is.net/javAPRSFilter.aspx for more details.
 
+If you change the default netcentral/netcentral/netcentral database name/username/password when initializing MySQL, you must also set these environment variables:
+  NETCENTRAL_SERVER_MYSQL_USERNAME=your_username
+  NETCENTRAL_SERVER_MYSQL_PASSWORD=your_password
+  NETCENTRAL_SERVER_MYSQL_DBNAME=databasename
+
 Make sure that you create the following directories based on your value of TempLocationForLogsAndReports above
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%\logs
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%\reports
 
-On Linux, make sure to set the owner to someone other than root: 
-  example: sudo chown USERNAME %NETCENTRAL_SERVER_TEMP_DIR%
+Make sure the environment variables are in the proper format for the operating system being used (forward vs back slashes).
 
 
 Each additional transceiver (KISS, Kenwood, others) have their own environment variables as well.  See the end of this document for all variables.
@@ -117,6 +145,14 @@ Build Net Central
 
 To build Net Central using Maven, change directory to where you downloaded the Net Central source code and run "mvn clean install".
 To build Net Central using VS Code, open the folder where Net Central source code was downloaded. It will automatically build all of the components.
+
+
+Installing NodeJS
+
+Make sure NodeJS is installed prior to starting the Net Central UI.
+For Linux, change to the ./ui/net-central-ui directory and run:
+  sudo apt install npm -y
+  npm install
 
 
 Pre-run configuration steps
@@ -149,17 +185,11 @@ To run Net Central APRS-IS transceiver from a command prompt / terminal, do the 
 To run Net Central UI from a command prompt / terminal on Linux, do the following:
   From the Net Central source code directory, change directory to ./ui/net-central-ui
   Run "npm run dev" to start the UI.
-  If the UI does not start, you may need to install Node.JS
-    nvm install --lts
-    npm install
 
 To run Net Central UI from a command prompt / terminal on Windows, do the following:
   Do all steps from a Linux subsystem such as Ubuntu or Debian
   From the Net Central source code directory, change directory to ./ui/net-central-ui
   Run "npm run dev" to start the UI.
-  If the UI does not start, you may need to install Node.JS
-    nvm install --lts
-    npm install
 
 
 Configure Net Central
