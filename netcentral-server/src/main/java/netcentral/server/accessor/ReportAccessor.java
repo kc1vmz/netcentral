@@ -108,6 +108,41 @@ public class ReportAccessor {
     }
 
 
+    public APRSNetCentralShelterCensusReport getShelterCensusReport(User loggedInUser, String callsign, String reportDateStr) {
+        APRSNetCentralShelterCensusReport report = null;
+        if (callsign == null) {
+            logger.debug("callsign id not provided");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
+        }
+
+        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
+        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
+        try {
+            List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findBycallsign(callsign);
+            ShelterCensusReportRecord latestRecord = null;
+            ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
+            
+            if ((records != null) && (!records.isEmpty())) {
+                for (ShelterCensusReportRecord rec : records) {
+                    if ((rec.reported_date().isBefore(reportDateStart)) || (rec.reported_date().isAfter(reportDateEnd))) {
+                        continue;
+                    }
+                    if (latestTime.isBefore(rec.reported_date())) {
+                        latestTime = rec.reported_date();
+                        latestRecord = rec;
+                    }
+                }
+            }
+
+            if (latestRecord != null) {
+                 report = new APRSNetCentralShelterCensusReport(latestRecord.callsign(), latestRecord.p03(), latestRecord.p47(), latestRecord.p812(), latestRecord.p1318(), latestRecord.p1965(), latestRecord.p66(), latestRecord.reported_date());
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught getting latest report", e);
+        }
+        return report;
+    }
+
     public List<APRSNetCentralShelterCensusReport> getAllLatestShelterCensusReport(User loggedInUser, String callsign) {
         List<APRSNetCentralShelterCensusReport> reports = new ArrayList<>();
 
@@ -153,6 +188,45 @@ public class ReportAccessor {
 
             if (latestRecord != null) {
                  report = new APRSNetCentralShelterStatusReport(latestRecord.callsign(), latestRecord.status(), latestRecord.state(), latestRecord.message(), latestRecord.reported_date());
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught getting latest report", e);
+        }
+        return report;
+    }
+
+    public APRSNetCentralShelterWorkerReport getShelterWorkerReport(User loggedInUser, String callsign, int shift, String reportDateStr) {
+        APRSNetCentralShelterWorkerReport report = null;
+        if (callsign == null) {
+            logger.debug("callsign id not provided");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
+        }
+
+        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
+        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
+
+        try {
+            List<ShelterWorkerReportRecord> records = shelterWorkerReportRepository.findBycallsign(callsign);
+            ShelterWorkerReportRecord latestRecord = null;
+            ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
+            
+            if ((records != null) && (!records.isEmpty())) {
+                for (ShelterWorkerReportRecord rec : records) {
+                    if ((rec.reported_date().isBefore(reportDateStart)) || (rec.reported_date().isAfter(reportDateEnd))) {
+                        continue;
+                    }
+                    if (rec.shift() == shift) {
+                        if (latestTime.isBefore(rec.date())) {
+                            latestTime = rec.date();
+                            latestRecord = rec;
+                        }
+                    }
+                }
+            }
+
+            if (latestRecord != null) {
+                 report = new APRSNetCentralShelterWorkerReport(latestRecord.callsign(), latestRecord.shift(), latestRecord.health(), latestRecord.mental(), latestRecord.spiritual(), 
+                                                                latestRecord.caseworker(), latestRecord.feeding(), latestRecord.other(), latestRecord.date());
             }
         } catch (Exception e) {
             logger.error("Exception caught getting latest report", e);
@@ -225,6 +299,44 @@ public class ReportAccessor {
         return report;
     }
 
+    public APRSNetCentralShelterOperationalFoodReport getShelterOperationalFoodReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe, String reportDateStr) {
+        APRSNetCentralShelterOperationalFoodReport report = null;
+        if (callsign == null) {
+            logger.debug("callsign id not provided");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
+        }
+
+        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
+        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
+
+        try {
+            List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findBycallsign(callsign);
+            ShelterOperationalFoodReportRecord latestRecord = null;
+            ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
+            
+            if ((records != null) && (!records.isEmpty())) {
+                for (ShelterOperationalFoodReportRecord rec : records) {
+                    if ((rec.date().isBefore(reportDateStart)) || (rec.date().isAfter(reportDateEnd))) {
+                        continue;
+                    }
+                    if (rec.timeframe() == timeframe.ordinal()) {
+                        if (latestTime.isBefore(rec.date())) {
+                            latestTime = rec.date();
+                            latestRecord = rec;
+                        }
+                    }
+                }
+            }
+
+            if (latestRecord != null) {
+                 report = new APRSNetCentralShelterOperationalFoodReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.breakfast(), latestRecord.lunch(), latestRecord.dinner(), latestRecord.snack(), latestRecord.date(), latestRecord.reported_date());
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught getting latest report", e);
+        }
+        return report;
+    }
+
     public APRSNetCentralShelterOperationalMaterielReport getLatestShelterOperationalMaterielReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe) {
         APRSNetCentralShelterOperationalMaterielReport report = null;
         if (callsign == null) {
@@ -239,6 +351,45 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterOperationalMaterielReportRecord rec : records) {
+                    if (rec.timeframe() == timeframe.ordinal()) {
+                        if (latestTime.isBefore(rec.date())) {
+                            latestTime = rec.date();
+                            latestRecord = rec;
+                        }
+                    }
+                }
+            }
+
+            if (latestRecord != null) {
+                 report = new APRSNetCentralShelterOperationalMaterielReport(latestRecord.callsign(), latestRecord.timeframe(), latestRecord.cots(), latestRecord.blankets(), 
+                                        latestRecord.comfort(), latestRecord.cleanup(), latestRecord.signage(), latestRecord.other(), latestRecord.date(), latestRecord.reported_date());
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught getting latest report", e);
+        }
+        return report;
+    }
+
+    public APRSNetCentralShelterOperationalMaterielReport getShelterOperationalMaterielReport(User loggedInUser, String callsign, ObjectShelterReportingTimeframe timeframe, String reportDateStr) {
+        APRSNetCentralShelterOperationalMaterielReport report = null;
+        if (callsign == null) {
+            logger.debug("callsign id not provided");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
+        }
+
+        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
+        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
+
+        try {
+            List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findBycallsign(callsign);
+            ShelterOperationalMaterielReportRecord latestRecord = null;
+            ZonedDateTime latestTime = ZonedDateTime.now().minusYears(100);
+            
+            if ((records != null) && (!records.isEmpty())) {
+                for (ShelterOperationalMaterielReportRecord rec : records) {
+                    if ((rec.date().isBefore(reportDateStart)) || (rec.date().isAfter(reportDateEnd))) {
+                        continue;
+                    }
                     if (rec.timeframe() == timeframe.ordinal()) {
                         if (latestTime.isBefore(rec.date())) {
                             latestTime = rec.date();

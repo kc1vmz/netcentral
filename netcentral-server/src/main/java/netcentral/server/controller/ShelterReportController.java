@@ -91,7 +91,7 @@ public class ShelterReportController {
     }
 
     @Get("/{callsign}/status")
-    public ObjectShelterStatusReport getShelterStatusReport(HttpRequest<?> request, @PathVariable String callsign) {
+    public ObjectShelterStatusReport getShelterStatusReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue String reportDate) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
@@ -104,26 +104,26 @@ public class ShelterReportController {
 
 
     @Get("/{callsign}/workers")
-    public ObjectShelterWorkerReport getShelterWorkerReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer shift) {
+    public ObjectShelterWorkerReport getShelterWorkerReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer shift, @QueryValue String reportDate) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterWorkerReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, obj.getCallsignFrom(), shift);
+        APRSNetCentralShelterWorkerReport report = reportAccessor.getShelterWorkerReport(loggedInUser, obj.getCallsignFrom(), shift, reportDate);
         ObjectShelterWorkerReport ret = new ObjectShelterWorkerReport(report.getObjectName(), shift, report.getHealth(), 
                                                     report.getMental(), report.getSpiritual(), report.getCaseworker(), report.getFeeding(), report.getOther(), report.getDateReported());
         return ret;
     }
 
     @Get("/{callsign}/operationalFoods")
-    public ObjectShelterOperationalFoodReport getShelterOperationalFoodReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer timeframe) {
+    public ObjectShelterOperationalFoodReport getShelterOperationalFoodReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer timeframe, @QueryValue String reportDate) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalFoodReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe]);
+        APRSNetCentralShelterOperationalFoodReport report = reportAccessor.getShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
         ObjectShelterOperationalFoodReport ret = new ObjectShelterOperationalFoodReport(report.getObjectName(), ObjectShelterReportingTimeframe.values()[timeframe], 
                                                                                             report.getBreakfast(), report.getLunch(), report.getDinner(), report.getSnack(), report.getDateReported());
 
@@ -131,13 +131,13 @@ public class ShelterReportController {
     }
 
     @Get("/{callsign}/operationalMateriels")
-    public ObjectShelterOperationalMaterielReport getShelterOperationalMaterielReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer timeframe) {
+    public ObjectShelterOperationalMaterielReport getShelterOperationalMaterielReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue Integer timeframe, @QueryValue String reportDate) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalMaterielReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe]);
+        APRSNetCentralShelterOperationalMaterielReport report = reportAccessor.getShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
         ObjectShelterOperationalMaterielReport ret = new ObjectShelterOperationalMaterielReport(report.getObjectName(), ObjectShelterReportingTimeframe.values()[timeframe], report.getCots(), report.getBlankets(), 
                                                                      report.getComfort(), report.getCleanup(), report.getSignage(), report.getOther(), report.getDateReported());
 
@@ -145,13 +145,13 @@ public class ShelterReportController {
     }
 
     @Get("/{callsign}/census")
-    public ObjectShelterCensusReport getShelterCensusReport(HttpRequest<?> request, @PathVariable String callsign) {
+    public ObjectShelterCensusReport getShelterCensusReport(HttpRequest<?> request, @PathVariable String callsign, @QueryValue String reportDate) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterCensusReport report = reportAccessor.getLatestShelterCensusReport(loggedInUser, obj.getCallsignFrom());
+        APRSNetCentralShelterCensusReport report = reportAccessor.getShelterCensusReport(loggedInUser, obj.getCallsignFrom(),reportDate);
         ObjectShelterCensusReport ret = new ObjectShelterCensusReport(report.getObjectName(), report.getP03(), report.getP47(), report.getP812(), report.getP1318(), report.getP1965(), report.getP66(), report.getDateReported());
 
         return ret;

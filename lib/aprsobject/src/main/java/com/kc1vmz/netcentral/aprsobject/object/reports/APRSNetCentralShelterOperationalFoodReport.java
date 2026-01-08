@@ -49,7 +49,7 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
             infoType = REPORT_INFOTYPE_UNKNOWN;
         }
         String data = String.format("%d%06d%06d%06d%06d%4d%02d%02d", infoType, breakfast, lunch, dinner, snack, 
-                                        dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
+                                        date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         this.setReportData(data);
 
         this.date = date;

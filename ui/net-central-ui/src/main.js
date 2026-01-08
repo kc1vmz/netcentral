@@ -26,6 +26,8 @@ import App from './App.vue'
 import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
 import Vue3SocketIO from '@hlf01/vue3-socket.io';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 import jQuery from "jquery";
 const $ = jQuery;
@@ -47,5 +49,6 @@ app.use(
   })
 );
 app.component('EasyDataTable', Vue3EasyDataTable);
+app.component('VueDatePicker', VueDatePicker);
 app.use(router);
 app.mount('#app');

@@ -51,7 +51,7 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
             infoType = REPORT_INFOTYPE_UNKNOWN;
         }
         String data = String.format("%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", infoType, cots, blankets, comfort, cleanup, signage, other, 
-                                        dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
+                                        date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         this.setReportData(data);
 
         this.infoType = infoType;

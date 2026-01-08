@@ -257,7 +257,6 @@ const incidentCommanderNameRef = reactive({value : ''});
 const eocNameRef = reactive({value : ''});
 const messageRef = reactive({value : ''});
 const statusRef = reactive({value : 1});
-const reportDateRef = reactive({value : ''});
 const levelRef = reactive({value : 1});
 const stateRef = reactive({value : 1});
 const population03Ref = reactive({value : 0});
@@ -287,7 +286,8 @@ const aceCallsignRef = reactive({value : ''});
 const aceCallsignTypeRef = reactive({value : 1});
 const aceProximityRef = reactive({value : 500});
 const errorMessageRef = reactive({value : null});
-
+const shelterReportDatePickerRef = ref(new Date(new Date().setHours(0,0,0,0)));
+const todayDatePickerRef = reactive( { value : new Date(new Date().setHours(0,0,0,0)) });
 
 const headers = [
         { text: "Time", value: "prettyLdtime", sortable: true },
@@ -325,12 +325,12 @@ const headersAccessControl = [
 
 const headersShelterCensus = [
         { text: "Time", value: "prettyLastReportedTime", sortable: true },
-        { text: "Age 0-3", value: "population03", sortable: true},
-        { text: "Age 4-7", value: "population47", sortable: true},
-        { text: "Age 8-12", value: "population812", sortable: true},
-        { text: "Age 13-18", value: "population1318", sortable: true},
-        { text: "Age 19-65", value: "population1965", sortable: true},
-        { text: "Age 66+", value: "population66", sortable: true}
+        { text: "Ages 0-3", value: "population03", sortable: true},
+        { text: "Ages 4-7", value: "population47", sortable: true},
+        { text: "Ages 8-12", value: "population812", sortable: true},
+        { text: "Ages 13-18", value: "population1318", sortable: true},
+        { text: "Ages 19-65", value: "population1965", sortable: true},
+        { text: "Ages 66+", value: "population66", sortable: true}
       ];
 
 const headersStatus = [
@@ -358,6 +358,13 @@ watch(selectedObject, (newSelectedObject, oldSelectedObject) => {
 });
 watch(selectedObjectType, (newSelectedObjectType, oldSelectedObjectType) => {
   updateLocalSelectedObjectType(newSelectedObjectType);
+});
+
+watch(shelterReportDatePickerRef, (oldDate, newDate) => {
+  if ((localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT')) {
+    // get shelter reports for this date
+    fetchShelterReports();
+  }
 });
 
 
@@ -409,21 +416,74 @@ function fetchACL() {
     .catch(error => { console.error('Error getting access control list from server:', error); })
 }
 
+function getReportDate(date) {
+    if (date == null) {
+      return null;
+    }
+    var dateStr = date.value.toISOString();
+    return dateStr.substring(0, 10);
+}
+
+function initOperationalMaterielReport() {
+  return {
+            infoType: 0,
+            cots : "",
+            blankets : "",
+            comfort : "",
+            signage : "",
+            cleanup : "",
+            other : "",
+            lastReportedTime : "",
+            prettyLastReportedTime : ""
+          };
+}
+
+function initWorkerCensusReport() {
+  return {
+            shift : 0,
+            health : "",
+            mental : "",
+            spiritual : "",
+            caseworker : "",
+            feeding : "",
+            other : "",
+            lastReportedTime : "",
+            prettyLastReportedTime : ""
+          };
+}
+
+function initOperationalFoodReport() {
+  return {
+            infoType : 0,
+            breakfast : "",
+            lunch : "",
+            dinner : "",
+            snack : "",
+            lastReportedTime : "",
+            prettyLastReportedTime : ""
+          };
+}
+
 function fetchShelterReports() {
   shelterStatusReport.value = null;
-  shelterWorkersReport1.value = null;
-  shelterWorkersReport2.value = null;
-  shelterWorkersReport3.value = null;
+  shelterWorkersReport1.value = initWorkerCensusReport();
+  shelterWorkersReport2.value = initWorkerCensusReport();
+  shelterWorkersReport3.value = initWorkerCensusReport();
   shelterCensusReport.value = null;
   shelterCensusReports.value = null;
-  shelterOperationalFoodReport1.value = null;
-  shelterOperationalFoodReport2.value = null;
-  shelterOperationalFoodReport3.value = null;
-  shelterOperationalMaterielReport1.value = null;
-  shelterOperationalMaterielReport2.value = null;
-  shelterOperationalMaterielReport3.value = null;
+  shelterOperationalFoodReport1.value = initOperationalFoodReport();
+  shelterOperationalFoodReport2.value = initOperationalFoodReport();
+  shelterOperationalFoodReport3.value = initOperationalFoodReport();
+  shelterOperationalMaterielReport1.value = initOperationalMaterielReport();
+  shelterOperationalMaterielReport2.value = initOperationalMaterielReport();
+  shelterOperationalMaterielReport3.value = initOperationalMaterielReport();
 
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/status'), getGetRequestOptions())
+  var reportDateStr = getReportDate(shelterReportDatePickerRef);
+  if (reportDateStr == null) {
+    return; // no date specified
+  }
+
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/status?reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -435,7 +495,7 @@ function fetchShelterReports() {
         shelterStatusReport.value = data;
     })
     .catch(error => { console.error('Error getting shelter status report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=1'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=1&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -444,10 +504,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterWorkersReport1.value = data;
+        if (data == null) {
+          shelterWorkersReport1.value = initWorkerCensusReport();
+        } else {
+          shelterWorkersReport1.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter workers shift 1 report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=2'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=2&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -456,10 +520,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterWorkersReport2.value = data;
+        if (data == null) {
+          shelterWorkersReport2.value = initWorkerCensusReport();
+        } else {
+          shelterWorkersReport2.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter workers shift 2 report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=3'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/workers?shift=3&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -468,10 +536,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterWorkersReport3.value = data;
+        if (data == null) {
+          shelterWorkersReport3.value = initWorkerCensusReport();
+        } else {
+          shelterWorkersReport3.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter workers shift 3 report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/census'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/census?reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -495,7 +567,7 @@ function fetchShelterReports() {
         shelterCensusReports.value = data;
     })
     .catch(error => { console.error('Error getting shelter census report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=1'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=1&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -504,10 +576,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalFoodReport1.value = data;
+        if (data == null) {
+          shelterOperationalFoodReport1.value = initOperationalFoodReport();
+        } else {
+          shelterOperationalFoodReport1.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter food today report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=2'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=2&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -516,10 +592,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalFoodReport2.value = data;
+        if (data == null) {
+          shelterOperationalFoodReport2.value = initOperationalFoodReport();
+        } else {
+          shelterOperationalFoodReport2.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter food tomorrow report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=3'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalFoods?timeframe=3&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -528,10 +608,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalFoodReport3.value = data;
+        if (data == null) {
+          shelterOperationalFoodReport3.value = initOperationalFoodReport();
+        } else {
+          shelterOperationalFoodReport3.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter food needed report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=1'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=1&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -540,10 +624,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalMaterielReport1.value = data;
+        if (data == null) {
+          shelterOperationalMaterielReport1.value = initOperationalMaterielReport();
+        } else {
+          shelterOperationalMaterielReport1.value = data;
+        }
     })
     .catch(error => { console.error('Error getting shelter materiel today report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=2'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=2&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -552,10 +640,14 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalMaterielReport2.value = data;
-    })
+        if (data == null) {
+          shelterOperationalMaterielReport2.value = initOperationalMaterielReport();
+    } else {
+      shelterOperationalMaterielReport2.value = data;
+    }
+  })
     .catch(error => { console.error('Error getting shelter materiel tomorrow report from server:', error); })
-  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=3'), getGetRequestOptions())
+  fetch(buildNetCentralUrl('/shelterReports/'+localSelectedObject.ncSelectedObject.callsign+'/operationalMateriels?timeframe=3&reportDate='+reportDateStr), getGetRequestOptions())
     .then(response => {
         if (response.status == 200) {
           return response.json();
@@ -564,8 +656,12 @@ function fetchShelterReports() {
         }
       })
     .then(data => {
-        shelterOperationalMaterielReport3.value = data;
-    })
+        if (data == null) {
+          shelterOperationalMaterielReport3.value = initOperationalMaterielReport();
+    } else {
+      shelterOperationalMaterielReport3.value = data;
+    }
+  })
     .catch(error => { console.error('Error getting shelter materiel needed report from server:', error); })
 }
 
@@ -632,17 +728,17 @@ watch(
     weatherReports.value = null;
     latestWeatherReport.value = null;
     shelterStatusReport.value = null;
-    shelterOperationalFoodReport1.value = null;
-    shelterOperationalFoodReport2.value = null;
-    shelterOperationalFoodReport3.value = null;
-    shelterOperationalMaterielReport1.value = null;
-    shelterOperationalMaterielReport2.value = null;
-    shelterOperationalMaterielReport3.value = null;
+    shelterWorkersReport1.value = initWorkerCensusReport();
+    shelterWorkersReport2.value = initWorkerCensusReport();
+    shelterWorkersReport3.value = initWorkerCensusReport();
+    shelterOperationalFoodReport1.value = initOperationalFoodReport();
+    shelterOperationalFoodReport2.value = initOperationalFoodReport();
+    shelterOperationalFoodReport3.value = initOperationalFoodReport();
+    shelterOperationalMaterielReport1.value = initOperationalMaterielReport();
+    shelterOperationalMaterielReport2.value = initOperationalMaterielReport();
+    shelterOperationalMaterielReport3.value = initOperationalMaterielReport();
     shelterCensusReport.value = null;
     shelterCensusReports.value = null;
-    shelterWorkersReport1.value = null;
-    shelterWorkersReport2.value = null;
-    shelterWorkersReport3.value = null;
     eocMobilizationReport.value = null;
     eocMobilizationReports.value = null;
     eocContactReport.value = null;
@@ -824,8 +920,8 @@ function shelterUpdateOperationalMateriel() {
     cleanupRef.value = 0;
     signageRef.value = 0;
     otherRef.value = 0;
-    reportDateRef.value = getCurrentDayString();
     timeframeRef.value = 1;
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
 
     dialogShelterUpdateOperationalMaterielShow.value = true;
 }
@@ -851,7 +947,7 @@ function performShelterUpdateOperationalMateriel() {
                         cleanup : cleanupRef.value,
                         signage : signageRef.value,
                         other : otherRef.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                     };
 
     const requestOptions = {
@@ -878,7 +974,7 @@ function shelterUpdateOperationalFood() {
     lunchRef.value = 0;
     dinnerRef.value = 0;
     snackRef.value = 0;
-    reportDateRef.value = getCurrentDayString();
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
     dialogShelterUpdateOperationalFoodShow.value = true;
 }
 
@@ -901,7 +997,7 @@ function performShelterUpdateOperationalFood() {
                         lunch : lunchRef.value,
                         dinner : dinnerRef.value,
                         snack : snackRef.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                     };
 
     const requestOptions = {
@@ -931,7 +1027,7 @@ function shelterUpdateWorker() {
     caseworkerRef.value = 0;
     feedingRef.value = 0;
     otherRef.value = 0;
-    reportDateRef.value = getCurrentDayString();
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
     dialogShelterUpdateWorkerShow.value = true;
 }
 
@@ -956,7 +1052,7 @@ function performShelterUpdateWorker() {
                         caseworker : caseworkerRef.value,
                         feeding : feedingRef.value,
                         other : otherRef.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                     };
 
     const requestOptions = {
@@ -984,7 +1080,7 @@ function shelterUpdateCensus() {
     population1318Ref.value = 0;
     population1965Ref.value = 0;
     population66Ref.value = 0;
-    reportDateRef.value = getCurrentDayString();
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
     dialogShelterUpdateCensusShow.value = true;
 }
 
@@ -1009,7 +1105,7 @@ function performShelterUpdateCensus() {
                         population1318 : population1318Ref.value,
                         population1965 : population1965Ref.value,
                         population66 : population66Ref.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                     };
 
     const requestOptions = {
@@ -1087,7 +1183,7 @@ function eocUpdateMobilization() {
     eocNameRef.value = '';
     statusRef.value = 0;
     levelRef.value = 0;
-    reportDateRef.value = getCurrentDayString();
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
     dialogEOCUpdateMobilizationShow.value = true;
 }
 
@@ -1108,7 +1204,7 @@ function performEOCUpdateMobilization() {
                         eocName : eocNameRef.value,
                         status : statusRef.value,
                         level : levelRef.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                     };
 
     const requestOptions = {
@@ -1132,7 +1228,7 @@ function performEOCUpdateMobilization() {
 function eocUpdateContacts() {
     incidentCommanderNameRef.value = '';
     directorNameRef.value = '';
-    reportDateRef.value = getCurrentDayString();
+    todayDatePickerRef.value = new Date(new Date().setHours(0,0,0,0));
     dialogEOCUpdateContactsShow.value = true;
 }
 
@@ -1152,7 +1248,7 @@ function performEOCUpdateContacts() {
     var bodyObject = { 
                         directorName : directorNameRef.value,
                         incidentCommanderName : incidentCommanderNameRef.value,
-                        reportTime : getReportTime(reportDateRef.value)
+                        reportTime : getReportTime(getReportDate(todayDatePickerRef))
                      };
 
     const requestOptions = {
@@ -1614,6 +1710,50 @@ function performEditCallsign() {
       })
       .catch(error => { console.error('Error modifying callsign', error); })   
 }
+
+
+function displayOperationalMaterielReport() {
+  if ((shelterOperationalMaterielReport1.value != null) || (shelterOperationalMaterielReport2.value != null) || (shelterOperationalMaterielReport3.value != null)) {
+    // we have data
+    if ((shelterOperationalMaterielReport1.value.infoType == 0) && (shelterOperationalMaterielReport2.value.infoType == 0) && (shelterOperationalMaterielReport3.value.infoType == 0)) {
+      // none of it is valid
+      return false;
+    }
+    // something valid
+    return true;
+  }
+  // all null
+  return false;
+}
+
+function displayOperationalFoodReport() {
+  if ((shelterOperationalFoodReport1.value != null) || (shelterOperationalFoodReport2.value != null) || (shelterOperationalFoodReport3.value != null)) {
+    // we have data
+    if ((shelterOperationalFoodReport1.value.infoType == 0) && (shelterOperationalFoodReport2.value.infoType == 0) && (shelterOperationalFoodReport3.value.infoType == 0)) {
+      // none of it is valid
+      return false;
+    }
+    // something valid
+    return true;
+  }
+  // all null
+  return false;
+}
+
+function displayWorkerCensusReport() {
+  if ((shelterWorkersReport1.value != null) || (shelterWorkersReport2.value != null) || (shelterWorkersReport3.value != null)) {
+    // we have data
+    if ((shelterWorkersReport1.value.shift == 0) && (shelterWorkersReport2.value.shift == 0) && (shelterWorkersReport3.value.shift == 0)) {
+      // none of it is valid
+      return false;
+    }
+    // something valid
+    return true;
+  }
+  // all null
+  return false;
+}
+
 </script>
 
 <template>
@@ -1684,8 +1824,7 @@ function performEditCallsign() {
             Update the shelter materiel information by time period and type. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                   <label for="timeframeField">Timeframe:</label>
@@ -1738,8 +1877,7 @@ function performEditCallsign() {
             Update the shelter food information by time period and meal types. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                   <label for="timeframeField">Timeframe:</label>
@@ -1785,8 +1923,7 @@ function performEditCallsign() {
             Update the shelter worker census by job classification. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                   <label for="shiftField">Status:</label>
@@ -1839,8 +1976,7 @@ function performEditCallsign() {
             Update the shelter population census by age cohort. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                 <label for="population03">Ages 0 - 3:</label>
@@ -1923,8 +2059,7 @@ function performEditCallsign() {
             Update the EOC mobilization name, status and level. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                 <label for="eocName">EOC name:</label>
@@ -1970,8 +2105,7 @@ function performEditCallsign() {
             Update the EOC contacts. 
             <br>
               <div>
-                <label for="reportDateField">Report date (YYYY-MM-DD):</label>
-                <input type="text" id="reportDateField" v-model="reportDateRef.value" maxlength="10" />
+                Report date: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: false }" />
               </div>
               <div>
                 <label for="directorName">EOC director name:</label>
@@ -2400,12 +2534,16 @@ function performEditCallsign() {
         <!-- plain old object -->
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-            <br>Comment: {{ localSelectedObject.ncSelectedObject.comment }}
-            <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeard }}
-            <br>Type: {{ localSelectedObject.ncSelectedObject.type }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
@@ -2442,12 +2580,18 @@ function performEditCallsign() {
         <!-- shelter -->
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-            <br>Comment: {{ localSelectedObject.ncSelectedObject.comment }}
-            <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeard }}
-            <br>Type: {{ localSelectedObject.ncSelectedObject.type }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
+              <br>
+              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This shelter is managed by another Net Central server.</div>
           </Tab>
           <Tab value="APRS Status">
             <div v-if="((statusReports != null) && (statusReports.value != null))">
@@ -2463,69 +2607,60 @@ function performEditCallsign() {
           </Tab>
           <Tab value="Operational Status">
             <div v-if="((shelterStatusReport != null) && (shelterStatusReport.value != null))">
-              <b>Latest operational status:</b>
+              <div><b>Operational status for</b><VueDatePicker v-model="shelterReportDatePickerRef" :time-config="{ enableTimePicker: false }" /></div><br>
               <table>
                 <tbody>
                   <tr>
-                    <td>Status</td> <td>{{ shelterStatusReport.value.status }}</td>
+                    <td><b>Status:</b></td> <td>{{ shelterStatusReport.value.status }}</td>
                   </tr>
                   <tr>
-                    <td>State</td> <td>{{ shelterStatusReport.value.state }}</td>
+                    <td><b>State:</b></td> <td>{{ shelterStatusReport.value.state }}</td>
                   </tr>
                   <tr>
-                    <td>Message</td> <td>{{ shelterStatusReport.value.message }}</td>
+                    <td><b>Message:</b></td> <td>{{ shelterStatusReport.value.message }}</td>
                   </tr>
                 </tbody>
               </table>
-              <br>
-              <br>Last report: {{ shelterStatusReport.value.prettyLastReportedTime }}
             </div>
             <div v-else>
               <br>
-              <br> No shelter status report found.
+              <br> No shelter status report found for this date.
             </div>
           </Tab>
           <Tab value="Census">
+            <div><b>Population census for</b><VueDatePicker v-model="shelterReportDatePickerRef" :time-config="{ enableTimePicker: false }" /></div><br>
             <div v-if="((shelterCensusReport != null) && (shelterCensusReport.value != null))">
-              <b>Latest population census by age:</b>
               <table>
-                <thead>
-                  <tr>
-                    <th>Range</th><th>Count</th>
-                  </tr>
-                </thead>
                 <tbody>
                   <tr>
-                    <td>0-3</td> <td>{{ shelterCensusReport.value.population03 }}</td>
+                    <td><b>Ages 0-3:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population03 }}</td>
                   </tr>
                   <tr>
-                    <td>4-7</td> <td>{{ shelterCensusReport.value.population47 }}</td>
+                    <td><b>Ages 4-7:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population47 }}</td>
                   </tr>
                   <tr>
-                    <td>8-12</td> <td>{{ shelterCensusReport.value.population812 }}</td>
+                    <td><b>Ages 8-12:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population812 }}</td>
                   </tr>
                   <tr>
-                    <td>13-18</td> <td>{{ shelterCensusReport.value.population1318 }}</td>
+                    <td><b>Ages 13-18:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population1318 }}</td>
                   </tr>
                   <tr>
-                    <td>19-65</td> <td>{{ shelterCensusReport.value.population1965 }}</td>
+                    <td><b>Ages 19-65:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population1965 }}</td>
                   </tr>
                   <tr>
-                    <td>66+</td> <td>{{ shelterCensusReport.value.population66 }}</td>
+                    <td><b>Ages 66+:</b></td> <td style="text-align: right;">{{ shelterCensusReport.value.population66 }}</td>
                   </tr>
                 </tbody>
               </table>
-              <br>
-              <br>Last report: {{ shelterCensusReport.value.prettyLastReportedTime }}
             </div>
             <div v-else>
               <br>
-              <br> No shelter census report found.
+              <br> No shelter census report found for this date.
             </div>
           </Tab>
           <Tab value="Census History">
             <div v-if="((shelterCensusReports != null) && (shelterCensusReports.value != null))">
-              <b>Historical census information:</b>
+              <b>Historical census information</b>
               <EasyDataTable :headers="headersShelterCensus" :items="shelterCensusReports.value" 
               :rows-per-page="10" buttons-pagination
               />
@@ -2536,114 +2671,124 @@ function performEditCallsign() {
             </div>
           </Tab>
           <Tab value="Workers">
-            <div v-if="((shelterWorkersReport1 != null) && (shelterWorkersReport1.value != null) && (shelterWorkersReport2 != null) && (shelterWorkersReport2.value != null) && (shelterWorkersReport3 != null) && (shelterWorkersReport3.value != null))">
-              <b>Latest worker census:</b>
+            <div><b>Worker census for</b><VueDatePicker v-model="shelterReportDatePickerRef" :time-config="{ enableTimePicker: false }" /></div><br>
+            <div v-if="displayWorkerCensusReport()">
+              <br>
               <table>
                 <thead>
                   <tr>
-                    <th>Classification</th><th>First Shift</th><th>Second Shift</th><th>Third Shift</th>
+                    <th>Classification</th><th>First<br>Shift</th><th>Second<br>Shift</th><th>Third<br>Shift</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Health</td> <td>{{ shelterWorkersReport1.value.health }}</td><td>{{ shelterWorkersReport2.value.health }}</td><td>{{ shelterWorkersReport3.value.health }}</td>
+                    <td><b>Health</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.health }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.health }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.health }}</td>
                   </tr>
                   <tr>
-                    <td>Mental</td> <td>{{ shelterWorkersReport1.value.mental }}</td><td>{{ shelterWorkersReport2.value.mental }}</td><td>{{ shelterWorkersReport3.value.mental }}</td>
+                    <td><b>Mental</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.mental }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.mental }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.mental }}</td>
                   </tr>
                   <tr>
-                    <td>Spiritual</td> <td>{{ shelterWorkersReport1.value.spiritual }}</td><td>{{ shelterWorkersReport2.value.spiritual }}</td><td>{{ shelterWorkersReport3.value.spiritual }}</td>
+                    <td><b>Spiritual</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.spiritual }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.spiritual }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.spiritual }}</td>
                   </tr>
                   <tr>
-                    <td>Case Worker</td> <td>{{ shelterWorkersReport1.value.caseworker }}</td><td>{{ shelterWorkersReport2.value.caseworker }}</td><td>{{ shelterWorkersReport3.value.caseworker }}</td>
+                    <td><b>Case Worker</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.caseworker }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.caseworker }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.caseworker }}</td>
                   </tr>
                   <tr>
-                    <td>Feeding</td> <td>{{ shelterWorkersReport1.value.feeding }}</td><td>{{ shelterWorkersReport2.value.feeding }}</td><td>{{ shelterWorkersReport3.value.feeding }}</td>
+                    <td><b>Feeding</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.feeding }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.feeding }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.feeding }}</td>
                   </tr>
                   <tr>
-                    <td>Other</td> <td>{{ shelterWorkersReport1.value.other }}</td><td>{{ shelterWorkersReport2.value.other }}</td><td>{{ shelterWorkersReport3.value.other }}</td>
-                  </tr>
-                  <tr>
-                    <td>Last report:</td> <td>{{ shelterWorkersReport1.value.prettyLastReportedTime }}</td><td>{{ shelterWorkersReport2.value.prettyLastReportedTime }}</td><td>{{ shelterWorkersReport3.value.prettyLastReportedTime }}</td>
+                    <td><b>Other</b></td> <td style="text-align: right;">{{ shelterWorkersReport1.value.other }}</td><td style="text-align: right;">{{ shelterWorkersReport2.value.other }}</td><td style="text-align: right;">{{ shelterWorkersReport3.value.other }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div v-else>
               <br>
-              <br> No shelter workers report found.
+              <br> No shelter workers report found for this date.
             </div>
           </Tab>
           <Tab value="Food">
-            <div v-if="((shelterOperationalFoodReport1 != null) && (shelterOperationalFoodReport1.value != null) && (shelterOperationalFoodReport2 != null) && (shelterOperationalFoodReport2.value != null) && (shelterOperationalFoodReport3 != null) && (shelterOperationalFoodReport3.value != null))">
-              <b>Latest shelter food:</b>
+            <div><b>Shelter food for</b><VueDatePicker v-model="shelterReportDatePickerRef" :time-config="{ enableTimePicker: false }" /></div><br>
+            <div v-if="displayOperationalFoodReport()">
               <table>
                 <thead>
                   <tr>
-                    <th>Meal</th><th>Provided Today</th><th>Have for Tomorrow</th><th>Needed for Tomorrow</th>
+                    <th>Meal</th><th>Needed</th><th>Have</th><th>Provided</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Breakfast</td> <td>{{ shelterOperationalFoodReport1.value.breakfast }}</td><td>{{ shelterOperationalFoodReport2.value.breakfast }}</td><td>{{ shelterOperationalFoodReport3.value.breakfast }}</td>
+                    <td><b>Breakfast</b></td> <td style="text-align: right;">{{ shelterOperationalFoodReport3.value.breakfast }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport2.value.breakfast }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport1.value.breakfast }}</td>
                   </tr>
                   <tr>
-                    <td>Lunch</td> <td>{{ shelterOperationalFoodReport1.value.lunch }}</td><td>{{ shelterOperationalFoodReport2.value.lunch }}</td><td>{{ shelterOperationalFoodReport3.value.lunch }}</td>
+                    <td><b>Lunch</b></td> <td style="text-align: right;">{{ shelterOperationalFoodReport3.value.lunch }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport2.value.lunch }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport1.value.lunch }}</td>
                   </tr>
                   <tr>
-                    <td>Dinner</td> <td>{{ shelterOperationalFoodReport1.value.dinner }}</td><td>{{ shelterOperationalFoodReport2.value.dinner }}</td><td>{{ shelterOperationalFoodReport3.value.dinner }}</td>
+                    <td><b>Dinner</b></td> <td style="text-align: right;">{{ shelterOperationalFoodReport3.value.dinner }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport2.value.dinner }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport1.value.dinner }}</td>
                   </tr>
                   <tr>
-                    <td>Snack</td> <td>{{ shelterOperationalFoodReport1.value.snack }}</td><td>{{ shelterOperationalFoodReport2.value.snack }}</td><td>{{ shelterOperationalFoodReport3.value.snack }}</td>
-                  </tr>
-                  <tr>
-                    <td>Last report</td> <td>{{ shelterOperationalFoodReport1.value.prettyLastReportedTime }}</td><td>{{ shelterOperationalFoodReport2.value.prettyLastReportedTime }}</td><td>{{ shelterOperationalFoodReport3.value.prettyLastReportedTime }}</td>
+                    <td><b>Snack</b></td> <td style="text-align: right;">{{ shelterOperationalFoodReport3.value.snack }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport2.value.snack }}</td><td style="text-align: right;">{{ shelterOperationalFoodReport1.value.snack }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div v-else>
               <br>
-              <br> No shelter food report found.
+              <br> No shelter food report found for this date.
             </div>
           </Tab>
           <Tab value="Materiel">
-            <div v-if="((shelterOperationalMaterielReport1 != null) && (shelterOperationalMaterielReport1.value != null) && (shelterOperationalMaterielReport2 != null) && (shelterOperationalMaterielReport2.value != null) && (shelterOperationalMaterielReport3 != null) && (shelterOperationalMaterielReport3.value != null))">
-              <b>Latest shelter materiel:</b>
+            <div><b>Shelter materiel for</b><VueDatePicker v-model="shelterReportDatePickerRef" :time-config="{ enableTimePicker: false }" /></div><br>
+            <div v-if="displayOperationalMaterielReport()">
               <table>
                 <thead>
                   <tr>
-                    <th>Category</th><th>Provided Today</th><th>Have for Tomorrow</th><th>Needed for Tomorrow</th>
+                    <th>Category</th><th>Provided</th><th>Have</th><th>Needed</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Cots</td> <td>{{ shelterOperationalMaterielReport1.value.cots }}</td><td>{{ shelterOperationalMaterielReport2.value.cots }}</td><td>{{ shelterOperationalMaterielReport3.value.cots }}</td>
+                    <td><b>Cots</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.cots }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.cots }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.cots }}</td>
                   </tr>
                   <tr>
-                    <td>Blankets</td> <td>{{ shelterOperationalMaterielReport1.value.blankets }}</td><td>{{ shelterOperationalMaterielReport2.value.blankets }}</td><td>{{ shelterOperationalMaterielReport3.value.blankets }}</td>
+                    <td><b>Blankets</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.blankets }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.blankets }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.blankets }}</td>
                   </tr>
                   <tr>
-                    <td>Comfort</td> <td>{{ shelterOperationalMaterielReport1.value.comfort }}</td><td>{{ shelterOperationalMaterielReport2.value.comfort }}</td><td>{{ shelterOperationalMaterielReport3.value.comfort }}</td>
+                    <td><b>Comfort</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.comfort }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.comfort }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.comfort }}</td>
                   </tr>
                   <tr>
-                    <td>Cleanup</td> <td>{{ shelterOperationalMaterielReport1.value.cleanup }}</td><td>{{ shelterOperationalMaterielReport2.value.cleanup }}</td><td>{{ shelterOperationalMaterielReport3.value.cleanup }}</td>
+                    <td><b>Cleanup</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.cleanup }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.cleanup }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.cleanup }}</td>
                   </tr>
                   <tr>
-                    <td>Signage</td> <td>{{ shelterOperationalMaterielReport1.value.signage }}</td><td>{{ shelterOperationalMaterielReport2.value.signage }}</td><td>{{ shelterOperationalMaterielReport3.value.signage }}</td>
+                    <td><b>Signage</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.signage }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.signage }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.signage }}</td>
                   </tr>
                   <tr>
-                    <td>Other</td> <td>{{ shelterOperationalMaterielReport1.value.other }}</td><td>{{ shelterOperationalMaterielReport2.value.other }}</td><td>{{ shelterOperationalMaterielReport3.value.other }}</td>
-                  </tr>
-                  <tr>
-                    <td>Last report</td> <td>{{ shelterOperationalMaterielReport1.value.prettyLastReportedTime }}</td><td>{{ shelterOperationalMaterielReport2.value.prettyLastReportedTime }}</td><td>{{ shelterOperationalMaterielReport3.value.prettyLastReportedTime }}</td>
+                    <td><b>Other</b></td> 
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport1.value.other }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport2.value.other }}</td>
+                    <td style="text-align: right;">{{ shelterOperationalMaterielReport3.value.other }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div v-else>
               <br>
-              <br> No shelter materiel report found.
+              <br> No shelter materiel report found for this date.
             </div>
           </Tab>
           <Tab value="Access">
@@ -2733,15 +2878,21 @@ function performEditCallsign() {
       </div>
 
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject.type == 'EOC'))">
-        <!-- shelter -->
+        <!-- EOC -->
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-            <br>Comment: {{ localSelectedObject.ncSelectedObject.comment }}
-            <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeard }}
-            <br>Type: {{ localSelectedObject.ncSelectedObject.type }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
+              <br>
+              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This EOC is managed by another Net Central server.</div>
           </Tab>
           <Tab value="APRS Status">
             <div v-if="((statusReports != null) && (statusReports.value != null))">
@@ -2760,19 +2911,12 @@ function performEditCallsign() {
               <b>Latest mobilization information:</b>
               <table>
                 <tbody>
-                  <tr>
-                    <td>EOC Name</td> <td>{{ eocMobilizationReport.value.eocName }}</td>
-                  </tr>
-                  <tr>
-                    <td>Status</td> <td>{{ eocMobilizationReport.value.status }}</td>
-                  </tr>
-                  <tr>
-                    <td>Level</td> <td>{{ eocMobilizationReport.value.level }}</td>
-                  </tr>
+                  <tr><td><b>EOC Name:</b></td> <td>{{ eocMobilizationReport.value.eocName }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ eocMobilizationReport.value.status }}</td></tr>
+                  <tr><td><b>Level:</b></td> <td>{{ eocMobilizationReport.value.level }}</td></tr>
+                  <tr><td><b>Last report:</b></td> <td>{{ eocMobilizationReport.value.prettyLastReportedTime }}</td></tr>
                 </tbody>
               </table>
-              <br>
-              <br>Last report: {{ eocMobilizationReport.value.prettyLastReportedTime }}
             </div>
             <div v-else>
               <br>
@@ -2796,16 +2940,11 @@ function performEditCallsign() {
               <b>Latest contact information:</b>
               <table>
                 <tbody>
-                  <tr>
-                    <td>EOC Director:</td> <td>{{ eocContactReport.value.directorName }}</td>
-                  </tr>
-                  <tr>
-                    <td>Incident Commander:</td> <td>{{ eocContactReport.value.incidentCommanderName }}</td>
-                  </tr>
+                  <tr><td><b>EOC Director:</b></td> <td>{{ eocContactReport.value.directorName }}</td></tr>
+                  <tr><td><b>Incident Commander:</b></td> <td>{{ eocContactReport.value.incidentCommanderName }}</td></tr>
+                  <tr><td><b>Last report:</b></td> <td>{{ eocContactReport.value.prettyLastReportedTime }}</td></tr>
                 </tbody>
               </table>
-              <br>
-              <br>Last report: {{ eocContactReport.value.prettyLastReportedTime }}
             </div>
             <div v-else>
               <br>
@@ -2893,9 +3032,18 @@ function performEditCallsign() {
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject.type == 'MEDICAL'))">
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>License: {{ localSelectedObject.ncSelectedObject.license }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.state }} / {{ localSelectedObject.ncSelectedObject.country }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
+              <br>
+              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This medical center is managed by another Net Central server.</div>
           </Tab>
           <Tab value="APRS Status">
             <div v-if="((statusReports != null) && (statusReports.value != null))">
@@ -2969,9 +3117,13 @@ function performEditCallsign() {
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'CALLSIGN'))">
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>License: {{ localSelectedObject.ncSelectedObject.license }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.state }} / {{ localSelectedObject.ncSelectedObject.country }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>License:</b></td> <td>{{ localSelectedObject.ncSelectedObject.license }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                </tbody>
+              </table>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
@@ -3001,10 +3153,14 @@ function performEditCallsign() {
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IGNORE'))">
         <Tabs>
           <Tab value="Details">
-            <br>Callsign: {{ localSelectedObject.ncSelectedObject.callsign }}
-            <br>Type: {{ localSelectedObject.ncSelectedObject.type }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-            <br>Ignored since: {{ localSelectedObject.ncSelectedObject.prettyIgnoreStartTime }}
+              <table>
+                <tbody>
+                  <tr><td><b>Callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsign }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Ignored since:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyIgnoreStartTime }}</td></tr>
+                </tbody>
+              </table>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
@@ -3028,9 +3184,16 @@ function performEditCallsign() {
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'WEATHER'))">
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>License: {{ localSelectedObject.ncSelectedObject.license }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.state }} / {{ localSelectedObject.ncSelectedObject.country }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
           </Tab>
           <Tab value="APRS Status">
             <div v-if="((statusReports != null) && (statusReports.value != null))">
@@ -3108,15 +3271,19 @@ function performEditCallsign() {
       <div v-else>
         <Tabs>
           <Tab value="Details">
-            <br>Name: {{ localSelectedObject.ncSelectedObject.name }}
-            <br>Description: {{ localSelectedObject.ncSelectedObject.description }}
-            <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
-            <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
-            <br>Electrical Power: {{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}
-            <br>Radio style: {{ localSelectedObject.ncSelectedObject.radioStyle }}
-            <br>Transmit power: {{ localSelectedObject.ncSelectedObject.transmitPower }}W
-            <br>Tracked? {{ localSelectedObject.ncSelectedObject.trackingActive }}
-            <br>Last heard: {{ localSelectedObject.ncSelectedObject.prettyLastHeard }}
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Electrical Power:</b></td> <td>{{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}</td></tr>
+                  <tr><td><b>Radio style:</b></td> <td>{{ localSelectedObject.ncSelectedObject.radioStyle }}</td></tr>
+                  <tr><td><b>Transmit power:</b></td> <td> {{ localSelectedObject.ncSelectedObject.transmitPower }}W</td></tr>
+                  <tr><td><b>Tracked?</b></td> <td>{{ localSelectedObject.ncSelectedObject.trackingActive }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                </tbody>
+              </table>
           </Tab>
           <Tab value="APRS Status">
             <div v-if="((statusReports != null) && (statusReports.value != null))">
