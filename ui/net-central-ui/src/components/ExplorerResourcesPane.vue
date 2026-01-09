@@ -56,6 +56,8 @@ function updateObject(data) {
 
 const localSelectedObjectType = reactive({value : ""});
 const trackedStations = reactive({value : null});
+const internetServers = reactive({value : null});
+
 const selectedItem = ref(null);
 
 function populate() {
@@ -315,6 +317,11 @@ const headersIgnore = [
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
         { text: "Ignored since", value: "prettyLastHeard", sortable: true}];  // reusing prettyLastHeard
+const headersInternetServer = [
+        { text: "Server name", value: "name", sortable: true },
+        { text: "IP address", value: "ipAddress", sortable: true },
+        { text: "Login callsign", value: "loginCallsign", sortable: true},
+        { text: "Query", value: "query", sortable: true}];
 
 function showRow(item) {
     selectedItem.value = item;
@@ -362,7 +369,7 @@ function updateObjects() {
       } else if (localSelectedObjectType.value == 'IGATE') {
         url = buildNetCentralUrl('/trackedStations?type=IGATE');
       } else if (localSelectedObjectType.value == 'IS') {
-        url = buildNetCentralUrl('/trackedStations?type=IS');
+        url = buildNetCentralUrl('/internetServers');
       } else if (localSelectedObjectType.value == 'WINLINK_GATEWAY') {
         url = buildNetCentralUrl('/trackedStations?type=WINLINK_GATEWAY');
       } else if (localSelectedObjectType.value == 'DSTAR') {
@@ -416,6 +423,9 @@ function updateObjects() {
                             });
               }
               trackedStations.value = objects;
+            } else if (localSelectedObjectType.value == 'IS') {
+              var objects = data;
+              internetServers.value = objects;
             } else {
               trackedStations.value = data;
             }
@@ -561,6 +571,20 @@ watch(nudgeRemoveObject, (newNudgeRemoveObject, oldNudgeRemoveObject) => {
       </div>
       <div v-else>
         <EasyDataTable :headers="headersIgnore" :items="trackedStations.value" 
+        :rows-per-page="10"
+        :body-row-class-name="getBodyRowClass"
+        @click-row="showRow" buttons-pagination
+        />
+      </div>
+    </div>
+    <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IS'))">
+      <div v-if="((internetServers.value == null) || (internetServers.value.length == 0))">
+        <br>
+        <br>
+        <br><i>No internet servers contacted.</i>
+      </div>
+      <div v-else>
+        <EasyDataTable :headers="headersInternetServer" :items="internetServers.value" 
         :rows-per-page="10"
         :body-row-class-name="getBodyRowClass"
         @click-row="showRow" buttons-pagination

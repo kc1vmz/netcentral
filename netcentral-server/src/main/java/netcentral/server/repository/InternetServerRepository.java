@@ -1,8 +1,10 @@
-package com.kc1vmz.netcentral.common.object;
+package netcentral.server.repository;
+
+import java.util.List;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,24 +22,12 @@ package com.kc1vmz.netcentral.common.object;
     http://www.kc1vmz.com
 */
 
-public class APRSServer {
-    private String address;
-    private int port;
+import io.micronaut.data.jdbc.annotation.JdbcRepository;
+import io.micronaut.data.model.query.builder.sql.Dialect;
+import io.micronaut.data.repository.CrudRepository;
+import netcentral.server.record.InternetServerRecord;
 
-    public APRSServer(String address, int port) {
-        this.address = address;
-        this.port = port;
-    }
-    public String getAddress() {
-        return address;
-    }
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    public int getPort() {
-        return port;
-    }
-    public void setPort(int port) {
-        this.port = port;
-    }
+@JdbcRepository(dialect = Dialect.MYSQL) 
+public interface InternetServerRepository extends CrudRepository<InternetServerRecord, String> { 
+        public List<InternetServerRecord> findByip_address(String nip_addressame);
 }

@@ -42,6 +42,7 @@ import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 import com.kc1vmz.netcentral.common.exception.LoginFailureException;
+import com.kc1vmz.netcentral.common.object.InternetServer;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 
 import jakarta.inject.Inject;
@@ -70,6 +71,26 @@ public class NetCentralRESTClient {
             if (val != null) {
                 logger.debug("POST response = " + val);
                 ret = objectMapper.readValue(val, APRSObjectResource.class);
+            }
+        } catch (LoginFailureException e) {
+            throw new LoginFailureException();
+        } catch (Exception e) {
+            logger.error("Exception caught creating APRS object", e);
+        }
+        return ret;
+    }
+
+    public InternetServer create(InternetServer res, String sessionId) throws LoginFailureException {
+        InternetServer ret = null;
+        try {
+            ObjectMapper objectMapper = getObjectMapper();
+            ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(res);
+
+            String val = post(buildURL("api/v1/internetServers"), sessionId, json);
+            if (val != null) {
+                logger.debug("POST response = " + val);
+                ret = objectMapper.readValue(val, InternetServer.class);
             }
         } catch (LoginFailureException e) {
             throw new LoginFailureException();

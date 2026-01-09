@@ -37,7 +37,7 @@ import com.kc1vmz.netcentral.aprsobject.constants.NetCentralToCallConstant;
 import com.kc1vmz.netcentral.aprsobject.constants.NetCentralUserDefinedPacketConstant;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.common.object.APRSAuthenticationInfo;
-import com.kc1vmz.netcentral.common.object.APRSServer;
+import com.kc1vmz.netcentral.common.object.InternetServer;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
 import jakarta.inject.Inject;
@@ -47,6 +47,7 @@ import net.ab0oo.aprs.parser.Parser;
 import netcentral.transceiver.aprsis.config.APRSConfiguration;
 import netcentral.transceiver.aprsis.config.FeatureConfiguration;
 import netcentral.transceiver.aprsis.config.ThreadConfiguration;
+import netcentral.transceiver.aprsis.object.APRSServer;
 
 @Singleton
 public class APRSListenerAccessor {
@@ -167,8 +168,13 @@ public class APRSListenerAccessor {
         }
     }
 
-    public void connectAndListen() throws InterruptedException {
+    private void addAPRSIStoNetCentral() {
+        InternetServer internetServer = new InternetServer(null, aprsConfiguration.getServer(), aprsConfiguration.getServer(), "", aprsConfiguration.getUsername(), aprsConfiguration.getQuery());
+        aprsMessageProcessor.processInternetServer(internetServer);
+    }
 
+    public void connectAndListen() throws InterruptedException {
+        addAPRSIStoNetCentral();
         APRSServer server = new APRSServer(aprsConfiguration.getServer(), aprsConfiguration.getPort());
         APRSAuthenticationInfo auth = new APRSAuthenticationInfo(aprsConfiguration.getUsername(), aprsConfiguration.getPassword());
         String query = aprsConfiguration.getQuery();

@@ -23,4 +23,5 @@
   <include file="changelog/18-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/19-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/20-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/21-schema.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

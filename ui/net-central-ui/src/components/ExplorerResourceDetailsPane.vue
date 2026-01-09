@@ -3181,6 +3181,21 @@ function displayWorkerCensusReport() {
         </Tabs>
       </div>
 
+      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IS'))">
+        <Tabs>
+          <Tab value="Details">
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>IP Address:</b></td> <td>{{ localSelectedObject.ncSelectedObject.ipAddress }}</td></tr>
+                  <tr><td><b>Login callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.loginCallsign }}</td></tr>
+                  <tr><td><b>Query:</b></td> <td>{{ localSelectedObject.ncSelectedObject.query }}</td></tr>
+                </tbody>
+              </table>
+          </Tab>
+        </Tabs>
+      </div>
+
       <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'WEATHER'))">
         <Tabs>
           <Tab value="Details">

@@ -157,7 +157,7 @@ function isReady() {
 }
 
 function updateMapObjects() {
-    if ((localSelectedObjectType.value != null) && (localSelectedObjectType.value != "CALLSIGN")) {
+    if ((localSelectedObjectType.value != null) && (localSelectedObjectType.value != "CALLSIGN") && (localSelectedObjectType.value != "IS")) {
       var requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json",

@@ -50,6 +50,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 import com.kc1vmz.netcentral.common.exception.LoginFailureException;
+import com.kc1vmz.netcentral.common.object.InternetServer;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
 import com.kc1vmz.netcentral.parser.util.Stripper;
@@ -236,6 +237,38 @@ public class APRSMessageProcessor {
             registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
         }
     }
+
+    public void processInternetServer(InternetServer internetServer) {
+        if (internetServer == null) {
+            return;
+        }
+
+        if (getRegisteredTransceiver() == null) {
+            logger.error("REGISTERED TRANSCEIVER IS NULL - THIS IS BAD");
+            registeredTransceiverAccessor.resetRegisteredTransceiver();
+            registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
+            return;
+        }
+
+        try {
+            InternetServer internetServerCreated = netControlRESTClient.create(internetServer, loginResponse.getAccessToken());
+            if (internetServerCreated == null) {
+                logger.error(String.format("Internet server not created %s (%s)", internetServer.getIpAddress(), internetServer.getLoginCallsign()));
+            } else {
+                logger.debug(String.format("Internet server with id %s created", internetServerCreated.getId()));
+            }
+        } catch (LoginFailureException e) {
+            logger.error("LoginFailureException caught - resetting registered transceiver", e);
+            loginResponse = null;
+            registeredTransceiver = null;
+        }
+
+        if (registeredTransceiver == null) {
+            registeredTransceiverAccessor.resetRegisteredTransceiver();
+            registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
+        }
+    }
+
 
     private void ackIfOurs(APRSMessage parsedPacket) {
         if (parsedPacket.isMustAck() && (parsedPacket.getMessageNumber() != null)) {
