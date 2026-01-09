@@ -37,14 +37,23 @@ public class NetCentralServerStatistics {
     private ZonedDateTime lastHeartBeatTime2;
     private ZonedDateTime lastHeartBeatTime3;
     private ZonedDateTime lastHeartBeatTime4;
+    private ZonedDateTime lastHeartBeatTime5;
+    private ZonedDateTime lastHeartBeatTime6;
+    private ZonedDateTime lastHeartBeatTime7;
     private String lastHeartBeatName1;
     private String lastHeartBeatName2;
     private String lastHeartBeatName3;
     private String lastHeartBeatName4;
+    private String lastHeartBeatName5;
+    private String lastHeartBeatName6;
+    private String lastHeartBeatName7;
     private long lastHeartBeatSecondsSince1;
     private long lastHeartBeatSecondsSince2;
     private long lastHeartBeatSecondsSince3;
     private long lastHeartBeatSecondsSince4;
+    private long lastHeartBeatSecondsSince5;
+    private long lastHeartBeatSecondsSince6;
+    private long lastHeartBeatSecondsSince7;
     private ZonedDateTime lastReceivedTime;
     private ZonedDateTime lastSentTime;
     private long lastReceivedSecondsSince;
@@ -72,14 +81,23 @@ public class NetCentralServerStatistics {
         lastHeartBeatTime2  = statistics.getLastHeartBeatTime2();
         lastHeartBeatTime3  = statistics.getLastHeartBeatTime3();
         lastHeartBeatTime4  = statistics.getLastHeartBeatTime4();
+        lastHeartBeatTime5  = statistics.getLastHeartBeatTime5();
+        lastHeartBeatTime6  = statistics.getLastHeartBeatTime6();
+        lastHeartBeatTime7  = statistics.getLastHeartBeatTime7();
         lastHeartBeatName1  = statistics.getLastHeartBeatName1();
         lastHeartBeatName2  = statistics.getLastHeartBeatName2();
         lastHeartBeatName3  = statistics.getLastHeartBeatName3();
         lastHeartBeatName4  = statistics.getLastHeartBeatName4();
+        lastHeartBeatName5  = statistics.getLastHeartBeatName5();
+        lastHeartBeatName6  = statistics.getLastHeartBeatName6();
+        lastHeartBeatName7  = statistics.getLastHeartBeatName7();
         lastHeartBeatSecondsSince1  = statistics.getLastHeartBeatSecondsSince1();
         lastHeartBeatSecondsSince2  = statistics.getLastHeartBeatSecondsSince2();
         lastHeartBeatSecondsSince3  = statistics.getLastHeartBeatSecondsSince3();
         lastHeartBeatSecondsSince4  = statistics.getLastHeartBeatSecondsSince4();
+        lastHeartBeatSecondsSince5  = statistics.getLastHeartBeatSecondsSince5();
+        lastHeartBeatSecondsSince6  = statistics.getLastHeartBeatSecondsSince6();
+        lastHeartBeatSecondsSince7  = statistics.getLastHeartBeatSecondsSince7();
         lastReceivedTime = statistics.getLastReceivedTime();
         lastSentTime = statistics.getLastSentTime();
         lastReceivedSecondsSince = statistics.getLastReceivedSecondsSince();
@@ -168,6 +186,24 @@ public class NetCentralServerStatistics {
     public void setLastHeartBeatTime4(ZonedDateTime lastHeartBeatTime4) {
         this.lastHeartBeatTime4 = lastHeartBeatTime4;
     }
+    public ZonedDateTime getLastHeartBeatTime5() {
+        return lastHeartBeatTime5;
+    }
+    public void setLastHeartBeatTime5(ZonedDateTime lastHeartBeatTime5) {
+        this.lastHeartBeatTime5 = lastHeartBeatTime5;
+    }
+    public ZonedDateTime getLastHeartBeatTime6() {
+        return lastHeartBeatTime6;
+    }
+    public void setLastHeartBeatTime6(ZonedDateTime lastHeartBeatTime6) {
+        this.lastHeartBeatTime6 = lastHeartBeatTime6;
+    }
+    public ZonedDateTime getLastHeartBeatTime7() {
+        return lastHeartBeatTime7;
+    }
+    public void setLastHeartBeatTime7(ZonedDateTime lastHeartBeatTime7) {
+        this.lastHeartBeatTime7 = lastHeartBeatTime7;
+    }
     public String getLastHeartBeatName1() {
         return lastHeartBeatName1;
     }
@@ -192,6 +228,24 @@ public class NetCentralServerStatistics {
     public void setLastHeartBeatName4(String lastHeartBeatName4) {
         this.lastHeartBeatName4 = lastHeartBeatName4;
     }
+    public String getLastHeartBeatName5() {
+        return lastHeartBeatName5;
+    }
+    public void setLastHeartBeatName5(String lastHeartBeatName5) {
+        this.lastHeartBeatName5 = lastHeartBeatName5;
+    }
+    public String getLastHeartBeatName6() {
+        return lastHeartBeatName6;
+    }
+    public void setLastHeartBeatName6(String lastHeartBeatName6) {
+        this.lastHeartBeatName6 = lastHeartBeatName6;
+    }
+    public String getLastHeartBeatName7() {
+        return lastHeartBeatName7;
+    }
+    public void setLastHeartBeatName7(String lastHeartBeatName7) {
+        this.lastHeartBeatName7 = lastHeartBeatName7;
+    }
     public long getLastHeartBeatSecondsSince1() {
         return lastHeartBeatSecondsSince1;
     }
@@ -215,6 +269,24 @@ public class NetCentralServerStatistics {
     }
     public void setLastHeartBeatSecondsSince4(long lastHeartBeatSecondsSince4) {
         this.lastHeartBeatSecondsSince4 = lastHeartBeatSecondsSince4;
+    }
+    public long getLastHeartBeatSecondsSince5() {
+        return lastHeartBeatSecondsSince5;
+    }
+    public void setLastHeartBeatSecondsSince5(long lastHeartBeatSecondsSince5) {
+        this.lastHeartBeatSecondsSince5 = lastHeartBeatSecondsSince5;
+    }
+    public long getLastHeartBeatSecondsSince6() {
+        return lastHeartBeatSecondsSince6;
+    }
+    public void setLastHeartBeatSecondsSince6(long lastHeartBeatSecondsSince6) {
+        this.lastHeartBeatSecondsSince6 = lastHeartBeatSecondsSince6;
+    }
+    public long getLastHeartBeatSecondsSince7() {
+        return lastHeartBeatSecondsSince7;
+    }
+    public void setLastHeartBeatSecondsSince7(long lastHeartBeatSecondsSince7) {
+        this.lastHeartBeatSecondsSince7 = lastHeartBeatSecondsSince7;
     }
     public ZonedDateTime getLastReceivedTime() {
         return lastReceivedTime;

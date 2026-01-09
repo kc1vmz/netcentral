@@ -55,7 +55,26 @@ public class StatisticsAccessor {
                     long secondsSinceHeartbeat2 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime2().toEpochSecond();
                     statisticsRet.setLastHeartBeatSecondsSince2(secondsSinceHeartbeat2);
                 }
-
+                if (statisticsRet.getLastHeartBeatTime3() != null) {
+                    long secondsSinceHeartbeat3 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime3().toEpochSecond();
+                    statisticsRet.setLastHeartBeatSecondsSince3(secondsSinceHeartbeat3);
+                }
+                if (statisticsRet.getLastHeartBeatTime4() != null) {
+                    long secondsSinceHeartbeat4 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime4().toEpochSecond();
+                    statisticsRet.setLastHeartBeatSecondsSince4(secondsSinceHeartbeat4);
+                }
+                if (statisticsRet.getLastHeartBeatTime5() != null) {
+                    long secondsSinceHeartbeat5 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime5().toEpochSecond();
+                    statisticsRet.setLastHeartBeatSecondsSince5(secondsSinceHeartbeat5);
+                }
+                if (statisticsRet.getLastHeartBeatTime6() != null) {
+                    long secondsSinceHeartbeat6 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime6().toEpochSecond();
+                    statisticsRet.setLastHeartBeatSecondsSince6(secondsSinceHeartbeat6);
+                }
+                if (statisticsRet.getLastHeartBeatTime7() != null) {
+                    long secondsSinceHeartbeat7 = now.toEpochSecond() - statisticsRet.getLastHeartBeatTime7().toEpochSecond();
+                    statisticsRet.setLastHeartBeatSecondsSince7(secondsSinceHeartbeat7);
+                }
                 if (statisticsRet.getLastReceivedTime() != null) {
                     long lastReceivedSecondsSince = now.toEpochSecond() - statisticsRet.getLastReceivedTime().toEpochSecond();
                     statisticsRet.setLastReceivedSecondsSince(lastReceivedSecondsSince);
@@ -206,7 +225,39 @@ public class StatisticsAccessor {
             writeLock.unlock();
         }
     }
-
+    public void markLastHeartBeatTime5() {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatTime5(ZonedDateTime.now());
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    public void markLastHeartBeatTime6() {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatTime6(ZonedDateTime.now());
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    public void markLastHeartBeatTime7() {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatTime7(ZonedDateTime.now());
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     public void setLastHeartBeatName1(String val) {
         writeLock.lock();
@@ -248,6 +299,39 @@ public class StatisticsAccessor {
                 statistics = new NetCentralServerStatistics();
             }
             statistics.setLastHeartBeatName4(val);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    public void setLastHeartBeatName5(String val) {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatName5(val);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    public void setLastHeartBeatName6(String val) {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatName6(val);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    public void setLastHeartBeatName7(String val) {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setLastHeartBeatName7(val);
         } finally {
             writeLock.unlock();
         }

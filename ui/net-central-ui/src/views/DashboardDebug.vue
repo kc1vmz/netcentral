@@ -50,6 +50,9 @@ const hb1Duration = reactive({ value : 0});
 const hb2Duration = reactive({ value : 0});
 const hb3Duration = reactive({ value : 0});
 const hb4Duration = reactive({ value : 0});
+const hb5Duration = reactive({ value : 0});
+const hb6Duration = reactive({ value : 0});
+const hb7Duration = reactive({ value : 0});
 const accesstoken = reactive({ value : ''});
 
 onMounted(() => {
@@ -103,6 +106,9 @@ function getNetCentralStatistics() {
           hb2Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince2);
           hb3Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince3);
           hb4Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince4);
+          hb5Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince5);
+          hb6Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince6);
+          hb7Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince7);
       })
       .catch(error => { console.error('Error getting dashboard summary from server:', error); })
 }
@@ -207,12 +213,33 @@ function calculateDuration(seconds) {
             <div>{{ ncStats.value.acksRequested }} Acks requested</div>
             <div>{{ ncStats.value.acksSent }} Acks sent</div>
             <div>{{ ncStats.value.rejsSent }} Rejs sent</div>
+            <div>{{ ncStats.value.outstandingObjects }} Objects awaiting processing</div>
+            <div>{{ ncStats.value.lastReceivedSecondsSince }} Seconds since receiving message</div>
+            <div>{{ ncStats.value.lastSentSecondsSince }} Seconds since sending message</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-item">
+          <div class="grid-container">
+          <div class="grid-item">
+            <i class="fa-solid fa-chart-simple fa-8x" style="color:#2559a7"></i>
+          </div>
+          <div class="grid-item">
+            <div class="pagesubheader">Operations</div>
+            <div>{{ runDuration.value }} since started</div>
+            <div>{{ hb1Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName1}} fired</div>
+            <div>{{ hb2Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName2}} fired</div>
+            <div>{{ hb3Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName3}} fired</div>
+            <div>{{ hb4Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName4}} fired</div>
+            <div>{{ hb5Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName5}} fired</div>
+            <div>{{ hb6Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName6}} fired</div>
+            <div>{{ hb7Duration.value }} since heartbeat {{ncStats.value.lastHeartBeatName7}} fired</div>
           </div>
         </div>
       </div>
     </div>
     <br>
-    <a href="./DashboardDebug">Click here for debugging dashboard.</a>
+    <a href="./Dashboard">Click here for standard dashboard.</a>
   </div>
 </template>
 

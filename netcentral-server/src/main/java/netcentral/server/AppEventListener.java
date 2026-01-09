@@ -151,10 +151,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     void startNetQuestionReminderThread() {
         new Thread(() -> {
+            statisticsAccessor.setLastHeartBeatName5("Net Question Reminder Thread");
             boolean run = true;
             while (run) {
                 try {
                     Thread.sleep(MINUTES_TO_MILLIS*1); // check every minute
+                    statisticsAccessor.markLastHeartBeatTime5();
                     netQuestionReminderAccessor.sendQuestionReminders();
                     run = netQuestionReminderAccessor.stayRunning();
                 } catch (InterruptedException e) {
@@ -189,10 +191,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     void startNetReportThread() {
         new Thread(() -> {
+            statisticsAccessor.setLastHeartBeatName6("Net Report Send Thread");
             boolean run = true;
             while (run) {
                 try {
                     Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetReportMinutes());
+                    statisticsAccessor.markLastHeartBeatTime6();
                     netReportAccessor.sendReports();
                     run = netReportAccessor.stayRunning();
                 } catch (InterruptedException e) {
@@ -207,10 +211,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     void startObjectCleanupThread() {
         new Thread(() -> {
+            statisticsAccessor.setLastHeartBeatName7("Object Cleanup Thread");
             boolean run = true;
             User systemUser = sessionAccessor.getSystemUser();
             while (run) {
                 try {
+                    statisticsAccessor.markLastHeartBeatTime7();
                     objectCleanupAccessor.cleanupObjectsByTime(systemUser);
                     run = objectCleanupAccessor.stayRunning();
                     Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectCleanupMinutes());
@@ -225,7 +231,6 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     }
 
     void startAPRSObjectProcessorThreads() {
-
         for (int i = 0; i < netConfigServerConfig.getQueueObjectHandlerThreads(); i++) {
             new Thread(() -> {
                 boolean run = true;

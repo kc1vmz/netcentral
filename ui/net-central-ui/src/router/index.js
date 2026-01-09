@@ -96,6 +96,11 @@ const routes = [
     path: '/homeMobile',
     name: 'HomeMobile',
     component: () => import('../views/HomeMobile.vue')
+  },
+  {
+    path: '/dashboardDebug',
+    name: 'DashboardDebug',
+    component: () => import('../views/DashboardDebug.vue')
   }
 ]
 
