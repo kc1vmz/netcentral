@@ -51,11 +51,18 @@ const netCheckinReminderRef = reactive({ value : 'true' });
 const netActiveRef = reactive({ value : 'true' });
 const netVoiceFrequencyRef = reactive({ value : '' });
 const netTypeRef = reactive({ value : '0' });
-const netDayStartRef = reactive({ value : '0' });
+const netSpecificDayRef = reactive({ value : '1' });
+const netRelativeDayRef = reactive({ value : '1' });
+const netDayStartRef = reactive({ value : '1' });
 const netDurationRef = reactive({ value : '' });
 const netTimeStartStrRef = reactive({ value : '' });
 const dialogCreateNetShowRef = reactive({ value : false });
 const errorMessageRef = reactive({ value : '' });
+const todayDatePickerRef = reactive( { value : new Date() });
+const todayTimePickerRef = reactive( { value : {
+    hours: new Date().getHours(),
+    minutes: new Date().getMinutes()
+}});
 
 onMounted(() => {
     accesstokenRef.value = getToken();
@@ -138,7 +145,9 @@ function createNet() {
     netCheckinReminderRef.value = 'true';
     netVoiceFrequencyRef.value = '';
     netTypeRef.value = '0';
-    netDayStartRef.value = '0';
+    netSpecificDayRef.value = '1';
+    netRelativeDayRef.value = '1';
+    netDayStartRef.value = '1';
     netDurationRef.value = '';
     netTimeStartStrRef.value = '';
     errorMessageRef.value = '';
@@ -220,8 +229,26 @@ function performCreateNetScheduled() {
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
                         announce : announce , creatorName : localLoggedInUserRef.value.emailAddress,
-                        type: netTypeRef.value,  dayStart: netDayStartRef.value, timeStartStr: netTimeStartStrRef.value, duration: netDurationRef.value, checkinReminder : checkinReminder,
+                        type: netTypeRef.value,
+                        dayStart: null,
+                        timeStartStr: null, 
+                        duration: netDurationRef.value, checkinReminder : checkinReminder,
                         checkinMessage: netCheckinMessageRef.value, open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value };
+
+    if (netTypeRef.value == '1') {
+      bodyObject.timeStartStr = "x:"+todayTimePickerRef.value.hours+":"+todayTimePickerRef.value.minutes;
+    } else if (netTypeRef.value == '2') {
+      bodyObject.timeStartStr = "x:"+todayTimePickerRef.value.hours+":"+todayTimePickerRef.value.minutes;
+      bodyObject.dayStart = netDayStartRef.value;
+    } else if (netTypeRef.value == '3') {
+      bodyObject.timeStartStr = "x:"+todayTimePickerRef.value.hours+":"+todayTimePickerRef.value.minutes;
+      bodyObject.dayStart = netSpecificDayRef.value;
+    } else if (netTypeRef.value == '4') {
+      bodyObject.timeStartStr = netRelativeDayRef.value+":"+todayTimePickerRef.value.hours+":"+todayTimePickerRef.value.minutes;
+      bodyObject.dayStart = netDayStartRef.value;
+    } else if (netTypeRef.value == '5') {
+      bodyObject.timeStartStr = todayDatePickerRef.value.toISOString();
+    }
 
     // scheduled net
     const requestOptions = {
@@ -346,13 +373,63 @@ function performCreateNet() {
                     <select name="scheduledTypeField" id="netType" v-model="netTypeRef.value" style="display: inline;">
                       <option value="1" selected>Daily</option>
                       <option value="2">Weekly</option>
-                      <option value="3">Monthly specific date</option>
-                      <option value="4">Monthly relative date</option>
+                      <option value="3">Monthly specific day</option>
+                      <option value="4">Monthly relative day</option>
                       <option value="5">One time only</option>
                     </select>
                 </div>
                 <div>
-                  <div v-if="(netTypeRef.value != '5')">
+                  <div v-if="((netTypeRef.value == '0') || (netTypeRef.value == '1') || (netTypeRef.value == '5'))">
+                  </div>
+                  <div v-if="(netTypeRef.value == '4')">
+                    <!-- first to last -->
+                    <label for="relativeDayField">Relative day in month:</label>
+                    <select name="relativeDayField" id="netRelativeDay" v-model="netRelativeDayRef.value" style="display: inline;">
+                      <option value="1" selected>First</option>
+                      <option value="2">Second</option>
+                      <option value="3">Third</option>
+                      <option value="4">Fourth</option>
+                      <option value="5">Last</option>
+                    </select>
+                  </div>
+                  <div v-if="(netTypeRef.value == '3') ">
+                    <!-- 1-31 -->
+                    <label for="specificDayField">Specific day of month:</label>
+                    <select name="specificDayField" id="netSpecificDay" v-model="netSpecificDayRef.value" style="display: inline;">
+                      <option value="1" selected>1st</option>
+                      <option value="2">2nd</option>
+                      <option value="3">3rd</option>
+                      <option value="4">4th</option>
+                      <option value="5">5th</option>
+                      <option value="6">6th</option>
+                      <option value="7">7th</option>
+                      <option value="8">8th</option>
+                      <option value="9">9th</option>
+                      <option value="10">10th</option>
+                      <option value="11">11th</option>
+                      <option value="12">12th</option>
+                      <option value="13">13th</option>
+                      <option value="14">14th</option>
+                      <option value="15">15th</option>
+                      <option value="16">16th</option>
+                      <option value="17">17th</option>
+                      <option value="18">18th</option>
+                      <option value="19">19th</option>
+                      <option value="20">20th</option>
+                      <option value="21">21th</option>
+                      <option value="22">22th</option>
+                      <option value="23">23th</option>
+                      <option value="24">24th</option>
+                      <option value="25">25th</option>
+                      <option value="26">26th</option>
+                      <option value="27">27th</option>
+                      <option value="28">28th</option>
+                      <option value="29">29th</option>
+                      <option value="30">30th</option>
+                      <option value="31">31th</option>
+                    </select>
+                  </div>
+                  <div v-if="((netTypeRef.value == '2') || (netTypeRef.value == '4'))">
                     <label for="dayStartField">Day start:</label>
                     <select name="dayStartField" id="netDayStart" v-model="netDayStartRef.value" style="display: inline;">
                       <option value="1" selected>Sunday</option>
@@ -365,20 +442,24 @@ function performCreateNet() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label for="durationField">Duration (hours):</label>
-                  <input type="text" id="durationField" v-model="netDurationRef.value" maxlength="3" />
-                </div>
               <div v-if="(netTypeRef.value == '5')">
                 <div>
-                  <label for="timeStartField">Start time (YYYY-MM-DD HH:MM):</label>
-                  <input type="text" id="timeStartField" v-model="netTimeStartStrRef.value" maxlength="16" />
+                  Start date/time: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: true }" />
                 </div>
+              </div>
+              <div v-else-if="(netTypeRef.value == '0')">
               </div>
               <div v-else>
                 <div>
-                  <label for="timeStartField">Start time (HH:MM):</label>
-                  <input type="text" id="timeStartField" v-model="netTimeStartStrRef.value" maxlength="5" />
+                  Start time: <VueDatePicker v-model="todayTimePickerRef.value" time-picker />
+                </div>
+              </div>
+              <div>
+                <div v-if="(netTypeRef.value == '0')">
+                </div>
+                <div v-else>
+                  <label for="durationField">Duration (hours):</label>
+                  <input type="text" id="durationField" v-model="netDurationRef.value" maxlength="3" />
                 </div>
               </div>
               </div>

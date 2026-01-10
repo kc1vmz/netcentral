@@ -69,7 +69,9 @@ function performLogout() {
       <form v-if="logoutPageShowRef.value" method="dialog">
         <div class="pagesubheader">Logout</div>
         <div class="line"><hr/></div>
+        <br>
         Do you wish to log out?
+        <br>
         <br>
         <button class="boxButton" v-on:click.native="logoutYes">Yes</button>
         <button class="boxButton" v-on:click.native="logoutNo">No</button>

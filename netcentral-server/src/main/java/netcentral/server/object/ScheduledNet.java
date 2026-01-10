@@ -225,27 +225,26 @@ public class ScheduledNet {
     public ZonedDateTime calculateNextStartTime() {
         ZonedDateTime time;
         int timeStart = this.getTimeStart();
-        int hour = (timeStart) / 100;
-        int minute = timeStart - ((timeStart / 100) * 100);
+        int remainder = 0;
+        int relativeDay = (timeStart / 10000);
+        remainder = (timeStart - (relativeDay * 10000));
+        int hour = remainder / 100;
+        remainder = remainder - (hour*100);
+        int minute = remainder;
 
-        if (this.type.equals(ScheduledNetType.UNKNOWN)) {
-            time = ZonedDateTime.now().plusYears(100);
-        } else if (this.type.equals(ScheduledNetType.ONE_TIME_ONLY)) {
+        if (this.type.equals(ScheduledNetType.ONE_TIME_ONLY)) {
             time = this.getNextStartTime();
         } else if (this.type.equals(ScheduledNetType.DAILY)) {
             time = ZonedDateTime.now();
             time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), time.getDayOfMonth(), hour, minute, 0, 0, ZoneId.systemDefault());
             // may be earlier than now
-            if (time.isBefore(this.getLastStartTime())) {
-                time = time.plusDays(1);  // move up to next day
+            if (time.isBefore(ZonedDateTime.now())) {
+                time = time.plusDays(1);  // move up to next week
             }
         } else if (this.type.equals(ScheduledNetType.WEEKLY)) {
             time = ZonedDateTime.now();
             int day = time.getDayOfWeek().getValue();
-            int dayAdd = day - this.getDayStart();
-            if (dayAdd < 0) {
-                dayAdd *= -1;  
-            }
+            int dayAdd = (this.getDayStart()-1) - day;
             int dayOfMonth = time.getDayOfMonth() + dayAdd;
             time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), dayOfMonth, hour, minute, 0, 0, ZoneId.systemDefault());
             if (time.isBefore(ZonedDateTime.now())) {
@@ -253,48 +252,46 @@ public class ScheduledNet {
             }
         } else if (this.type.equals(ScheduledNetType.MONTHLY_DAY)) {
             time = ZonedDateTime.now();
-            int day = time.getDayOfMonth();
-            int dayAdd = day - this.getDayStart();
-            if (dayAdd < 0) {
-                dayAdd *= -1;  
-            }
-            int dayOfMonth = time.getDayOfMonth() + dayAdd;
-            time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), dayOfMonth, hour, minute, 0, 0, ZoneId.systemDefault());
+            time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), this.getDayStart(), hour, minute, 0, 0, ZoneId.systemDefault());
             if (time.isBefore(ZonedDateTime.now())) {
                 time = time.plusMonths(1);  // move up to next month
             }
         } else if (this.type.equals(ScheduledNetType.MONTHLY_RELATIVE)) {
+            time = calculateNextRelativeStartTime(ZonedDateTime.now(), hour, minute);
             // need to find the Nth day of the current month, and if past, bump a month up
-            time = ZonedDateTime.now();
-            int correctMonth = time.getMonthValue();
-            time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), 1, hour, minute, 0, 0, ZoneId.systemDefault());
-
-            // first of month
-            int day = time.getDayOfWeek().getValue();  
-            int dayOfWeek = (this.getDayStart() - (this.getDayStart() / 10) * 10) / 10;  // two digits - 1-5, 6=last  ; 1-7 day of week
-            int weekOffset = (this.getDayStart() / 10)-1;// number of weeks to move up from first week
-            if (day < dayOfWeek) {
-                time = time.plusDays(dayOfWeek - day);
-            } else {
-                time = time.plusWeeks(1).minusDays(day-dayOfWeek);
-            }
-            if (weekOffset > 5) {
-                weekOffset = 5;
-            }
-            time = time.plusWeeks(weekOffset);
-            // may be out of month = lets walk back into month
-            while (time.getMonthValue() != correctMonth) {
-                time = time.minusWeeks(1);
-            }
             // may be earlier than now
             if (time.isBefore(ZonedDateTime.now())) {
-                time = time.plusMonths(1);  // move up to next month
+                time = calculateNextRelativeStartTime(ZonedDateTime.now().plusMonths(1), hour, minute);
             }
         } else {
             time = ZonedDateTime.now().plusYears(100);
         }
         return time;
     }
+    private ZonedDateTime calculateNextRelativeStartTime(ZonedDateTime time, int hour, int minute) {
+        int correctMonth = time.getMonthValue();
+        time = ZonedDateTime.of(time.getYear(), time.getMonthValue(), 1, hour, minute, 0, 0, ZoneId.systemDefault());
+
+        // first of month
+        int day = time.getDayOfWeek().getValue();
+        int dayOfWeek = this.getDayStart() - 1;
+        int weekOffset = (this.getTimeStart() / 10000)-1;// number of weeks to move up from first week
+        if (day < dayOfWeek) {
+            time = time.plusDays(dayOfWeek - day);
+        } else if (day > dayOfWeek) {
+            time = time.plusWeeks(1).minusDays(day-dayOfWeek);
+        }
+        if (weekOffset > 5) {
+            weekOffset = 5;
+        }
+        time = time.plusWeeks(weekOffset);
+        // may be out of month = lets walk back into month
+        while (time.getMonthValue() != correctMonth) {
+            time = time.minusWeeks(1);
+        }
+        return time;
+    }
+
     public boolean isCheckinReminder() {
         return checkinReminder;
     }

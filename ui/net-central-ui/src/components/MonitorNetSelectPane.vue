@@ -316,9 +316,15 @@ function getExpectedParticipants(netCallsign) {
     var callsigns = '';
     fetch(buildNetCentralUrl('/nets/'+netCallsign+'/expectedParticipants'), getGetRequestOptions())
       .then(response => response.json())
+      .then(response => {
+        if (response.status == 200) {
+           return response.json();
+        }
+        return null;
+      })
       .then(data => {
           expectedParticipants = data;
-          if (expectedParticipants) {
+          if (expectedParticipants != null) {
             expectedParticipants.forEach(function(expectedParticipant){
               if (callsigns.length > 0) {
                 callsigns += ',';

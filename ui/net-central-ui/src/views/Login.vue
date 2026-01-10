@@ -126,7 +126,9 @@ getRedirect();
       <form v-if="loginPageShow.value" method="dialog">
         <div class="pagesubheader">Login</div>
         <div class="line"><hr/></div>
+        <br>
         Enter your user login id and password to login.
+        <br>
         <br>
           <div>
             <label for="loginidField">Login id:</label>
@@ -136,6 +138,7 @@ getRedirect();
             <label for="passwordField">Password:</label>
             <input type="password" id="passwordField" v-model="passwordRef"/>
           </div>
+          <br>
           <div>
             <b>{{ errorMessageRef.value }}</b>
           </div>

@@ -20,7 +20,6 @@ package netcentral.server.object.request;
     http://www.kc1vmz.com
 */
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -172,7 +171,7 @@ public class ScheduledNetCreateRequestExternal {
     public ScheduledNet getScheduledNet() {
         ScheduledNet ret = new ScheduledNet();
         if (ScheduledNetType.values()[getType()].equals(ScheduledNetType.ONE_TIME_ONLY)) {
-            ZonedDateTime nextStartTime = convertTimeStartStringToZDT(getTimeStartStr());
+            ZonedDateTime nextStartTime = ZonedDateTime.parse(getTimeStartStr());
             ZonedDateTime lastStartTime= ZonedDateTime.now();
             ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
                                                 getLat(), getLon(), 
@@ -186,7 +185,7 @@ public class ScheduledNetCreateRequestExternal {
                                     getLat(), getLon(), 
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
-                                    getDayStart(), convertTimeStartStringToInt(getTimeStartStr()), getDuration(),
+                                    getDayStart(), convertTimeStartStringToInt(getTimeStartStr(), ScheduledNetType.values()[getType()]), getDuration(),
                                     (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(), isOpen(), isParticipantInviteAllowed());
         }
         ret.setNextStartTime(ret.calculateNextStartTime());
@@ -214,34 +213,25 @@ public class ScheduledNetCreateRequestExternal {
         return ret;
     }
 
-    private int convertTimeStartStringToInt(String timeStartStr) {
+    private int convertTimeStartStringToInt(String timeStartStr, ScheduledNetType type) {
         int ret = 0;
-        // string HH:MM (24hr time)
-        if (timeStartStr == null) {
+        // string dd:HH:MM (24hr time)
+        if ((timeStartStr == null) || (type.equals(ScheduledNetType.ONE_TIME_ONLY))) {
             return ret;
         }
-        String [] parts = timeStartStr.split(":");
-        if ((parts != null) && (parts.length == 2)) {
-            // return HHMM in decimal ex: 1745
-            ret = ((Integer.parseInt(parts[0])) * 100) + (Integer.parseInt(parts[1]));
-        }
-        return ret;
-    }
 
-    private ZonedDateTime convertTimeStartStringToZDT(String timeStartStr) {
-        // form YYYY-MM-DD HH:MM
-        String [] dtValues = timeStartStr.split(" ");
-        if ((dtValues != null) && (dtValues.length == 2)) {
-            String [] ymdValues = dtValues[0].split("-");
-            if ((ymdValues != null) && (ymdValues.length == 3)) {
-                String [] hmValues = dtValues[1].split(":");
-                if ((hmValues != null) && (hmValues.length == 2)) { 
-                    return ZonedDateTime.of(Integer.parseInt(ymdValues[0]), Integer.parseInt(ymdValues[1]), Integer.parseInt(ymdValues[2]), 
-                                                Integer.parseInt(hmValues[0]), Integer.parseInt(hmValues[1]), 0, 0, ZoneId.systemDefault());
-                }
+        String [] parts = timeStartStr.split(":");
+        if ((parts != null) && (parts.length == 3)) {
+            if (type.equals(ScheduledNetType.MONTHLY_RELATIVE)) {
+                // relative (1-5):HH:MM
+                ret = (((Integer.parseInt(parts[0])) * 10000) + (Integer.parseInt(parts[1])) * 100) + (Integer.parseInt(parts[2]));
+            } else {
+                // return HH:MM in decimal ex: 1745
+                ret = ((Integer.parseInt(parts[1])) * 100) + (Integer.parseInt(parts[2]));
             }
         }
-        return ZonedDateTime.now().plusYears(300);
+
+        return ret;
     }
 
     public String getCheckinReminder() {
