@@ -97,7 +97,13 @@ public class InternetServerAccessor {
         try {
             List<InternetServerRecord> existingList = internetServerRepository.findByip_address(obj.getIpAddress());
             if ((existingList != null) && (!existingList.isEmpty())) {
-                err = "Internet server IP address already exists";
+                InternetServerRecord existing = existingList.get(0); // should only ever be one
+                InternetServerRecord src = new InternetServerRecord(existing.internet_server_id(), obj.getLoginCallsign(), obj.getName(), obj.getDescription(), obj.getIpAddress(), obj.getQuery());
+                InternetServerRecord rec = internetServerRepository.update(src);
+                if (rec != null) {
+                    InternetServer internetServerFinal = get(loggedInUser, existing.internet_server_id());
+                    return internetServerFinal;
+                }
             } else {
                 String id = UUID.randomUUID().toString();
                 InternetServerRecord src = new InternetServerRecord(id, obj.getLoginCallsign(), obj.getName(), obj.getDescription(), obj.getIpAddress(), obj.getQuery());
