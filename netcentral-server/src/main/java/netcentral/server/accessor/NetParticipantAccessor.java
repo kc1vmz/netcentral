@@ -34,7 +34,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
@@ -72,7 +72,7 @@ public class NetParticipantAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {

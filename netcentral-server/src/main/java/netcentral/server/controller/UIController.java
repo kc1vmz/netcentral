@@ -79,7 +79,7 @@ import netcentral.server.accessor.UIAccessor;
 import netcentral.server.accessor.UserAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.auth.SessionTrackedObjectAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.ObjectShelterReportingTimeframe;
 import netcentral.server.enums.RadioStyle;
@@ -138,7 +138,7 @@ public class UIController {
     @Inject
     private CompletedParticipantAccessor completedParticipantAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private ReportAccessor reportAccessor;
     @Inject

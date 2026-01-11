@@ -56,7 +56,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
@@ -144,9 +144,11 @@ public class APRSObjectAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private FederatedObjectIngestionAccessor federatedObjectIngestionAccessor;
+    @Inject
+    private ConfigParametersAccessor configParametersAccessor;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -1087,8 +1089,10 @@ public class APRSObjectAccessor {
     private APRSObjectResource createAPRSRaw(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSRaw> innerAPRSRawOpt, String source, ZonedDateTime heardTime) {
         APRSRaw innerAPRSRaw = innerAPRSRawOpt.get();
 
-        APRSRawRecord src = new APRSRawRecord(id, source, heardTime, innerAPRSRaw.getData());
-        aprsRawRepository.save(src);
+        if (configParametersAccessor.isLogRawPackets()) {
+            APRSRawRecord src = new APRSRawRecord(id, source, heardTime, new String(innerAPRSRaw.getData()));
+            aprsRawRepository.save(src);
+        }
         return new APRSObjectResource(id, innerAPRSRaw, source, heardTime);
     }
 
@@ -1497,5 +1501,24 @@ public class APRSObjectAccessor {
         } catch (Exception e) {
             logger.error("Exception caught deleting messages", e);
         }
+    }
+
+    public List<APRSRaw> getRawPackets(User loggedInUser) {
+        List<APRSRaw> ret = new ArrayList<>();
+
+       try {
+            List<APRSRawRecord> recs = aprsRawRepository.findAll();
+            if ((recs != null) && (!recs.isEmpty())) {
+                for (APRSRawRecord rec : recs) {
+                    APRSRaw rawObj = new APRSRaw();
+                    rawObj.setData(rec.data().getBytes());
+                    rawObj.setHeardTime(rec.heard_time());
+                    ret.add(rawObj);
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return ret;
     }
 }

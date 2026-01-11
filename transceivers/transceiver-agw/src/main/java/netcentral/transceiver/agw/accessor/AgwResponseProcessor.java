@@ -70,6 +70,7 @@ public class AgwResponseProcessor {
             List<String> digipeaters = new ArrayList<>();
 
             packetLoggerAccessor.savePacket(packetString);
+            // TODO - send raw packet to server
 
             if (remain.startsWith(fromLabel)) {
                 remain = remain.substring(fromLabel.length());

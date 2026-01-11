@@ -289,6 +289,7 @@ public class APRSTCPIPListenerAccessor {
                         try {
                             KISSPacket packet = client.listen();
                             packetLoggerAccessor.savePacket(packet.getPacket());
+                            aprsMessageProcessor.processRawData(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();

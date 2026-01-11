@@ -283,11 +283,13 @@ public class APRSListenerAccessor {
                         statisticsAccessor.markLastReceivedTime();
                         statisticsAccessor.incrementObjectsReceived();
 
+                        // handle raw packet
                         packetLoggerAccessor.savePacket(line);
+                        aprsMessageProcessor.processRawData(line);
 
                         APRSPacket packet = parsePacket(line);
                         if (packet != null) {
-                            processPacket(packet);
+                             aprsMessageProcessor.processPacket(packet);
                         }
                     }
                 }
@@ -307,10 +309,6 @@ public class APRSListenerAccessor {
         } catch (IOException e) {
             logger.error("IOException caught creating connection", e);
         }
-    }
-
-    private void processPacket(APRSPacket packet) {
-        aprsMessageProcessor.processPacket(packet);
     }
 
     /**

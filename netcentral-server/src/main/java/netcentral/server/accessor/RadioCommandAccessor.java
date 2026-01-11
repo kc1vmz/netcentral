@@ -33,7 +33,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageR
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -94,7 +94,7 @@ public class RadioCommandAccessor {
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {

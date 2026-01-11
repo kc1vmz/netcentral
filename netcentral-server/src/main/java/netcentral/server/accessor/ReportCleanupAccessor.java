@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 
 
 @Singleton
@@ -43,7 +43,7 @@ public class ReportCleanupAccessor {
     private static final Logger logger = LogManager.getLogger(ReportCleanupAccessor.class);
 
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();

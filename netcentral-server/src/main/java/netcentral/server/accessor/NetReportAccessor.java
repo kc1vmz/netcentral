@@ -30,7 +30,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartRep
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.Net;
 import netcentral.server.object.User;
 
@@ -44,7 +44,7 @@ public class NetReportAccessor {
     @Inject
     private NetAccessor netAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig; 
+    private NetCentralServerConfig netConfigServerConfig; 
 
     public void sendReports() {
         if (!stayRunning()) {

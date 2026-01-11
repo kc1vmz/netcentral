@@ -55,7 +55,7 @@ import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -95,7 +95,7 @@ public class NetController {
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {

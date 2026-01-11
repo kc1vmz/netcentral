@@ -36,7 +36,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetQuestion;
@@ -56,7 +56,7 @@ public class NetQuestionAnswerAccessor {
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
     public List<NetQuestionAnswer> getAll(User loggedInUser, String netQuestionId) {
         List<NetQuestionAnswerRecord> recs = netQuestionAnswerRepository.findBynet_question_id(netQuestionId);

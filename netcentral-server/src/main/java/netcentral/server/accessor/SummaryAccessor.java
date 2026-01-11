@@ -36,7 +36,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStat
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.auth.SessionCacheAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ObjectEOCStatus;
 import netcentral.server.enums.ObjectShelterState;
 import netcentral.server.enums.ObjectShelterStatus;
@@ -89,7 +89,7 @@ public class SummaryAccessor {
     @Inject
     private IgnoreStationAccessor ignoreStationAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
 
     public SummaryDashboard getDashboardSummary(User loggedInUser) {

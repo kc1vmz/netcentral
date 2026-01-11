@@ -20,6 +20,60 @@
 
 <template>
     <!-- dialogs -->
+    <div v-if="dialogEnableRawPacketLoggingShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogEnableRawPacketLoggingShow.value" ref="dialogEnableRawPacketLogging" @close="dialogEnableRawPacketLoggingShow.value = false" class="topz">  
+          <form v-if="dialogEnableRawPacketLoggingShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to enable raw packet logging?
+            <br>
+            <div>
+              <b>{{ errorMessage }}</b>
+            </div>
+            <br>
+            <button class="boxButton" v-on:click.native="enableRawPacketLoggingYes">Yes</button>
+            <button class="boxButton" v-on:click.native="enableRawPacketLoggingNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
+    <div v-if="dialogDisableRawPacketLoggingShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogDisableRawPacketLoggingShow.value" ref="dialogDisableRawPacketLogging" @close="dialogDisableRawPacketLoggingShow.value = false" class="topz">  
+          <form v-if="dialogDisableRawPacketLoggingShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to disable raw packet logging?
+            <br>
+            <div>
+              <b>{{ errorMessage }}</b>
+            </div>
+            <br>
+            <button class="boxButton" v-on:click.native="disableRawPacketLoggingYes">Yes</button>
+            <button class="boxButton" v-on:click.native="disableRawPacketLoggingNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
+    <div v-if="dialogExportRawPacketsShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogExportRawPacketsShow.value" ref="dialogExportRawPackets" @close="dialogExportRawPacketsShow.value = false" class="topz">  
+          <form v-if="dialogExportRawPacketsShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to download all heard raw packet data from Net Central ?
+            <br>
+            <div>
+              <b>{{ errorMessage }}</b>
+            </div>
+            <br>
+            <button class="boxButton" v-on:click.native="exportRawPacketsYes">Yes</button>
+            <button class="boxButton" v-on:click.native="exportRawPacketsNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogConfirmDeleteAllNetCentralShow.value">
       <teleport to="#modals">
         <dialog :open="dialogConfirmDeleteAllNetCentralShow.value" ref="dialogConfirmDeleteAllNetCentral" @close="dialogConfirmDeleteAllNetCentralShow.value = false" class="topz">  
@@ -230,6 +284,28 @@
       </div>
     </div>
     <div class="grid-container" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'SYSADMIN'))">
+      <div v-if="(!rawPacketLogging.value)" class="grid-item">
+        <button class="bigBoxButton" v-on:click.native="enableRawPacketLogging"><b>Enable raw packet logging</b></button>
+      </div>
+      <div v-if="(!rawPacketLogging.value)" class="grid-item">
+        Enable raw logging of all heard packets for later download.
+      </div>
+      <div v-if="(rawPacketLogging.value)" class="grid-item">
+        <button class="bigBoxButton" v-on:click.native="disableRawPacketLogging"><b>Disable raw packet logging</b></button>
+      </div>
+      <div v-if="(rawPacketLogging.value)" class="grid-item">
+        Disable raw logging of all heard packets.
+      </div>
+    </div>
+    <div class="grid-container">
+      <div class="grid-item">
+        <button class="bigBoxButton" v-on:click.native="exportRawPackets"><b>Download raw packets</b></button>
+      </div>
+      <div class="grid-item">
+        Download all heard APRS packets to a file.
+      </div>
+    </div>
+    <div class="grid-container" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'SYSADMIN'))">
       <div class="grid-item">
         <button class="bigBoxButton" v-on:click.native="deleteAllData"><b>Delete all APRS data</b></button>
       </div>
@@ -262,10 +338,20 @@ var dialogSendNTSShow = reactive({ value : false });
 var dialogSendWinlink = ref(null);
 var dialogSendWinlinkShow = reactive({ value : false });
 
+var dialogExportRawPacketsShow = reactive({ value : false });
+var dialogExportRawPackets = ref(null);
+
+var dialogEnableRawPacketLoggingShow = reactive({ value : false });
+var dialogEnableRawPacketLogging = ref(null);
+var dialogDisableRawPacketLoggingShow = reactive({ value : false });
+var dialogDisableRawPacketLogging = ref(null);
+
 var dialogConfirmDeleteAll = ref(null);
 var dialogConfirmDeleteAllShow = reactive({ value : false });
 var dialogConfirmDeleteAllNetCentral = ref(null);
 var dialogConfirmDeleteAllNetCentralShow = reactive({ value : false });
+
+var rawPacketLogging = reactive({ value : false });
 
 var errorMessage = ref('');
 
@@ -281,7 +367,7 @@ var ntsToAddress = ref('');
 var ntsToCityState = ref('');
 var ntsPhoneNumber = ref('');
 var ntsEmailAddress = ref('');
-var ntsSignature = ref('');
+    var ntsSignature = ref('');
 var ntsOperatorNote = ref('');
 var ntsMessage1 = ref('');
 var ntsMessage2 = ref('');
@@ -315,6 +401,7 @@ onMounted(() => {
   redirect(getToken(), "Tools", router);
   accesstokenRef.value = getToken();
   localLoggedInUserRef.value = getUser();
+  getRawPacketLoggingState();
 });
 
 watch(ntsMessage1, (newValue, oldValue) => {
@@ -618,6 +705,96 @@ function sendWinlinkNo() {
   winlinkMessage.value = '';
   winlinkSubject.value = '';
 }
+
+function exportRawPackets() {
+  dialogExportRawPacketsShow.value = true;
+}
+
+function exportRawPacketsYes() {
+  dialogExportRawPacketsShow.value = false;
+  window.open(buildNetCentralUrl("/tools/rawPackets"), '_blank');
+}
+
+function exportRawPacketsNo() {
+  dialogExportRawPacketsShow.value = false;
+}
+
+function enableRawPacketLogging() {
+  dialogEnableRawPacketLoggingShow.value = true;
+}
+
+function enableRawPacketLoggingYes() {
+  setRawLoggingValue(true);
+}
+
+function enableRawPacketLoggingNo() {
+  dialogEnableRawPacketLoggingShow.value = false;
+}
+
+function disableRawPacketLogging() {
+  dialogDisableRawPacketLoggingShow.value = true;
+}
+
+function disableRawPacketLoggingYes() {
+  setRawLoggingValue(false);
+}
+
+function disableRawPacketLoggingNo() {
+  dialogDisableRawPacketLoggingShow.value = false;
+}
+
+function getRawPacketLoggingState() {
+  rawPacketLogging.value = false;
+
+  var requestOptions = {
+    method: "GET",
+    headers: { "Content-Type": "application/json",
+                "SessionID" : getToken()
+      },
+    body: null
+  };
+  fetch(buildNetCentralUrl('/configParameters/RawPacketLogging'), requestOptions)
+    .then(response => response.json())
+    .then(data => {
+        rawPacketLogging.value = data;
+    })
+    .catch(error => { console.error('Error getting configuration parameter:', error); })
+}
+
+function setRawLoggingValue(value) {
+  // send this to the server
+  var url;
+  
+  if (value) {
+    url = buildNetCentralUrl('/configParameters/RawPacketLogging?value=true');
+  } else {
+    url = buildNetCentralUrl('/configParameters/RawPacketLogging?value=false');
+  }
+
+  var requestOptions = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json",
+                "SessionID" : getToken()
+      },
+    body: null
+  };
+
+  fetch(url, requestOptions)
+    .then(response => {
+      if (response.status != 200) {
+        errorMessage.value = "Error setting configuration parameter - "+response.status;
+      } else {
+        dialogEnableRawPacketLoggingShow.value = false;
+        dialogDisableRawPacketLoggingShow.value = false;
+        rawPacketLogging.value = value;
+      }
+      return response.json()
+    })
+    .then(data => {
+    })
+    .catch(error => { console.error('Error setting configuration parameter:', error); })
+}
+
 </script>
 
 <style scoped>

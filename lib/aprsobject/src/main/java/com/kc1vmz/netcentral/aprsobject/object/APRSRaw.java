@@ -1,5 +1,10 @@
 package com.kc1vmz.netcentral.aprsobject.object;
 
+import java.time.ZonedDateTime;
+
+import com.kc1vmz.netcentral.aprsobject.interfaces.APRSPacketInterface;
+import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,14 +25,57 @@ package com.kc1vmz.netcentral.aprsobject.object;
     http://www.kc1vmz.com
 */
 
-public class APRSRaw  {
-    private String data;
+public class APRSRaw implements APRSPacketInterface  {
+    private byte [] data;
+    private byte [] header;
+    private String callsignFrom;
+    private String callsignTo;
+    private byte dti;
+    private ZonedDateTime heardTime;
+    private String prettyHeardTime;
 
-    public String getData() {
+    public byte [] getData() {
         return data;
     }
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
+    }
+    public byte [] getHeader() {
+        return header;
+    }
+    public void setHeader(byte[] header) {
+        this.header = header;
+    }
+    public String getCallsignFrom() {
+        return callsignFrom;
+    }
+    public void setCallsignFrom(String callsignFrom) {
+        this.callsignFrom = callsignFrom;
+    }
+    public String getCallsignTo() {
+        return callsignTo;
+    }
+    public void setCallsignTo(String callsignTo) {
+        this.callsignTo = callsignTo;
+    };
+    public byte getDti() {
+        return dti;
+    }
+    public void setDti(byte dti) {
+        this.dti = dti;
+    }
+    public ZonedDateTime getHeardTime() {
+        return heardTime;
+    }
+    public void setHeardTime(ZonedDateTime heardTime) {
+        this.heardTime = heardTime;
+        this.setPrettyHeardTime(PrettyZonedDateTimeFormatter.format(heardTime));
+    }
+    public String getPrettyHeardTime() {
+        return prettyHeardTime;
+    }
+    public void setPrettyHeardTime(String prettyHeardTime) {
+        this.prettyHeardTime = prettyHeardTime;
     }
 }
 

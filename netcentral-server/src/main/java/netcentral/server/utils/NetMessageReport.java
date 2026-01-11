@@ -45,7 +45,7 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.SoftwareIdentity;
@@ -53,7 +53,7 @@ import netcentral.server.object.SoftwareIdentity;
 @Singleton
 public class NetMessageReport {
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
     private static final Logger logger = LogManager.getLogger(NetMessageReport.class);
 

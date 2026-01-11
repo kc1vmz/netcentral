@@ -40,6 +40,25 @@ socket.on("updateParticipant", (data) => {
 socket.on("updateNetExpectedParticipant", (data) => {
   updateNetExpectedParticipant(data)
 });
+socket.on("updateTrackedStation", (data) => {
+  updateTrackedStation(data)
+});
+
+function updateTrackedStation(data) {
+  if (!liveUpdateEnabled.value) {
+    return;
+  }
+  if (data.action == "Update") {
+    if (netParticipants.value != null) {
+      netParticipants.value.forEach(function(netParticipant){
+        if (netParticipant.callsign == data.object.callsign) {
+          netParticipant.lon = data.object.lon;
+          netParticipant.lat = data.object.lat;
+        }
+      });
+    }
+  }
+}
 
 function updateNetExpectedParticipant(data) {
   if (!liveUpdateEnabled.value) {

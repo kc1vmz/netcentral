@@ -47,7 +47,7 @@ function generateReport() {
 }
 function generateReportYes() {
     openDialogFlag.value = false;
-    window.open(buildNetCentralUrl("/completedNets/"+localSelectedCompletedNet.value.completedNetId+"/partipationReports"), '_blank');
+    window.open(buildNetCentralUrl("/completedNets/"+localSelectedCompletedNet.value.completedNetId+"/participationReports"), '_blank');
 }
 function generateReportNo() {
     openDialogFlag.value = false;

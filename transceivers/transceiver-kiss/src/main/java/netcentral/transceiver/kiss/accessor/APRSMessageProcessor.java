@@ -52,6 +52,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
+import com.kc1vmz.netcentral.parser.factory.APRSRawFactory;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 import jakarta.inject.Inject;
@@ -115,6 +116,28 @@ public class APRSMessageProcessor {
         executorService.submit(() -> processPacketThread(packet));
     }
 
+    public void processRawData(String rawData) {
+        if (executorService == null) {
+            logger.debug("Initializing thread pool for scan execution");
+            executorService = Executors.newFixedThreadPool(threadConfiguration.getCount());
+        }
+        if (loginResponse == null) {
+            try {
+                loginResponse = netControlRESTClient.login(netControlClientConfig.getUsername(), netControlClientConfig.getPassword());
+                if (loginResponse == null) {
+                    // failed login
+                    return;
+                }
+
+                registeredTransceiver = netControlRESTClient.register(loginResponse.getAccessToken(), registeredTransceiverConfig.getName(), registeredTransceiverConfig.getDescription(),
+                                                                    registeredTransceiverConfig.getType(), registeredTransceiverConfig.getPort());
+            } catch (Exception e) {
+                logger.error("Login failed to Net Control");
+            }
+        }
+        executorService.submit(() -> processRawDataThread(rawData));
+    }
+
     private boolean processPacketThread(KISSPacket packet) {
         if (packet == null) {
             logger.debug("Null packet received");
@@ -134,6 +157,26 @@ public class APRSMessageProcessor {
         } catch (Exception e) {
             logger.error("Cannot parse data: " + packet.getData(), e);
             return false;
+        }
+
+        return true;
+    }
+
+    private boolean processRawDataThread(String rawData) {
+        if (rawData == null) {
+            logger.debug("Null rawData received");
+            return true;
+        }
+
+        try {
+            APRSObjectResource objectResource = new APRSObjectResource();
+            APRSRaw rawPacket = APRSRawFactory.parse(rawData, objectResource.getHeardTime());
+            objectResource.setInnerAPRSRaw((APRSRaw) rawPacket);
+
+            ZonedDateTime heardTime = ZonedDateTime.now();
+
+            processGenericObject("", "", rawPacket, heardTime, null, null);
+        } catch (Exception e) {
         }
 
         return true;

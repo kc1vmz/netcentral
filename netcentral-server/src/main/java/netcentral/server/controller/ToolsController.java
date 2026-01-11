@@ -1,5 +1,13 @@
 package netcentral.server.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.util.List;
+
+import com.kc1vmz.netcentral.aprsobject.object.APRSRaw;
+import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -21,7 +29,9 @@ package netcentral.server.controller;
 */
 
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -32,13 +42,16 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.ToolsAccessor;
 import netcentral.server.auth.SessionAccessor;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.User;
 import netcentral.server.object.request.NTSSendRadiogramRequest;
 import netcentral.server.object.request.WinlinkSendMessageRequest;
 import netcentral.server.object.response.NTSSendRadiogramResponse;
 import netcentral.server.object.response.WinlinkSendMessageResponse;
+import netcentral.server.utils.RawPacketReport;
 
 @Controller("/api/v1/tools") 
 @Secured(SecurityRule.IS_ANONYMOUS) 
@@ -47,6 +60,12 @@ public class ToolsController {
     SessionAccessor sessionAccessor;
     @Inject
     private ToolsAccessor toolsAccessor;
+    @Inject
+    private NetCentralServerConfig netCentralServerConfig;
+    @Inject
+    private RawPacketReport rawPacketReport;
+    @Inject 
+    private APRSObjectAccessor aprsObjectAccessor;
 
     @Post("/winlink/requests")
     public WinlinkSendMessageResponse initiateWinlinkMessage(HttpRequest<?> request, @Body WinlinkSendMessageRequest action) {
@@ -95,6 +114,25 @@ public class ToolsController {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, response.getStatus());
         }
         return response;
+    }
+
+    @Get(uri = "/rawPackets", produces = MediaType.TEXT_PLAIN)
+    public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        try {
+            List<APRSRaw> rawPackets = aprsObjectAccessor.getRawPackets(loggedInUser);
+            String filename = rawPacketReport.createReport(rawPackets);
+
+            filename = netCentralServerConfig.getTempReportDir()+filename;
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
+            String newFilename = String.format("RawPacketReport-%s.txt", PrettyZonedDateTimeFormatter.format(ZonedDateTime.now()));
+            return HttpResponse.ok(fileBytes)
+                    .header("Content-Disposition", "attachment; filename=\""+newFilename+"\"");
+        } catch (Exception e) {
+            return HttpResponse.serverError();
+        }
     }
 
 

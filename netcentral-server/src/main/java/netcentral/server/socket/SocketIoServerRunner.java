@@ -32,14 +32,14 @@ import io.micronaut.context.event.StartupEvent;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 
 @Singleton
 public class SocketIoServerRunner implements ApplicationEventListener<StartupEvent> {
     private static final Logger logger = LogManager.getLogger(SocketIoServerRunner.class);
 
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
     private SocketIOServer server = null;
 

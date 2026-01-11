@@ -47,7 +47,7 @@ import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.accessor.NetQuestionAccessor;
 import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
@@ -79,7 +79,7 @@ public class CompletedNetController {
     @Inject
     private NetParticipantReport netParticipantReport;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
@@ -139,7 +139,7 @@ public class CompletedNetController {
         return ret;
     }
 
-    @Get(uri = "/{id}/partipationReports", produces = MediaType.APPLICATION_PDF)
+    @Get(uri = "/{id}/participationReports", produces = MediaType.APPLICATION_PDF)
     public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request, @PathVariable String id) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);

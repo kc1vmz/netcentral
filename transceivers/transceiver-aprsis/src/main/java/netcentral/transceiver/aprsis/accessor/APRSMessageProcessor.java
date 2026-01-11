@@ -53,6 +53,7 @@ import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 import com.kc1vmz.netcentral.common.object.InternetServer;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
+import com.kc1vmz.netcentral.parser.factory.APRSRawFactory;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 import jakarta.inject.Inject;
@@ -128,6 +129,14 @@ public class APRSMessageProcessor {
         executorService.submit(() -> processPacketThread(packet));
     }
 
+    public void processRawData(String rawData) {
+        if (executorService == null) {
+            logger.debug("Initializing thread pool for scan execution");
+            executorService = Executors.newFixedThreadPool(threadConfiguration.getCount());
+        }
+        getRegisteredTransceiver();
+        executorService.submit(() -> processRawDataThread(rawData));
+    }
 
     private boolean processPacketThread(APRSPacket packet) {
         if (packet == null) {
@@ -154,6 +163,26 @@ public class APRSMessageProcessor {
         ZonedDateTime heardTime = ZonedDateTime.now();
 
         processGenericObject(packet.getSourceCall(), packet.getDestinationCall(),parsedPacket, heardTime, packet.getDigipeaters(), packet.getIgate());
+
+        return true;
+    }
+
+    private boolean processRawDataThread(String rawData) {
+        if (rawData == null) {
+            logger.debug("Null rawData received");
+            return true;
+        }
+
+        try {
+            APRSObjectResource objectResource = new APRSObjectResource();
+            APRSRaw rawPacket = APRSRawFactory.parse(rawData, objectResource.getHeardTime());
+            objectResource.setInnerAPRSRaw((APRSRaw) rawPacket);
+
+            ZonedDateTime heardTime = ZonedDateTime.now();
+
+            processGenericObject("", "", rawPacket, heardTime, null, null);
+        } catch (Exception e) {
+        }
 
         return true;
     }

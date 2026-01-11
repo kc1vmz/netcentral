@@ -319,10 +319,11 @@ public class APRSListenerAccessor {
                         } else {
                             String line = new String (bytes);
                             packetLoggerAccessor.savePacket(line);
+                            aprsMessageProcessor.processRawData(line);
 
                             APRSPacket packet = parsePacket(line);
                             if (packet != null) {
-                                processPacket(packet);
+                                aprsMessageProcessor.processPacket(packet);
                                 statisticsAccessor.markLastReceivedTime();
                                 statisticsAccessor.incrementObjectsReceived();
                             }
@@ -345,9 +346,6 @@ public class APRSListenerAccessor {
         }
     }
 
-    private void processPacket(APRSPacket packet) {
-        aprsMessageProcessor.processPacket(packet);
-    }
 
     /**
      * parse received packet

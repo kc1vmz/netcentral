@@ -32,7 +32,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObj
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.User;
 
 @Singleton
@@ -45,7 +45,7 @@ public class ObjectBeaconAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
 
 
     public void beaconObjects() {

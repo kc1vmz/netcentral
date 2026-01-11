@@ -3121,7 +3121,7 @@ function displayWorkerCensusReport() {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>License:</b></td> <td>{{ localSelectedObject.ncSelectedObject.license }}</td></tr>
-                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.country }} / {{ localSelectedObject.ncSelectedObject.state }}</td></tr>
                 </tbody>
               </table>
           </Tab>

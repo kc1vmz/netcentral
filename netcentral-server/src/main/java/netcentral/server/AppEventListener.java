@@ -32,6 +32,7 @@ import io.micronaut.context.event.StartupEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;
+import netcentral.server.accessor.ConfigParametersAccessor;
 import netcentral.server.accessor.NetParticipantReminderAccessor;
 import netcentral.server.accessor.NetQuestionReminderAccessor;
 import netcentral.server.accessor.NetReportAccessor;
@@ -41,7 +42,7 @@ import netcentral.server.accessor.ObjectCleanupAccessor;
 import netcentral.server.accessor.ReportCleanupAccessor;
 import netcentral.server.accessor.StatisticsAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.User;
 import netcentral.server.utils.APRSCreateObjectQueue;
 
@@ -56,7 +57,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     private StatisticsAccessor statisticsAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private ObjectBeaconAccessor priorityObjectBeaconAccessor;
     @Inject
@@ -73,11 +74,14 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     private SessionAccessor sessionAccessor;
     @Inject
     private NetReportAccessor netReportAccessor;
+    @Inject
+    private ConfigParametersAccessor configParametersAccessor;
 
     private static final long MINUTES_TO_MILLIS = 60000L;
 
     @Override
     public void onApplicationEvent(StartupEvent event) {
+        initializeSettableConfigParameters();
         statisticsAccessor.markStartTime();
         startAPRSObjectProcessorThreads();
         startReportCleanupThread();
@@ -87,6 +91,10 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         startObjectCleanupThread();
         startNetQuestionReminderThread();
         startNetReportThread();
+    }
+
+    void initializeSettableConfigParameters() {
+        configParametersAccessor.setLogRawPackets(netConfigServerConfig.isLogRawPackets());
     }
 
     void startReportCleanupThread() {

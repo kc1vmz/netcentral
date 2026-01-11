@@ -30,7 +30,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.User;
 
@@ -42,7 +42,7 @@ public class ObjectCleanupAccessor {
     @Inject
     private APRSObjectAccessor aprsObjectAccessor;
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private SessionAccessor sessionAccessor;
     @Inject

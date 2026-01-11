@@ -24,7 +24,7 @@ import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class NetConfigServerConfig {
+public class NetCentralServerConfig {
     @Value("${netcentral.temp.dir}")
     private String tempDir;
     @Value("${netcentral.temp.dir.report}")
@@ -63,6 +63,8 @@ public class NetConfigServerConfig {
     private Boolean federated;
     @Value("${netcentral.net.report.minutes}")
     private Integer netReportMinutes;
+    @Value("${netcentral.log.rawpackets}")
+    private Boolean logRawPackets;
 
     public String getTempDir() {
         return tempDir;
@@ -177,5 +179,11 @@ public class NetConfigServerConfig {
     }
     public void setNetReportMinutes(Integer netReportMinutes) {
         this.netReportMinutes = netReportMinutes;
+    }
+    public Boolean isLogRawPackets() {
+        return logRawPackets;
+    }
+    public void setLogRawPackets(Boolean logRawPackets) {
+        this.logRawPackets = logRawPackets;
     }
 }

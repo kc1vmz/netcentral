@@ -30,12 +30,12 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.StatisticsAccessor;
-import netcentral.server.config.NetConfigServerConfig;
+import netcentral.server.config.NetCentralServerConfig;
 
 @Singleton
 public class APRSCreateObjectQueue {
     @Inject
-    private NetConfigServerConfig netConfigServerConfig;
+    private NetCentralServerConfig netConfigServerConfig;
     @Inject
     private StatisticsAccessor statisticsAccessor;
 

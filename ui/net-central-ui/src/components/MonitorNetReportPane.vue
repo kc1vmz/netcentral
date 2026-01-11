@@ -57,6 +57,11 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
       localCallsign.value.country = newValue.value.object.country;
       localCallsign.value.state = newValue.value.object.state;
       localCallsign.value.license = newValue.value.object.license;
+    } else if ((localCallsignObject.value != null) && (localCallsignObject.value.callsign === newValue.value.callsign)) {
+      localCallsignObject.value.name = newValue.value.object.name;
+      localCallsignObject.value.country = newValue.value.object.country;
+      localCallsignObject.value.state = newValue.value.object.state;
+      localCallsignObject.value.license = newValue.value.object.license;
     }
   }
 });
@@ -358,7 +363,7 @@ function performSendMessage() {
               <Tab value="Callsign info">
                 <div  v-if="((localCallsignObject != null) && (localCallsignObject.value != null))">
                   <br>Name: {{ localCallsignObject.value.name }}
-                  <br>Country: {{ localCallsignObject.value.country }}
+                  <br>Location: {{ localCallsignObject.value.country }} / {{ localCallsignObject.value.state }}
                   <br>License: {{ localCallsignObject.value.license }}
                 </div>
                 <div v-else>
