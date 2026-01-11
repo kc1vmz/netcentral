@@ -84,6 +84,7 @@ public class InternetServerAccessor {
     }
 
     public InternetServer create(User loggedInUser, InternetServer obj) {
+        String err = "Internet server not created";
         if (obj == null) {
             logger.debug("Internet server is null");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Internet server not provided");
@@ -96,22 +97,21 @@ public class InternetServerAccessor {
         try {
             List<InternetServerRecord> existingList = internetServerRepository.findByip_address(obj.getIpAddress());
             if ((existingList != null) && (!existingList.isEmpty())) {
-                logger.debug("Internet server IP address already exists");
-                throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Internet server IP address already exists");
+                err = "Internet server IP address already exists";
+            } else {
+                String id = UUID.randomUUID().toString();
+                InternetServerRecord src = new InternetServerRecord(id, obj.getLoginCallsign(), obj.getName(), obj.getDescription(), obj.getIpAddress(), obj.getQuery());
+                InternetServerRecord rec = internetServerRepository.save(src);
+                if (rec != null) {
+                    InternetServer internetServerFinal = get(loggedInUser, id);
+                    return internetServerFinal;
+                }
             }
         } catch (Exception e) {
         }
 
-        String id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
-        InternetServerRecord src = new InternetServerRecord(id, obj.getLoginCallsign(), obj.getName(), obj.getDescription(), obj.getIpAddress(), obj.getQuery());
-        InternetServerRecord rec = internetServerRepository.save(src);
-        if (rec != null) {
-            InternetServer internetServerFinal = get(loggedInUser, id);
-            return internetServerFinal;
-        }
-
-        logger.debug("Internet server not created");
-        throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Internet server not created");
+        logger.debug(err);
+        throw new HttpStatusException(HttpStatus.BAD_REQUEST, err);
     }
 
     public InternetServer update(User loggedInUser, String id, InternetServer obj) {
