@@ -877,56 +877,62 @@ public class APRSObjectAccessor {
                 remain = innerAPRSMessage.getMessage().substring(index+1);
                 String [] info = remain.split("/");
                 if (info != null) {
+                    Callsign cs = callsignAccessor.getByCallsign(loggedInUser, callsign);
+                    if (cs == null) {
+                        return;
+                    }
+                    boolean changed = false;
                     if (info.length == 4) {
                         try {
-                            Callsign cs = callsignAccessor.getByCallsign(loggedInUser, callsign);
-                            boolean changed = false;
-                            if (cs != null) {
-                                if (cs.getCountry() == null) {
-                                    cs.setCountry(info[3]);
-                                    changed = true;
-                                }
-                                if (cs.getState() == null) {
-                                    cs.setState(info[2]);
-                                    changed = true;
-                                }
-                                if (cs.getLicense() == null) {
-                                    cs.setLicense(info[0]);
-                                    changed = true;
-                                }
-                                if (cs.getName() == null) {
-                                    cs.setName(info[1]);
-                                    changed = true;
-                                }
-                                if (changed) {
-                                    callsignAccessor.update(loggedInUser, cs.getCallsign(), cs);
-                                }
+                            if (cs.getCountry() == null) {
+                                cs.setCountry(info[3]);
+                                changed = true;
+                            }
+                            if (cs.getState() == null) {
+                                cs.setState(info[2]);
+                                changed = true;
+                            }
+                            if (cs.getLicense() == null) {
+                                cs.setLicense(info[0]);
+                                changed = true;
+                            }
+                            if (cs.getName() == null) {
+                                cs.setName(info[1]);
+                                changed = true;
                             }
                         } catch (Exception e) {
                         }
                     } else if (info.length == 3) {
                         try {
-                            Callsign cs = callsignAccessor.getByCallsign(loggedInUser, callsign);
-                            boolean changed = false;
-                            if (cs != null) {
-                                if (cs.getCountry() == null) {
-                                    cs.setCountry(info[2]);
-                                    changed = true;
-                                }
-                                if (cs.getState() == null) {
-                                    cs.setState(info[1]);
-                                    changed = true;
-                                }
-                                if (cs.getName() == null) {
-                                    cs.setName(info[0]);
-                                    changed = true;
-                                }
-                                if (changed) {
-                                    callsignAccessor.update(loggedInUser, cs.getCallsign(), cs);
-                                }
+                            if (cs.getCountry() == null) {
+                                cs.setCountry(info[2]);
+                                changed = true;
+                            }
+                            if (cs.getState() == null) {
+                                cs.setState(info[1]);
+                                changed = true;
+                            }
+                            if (cs.getName() == null) {
+                                cs.setName(info[0]);
+                                changed = true;
                             }
                         } catch (Exception e) {
                         }
+                    } else if (info.length == 2) {
+                        try {
+                            if (cs.getCountry() == null) {
+                                cs.setCountry(info[1]);
+                                changed = true;
+                            }
+                            if (cs.getName() == null) {
+                                cs.setName(info[0]);
+                                changed = true;
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                    if (changed) {
+                        callsignAccessor.update(loggedInUser, cs.getCallsign(), cs);
                     }
                 }
             }
