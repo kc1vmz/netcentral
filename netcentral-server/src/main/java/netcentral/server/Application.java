@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
     info = @Info(
             title = "netcentral-server",
-            version = "1.0.5"
+            version = "1.0.6"
     )
 )
 

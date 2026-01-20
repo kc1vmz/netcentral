@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>netcentral.server</groupId>
   <artifactId>netcentral-server</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -227,12 +227,12 @@
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>netcentral-common</artifactId>
-      <version>1.0.5</version>
+      <version>1.0.6</version>
     </dependency>
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>aprsobject</artifactId>
-      <version>1.0.5</version>
+      <version>1.0.6</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-core -->
     <dependency>

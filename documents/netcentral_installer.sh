@@ -30,7 +30,7 @@ if [ "$NC_OS" = "Linux" ]; then
     NC_TEMP_DIR=/tmp/netcentral
     NC_TR_APRSIS=Y
     NC_TR_APRSIS_QUERY=r/42.222/-71.57/500
-    NC_VERSION=1.0.5
+    NC_VERSION=1.0.6
 
     read -e -i $NC_VERSION -p "What version of Net Central?: " NC_VERSION
     read -e -i $NC_INSTALL_DIR -p "Where should Net Central be installed?: " NC_INSTALL_DIR
@@ -127,10 +127,10 @@ if [ "$NC_OS" = "Linux" ]; then
       npm install
       # copy all the built jars up
       cd $NC_INSTALL_DIR
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.5.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.5.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.5.jar .
-      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.5.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.6.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.6.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.6.jar .
+      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.6.jar .
        
       popd
     fi
