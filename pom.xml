@@ -29,6 +29,7 @@
 		<module>lib</module>
 		<module>netcentral-server</module>
 		<module>transceivers</module> 
+		<module>ui/net-central-ui</module> 
 	</modules>
 
 	<build>

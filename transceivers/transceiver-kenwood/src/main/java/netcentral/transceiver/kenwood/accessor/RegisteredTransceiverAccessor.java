@@ -47,18 +47,11 @@ public class RegisteredTransceiverAccessor {
     private static final Logger logger = LogManager.getLogger(RegisteredTransceiverAccessor.class);
 
     public String registerTransceiver() {
-        String id = null;
         RegisterRequest messageRequest = new RegisterRequest(netControlConfig.getServer(), String.valueOf(netControlConfig.getPort()), netControlConfig.getUsername(), netControlConfig.getPassword());
-        id = registerTransceiver(messageRequest) ;
-
-        registeredTransceiver = new RegisteredTransceiver();
-        registeredTransceiver.setId(id);
-        registeredTransceiver.setName(registeredTransceiverConfig.getName());
-        registeredTransceiver.setDescription(registeredTransceiverConfig.getDescription());
-        return id;
+        return registerTransceiver(messageRequest) ;
     }
 
-    public String registerTransceiver(RegisterRequest messageRequest) {
+    public synchronized String registerTransceiver(RegisterRequest messageRequest) {
         String id = null;
         try {
             if ((registeredTransceiver == null) || (registeredTransceiver.getId() == null)) {
@@ -84,6 +77,8 @@ public class RegisteredTransceiverAccessor {
         String id = null;
         if (registeredTransceiver != null)  {
             id = registeredTransceiver.getId();
+        } else {
+            id = registerTransceiver();
         }
         return id;
     }

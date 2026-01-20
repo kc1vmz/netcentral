@@ -1,0 +1,27 @@
+echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export VITE_APP_UPDATE_URL=$VITE_APP_UPDATE_URL" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_UPDATE_HTTP_PORT=$NETCENTRAL_SERVER_UPDATE_HTTP_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export VITE_APP_API_PORT=$VITE_APP_API_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export VITE_APP_API_HOST=$VITE_APP_API_HOST" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_CALLSIGN=$NETCENTRAL_TRANS_APRSIS_CALLSIGN" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_PASSCODE=$NETCENTRAL_TRANS_APRSIS_PASSCODE" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_QUERY=$NETCENTRAL_TRANS_APRSIS_QUERY" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_MYSQL_HOST=$NETCENTRAL_SERVER_MYSQL_HOST" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_MYSQL_PORT=$NETCENTRAL_SERVER_MYSQL_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+
+echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+echo "export VITE_APP_UPDATE_URL=$VITE_APP_UPDATE_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+echo "export NETCENTRAL_SERVER_UPDATE_HTTP_PORT=$NETCENTRAL_SERVER_UPDATE_HTTP_PORT" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+echo "export VITE_APP_API_PORT=$VITE_APP_API_PORT" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+echo "export VITE_APP_API_HOST=$VITE_APP_API_HOST" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+
+echo "export NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null
+echo "export NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_CALLSIGN=$NETCENTRAL_TRANS_APRSIS_CALLSIGN" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_PASSCODE=$NETCENTRAL_TRANS_APRSIS_PASSCODE" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null
+echo "export NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null
+echo "export NETCENTRAL_TRANS_APRSIS_QUERY=$NETCENTRAL_TRANS_APRSIS_QUERY" | sudo tee -a /etc/conf.d/netcentral-transceiver-aprsis >  /dev/null

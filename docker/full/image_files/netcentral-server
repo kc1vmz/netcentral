@@ -1,0 +1,11 @@
+#!/sbin/openrc-run
+name="NetCentral Server"
+description="NetCentral APRS Nets and more!"
+retry="60"
+pidfile="/run/netcentral-server/$RC_SVCNAME.pid"
+command="/opt/java/openjdk/bin/java"
+command_args="-jar /netcentral/src/netcentral-server.jar </dev/null &>/dev/null &"
+
+depend() {
+    need mariadb
+}

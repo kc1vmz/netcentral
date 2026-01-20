@@ -1,0 +1,23 @@
+services:
+  netcentral-full:
+    image: netcentral-full:1.0.5
+    ports:
+      - "8880:80"
+      - "9880:8880"
+      - "8881:8881"
+    environment:
+      - VITE_APP_API_URL=http://localhost:9880/api/v1
+      - VITE_APP_UPDATE_URL=http://localhost:8881
+      - NETCENTRAL_SERVER_UPDATE_HTTP_PORT=8881
+      - VITE_APP_API_PORT=9880
+      - VITE_APP_API_HOST=localhost
+      - NETCENTRAL_SERVER_USERNAME=serviceAccount
+      - NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
+      - NETCENTRAL_TRANS_APRSIS_CALLSIGN=YOUR_CALLSIGN_HERE
+      - NETCENTRAL_TRANS_APRSIS_PASSCODE=YOUR_PASSCODE_HERE
+      - NETCENTRAL_APRS_CALLSIGN=YOUR_CALLSIGN_HERE
+      - NETCENTRAL_TRANS_APRSIS_QUERY=YOUR_QUERY_HERE (ex:r/42.222/-71.57/500)
+      - NETCENTRAL_SERVER_MYSQL_HOST=localhost
+      - NETCENTRAL_SERVER_MYSQL_PORT=3306
+      - NETCENTRAL_SERVER_MYSQL_DBNAME=netcentral
+      - NETCENTRAL_SERVER_MYSQL_USERNAME=netcentral

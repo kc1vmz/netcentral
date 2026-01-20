@@ -106,7 +106,10 @@ public class TransceiverRESTClient {
                 .build();
 
         HttpResponse<?> response = client.send(request,  BodyHandlers.ofString());
-        return response.body().toString();
+        if  ((response != null) && (response.body() != null)) {
+            return response.body().toString();
+        }
+        return null;
     }
 
     private ObjectMapper getObjectMapper() {

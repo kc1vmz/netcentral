@@ -47,7 +47,7 @@ public class TransceiverReportAccessor {
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
-            logger.warn("Wrong transceiver - " + obj.getTransceiverId());
+            logger.warn("Wrong transceiver - sent = " + obj.getTransceiverId() + " expecting = " + registeredTransceiverAccessor.getRegisteredTransceiverId());
             return;
         }
 

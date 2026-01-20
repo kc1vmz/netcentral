@@ -94,6 +94,9 @@ public class APRSMessageProcessor {
     private ExecutorService executorService = null;
 
     private synchronized RegisteredTransceiver getRegisteredTransceiver() {
+        if (registeredTransceiver != null) {
+            return registeredTransceiver;
+        }
         if (loginResponse == null) {
             try {
                 loginResponse = netControlRESTClient.login(netControlClientConfig.getUsername(), netControlClientConfig.getPassword());
@@ -101,22 +104,21 @@ public class APRSMessageProcessor {
                     // failed login
                     return null;
                 }
-
-                registeredTransceiver = netControlRESTClient.register(loginResponse.getAccessToken(), registeredTransceiverConfig.getName(), registeredTransceiverConfig.getDescription(),
-                                                                    registeredTransceiverConfig.getType(), registeredTransceiverConfig.getPort());
             } catch (Exception e) {
                 logger.error("Login failed to Net Control");
             }
-        } else {
-            if (registeredTransceiver == null) {
-                try {
-                    registeredTransceiver = netControlRESTClient.register(loginResponse.getAccessToken(), registeredTransceiverConfig.getName(), registeredTransceiverConfig.getDescription(),
-                                                                    registeredTransceiverConfig.getType(), registeredTransceiverConfig.getPort());
-                } catch (Exception e) {
-                    logger.error("Error registering transceiver");
-                }
+        } 
+
+        try {
+            registeredTransceiver = netControlRESTClient.register(loginResponse.getAccessToken(), registeredTransceiverConfig.getName(), registeredTransceiverConfig.getDescription(),
+                                                            registeredTransceiverConfig.getType(), registeredTransceiverConfig.getPort());
+            if (registeredTransceiver.getId() == null) {
+                registeredTransceiver = null;
             }
+        } catch (Exception e) {
+            logger.error("Error registering transceiver");
         }
+
         return registeredTransceiver;
     }
 
@@ -233,7 +235,7 @@ public class APRSMessageProcessor {
         }
 
         if (getRegisteredTransceiver() == null) {
-            logger.error("REGISTERED TRANSCEIVER IS NULL - THIS IS BAD");
+            logger.error("Transceiver not yet registered with server");
             registeredTransceiverAccessor.resetRegisteredTransceiver();
             registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
             return;
@@ -273,7 +275,7 @@ public class APRSMessageProcessor {
         }
 
         if (getRegisteredTransceiver() == null) {
-            logger.error("REGISTERED TRANSCEIVER IS NULL - THIS IS BAD");
+            logger.error("Transceiver not yet registered with server");
             registeredTransceiverAccessor.resetRegisteredTransceiver();
             registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
             return;
