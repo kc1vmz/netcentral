@@ -31,6 +31,7 @@
 		<module>transceivers</module> 
 		<module>ui/net-central-ui</module> 
 		<module>docker</module> 
+		<module>documents</module> 
 	</modules>
 
 </project>
