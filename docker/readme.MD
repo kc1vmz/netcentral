@@ -5,18 +5,20 @@
 Net Central can be run in a containerized environment, such as Docker Desktop.
 
 For the "full" version, you can run a single container containing all of the software, including the database.  This is the simplest version to use, but it will be constrained by database size.
-For the "split" version, each microservice is contained in its own container. The MySQL / MariaDB database is not provided, but it you're using containers, you're smarter than the average bear. Deploy it in a manner that maximizes disk usage, such as a container with external storage.
+For the "split" version, each microservice is contained in its own container. The MySQL / MariaDB database is not provided, but if you are using containers, you are smarter than the average bear. Deploy it in a manner that maximizes disk usage, such as a container with external storage.
 
 You can also configure the "full" version to use an external MySQL / MariaDB database.  Details below.
 
-You need to build the container from source.
-Soon you will be able to just download the container and go!
+You can either build the images by downloading the Net Central source code, or by downloading a batch file to build the images from build artifacts downloaded from Github. 
 
 Currently only APRS-IS server connectivity is supported in a containerized environment.
 
 
-## Building the container yourself
+## Building the images yourself
 
+You can build the images by building Net Central from source code, or from build artifacts downloaded from Github.
+
+### Building from source
 Download the entire source from Github.
 Build the software using "mvn clean package"
 
@@ -27,6 +29,19 @@ This will build the image and make it available to run.
 If you are using the "split" version, from the "docker\split" directory, run the "build.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the images and make them available to run.
+
+### Building from pre-built downloaded images
+
+Download netcentral-docker-image-build-scripts-1.0.6.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.6 and expand it.
+
+If you are using the "full" version, from the "docker\full" directory, run the "build_nosource.bat" file.  
+Make sure that your container software such as Docker Desktop is already running.
+This will build the image and make it available to run.
+
+If you are using the "split" version, from the "docker\split" directory, run the "build_nosource.bat" file.  
+Make sure that your container software such as Docker Desktop is already running.
+This will build the images and make them available to run.
+
 
 ## Configuring the container
 
@@ -87,9 +102,9 @@ If you wish to change these defaults, do so with caution.  If you change the por
 
 If you are using Docker Desktop, there are two ways you run Net Central - using "docker run" and "docker-compose".
 
-To use the "docker run" method, use the modified run.bat script in "docker\full". This method can only be used for the "full" variant.
+To use the "docker run" method, use the modified run.bat script in "docker\full". This method can only be used for the "full" version.
 
-To use the "docker-compose" method, run the modified "docker-compose.yml" file using "docker-compose up".  This method can be used for the "full" variant, and MUST be used for the "split" variant.
+To use the "docker-compose" method, run the modified "docker-compose.yml" file using "docker-compose up".  This method can be used for the "full" version, and MUST be used for the "split" version.
  
 
 ## Configuring Net Central
@@ -142,9 +157,9 @@ Split is each microservice in its own container, held together by a single docke
 
 You made it this far - why not reward you with the details of how the container image is put together.
 
-#### Full variant
+#### Full version
 
-The full variant Dockerfile performs the following steps:
+The full version Dockerfile performs the following steps:
 The container is an Alpine image with Java 21 pre-installed.
 Several dependendies are added, including bash, sudo, openrc, mariadb, npm and libcap.
 A Linux user and group (netcentral / netcentralgroup) is created.
@@ -169,9 +184,9 @@ Net Central APRS-IS transceiver service is started as a service
 Node.JS UI is started manually and detached
 
 
-#### Split variant
+#### Split version
 
-The split variant has a Dockerfile for each container type (server, UI, transceivers).  The Dockerfile performs the following steps:
+The split version has a Dockerfile for each container type (server, UI, transceivers).  The Dockerfile performs the following steps:
 The container is an Alpine image with Java 21 pre-installed.
 Several dependendies are added, including bash, sudo, openrc. npm and libcap are added to the UI container only.
 A Linux user and group (netcentral / netcentralgroup) is created.
@@ -191,5 +206,3 @@ Net Central's required environment variables are forced by "/netcentral/src/conf
 In the server container, Net Central server is started as a service
 In the transceiver container, Net Central APRS-IS transceiver service is started as a service
 In the UI container, Node.JS UI is started manually and detached
-
-
