@@ -30,11 +30,7 @@
 		<module>netcentral-server</module>
 		<module>transceivers</module> 
 		<module>ui/net-central-ui</module> 
+		<module>docker</module> 
 	</modules>
 
-	<build>
-		<plugins>
-		</plugins>
-	</build>
-	
 </project>

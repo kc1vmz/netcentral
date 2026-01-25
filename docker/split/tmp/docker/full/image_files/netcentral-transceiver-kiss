@@ -1,7 +1,0 @@
-#!/sbin/openrc-run
-name="NetCentral KISS Transceiver"
-description="NetCentral connectivity to KISS"
-retry="60"
-pidfile="/run/netcentral-transceiver-kiss/$RC_SVCNAME.pid"
-command="/opt/java/openjdk/bin/java"
-command_args="-jar /netcentral/bin/transceiver-kiss.jar </dev/null &>/dev/null &"
