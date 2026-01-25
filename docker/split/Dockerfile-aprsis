@@ -1,0 +1,38 @@
+FROM eclipse-temurin:21-jdk-alpine
+RUN ["apk", "add", "bash"]
+RUN ["apk", "add", "sudo"]
+RUN ["apk", "add", "openrc"]
+
+RUN mkdir -p /run/openrc
+RUN touch /run/openrc/softlevel
+
+ARG USER_UID=1000
+ARG GROUP_GID=1000
+ARG UNAME=netcentral
+ARG GNAME=netcentralgroup
+RUN addgroup -S -g ${GROUP_GID} ${GNAME} && \
+    adduser -S -D -H -u ${USER_UID} -G ${GNAME} ${UNAME}
+
+WORKDIR /netcentral
+RUN mkdir -p /netcentral/tmp
+RUN mkdir -p /netcentral/tmp/logs
+RUN mkdir -p /netcentral/bin
+
+ADD docker/split/image_files/transceiver_aprsis_processes.sh /netcentral/bin/transceiver_aprsis_processes.sh
+RUN ["dos2unix", "/netcentral/bin/transceiver_aprsis_processes.sh"]
+
+ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.6.jar /netcentral/bin/transceiver-aprsis.jar
+RUN chown -R ${UNAME}:${GNAME} /netcentral
+
+# make sure netcentral-transceiver-aprsis auto-starts
+ADD docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
+RUN ["dos2unix", "/netcentral/bin/config_env.sh"]
+RUN chmod +x /netcentral/bin/config_env.sh
+
+# make sure netcentral-transceiver-aprsis auto-starts
+ADD docker/split/image_files/netcentral-transceiver-aprsis /etc/init.d/netcentral-transceiver-aprsis
+RUN ["dos2unix", "/etc/init.d/netcentral-transceiver-aprsis"]
+RUN chmod +x /etc/init.d/netcentral-transceiver-aprsis
+RUN rc-update add netcentral-transceiver-aprsis default
+
+CMD ["/bin/sh", "-c", "/netcentral/bin/transceiver_aprsis_processes.sh & sleep infinity"]

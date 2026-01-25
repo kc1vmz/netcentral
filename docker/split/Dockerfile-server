@@ -1,0 +1,39 @@
+FROM eclipse-temurin:21-jdk-alpine
+RUN ["apk", "update"]
+RUN ["apk", "add", "bash"]
+RUN ["apk", "add", "sudo"]
+RUN ["apk", "add", "openrc"]
+
+RUN mkdir -p /run/openrc
+RUN touch /run/openrc/softlevel
+
+ARG USER_UID=1000
+ARG GROUP_GID=1000
+ARG UNAME=netcentral
+ARG GNAME=netcentralgroup
+RUN addgroup -S -g ${GROUP_GID} ${GNAME} && \
+    adduser -S -D -H -u ${USER_UID} -G ${GNAME} ${UNAME}
+
+WORKDIR /netcentral
+RUN mkdir -p /netcentral/tmp
+RUN mkdir -p /netcentral/tmp/logs
+RUN mkdir -p /netcentral/tmp/reports
+RUN mkdir -p /netcentral/bin
+
+ADD docker/split/image_files/server_processes.sh /netcentral/bin/server_processes.sh
+RUN ["dos2unix", "/netcentral/bin/server_processes.sh"]
+
+ADD netcentral-server/target/netcentral-server-1.0.6.jar /netcentral/bin/netcentral-server.jar
+RUN chown -R ${UNAME}:${GNAME} /netcentral
+
+ADD docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
+RUN ["dos2unix", "/netcentral/bin/config_env.sh"]
+RUN chmod +x /netcentral/bin/config_env.sh
+
+# make sure netcentral-server auto-starts
+ADD docker/split/image_files/netcentral-server /etc/init.d/netcentral-server
+RUN ["dos2unix", "/etc/init.d/netcentral-server"]
+RUN chmod +x /etc/init.d/netcentral-server
+RUN rc-update add netcentral-server default
+
+CMD ["/bin/sh", "-c", "/netcentral/bin/server_processes.sh & sleep infinity"]

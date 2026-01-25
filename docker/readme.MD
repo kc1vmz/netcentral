@@ -24,6 +24,9 @@ If you are using the "full" version, from the "docker\full" directory, run the "
 Make sure that your container software such as Docker Desktop is already running.
 This will build the image and make it available to run.
 
+If you are using the "split" version, from the "docker\split" directory, run the "build.bat" file.  
+Make sure that your container software such as Docker Desktop is already running.
+This will build the images and make them available to run.
 
 ## Configuring the container
 
@@ -56,13 +59,13 @@ If you change these values, you must remember them for later when you create you
 
 ### Environment variables for "docker-compose"
 
-To use "docker run" you can edit "docker\full\docker-compose.yml" and change the values of the following environment variables:
+To use "docker run" you can edit "docker\[full or split]\docker-compose.yml" and change the values of the following environment variables:
 
 YOUR_CALLSIGN_HERE  (found twice)
 YOUR_PASSCODE_HERE
 YOUR_QUERY_HERE (must be in quotation marks)
 
-If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "docker\full\run.bat" and change the values of the following environment variables:
+If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "docker\[full or split]\run.bat" and change the values of the following environment variables:
 
 NETCENTRAL_SERVER_USERNAME
 NETCENTRAL_SERVER_PASSWORD
@@ -84,14 +87,14 @@ If you wish to change these defaults, do so with caution.  If you change the por
 
 If you are using Docker Desktop, there are two ways you run Net Central - using "docker run" and "docker-compose".
 
-To use the "docker run" method, use the modified run.bat script in "docker\full".
+To use the "docker run" method, use the modified run.bat script in "docker\full". This method can only be used for the "full" variant.
 
-To use the "docker-compose" method, run the modified "docker-compose.yml" file using "docker-compose up".
+To use the "docker-compose" method, run the modified "docker-compose.yml" file using "docker-compose up".  This method can be used for the "full" variant, and MUST be used for the "split" variant.
  
 
 ## Configuring Net Central
 
-Once the container has started, it will take approximately 1 minute for the user interface to be reachable at http://localhost:8880
+Once started, it will take approximately 1 minute for the user interface to be reachable at http://localhost:8880
 
 Once the user interface is usable, you must perform the following configuration steps:
 Create your system admin user
@@ -134,8 +137,6 @@ Full is everything, including a database.  It is the easiest to get up and runni
 
 Split is each microservice in its own container, held together by a single docker-compose file.  It is the most correct of container implementations, but requires more effort and an external MySQL / MariaDB database.
 
-Split is not yet complete.
-
 
 ### Overview of the process
 
@@ -158,7 +159,7 @@ Net Central UI (using Node.JS) is set up as a service, but that doesn't yet work
 Net Central UI zip file is expanded and prepared with an "npm install".
 The command "/netcentral/src/all_processes.sh & sleep infinity" is issued to start the software when the container starts and never stop.
 
-
+Upon starting the container, the following steps are performed:
 When "/netcentral/src/all_processes.sh" runs, it does the following:
 Starts the MariaDB database
 Initializes the database with required users, schemas and privileges.
@@ -170,6 +171,25 @@ Node.JS UI is started manually and detached
 
 #### Split variant
 
-This is not yet started.  
+The split variant has a Dockerfile for each container type (server, UI, transceivers).  The Dockerfile performs the following steps:
+The container is an Alpine image with Java 21 pre-installed.
+Several dependendies are added, including bash, sudo, openrc. npm and libcap are added to the UI container only.
+A Linux user and group (netcentral / netcentralgroup) is created.
+Net Central directory structure is then placed on the image.
+Certain helper files are placed on the image and ensured to be in Unix format.
+In the UI image, setcap is run to allow Node.JS to run on port 80.
+Selected Net Central built binaries are placed on the image, depending on the container.
+Net Central server and APRS-IS transceiver are set up as services with rc-service in their imeages. They will be manually started later.
+
+In the UI image, Net Central UI (using Node.JS) is set up as a service, but that doesn't yet work. It will be manually started later.
+Net Central UI zip file is expanded and prepared with an "npm install".
+The command "/netcentral/src/*_processes.sh & sleep infinity" is issued (names different per image) to start the software when the container starts and never stop.
+
+Upon starting the container, the following steps are performed:
+When "/netcentral/src/*_processes.sh" runs, it does the following:
+Net Central's required environment variables are forced by "/netcentral/src/config_env.sh" into the proper /etc/conf.d directories, as rc-service does not inherit them from the container.
+In the server container, Net Central server is started as a service
+In the transceiver container, Net Central APRS-IS transceiver service is started as a service
+In the UI container, Node.JS UI is started manually and detached
 
 

@@ -49,7 +49,6 @@ ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.6.jar /netcent
 ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.6.jar /netcentral/src/transceiver-kenwood.jar
 ADD transceivers/transceiver-kiss/target/transceiver-kiss-1.0.6.jar /netcentral/src/transceiver-kiss.jar
 ADD ui/net-central-ui/target/netcentral-ui-1.0.6.zip /netcentral/src/netcentral-ui.zip
-ADD docker/full/image_files/all_processes.sh /netcentral/src/all_processes.sh
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure mariadb auto-starts
@@ -60,13 +59,13 @@ ADD docker/full/image_files/config_env.sh /netcentral/src/config_env.sh
 RUN ["dos2unix", "/netcentral/src/config_env.sh"]
 RUN chmod +x /netcentral/src/config_env.sh
 
-# make sure netcentral-transceiver-aprsis auto-starts
+# make sure netcentral-server auto-starts
 ADD docker/full/image_files/netcentral-server /etc/init.d/netcentral-server
 RUN ["dos2unix", "/etc/init.d/netcentral-server"]
 RUN chmod +x /etc/init.d/netcentral-server
 RUN rc-update add netcentral-server default
 
-# make sure netcentral-server auto-starts
+# make sure netcentral-transceiver-aprsis auto-starts
 ADD docker/full/image_files/netcentral-transceiver-aprsis /etc/init.d/netcentral-transceiver-aprsis
 RUN ["dos2unix", "/etc/init.d/netcentral-transceiver-aprsis"]
 RUN chmod +x /etc/init.d/netcentral-transceiver-aprsis

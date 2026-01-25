@@ -1,0 +1,8 @@
+#!/sbin/openrc-run
+name="NetCentral APRS-IS Transceiver"
+description="NetCentral connectivity to APRS-IS"
+retry="60"
+pidfile="/run/netcentral-transceiver-aprsis/$RC_SVCNAME.pid"
+command="/opt/java/openjdk/bin/java"
+command_args="-jar /netcentral/bin/transceiver-aprsis.jar </dev/null &>/dev/null &"
+

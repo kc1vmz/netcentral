@@ -1,0 +1,7 @@
+#!/sbin/openrc-run
+name="NetCentral Kenwood Transceiver"
+description="NetCentral connectivity to Kenwood"
+retry="60"
+pidfile="/run/netcentral-transceiver-kenwood/$RC_SVCNAME.pid"
+command="/opt/java/openjdk/bin/java"
+command_args="-jar /netcentral/bin/transceiver-kenwood.jar </dev/null &>/dev/null &"
