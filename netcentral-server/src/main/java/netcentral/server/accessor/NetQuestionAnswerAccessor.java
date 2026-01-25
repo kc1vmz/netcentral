@@ -87,6 +87,14 @@ public class NetQuestionAnswerAccessor {
             logger.debug("User not logged in");
             throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
+        if (obj.getAnswerText() == null) {
+            logger.debug("No question text");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "No answer text");
+        }
+
+        if (obj.getAnswerText().length() > 50) {
+            obj.setAnswerText(obj.getAnswerText().substring(0, 50));
+        }
 
         String id = UUID.randomUUID().toString();
         obj.setNetQuestionAnswerId(id);

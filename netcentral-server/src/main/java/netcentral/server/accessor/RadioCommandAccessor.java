@@ -950,7 +950,6 @@ public class RadioCommandAccessor {
             }
         }
 
-
         try {
             participant = participantAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
         } catch (Exception e) {
@@ -963,7 +962,7 @@ public class RadioCommandAccessor {
         }
         netParticipantAccessor.addParticipant(loggedInUser, net, participant);
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You checked into net "+net.getCallsign()+". Help - send H");
-        if (net.getCheckinMessage() != null) {
+        if ((net.getCheckinMessage() != null) && (!net.getCheckinMessage().isEmpty())) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), net.getCheckinMessage());
         }
     }

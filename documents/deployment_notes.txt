@@ -3,6 +3,8 @@ It is best to get Net Central running against an APRS-IS server then add radio s
 
 For Linux, this guide assumes you are NOT running as root.
 
+You can also run Net Central in a container environment such as Docker Desktop.
+
 
 Overview
 
@@ -11,13 +13,18 @@ The following steps are expected for all operating systems:
   Install Java 21 JDK
   Install MySQL (preferrably 8)
   Initialize MySQL for Net Central
-  Install Maven
-  Get Net Central source code
-  Install VS Code (optional)
-  Configure Net Central environment variables
-  Build Net Central
-  Installing NodeJS
-  Pre-run configuration steps
+  Getting Net Central on your system
+    Using Net Central in a container environment
+    Downloading pre-built components
+    Building Net Central from source code
+      Install Maven
+      Get Net Central source code
+      Install VS Code (optional)
+      Build Net Central
+  Host configuration
+    Configure Net Central environment variables
+    Installing NodeJS
+    Pre-run configuration steps
   Run Net Central
   Configure Net Central
   Conclusion
@@ -25,8 +32,16 @@ The following steps are expected for all operating systems:
 
 Getting Started
 
-If running on Linux, make sure you have all of the most recent updates by running the following command: sudo apt update
-If running on Windows, make sure you have applied all available updates.
+If running on Linux, make sure you have all of the most recent updates by running the following command: sudo apt update / sudo yum update
+If running on Microsoft Windows, make sure you have applied all available updates.
+
+
+Automated installations
+
+To automatically install Net Central on a Linux system, use the netcentral_installer.sh bash script to install Net Central from source or from pre-built components.
+It will automatically install all dependencies.
+
+There is no automated installation for Microsoft Windows.
 
 
 Install Java 21 JDK
@@ -34,7 +49,7 @@ Install Java 21 JDK
 The Java 21 JDK can be downloaded from https://www.oracle.com/java/technologies/downloads/#java21
 Be sure that JAVA_HOME is properly set to allow Maven and Net Central to work later in this process.
 
-The easiest way to install Java 21 on Linux is to run the following command:   sudo apt install default-jdk -y
+The easiest way to install Java 21 on Linux is to run the following command:   sudo apt install default-jdk -y or sudo yum install java-21-openjdk-devel -y
 
 
 Install MySQL
@@ -42,12 +57,12 @@ Install MySQL
 MySQL can be downloaded from https://dev.mysql.com/downloads/mysql/
 I have only tested with MySQL 8.
 
-The easiest way to install MySQL on Linux is to run the following command: sudo apt install mariadb-server
+The easiest way to install MySQL on Linux is to run the following command: sudo apt install mariadb-server -y or sudo yum install mariadb-server -y
 
 
 Initialize MySQL
 
-Once MySQL is installed, you need to create the schema/database and the Net Central user to access it.
+Once MySQL is installed and running, you need to create the schema/database and the Net Central user to access it.
 
 The easiest way to execute this SQL against a MySQL server on Linux is to run the following command: sudo mysql -u root -p
 Note: there is no password by default
@@ -67,6 +82,43 @@ If you wish to change the default databasename / username / password from netcen
   flush privileges;
 
 Make note of what you use for later steps when setting environment variables.
+
+
+Getting Net Central on your system
+
+There are two ways you can get up and running on Net Central - building from source, or downloading pre-built components from Github.
+
+
+Using Net Central in a container environment
+
+Net Central can be run within a container environment such as Docker Desktop.
+
+Download the netcentral-docker-image-build-scripts-*.zip artifact as mentioned in the next section and follow the instructions there. 
+
+
+Downloading pre-built components
+
+With a web browser, go to https://github.com/kc1vmz/netcentral/releases and look for the latest release.
+Click on that release to see the list of components and artifacts you can download.
+The necessary downloads are:
+netcentral-documents-*.zip
+netcentral-server-*.jar
+netcentral-ui-*.zip
+transceiver-aprsis-*.jar
+
+Optional module downloads are:
+transceiver-agw-*.jar
+transceiver-kenwood-*.jar
+transceiver-kiss-1.0.7.jar
+
+For running Net Central in containers like Docker Desktop:
+netcentral-docker-image-build-scripts-*.zip
+
+
+
+Building Net Central from source code
+
+There are several steps necessary to build Net Central from source code.
 
 
 Install Maven
@@ -106,6 +158,14 @@ The easiest way to download and install VS Code on Linux is to run the command: 
 Run "code" from a terminal to start VS Code.
 
 
+Build Net Central
+
+To build Net Central using Maven, change directory to where you downloaded the Net Central source code and run "mvn clean install".
+To build Net Central using VS Code, open the folder where Net Central source code was downloaded. It will automatically build all of the components.
+
+
+Host configuration
+
 Configure Net Central environment variables
 
 At a minimum, the following environment variables need to be set:
@@ -139,12 +199,6 @@ Each additional transceiver (KISS, Kenwood, others) have their own environment v
 
 For Windows, use the Advanced options to set system-wide environment variables so all apps (Command Prompt, VS Code, etc) can see them.
 For Linux, add the variables into the /etc/environment file or equivalent for your Linux distribution.
-
-
-Build Net Central
-
-To build Net Central using Maven, change directory to where you downloaded the Net Central source code and run "mvn clean install".
-To build Net Central using VS Code, open the folder where Net Central source code was downloaded. It will automatically build all of the components.
 
 
 Installing NodeJS

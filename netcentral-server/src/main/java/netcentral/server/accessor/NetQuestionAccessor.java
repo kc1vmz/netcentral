@@ -124,6 +124,14 @@ public class NetQuestionAccessor {
             logger.debug("User not logged in");
             throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
+        if (obj.getQuestionText() == null) {
+            logger.debug("No question text");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "No question text");
+        }
+
+        if (obj.getQuestionText().length() > 50) {
+            obj.setQuestionText(obj.getQuestionText().substring(0, 50));
+        }
 
         String id = UUID.randomUUID().toString();
         int number = getNextNumber(loggedInUser, obj.getCompletedNetId());
@@ -135,6 +143,7 @@ public class NetQuestionAccessor {
         }
         ZonedDateTime nextReminderTime = obj.getAskedTime().plusMinutes(obj.getReminderMinutes());
         obj.setNextReminderTime(nextReminderTime);
+
         NetQuestionRecord src = new NetQuestionRecord(id, obj.getCompletedNetId(), number, obj.getAskedTime(), obj.getActive(), obj.getReminderMinutes(), obj.getQuestionText(), nextReminderTime);
         NetQuestionRecord rec = netQuestionRepository.save(src);
         if (rec != null) {

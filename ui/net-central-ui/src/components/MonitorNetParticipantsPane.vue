@@ -108,20 +108,13 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
   }
   if (newValue.value.action == "Create") {
     var found = false;
-    if (netParticipants.value != null) {
-      netParticipants.value.forEach(function(netParticipant){
-        if ((!found) && (netParticipant.callsign == newValue.value.object.callsign)) {
-          found = true;  // correct net and participant
-        }
-      });
-      if (found) {
-        return;
-      }
-    } else {
+    if (netParticipants.value == null) {
       netParticipants.value = [];
+    } else {
+      removeExpectedParticipant(newValue.value.object.callsign);
+      removePreviousParticipant(newValue.value.object.callsign);
     }
     netParticipants.value.push(newValue.value.object);
-    removeExpectedParticipant(newValue.value.object.callsign);
   } else if (newValue.value.action == "Delete") {
     const indexToRemove = netParticipants.value.findIndex(obj => obj.callsign === newValue.value.object.callsign);
     if (indexToRemove !== -1) {
@@ -131,6 +124,7 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
       }
       netParticipants.value.splice(indexToRemove, 1);
       getExpectedParticipants(localSelectedNet);
+      getPreviousParticipants(localSelectedNet);
     }
   } else if (newValue.value.action == "Update") {
     if (netParticipants.value != null) {
@@ -155,8 +149,22 @@ watch(updateNetParticipantEvent, (newValue, oldValue) => {
 function removeExpectedParticipant(callsign) {
     var root = callsign.split("-")[0];
     const indexToRemove = netParticipants.value.findIndex(obj => (obj.callsign === root));
+    const indexToRemove2 = netParticipants.value.findIndex(obj => (obj.callsign === callsign));
     if (indexToRemove !== -1) {
       netParticipants.value.splice(indexToRemove, 1);
+    } else if (indexToRemove2 !== -1) {
+      netParticipants.value.splice(indexToRemove2, 1);
+    }
+}
+
+function removePreviousParticipant(callsign) {
+    var root = callsign.split("-")[0];
+    const indexToRemove = netParticipants.value.findIndex(obj => (obj.callsign === root));
+    const indexToRemove2 = netParticipants.value.findIndex(obj => (obj.callsign === callsign));
+    if (indexToRemove !== -1) {
+      netParticipants.value.splice(indexToRemove, 1);
+    } else if (indexToRemove2 !== -1) {
+      netParticipants.value.splice(indexToRemove2, 1);
     }
 }
 
@@ -194,6 +202,7 @@ watch(selectedNet, (newSelectedNet, oldSelectedNet) => {
 
 const netParticipants = reactive({ value : [] });
 const netExpectedParticipants = reactive({ value : [] });
+const netPreviousParticipants = reactive({ value : [] });
 const headers = [
         { text: "Callsign", value: "callsign", sortable: true },
         { text: "Tactical Callsign", value: "tacticalCallsign", sortable: true},
@@ -240,6 +249,7 @@ function getParticipants(localSelectedNet) {
             updateSelectedObject(null);
             selectedItem.value = null;
             getExpectedParticipants(localSelectedNet);
+            getPreviousParticipants(localSelectedNet);
         })
         .catch(error => { console.error('Error getting net participants from server:', error); })
     }
@@ -281,11 +291,47 @@ function getExpectedParticipants(localSelectedNet) {
     }
 }
 
+function getPreviousParticipants(localSelectedNet) {
+    if ((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.callsign != null)  && (localSelectedNet.ncSelectedNet.type == null)) {
+      var requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json",
+                    "SessionID" : getToken()
+          },
+        body: null
+      };
+      // only for active nets
+      fetch(buildNetCentralUrl('/completedNets/'+localSelectedNet.ncSelectedNet.completedNetId+'/participants'), requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            netPreviousParticipants.value = data;
+
+            // see who is missing and add them
+            if (netPreviousParticipants.value != null) {
+                netPreviousParticipants.value.forEach(function(previousParticipant){
+                    if (!isParticipantHere(netParticipants, previousParticipant)) {
+                      // tweak it and add it 
+                      previousParticipant.status = "Checked-out";
+                      previousParticipant.tacticalCallsign = "";
+                      previousParticipant.prettyStartTime = "";
+                      previousParticipant.lat = "";
+                      previousParticipant.lat = "";
+                      previousParticipant.lon = "";
+                      previousParticipant.prettyLastHeardTime = "";
+                      netParticipants.value.push(previousParticipant);
+                  }});
+            }
+
+        })
+        .catch(error => { console.error('Error getting net expected participants from server:', error); })
+    }
+}
+
 function isParticipantHere(participantList, participant){
     var found = false;
     participantList.value.forEach(function(participantItem) {
       var participantCallsignPieces = participantItem.callsign.split("-"); 
-      if ((!found) && (participant.callsign == participantCallsignPieces[0])) {
+      if ((!found) && ((participant.callsign == participantCallsignPieces[0]) || (participant.callsign == participantItem.callsign))) {
           found = true;
       }});
     return found;

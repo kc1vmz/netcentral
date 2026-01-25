@@ -111,9 +111,10 @@ public class CompletedNetController {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
-        CompletedNet net = completedNetAccessor.get(loggedInUser, id);
+        // do not check for completed net - active net previous participants available before completed net is
+        // CompletedNet net = completedNetAccessor.get(loggedInUser, id);
 
-        List<CompletedParticipant> ret = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, net.getCompletedNetId());
+        List<CompletedParticipant> ret = completedParticipantAccessor.getAllByCompletedNetId(loggedInUser, id);
         return ret;
     }
 
