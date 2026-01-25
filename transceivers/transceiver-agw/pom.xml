@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>transceiver.agw</groupId>
   <artifactId>transceiver-agw</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -207,12 +207,12 @@
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>netcentral-common</artifactId>
-      <version>1.0.6</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>aprsobject</artifactId>
-      <version>1.0.6</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>

@@ -5,9 +5,9 @@
 Net Central can be run in a containerized environment, such as Docker Desktop.
 
 For the "full" version, you can run a single container containing all of the software, including the database.  This is the simplest version to use, but it will be constrained by database size.
-For the "split" version, each microservice is contained in its own container. The MySQL / MariaDB database is not provided, but if you are using containers, you are smarter than the average bear. Deploy it in a manner that maximizes disk usage, such as a container with external storage.
+For the "split" version, each microservice is contained in its own container. The MySQL / MariaDB database is not provided, but if you are using containers, you are smarter than the average bear. Deploy it in a manner that maximizes disk usage, such as a container with external storage or on a non-containerized host.
 
-You can also configure the "full" version to use an external MySQL / MariaDB database.  Details below.
+Either version can be configured to use an external MySQL / MariaDB database.
 
 You can either build the images by downloading the Net Central source code, or by downloading a batch file to build the images from build artifacts downloaded from Github. 
 
@@ -32,7 +32,7 @@ This will build the images and make them available to run.
 
 ### Building from pre-built downloaded images
 
-Download netcentral-docker-image-build-scripts-1.0.6.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.6 and expand it.
+Download netcentral-docker-image-build-scripts-1.0.7.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.7 and expand it.
 
 If you are using the "full" version, from the "docker\full" directory, run the "build_nosource.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
@@ -41,6 +41,40 @@ This will build the image and make it available to run.
 If you are using the "split" version, from the "docker\split" directory, run the "build_nosource.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the images and make them available to run.
+
+## Configuring for an external database
+
+If you are using the "full" version, this is optional.  The container will still continue to install and run a local database instance, but it will use your remote parameters to read and write to an external database.
+
+If you are using the "split" version, this is mandatory.  A MariaDB/MySQL container is not provided. 
+
+Environment variables must be set for Net Central to use the external database:
+- NETCENTRAL_SERVER_MYSQL_HOST
+- NETCENTRAL_SERVER_MYSQL_PORT
+
+Once you have your MariaDB / MySQL instance running, it must be updated with a Net Central user and schema.
+
+The following commands must be performed:
+
+SET GLOBAL max_connections = 128;
+create schema netcentral;
+create user netcentral@'localhost' IDENTIFIED BY 'netcentral';
+grant all privileges on netcentral.* to 'netcentral'@'localhost';
+flush privileges;
+
+This assumes you are using the default values for username, password and schema name.  If you choose to change them, environment variables must also be changed when running your containers.
+
+- NETCENTRAL_SERVER_MYSQL_DBNAME
+- NETCENTRAL_SERVER_MYSQL_USERNAME
+- NETCENTRAL_SERVER_MYSQL_PASSWORD
+
+From the above commands, this is the syntax for properly replacing the values:
+
+SET GLOBAL max_connections = 128;
+create schema NETCENTRAL_SERVER_MYSQL_DBNAME;
+create user NETCENTRAL_SERVER_MYSQL_USERNAME@'localhost' IDENTIFIED BY 'NETCENTRAL_SERVER_MYSQL_PASSWORD';
+grant all privileges on NETCENTRAL_SERVER_MYSQL_DBNAME.* to 'NETCENTRAL_SERVER_MYSQL_USERNAME'@'localhost';
+flush privileges;
 
 
 ## Configuring the container

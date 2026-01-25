@@ -24,7 +24,7 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_TEMP_DIR=/tmp/netcentral
   NC_TR_APRSIS=Y
   NC_TR_APRSIS_QUERY=r/42.222/-71.57/500
-  NC_VERSION=1.0.6
+  NC_VERSION=1.0.7
   NC_DB_CREATE=Y
   NC_JAVA_INSTALL=Y
 
@@ -137,10 +137,10 @@ if [ "$NC_OS" = "Linux" ]; then
 
       # copy all the built jars up
       cd $NC_INSTALL_DIR
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.6.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.7.jar .
 
       popd
     else
@@ -229,10 +229,10 @@ if [ "$NC_OS" = "Linux" ]; then
 
       # copy all the built jars up
       cd $NC_INSTALL_DIR
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.6.jar .
-      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.6.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-1.0.7.jar .
+      cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-1.0.7.jar .
 
       popd
     else
