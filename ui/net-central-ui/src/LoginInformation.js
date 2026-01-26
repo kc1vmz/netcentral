@@ -19,6 +19,7 @@
 */
 
 import { reactive } from 'vue';
+import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 
 export const loggedInUser = reactive({
     value: null
@@ -92,14 +93,39 @@ export function setRefreshToken(token) {
   localStorage.setItem("NetCentral-refreshtoken", token)
 }
 
+async function isTokenValid(token) {
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json",
+                  "SessionID" : token }
+  };
+  const response = await fetch(buildNetCentralUrl("/login/token"), requestOptions);
+  const data = await response.json();
+  if (!response.ok) {
+    return false;
+  }
 
-export function redirect(token, page, router) {
+  return true;
+}
+
+export async function redirect(token, page, router) {
   if ((token === null) || (token === '')) {
     if (page != null) {
       const pageFixed = btoa(page).toString();
       router.push('/login?redirect=' + pageFixed)
     } else {
       router.push('/login')
+    }
+  } else {
+    // check if token is any good
+    var valid = await isTokenValid(token);
+    if (!valid) {
+      if (page != null) {
+        const pageFixed = btoa(page).toString();
+        router.push('/login?redirect=' + pageFixed)
+      } else {
+        router.push('/login')
+      }
     }
   }
 }

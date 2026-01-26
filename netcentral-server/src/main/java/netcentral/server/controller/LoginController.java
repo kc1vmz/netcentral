@@ -1,5 +1,8 @@
 package netcentral.server.controller;
 
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpStatus;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -23,10 +26,12 @@ package netcentral.server.controller;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.UserAccessor;
+import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.request.LoginRequest;
 import netcentral.server.object.User;
 
@@ -36,10 +41,22 @@ public class LoginController {
 
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    SessionAccessor sessionAccessor;
 
     @Post
     public User login(@Body LoginRequest obj) {
         return userAccessor.login(obj);
     }
 
+    @Post("/token")
+    public boolean tokenCheck(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        if (loggedInUser == null) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
+        }
+        return true;
+    }
 }
