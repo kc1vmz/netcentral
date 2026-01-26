@@ -52,7 +52,7 @@ public class PrettyZonedDateTimeFormatter {
         if ((time == null) || (time.length() != 15)) {
             return null;
         }
-        return ZonedDateTime.parse(String.format("%d-%02d-%02dT%02d:%02d:%02dZ", 
+        return ZonedDateTime.parse(String.format("%d-%02d-%02dT%02d:%02d:%02d", 
                                                             time.substring(0, 4),       // year
                                                             time.substring(4, 6),       // month
                                                             time.substring(6, 8),       // day

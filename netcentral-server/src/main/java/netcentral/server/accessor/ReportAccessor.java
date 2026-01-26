@@ -1,5 +1,7 @@
 package netcentral.server.accessor;
 
+import java.time.ZoneId;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -21,6 +23,7 @@ package netcentral.server.accessor;
 */
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -115,8 +118,6 @@ public class ReportAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
         }
 
-        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
-        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
         try {
             List<ShelterCensusReportRecord> records = shelterCensusReportRepository.findBycallsign(callsign);
             ShelterCensusReportRecord latestRecord = null;
@@ -124,7 +125,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterCensusReportRecord rec : records) {
-                    if ((rec.reported_date().isBefore(reportDateStart)) || (rec.reported_date().isAfter(reportDateEnd))) {
+                    if (!rec.reported_date().format(DateTimeFormatter.ISO_DATE).startsWith(reportDateStr)) {
                         continue;
                     }
                     if (latestTime.isBefore(rec.reported_date())) {
@@ -306,9 +307,6 @@ public class ReportAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
         }
 
-        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
-        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
-
         try {
             List<ShelterOperationalFoodReportRecord> records = shelterOperationalFoodReportRepository.findBycallsign(callsign);
             ShelterOperationalFoodReportRecord latestRecord = null;
@@ -316,7 +314,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterOperationalFoodReportRecord rec : records) {
-                    if ((rec.date().isBefore(reportDateStart)) || (rec.date().isAfter(reportDateEnd))) {
+                    if (!rec.date().format(DateTimeFormatter.ISO_DATE).startsWith(reportDateStr)) {
                         continue;
                     }
                     if (rec.timeframe() == timeframe.ordinal()) {
@@ -377,9 +375,6 @@ public class ReportAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Callsign not provided");
         }
 
-        ZonedDateTime reportDateStart = ZonedDateTime.parse(reportDateStr+"T00:00:00.000000Z");
-        ZonedDateTime reportDateEnd = reportDateStart.plusDays(1).minusNanos(1);
-
         try {
             List<ShelterOperationalMaterielReportRecord> records = shelterOperationalMaterielReportRepository.findBycallsign(callsign);
             ShelterOperationalMaterielReportRecord latestRecord = null;
@@ -387,7 +382,7 @@ public class ReportAccessor {
             
             if ((records != null) && (!records.isEmpty())) {
                 for (ShelterOperationalMaterielReportRecord rec : records) {
-                    if ((rec.date().isBefore(reportDateStart)) || (rec.date().isAfter(reportDateEnd))) {
+                    if (!rec.date().format(DateTimeFormatter.ISO_DATE).startsWith(reportDateStr)) {
                         continue;
                     }
                     if (rec.timeframe() == timeframe.ordinal()) {
