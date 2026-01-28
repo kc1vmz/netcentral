@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
     info = @Info(
             title = "netcentral-agw-transceiver",
-            version = "1.0.7"
+            version = "1.0.8"
     )
 )
 

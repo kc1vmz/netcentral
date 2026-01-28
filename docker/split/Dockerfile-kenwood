@@ -21,7 +21,7 @@ RUN mkdir -p /netcentral/bin
 ADD docker/split/image_files/transceiver_kenwood_processes.sh /netcentral/bin/transceiver_kenwood_processes.sh
 RUN ["dos2unix", "/netcentral/bin/transceiver_kenwood_processes.sh"]
 
-ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.7.jar /netcentral/bin/transceiver-kenwood.jar
+ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.8.jar /netcentral/bin/transceiver-kenwood.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure netcentral-transceiver-aprsis auto-starts

@@ -31,7 +31,7 @@ ADD docker/split/image_files/nc_setcap.sh /netcentral/bin/nc_setcap.sh
 RUN ["dos2unix", "/netcentral/bin/nc_setcap.sh"]
 RUN ["/netcentral/bin/nc_setcap.sh"]
 
-ADD ui/net-central-ui/target/netcentral-ui-1.0.7.zip /netcentral/bin/netcentral-ui.zip
+ADD ui/net-central-ui/target/netcentral-ui-1.0.8.zip /netcentral/bin/netcentral-ui.zip
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure netcentral-ui auto-starts

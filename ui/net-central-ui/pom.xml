@@ -6,7 +6,7 @@
 
     <groupId>com.kc1vmz.netcentral</groupId>
     <artifactId>netcentral-ui</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -34,7 +34,7 @@
                                 <descriptor>${project.basedir}/assembly/zip.xml</descriptor>
                             </descriptors>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-                            <destFileName>netcentral-ui-1.0.7.zip</destFileName>
+                            <destFileName>netcentral-ui-1.0.8.zip</destFileName>
                         </configuration>
                     </execution>
                 </executions>
