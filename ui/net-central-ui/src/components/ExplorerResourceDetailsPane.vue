@@ -288,6 +288,10 @@ const aceProximityRef = reactive({value : 500});
 const errorMessageRef = reactive({value : null});
 const shelterReportDatePickerRef = ref(new Date(new Date().setHours(0,0,0,0)));
 const todayDatePickerRef = reactive( { value : new Date(new Date().setHours(0,0,0,0)) });
+const callsignRef = reactive({value : ''});
+const dialogSendSingleMessageRef = reactive({value : null});
+const dialogSendSingleMessageShowRef = reactive({value : false});
+var enableButtonRef = ref(false);
 
 const headers = [
         { text: "Time", value: "prettyLdtime", sortable: true },
@@ -1754,10 +1758,77 @@ function displayWorkerCensusReport() {
   return false;
 }
 
+function sendSingleMessage() {
+    dialogSendSingleMessageShowRef.value = true;
+    messageRef.value = '';
+    errorMessageRef.value = '';
+}
+
+function sendSingleMessageYes() {
+      // perform the send message
+    performSendSingleMessage();
+}
+
+function sendSingleMessageNo() {
+    dialogSendSingleMessageShowRef.value = false;
+}
+
+function performSendSingleMessage() {
+    // message
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : getToken()
+        },
+      body: messageRef.value
+    };
+    fetch(buildNetCentralUrl("/callsigns/"+localSelectedObject.ncSelectedObject.callsign+"/messages"), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+            dialogSendCallsignMessageShow.value = false;
+        } else {
+          errorMessageRef.value = "An error occurred sending the message.";
+        }
+        return response.json();
+      })
+      .then(data => {
+      })
+      .catch(error => { console.error('Error sending message:', error); })   
+}
+watch(messageRef, (newValue, oldValue) => {
+  if (newValue != '') {
+    enableButtonRef = true;
+  } else {
+    enableButtonRef = false;
+  }
+});
 </script>
 
 <template>
   <!-- dialogs -->
+    <div v-if="dialogSendSingleMessageShowRef.value">
+      <teleport to="#modals">    
+        <dialog :open="dialogSendSingleMessageShowRef.value" ref="dialogSendSingleMessageRef" @close="dialogSendSingleMessageShowRef.value = false" class="topz">  
+          <form v-if="dialogSendSingleMessageShowRef.value" method="dialog">
+            <div class="pagesubheader">Send Message</div>
+            <div class="line"><hr/></div>
+            Send a message to a station.
+            <br>
+              <div>
+                <label for="messageField">Message:</label>
+                <input type="text" id="messageField" v-model="messageRef.value" />
+              </div>
+              <div>
+                <b>{{ errorMessageRef.value }}</b>
+              </div>
+            <br>
+            <button class="boxButtonDisabled" v-if="!enableButtonRef" disabled>Send</button>
+            <button class="boxButton" v-if="enableButtonRef" v-on:click.native="sendSingleMessageYes">Send</button>
+            <button class="boxButton" v-on:click.native="sendSingleMessageNo">Cancel</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogAceAddShow.value">
       <teleport to="#modals">
         <dialog :open="dialogAceAddShow.value" ref="dialogAceAdd" @close="dialogAceAddShow.value = false" class="topz">  
@@ -3337,6 +3408,12 @@ function displayWorkerCensusReport() {
               </div>
               <div v-if="accesstokenRef.value != null" class="grid-item">
                 Ignoring this station / object and do not accept new updates from APRS.
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                <button class="boxButton" v-on:click.native="sendSingleMessage">Send Message</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                Send message to the station.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton"  v-on:click.native="remove">Remove</button>

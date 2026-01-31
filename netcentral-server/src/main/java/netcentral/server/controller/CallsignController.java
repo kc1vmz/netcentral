@@ -39,6 +39,7 @@ import jakarta.inject.Inject;
 import netcentral.server.accessor.CallsignAccessor;
 import netcentral.server.accessor.NetAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
+import netcentral.server.accessor.UserAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.Net;
@@ -55,6 +56,8 @@ public class CallsignController {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
     private NetAccessor netAccessor;
+    @Inject
+    private UserAccessor userAccessor;
 
     @Get 
     public List<Callsign> getAll(HttpRequest<?> request, @Nullable @QueryValue String root) {
@@ -111,6 +114,22 @@ public class CallsignController {
         return callsignAccessor.update(loggedInUser, id, obj);
     }
 
+    @Post("/{callsign}/messages")
+    public String sendMessage(HttpRequest<?> request, @PathVariable String callsign, @Body String message) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        String callsignFrom = null;
+        User full = userAccessor.get(loggedInUser, loggedInUser.getId());
+        if ((full != null) && (full.getCallsign() != null) && (!full.getCallsign().getCallsign().isEmpty())) {
+            callsignFrom = full.getCallsign().getCallsign();
+        }
+
+        transceiverCommunicationAccessor.sendMessage(loggedInUser, callsignFrom, callsign, message);
+
+        return "{ \"message\" : \""+message+"\"}";
+    }
+
     @Post("/{callsign}/messages/{netCallsign}")
     public String sendMessage(HttpRequest<?> request, @PathVariable String callsign, @PathVariable String netCallsign, @Body String message) {
         String token = sessionAccessor.getTokenFromSession(request);
@@ -122,6 +141,5 @@ public class CallsignController {
 
         return "{ \"message\" : \""+message+"\"}";
     }
-
 
 }

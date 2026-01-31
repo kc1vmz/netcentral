@@ -27,6 +27,7 @@ import io.micronaut.context.ApplicationContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.transceiver.kiss.client.NetCentralRESTClient;
+import netcentral.transceiver.kiss.config.TNCConfiguration;
 
 @Singleton
 public class APRSMessageAccessor {
@@ -36,19 +37,35 @@ public class APRSMessageAccessor {
     private NetCentralRESTClient netControlRESTClient;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private TNCConfiguration tncConfiguration;
 
     public void sendObject(String objectName, String message, boolean alive, String lat, String lon) {
-        APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
-        if (la != null) {
-            la.sendObject(objectName, message, alive, lat, lon);
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendObject(objectName, message, alive, lat, lon);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendObject(objectName, message, alive, lat, lon);
+            }
         }
     }
 
     public void sendAckMessage(String callsignFrom, String callsignTo, String messageText) {
         statisticsAccessor.incrementAcksSent();
-        APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
-        if (la != null) {
-            la.sendMessage(callsignFrom, callsignTo, messageText);
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendMessage(callsignFrom, callsignTo, messageText);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendMessage(callsignFrom, callsignTo, messageText);
+            }
         }
     }
 
@@ -60,9 +77,16 @@ public class APRSMessageAccessor {
                 messageText += String.format("{%s", ack);
             }
         }
-        APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
-        if (la != null) {
-            la.sendMessage(callsignFrom, callsignTo, messageText);
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendMessage(callsignFrom, callsignTo, messageText);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendMessage(callsignFrom, callsignTo, messageText);
+            }
         }
     }
 
@@ -76,17 +100,32 @@ public class APRSMessageAccessor {
 
     public synchronized void sendBulletin(String callsignFrom, String callsignTo, String messageText) {
         // add message number for ack
-        APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
-        if (la != null) {
-            la.sendBulletin(callsignFrom, callsignTo, messageText);
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendBulletin(callsignFrom, callsignTo, messageText);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendBulletin(callsignFrom, callsignTo, messageText);
+            }
         }
     }
 
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         // add message number for ack
-        APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
-        if (la != null) {
-            la.sendReport(callsignFrom, obj);
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendReport(callsignFrom, obj);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendReport(callsignFrom, obj);
+            }
+           
         }
     }
 }

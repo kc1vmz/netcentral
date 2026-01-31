@@ -35,6 +35,7 @@ public class TNCConfiguration {
     private String initCommand2;
     @Value("${tnc.hostname}")
     private String hostname;
+    private boolean serial;
 
     public String getPort() {
         return port;
@@ -65,5 +66,11 @@ public class TNCConfiguration {
     }
     public void setHostname(String hostname) {
         this.hostname = hostname;
+    }
+    public boolean isSerial() {
+        return serial;
+    }
+    public void setSerial(boolean serial) {
+        this.serial = serial;
     }
 }

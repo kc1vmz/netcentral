@@ -80,6 +80,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         } catch (Exception e) {
         }
 
+        tncConfiguration.setSerial(serial);
+
         if (serial) {
             new Thread(() -> {
                 try {
