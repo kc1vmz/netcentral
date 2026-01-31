@@ -164,10 +164,10 @@ public class KISSSerialClient {
         List<String> digipeaters = new ArrayList<>();
 
         if (resp[0] != KISSControlCode.FEND.getValue()) {
-            return null;
+            return packet;
         }
         if (resp[1] != KISSControlCode.DATA.getValue()) {
-            return null;
+            return packet;
         }
 
         //2-8 (7 bytes, dest callsign - bitshift right to decode)
@@ -195,6 +195,7 @@ public class KISSSerialClient {
         byte[] dataBytes = Arrays.copyOfRange(resp, currentPos,  resp.length);
         packet.setData(new String(dataBytes));
         packet.setDigipeaters(digipeaters);
+        packet.setValid(true);
 
         return packet;
     }

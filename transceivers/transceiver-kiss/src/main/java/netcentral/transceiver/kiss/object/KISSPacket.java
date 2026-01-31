@@ -30,7 +30,11 @@ public class KISSPacket {
     private List<String> digipeaters;
     private String data;
     private String packet;
+    private boolean valid;
 
+    public KISSPacket() {
+        valid = false;
+    }
     public String getCallsignFrom() {
         return callsignFrom;
     }
@@ -80,5 +84,11 @@ public class KISSPacket {
     }
     public void setPacket(String packet) {
         this.packet = packet;
+    }
+    public boolean isValid() {
+        return valid;
+    }
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 }

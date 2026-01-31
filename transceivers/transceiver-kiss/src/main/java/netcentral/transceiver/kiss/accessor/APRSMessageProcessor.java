@@ -143,6 +143,10 @@ public class APRSMessageProcessor {
             logger.debug("Null packet received");
             return true;
         }
+        if (!packet.isValid()) {
+            logger.debug("Packet not valid");
+            return true;
+        }
 
         try {
             APRSPacketInterface parsedPacket;

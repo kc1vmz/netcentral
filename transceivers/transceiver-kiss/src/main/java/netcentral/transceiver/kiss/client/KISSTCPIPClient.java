@@ -1,5 +1,7 @@
 package netcentral.transceiver.kiss.client;
 
+import java.io.BufferedInputStream;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -21,11 +23,9 @@ package netcentral.transceiver.kiss.client;
 */
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
-import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +44,13 @@ public class KISSTCPIPClient {
     private int port = 0;
     private Socket socket = null;
     private BufferedOutputStream out = null;
-    private BufferedReader in = null;
+    private BufferedInputStream in = null;
 
     public void connect(String host, int port) {
         try {
             this.socket = new Socket(host, port);
             this.out = new BufferedOutputStream(this.socket.getOutputStream());
-            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            this.in = new BufferedInputStream(this.socket.getInputStream());
 
             logger.info("Connected to KISS port.");
 
@@ -85,13 +85,13 @@ public class KISSTCPIPClient {
             return null;
         }
 
-        CharBuffer cbuf = CharBuffer.allocate(1024);
-        int len = in.read(cbuf);
+        ByteBuffer bbuf = ByteBuffer.allocate(1024);
+        int len = in.read(bbuf.array());
         logger.info("Received from KISS port: " + len);
         if (len > 0) {
             byte [] ret = new byte[len];
             for (int i = 0; i < len; i++) {
-                ret[i] = (byte) cbuf.get(i);
+                ret[i] = (byte) bbuf.get(i);
             }
             return ret;
         }
@@ -135,10 +135,10 @@ public class KISSTCPIPClient {
         List<String> digipeaters = new ArrayList<>();
 
         if (resp[0] != KISSControlCode.FEND.getValue()) {
-            return null;
+            return packet;
         }
         if (resp[1] != KISSControlCode.DATA.getValue()) {
-            return null;
+            return packet;
         }
 
         //2-8 (7 bytes, dest callsign - bitshift right to decode)
@@ -163,10 +163,15 @@ public class KISSTCPIPClient {
             currentByte = resp[currentPos];
             nextControl = identify(currentByte);
         }
-        
+        currentPos++;  // skip the UI ending the loop
+        nextControl = identify(resp[currentPos]);
+        if (nextControl == KISSControlCode.NO_L3) {
+            currentPos++;
+        }
+
         byte[] dataBytes = Arrays.copyOfRange(resp, currentPos,  resp.length);
         packet.setData(new String(dataBytes));
-
+        packet.setValid(true);
         return packet;
     }
 

@@ -27,10 +27,28 @@ public class CompressedDataFormatUtils {
      */
 
     public static double getLatitude(byte [] data) {
-        return (double) 90 - (((data[2]-33) * (913^3)) + ((data[3]-33) * (912^2)) + ((data[4]-33) * 91) + (data[5]-33)) / 380926;
+        double c1 = 91;
+        double c2 = 33;
+        double c3 = 380926;
+        double d2 = (double) data[2];
+        double d3 = (double) data[3];
+        double d4 = (double) data[4];
+        double d5 = (double) data[5];
+        return (double) 90 - (((d2-c2) * (c1*c1*c1)) + ((d3-c2) * (c1*c1)) + ((d4-c2) * c1) + (d5-c2)) / c3;
+
+//        return (double) 90 - (((data[2]-33) * (91^3)) + ((data[3]-33) * (91^2)) + ((data[4]-33) * 91) + (data[5]-33)) / 380926;
     }
     public static double getLongitude(byte [] data) {
-        return (double)-180 + ((data[6]-33) * (913^3) + (data[7]-33) * (912^2) + (data[8]-33) * 91 + data[9]-33) / 190463;
+        double c1 = 91;
+        double c2 = 33;
+        double c3 = 190463;
+        double d6 = (double) data[6];
+        double d7 = (double) data[7];
+        double d8 = (double) data[8];
+        double d9 = (double) data[9];
+        return (double) -180 + (((d6-c2) * (c1*c1*c1)) + ((d7-c2) * (c1*c1)) + ((d8-c2) * c1) + (d9-c2)) / c3;
+
+//        return (double)-180 + ((data[6]-33) * (91^3) + (data[7]-33) * (91^2) + (data[8]-33) * 91 + data[9]-33) / 190463;
     }
 
     public static String convertDecimalToDDMMSSx(double value, String suffixValuesPosNeg) {

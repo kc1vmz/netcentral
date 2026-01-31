@@ -49,12 +49,27 @@ public class PacketLoggerAccessor {
 
         try {
             FileWriter fw = new FileWriter(featureConfiguration.getPacketLoggingFilename().get(), true); 
-            fw.write(contentToAppend+"\n");
+            String converted = convertPacketToHex(contentToAppend);
+            fw.write(converted+"\n");
             fw.close();
         } catch (IOException e) {
             logger.error("IOException caught saving packet", e);
         } catch (Exception e) {
             logger.error("Exception caught saving packet", e);
         }
+    }
+
+    private String convertPacketToHex(String contentToAppend) {
+        String ret = "";
+        if (contentToAppend == null) {
+            return ret;
+        }
+        byte[] bytes =  contentToAppend.getBytes();
+
+        for (int i = 0; i < contentToAppend.length(); i++) {
+            String hex = String.format("%02x", bytes[i])+" ";
+            ret += hex;
+        }
+        return ret;
     }
 }

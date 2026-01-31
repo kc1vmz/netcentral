@@ -83,6 +83,7 @@ public class APRSTCPIPListenerAccessor {
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(new String(obj.getBytes()));
+        packet.setValid(true);
         byte [] packetBytesAX = AX25PacketBuilder.buildReportPacket(packet, ""+NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND+
                                                                         NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID+
                                                                         NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE);
@@ -129,6 +130,7 @@ public class APRSTCPIPListenerAccessor {
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(messageText);
+        packet.setValid(true);
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
@@ -157,6 +159,7 @@ public class APRSTCPIPListenerAccessor {
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setData(messageText);
+        packet.setValid(true);
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
@@ -182,6 +185,7 @@ public class APRSTCPIPListenerAccessor {
         packet.setCallsignFrom(aprsConfiguration.getCallsign());
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
+        packet.setValid(true);
 
         String aprsMessage = null;
 
@@ -302,6 +306,7 @@ public class APRSTCPIPListenerAccessor {
                         try {
                             KISSPacket packet = client.listen();
                             packetLoggerAccessor.savePacket(packet.getPacket());
+                            aprsMessageProcessor.processRawData(packet.getPacket());
                             aprsMessageProcessor.processPacket(packet);
                             statisticsAccessor.markLastReceivedTime();
                             statisticsAccessor.incrementObjectsReceived();
