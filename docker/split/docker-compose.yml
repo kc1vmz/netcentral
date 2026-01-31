@@ -1,6 +1,6 @@
 services:
   netcentral-server:
-    image: netcentral-server:1.0.8
+    image: netcentral-server:1.0.9
     ports:
       - "8881:8881"
       - "9880:8880"
@@ -15,7 +15,7 @@ services:
       - NETCENTRAL_SERVER_MYSQL_USERNAME=netcentral
       - NETCENTRAL_SERVER_TEMP_DIR=/netcentral/tmp
   netcentral-transceiver-aprsis:
-    image: netcentral-transceiver-aprsis:1.0.8
+    image: netcentral-transceiver-aprsis:1.0.9
     environment:
       - NETCENTRAL_SERVER_USERNAME=serviceAccount
       - NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
@@ -27,7 +27,7 @@ services:
       - NETCENTRAL_TRANS_APRSIS_HOST=netcentral-transceiver-aprsis
       - NETCENTRAL_SERVER_TEMP_DIR=/netcentral/tmp
   netcentral-ui:
-    image: netcentral-ui:1.0.8
+    image: netcentral-ui:1.0.9
     ports:
       - "8880:80"
     environment:

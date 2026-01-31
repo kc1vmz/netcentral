@@ -26,4 +26,4 @@ set NC_SRC_URL_ROOT=
 
 copy image_files\*.* tmp\docker\full\image_files
 
-docker build --no-cache -t netcentral-full:1.0.8 -f Dockerfile tmp
+docker build --no-cache -t netcentral-full:1.0.9 -f Dockerfile tmp

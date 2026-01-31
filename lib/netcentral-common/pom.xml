@@ -6,7 +6,7 @@
 
     <groupId>com.kc1vmz.netcentral</groupId>
     <artifactId>netcentral-common</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

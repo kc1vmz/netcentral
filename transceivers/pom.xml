@@ -7,12 +7,12 @@
   <name>Net Central Transceivers</name>
   <description>Transceiver support services</description>
   <inceptionYear>2025</inceptionYear>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
 
   <parent>
     <groupId>com.kc1vmz</groupId>
     <artifactId>netcentral</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
   </parent>
 
   <properties>

@@ -6,7 +6,7 @@
 
     <groupId>com.kc1vmz.netcentral</groupId>
     <artifactId>netcentral-docker-image-build-scripts</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -34,7 +34,7 @@
                                 <descriptor>${project.basedir}/assembly/zip.xml</descriptor>
                             </descriptors>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-                            <destFileName>netcentral-docker-image-build-scripts-1.0.8.zip</destFileName>
+                            <destFileName>netcentral-docker-image-build-scripts-1.0.9.zip</destFileName>
                         </configuration>
                     </execution>
                 </executions>
