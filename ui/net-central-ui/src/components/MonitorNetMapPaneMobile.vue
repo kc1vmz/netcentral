@@ -361,6 +361,10 @@ function createObjectNo() {
                         <b>{{ mapPoint.itemObject.name }} - Medical</b>
                         <br><i>{{mapPoint.itemObject.description}}</i>
                       </div>
+                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.type == 'GENERALRESOURCE'))">
+                        <b>{{ mapPoint.itemObject.name }} - {{ mapPoint.itemObject.resourceType }} (General)</b>
+                        <br><i>{{mapPoint.itemObject.description}}</i>
+                      </div>
                       <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object))">
                         <b>{{ mapPoint.itemObject.callsignFrom }}</b>
                         <br><i>{{mapPoint.itemObject.comment}}</i>
@@ -402,6 +406,5 @@ html, body {
   margin: 0px;
   gap: 0px;
 }
-.grid-item {
-}
+
 </style>

@@ -1,4 +1,4 @@
-package com.kc1vmz.netcentral.aprsobject.enums;
+package netcentral.server.record;
 
 /*
     Net Central
@@ -20,6 +20,17 @@ package com.kc1vmz.netcentral.aprsobject.enums;
     http://www.kc1vmz.com
 */
 
-public enum ObjectType {
-    UNKNOWN, ITEM, STANDARD, SHELTER, MEDICAL, EOC, NET, RESOURCE;
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.data.annotation.Id;
+import io.micronaut.data.annotation.MappedEntity;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+ 
+@MappedEntity("aprs_object_resource_kv")
+public record ResourceObjectKVRecord(@Id @NonNull @NotBlank @Size(max = 36) String aprs_object_resource_kv_id,
+                                @NonNull @NotBlank @Size(max = 36) String aprs_object_id,
+                                @NonNull @NotBlank @Size(max = 20) String key,
+                                @NonNull @NotBlank @Size(max = 40) String value,
+                                @NonNull @NotBlank Boolean broadcast
+) {  
 }

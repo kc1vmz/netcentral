@@ -1,4 +1,6 @@
-package com.kc1vmz.netcentral.aprsobject.enums;
+package netcentral.server.repository;
+
+import java.util.List;
 
 /*
     Net Central
@@ -20,6 +22,12 @@ package com.kc1vmz.netcentral.aprsobject.enums;
     http://www.kc1vmz.com
 */
 
-public enum ObjectType {
-    UNKNOWN, ITEM, STANDARD, SHELTER, MEDICAL, EOC, NET, RESOURCE;
+import io.micronaut.data.jdbc.annotation.JdbcRepository;
+import io.micronaut.data.model.query.builder.sql.Dialect;
+import io.micronaut.data.repository.CrudRepository;
+import netcentral.server.record.ResourceObjectKVHistoryRecord;
+
+@JdbcRepository(dialect = Dialect.MYSQL) 
+public interface ResourceObjectKVHistoryRepository extends CrudRepository<ResourceObjectKVHistoryRecord, String> { 
+        public List<ResourceObjectKVHistoryRecord> findByaprs_object_id(String aprs_object_id);
 }

@@ -33,6 +33,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObj
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.config.NetCentralServerConfig;
+import netcentral.server.object.ResourceObjectKeyValuePair;
 import netcentral.server.object.User;
 
 @Singleton
@@ -46,6 +47,8 @@ public class ObjectBeaconAccessor {
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
     @Inject
     private NetCentralServerConfig netConfigServerConfig;
+    @Inject
+    private ResourceObjectKVAccessor resourceObjectKVAccessor;
 
 
     public void beaconObjects() {
@@ -67,6 +70,9 @@ public class ObjectBeaconAccessor {
                 transceiverMessageAccessor.sendObject(user, netCentralObject.getCallsignFrom(), netCentralObject.getCallsignFrom(),
                                                             netCentralObject.getComment(), netCentralObject.isAlive(),
                                                             netCentralObject.getLat(), netCentralObject.getLon());
+                if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
+                    beaconData(user, netCentralObject);
+                }
             } catch (Exception e) {
                 logger.error("Error caught beaconing object", e);
             }
@@ -97,11 +103,26 @@ public class ObjectBeaconAccessor {
  
     }
 
+    private void beaconData(User user, APRSObject netCentralObject) {
+        try {
+            List<ResourceObjectKeyValuePair> kvPairs = resourceObjectKVAccessor.get(user, netCentralObject.getId());
+            if ((kvPairs != null) && (!kvPairs.isEmpty())) {
+                for (ResourceObjectKeyValuePair kvPair : kvPairs) {
+                    if (kvPair.isBroadcast()) {
+                        String message = String.format("%s:%s", kvPair.getKey(), kvPair.getValue());
+                        transceiverMessageAccessor.sendMessage(user, netCentralObject.getCallsignFrom(), netCentralObject.getCallsignFrom(), message);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+
     private List<APRSObject> getObjects(User user) {
         List<APRSObject> objects = new ArrayList<>();
 
         try {
-            List<APRSObject> netCentralPriorityObjects = aprsObjectAccessor.getNetCentralObjects(user, false, true) ;
+            List<APRSObject> netCentralPriorityObjects = aprsObjectAccessor.getNetCentralObjects(user, true, true, true) ;
             if ((netCentralPriorityObjects != null) && (!netCentralPriorityObjects.isEmpty())) {
                 objects.addAll(netCentralPriorityObjects);
             }

@@ -783,7 +783,7 @@ public class UIController {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
-        List<APRSObject> aprsObjects = aprsObjectAccessor.getObjects(loggedInUser, false);
+        List<APRSObject> aprsObjects = aprsObjectAccessor.getObjects(loggedInUser, false, false);
 
         MapMarkerFactory mapMarkerFactory = new MapMarkerFactory();
         mapMarkerFactory.processObjects(aprsObjects, "|");

@@ -89,7 +89,7 @@ public class ActivityAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Text not provided");
         }
 
-        String activity_id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
+        String activity_id = UUID.randomUUID().toString();
         ActivityRecord src = new ActivityRecord(activity_id, ZonedDateTime.now(), text, (user == null) ? null : user.getId());
         ActivityRecord rec = activityRepository.save(src);
         if (rec != null) {

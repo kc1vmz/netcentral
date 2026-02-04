@@ -38,6 +38,7 @@ import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.security.annotation.Secured;
@@ -45,9 +46,11 @@ import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.ObjectCleanupAccessor;
+import netcentral.server.accessor.ResourceObjectKVAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.accessor.UserAccessor;
 import netcentral.server.auth.SessionAccessor;
+import netcentral.server.object.ResourceObjectKeyValuePair;
 import netcentral.server.object.User;
 import netcentral.server.object.request.ObjectCreateRequest;
 import netcentral.server.object.request.ObjectCreateRequestExternal;
@@ -69,6 +72,8 @@ public class APRSObjectController {
     private ObjectCleanupAccessor objectCleanupAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private ResourceObjectKVAccessor resourceObjectKVAccessor;
 
     @Post
     public HttpResponse<APRSObjectResource> create(HttpRequest<?> request,  @Body APRSObjectResource obj) {
@@ -87,11 +92,11 @@ public class APRSObjectController {
     }
 
     @Get 
-    public List<APRSObject> getAll(HttpRequest<?> request, @QueryValue("priority") Optional<Boolean> priority) {
+    public List<APRSObject> getAll(HttpRequest<?> request, @QueryValue("priority") Optional<Boolean> priority, @QueryValue("generalresource") Optional<Boolean> general) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
-        return aprsObjectAccessor.getObjects(loggedInUser, priority.orElse(false));
+        return aprsObjectAccessor.getObjects(loggedInUser, priority.orElse(false), general.orElse(false));
     }
 
     @Delete("/{id}")
@@ -172,5 +177,41 @@ public class APRSObjectController {
         objectCleanupAccessor.cleanupObjectsByTime(loggedInUser);
 
         return;
+    }
+
+    @Get("/{objectId}/keyValues")
+    public List<ResourceObjectKeyValuePair> getKeyValuePairs(HttpRequest<?> request, @PathVariable String objectId) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        return resourceObjectKVAccessor.get(loggedInUser, objectId);
+    }
+
+    @Delete("/{objectId}/keyValues")
+    public void deleteKeyValue(HttpRequest<?> request, @PathVariable String objectId,  @Body ResourceObjectKeyValuePair kvp) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        resourceObjectKVAccessor.delete(loggedInUser, objectId, kvp.getKey());
+
+        return;
+    }
+
+    @Post("/{objectId}/keyValues")
+    public HttpResponse<ResourceObjectKeyValuePair> createKeyValuePair(HttpRequest<?> request, @PathVariable String objectId,  @Body ResourceObjectKeyValuePair kvp) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        ResourceObjectKeyValuePair obj = resourceObjectKVAccessor.create(loggedInUser, objectId, kvp.getKey(), kvp.getValue(), kvp.isBroadcast());
+        URI location = UriBuilder.of("/api/v1/APRSObjects/"+objectId+"/keyValues").build();
+        return HttpResponse.created(obj).headers(headers -> headers.location(location));
+    }
+
+    @Put("/{objectId}/keyValues")
+    public ResourceObjectKeyValuePair updateKeyValuePair(HttpRequest<?> request, @PathVariable String objectId, @Body ResourceObjectKeyValuePair kvp) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        return resourceObjectKVAccessor.update(loggedInUser, objectId, kvp.getKey(), kvp.getValue(), kvp.isBroadcast());
     }
 }

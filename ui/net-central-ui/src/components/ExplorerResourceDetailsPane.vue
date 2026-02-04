@@ -65,7 +65,7 @@ watch(updateCallsignACEEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if (localSelectedObjectType.value != "PRIORITYOBJECT") {
+  if ((localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -126,7 +126,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN") || (localSelectedObjectType.value == "GENERALRESOURCE")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -151,7 +151,7 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -256,6 +256,10 @@ const directorNameRef = reactive({value : ''});
 const incidentCommanderNameRef = reactive({value : ''});
 const eocNameRef = reactive({value : ''});
 const messageRef = reactive({value : ''});
+const selectedKeyRef = reactive({value : ''});
+const keyRef = reactive({value : ''});
+const valueRef = reactive({value : ''});
+const broadcastRef = reactive({value : 'No'});
 const statusRef = reactive({value : 1});
 const levelRef = reactive({value : 1});
 const stateRef = reactive({value : 1});
@@ -289,9 +293,19 @@ const errorMessageRef = reactive({value : null});
 const shelterReportDatePickerRef = ref(new Date(new Date().setHours(0,0,0,0)));
 const todayDatePickerRef = reactive( { value : new Date(new Date().setHours(0,0,0,0)) });
 const callsignRef = reactive({value : ''});
-const dialogSendSingleMessageRef = reactive({value : null});
+const dialogSendSingleMessageRef = ref(null);
 const dialogSendSingleMessageShowRef = reactive({value : false});
+const dialogUpdateDataRef = ref(null);
+const dialogUpdateDataShowRef = reactive({value : null});
+
 var enableButtonRef = ref(false);
+var enableAddButtonRef = ref(false);
+var enableUpdateButtonRef = ref(false);
+var enableDeleteButtonRef = ref(false);
+var newKeyModeRef = ref(true);
+var ignoreExisting = ref(false);
+var ignoreExisting2 = ref(false);
+
 
 const headers = [
         { text: "Time", value: "prettyLdtime", sortable: true },
@@ -342,6 +356,12 @@ const headersStatus = [
         { text: "Status", value: "status", sortable: true}
       ];
 
+const headersKVPairs = [
+        { text: "Key", value: "key", sortable: true },
+        { text: "Value", value: "value", sortable: true},
+        { text: "Broadcast", value: "broadcast", sortable: true }
+      ];
+
 onMounted(() => {
     accesstokenRef.value = getToken();
     localLoggedInUserRef.value = getUser();
@@ -376,6 +396,7 @@ const selectedAce = reactive({value : null});
 const accessControlList = reactive({value : null});
 const weatherReports = reactive({value : null});
 const statusReports = reactive({value : null});
+const kvPairs = reactive({value : null});
 const latestWeatherReport = reactive({value : null});
 const shelterStatusReport = reactive({value : null});
 const shelterCensusReport = reactive({value : null});
@@ -725,6 +746,25 @@ function fetchEOCReports() {
       .catch(error => { console.error('Error getting EOC contact reports from server:', error); })
 }
 
+
+function fetchKVPairs() {
+  kvPairs.value = null;
+
+  fetch(buildNetCentralUrl('/APRSObjects/'+localSelectedObject.ncSelectedObject.id+'/keyValues'), getGetRequestOptions())
+    .then(response => {
+        if (response.status == 200) {
+          return response.json();
+        } else {
+          return null;
+        }
+      })
+    .then(data => {
+        kvPairs.value = data;
+    })
+    .catch(error => { console.error('Error getting KV pairs from server:', error); })
+}
+
+
 watch(
   localSelectedObject,
   async () => {
@@ -749,6 +789,7 @@ watch(
     eocContactReports.value = null;
     selectedAce.value = null;
     statusReports.value = null;
+    kvPairs.value = null;
 
     if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
       fetch(buildNetCentralUrl('/APRSObjects/statusMessages/'+localSelectedObject.ncSelectedObject.callsign), getGetRequestOptions())
@@ -800,6 +841,9 @@ watch(
       fetchEOCReports();
       fetchACL();
     } else if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.type == 'MEDICAL')) {
+      fetchACL();
+    } else if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'GENERALRESOURCE') && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.type == 'RESOURCE')) {
+      fetchKVPairs();
       fetchACL();
     }
   },
@@ -1433,7 +1477,7 @@ function removeNo() {
 
 function performRemove() {
     var url = "";
-    if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && ((localSelectedObjectType.value == 'OBJECT') || (localSelectedObjectType.value == 'PRIORITYOBJECT'))) {
+    if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && ((localSelectedObjectType.value == 'OBJECT') || (localSelectedObjectType.value == 'PRIORITYOBJECT') || (localSelectedObjectType.value == 'GENERALRESOURCE'))) {
       // remove the selected object
       var id = localSelectedObject.ncSelectedObject.id;
       url = buildNetCentralUrl("/APRSObjects/" + id);
@@ -1795,6 +1839,111 @@ function performSendSingleMessage() {
       })
       .catch(error => { console.error('Error sending message:', error); })   
 }
+
+function updateData() {
+    dialogUpdateDataShowRef.value = true;
+    keyRef.value = '';
+    valueRef.value = '';
+    errorMessageRef.value = '';
+    selectedKeyRef.value = '';
+    newKeyModeRef = true;
+}
+
+function updateDataAdd() {
+    errorMessageRef.value = '';
+    updateDataAct("POST");
+}
+
+function updateDataUpdate() {
+    errorMessageRef.value = '';
+    updateDataAct("PUT");
+}
+
+function updateDataDelete() {
+    errorMessageRef.value = '';
+    // message
+    var broadcastVal = false;
+    if (broadcastRef.value == "Yes") {
+      broadcastVal = true;
+    }
+    var bodyObject = {
+          key : keyRef.value,
+          value : valueRef.value,
+          broadcast : broadcastVal
+    };
+    const requestOptions = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body: JSON.stringify(bodyObject)
+    };
+
+    fetch(buildNetCentralUrl('/APRSObjects/'+localSelectedObject.ncSelectedObject.id+'/keyValues'), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+          errorMessageRef.value = '';
+          removeKeyValue(keyRef.value, valueRef.value) ;
+          keyRef.value = '';
+          valueRef.value = '';
+        } else {
+          errorMessageRef.value = "An error occurred adding the data";
+        }
+        return response;
+      })
+      .catch(error => { console.error('Error adding data:', error); })   
+}
+
+function updateDataClose() {
+    errorMessageRef.value = '';
+    dialogUpdateDataShowRef.value = false;
+}
+
+function updateDataAct(verb) {
+    // message
+    var broadcastVal = false;
+    if (broadcastRef.value == "Yes") {
+      broadcastVal = true;
+    }
+    var bodyObject = {
+          key : keyRef.value,
+          value : valueRef.value,
+          broadcast : broadcastVal
+    };
+    const requestOptions = {
+      method: verb,
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body: JSON.stringify(bodyObject)
+    };
+
+    fetch(buildNetCentralUrl('/APRSObjects/'+localSelectedObject.ncSelectedObject.id+'/keyValues'), requestOptions)
+      .then(response => {
+        if ((response.status == 200) || (response.status == 201)) {
+          errorMessageRef.value = '';
+        } else {
+          errorMessageRef.value = "An error occurred adding the data";
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (errorMessageRef.value == '') {
+          if (verb === "POST") {
+            kvPairs.value.push(bodyObject);
+            keyRef.value = '';
+            valueRef.value = '';
+          } else if (verb === "PUT") {
+            updateKeyValue(keyRef.value, valueRef.value) ;
+          } else if (verb === "DELETE") {
+            removeKeyValue(keyRef.value, valueRef.value) ;
+          }
+        }
+      })
+      .catch(error => { console.error('Error adding data:', error); })   
+}
+
+
 watch(messageRef, (newValue, oldValue) => {
   if (newValue != '') {
     enableButtonRef = true;
@@ -1802,10 +1951,187 @@ watch(messageRef, (newValue, oldValue) => {
     enableButtonRef = false;
   }
 });
+
+
+watch(selectedKeyRef, (newValue, oldValue) => {
+  if (newValue.value == '') {
+    enableAddButtonRef = false;
+    enableUpdateButtonRef = false;
+    enableDeleteButtonRef = false;
+    keyRef.value = '';
+    valueRef.value = '';
+    newKeyModeRef = true;
+  } else {
+    keyRef.value = newValue.value;
+    ignoreExisting = true;
+    ignoreExisting2 = true;
+    findValues(keyRef.value);
+    newKeyModeRef = false;
+    enableAddButtonRef = false;
+    enableUpdateButtonRef = true;
+    enableDeleteButtonRef = true;
+  }
+});
+
+
+watch(keyRef, (newValue, oldValue) => {
+  var isExisting = false;
+  if (!ignoreExisting) {
+    isExisting = isExistingKey(newValue.value);
+    ignoreExisting = false;
+  }
+  if (newKeyModeRef) {
+    if (newValue.value == '') {
+      enableAddButtonRef = false;
+    } else {
+      enableAddButtonRef = true & (valueRef.value.length != 0) & !isExisting;
+    }
+  } else {
+    if (newValue.value == '') {
+      enableUpdateButtonRef = false;
+    } else {
+      enableUpdateButtonRef = true & (valueRef.value.length != 0) & !isExisting;
+    }
+  }
+});
+
+function isExistingKey(key) {
+  var ret = false;
+  if (kvPairs.value != null) {
+    for (let i = 0; i < kvPairs.value.length; i++) {
+        let kvPair = kvPairs.value[i];
+        if (kvPair.key === key) {
+          ret = true;
+          break;
+        }
+    }
+  }
+  return ret;
+}
+
+function updateKeyValue(key, value) {
+  if (kvPairs.value != null) {
+    for (let i = 0; i < kvPairs.value.length; i++) {
+        let kvPair = kvPairs.value[i];
+        if (kvPair.key === key) {
+          kvPair.value = value;
+          break;
+        }
+    }
+  }
+}
+
+function removeKeyValue(key, value) {
+  if (kvPairs.value != null) {
+    for (let i = 0; i < kvPairs.value.length; i++) {
+        let kvPair = kvPairs.value[i];
+        if (kvPair.key === key) {
+          kvPairs.value.splice(i, 1);
+          break;
+        }
+    }
+  }
+}
+
+watch(valueRef, (newValue, oldValue) => {
+  var isExisting = false;
+  if (!ignoreExisting2) {
+    isExisting = isExistingKey(keyRef.value);
+    ignoreExisting2 = false;
+  }
+  if (newKeyModeRef) {
+    if (newValue.value == '') {
+      enableAddButtonRef = false;
+    } else {
+      enableAddButtonRef = true & (keyRef.value.length != 0) & !isExisting;
+    }
+  } else {
+    if (newValue.value == '') {
+      enableUpdateButtonRef = false;
+    } else {
+      enableUpdateButtonRef = true & (keyRef.value.length != 0) & !isExisting;
+    }
+  }
+});
+
+function findValues(key) {
+  if (kvPairs.value != null) {
+    for (let i = 0; i < kvPairs.value.length; i++) {
+        let kvPair = kvPairs.value[i];
+        if (kvPair.key === key) {
+          valueRef.value = kvPair.value;
+          if (kvPair.broadcast) {
+            broadcastRef.value = 'Yes'; 
+          } else {
+            broadcastRef.value = 'No'; 
+          }
+          break;
+        }
+    }
+  }
+}
+
 </script>
 
 <template>
   <!-- dialogs -->
+    <div v-if="dialogUpdateDataShowRef.value">
+      <teleport to="#modals">    
+        <dialog id="dialogUpdateData" :open="dialogUpdateDataShowRef.value" ref="dialogUpdateDataRef" @close="dialogUpdateDataShowRef.value = false" class="topz">  
+          <!-- no form here - want to stay open -->
+            <div class="pagesubheader">Update data</div>
+            <div class="line"><hr/></div>
+            Update data for a general resource object.
+            <br>
+            <br>
+            <label for="dataItemField">Data item:</label>
+            <select name="dataItemField" v-model="selectedKeyRef.value">
+              <option v-for="kvPair in kvPairs.value" :key="kvPair.key" :value="kvPair.key">
+                {{ kvPair.key }}
+              </option>
+              <option value="">--- New item --- </option>
+            </select>
+
+            <div>
+                <label for="keyField">Key:</label>
+                <input v-if="newKeyModeRef" type="text" id="keyField" v-model="keyRef.value" />
+                <input v-if="!newKeyModeRef" type="text" id="keyField" v-model="keyRef.value" readonly />
+            </div>
+            <div>
+                <label for="valueField">Value:</label>
+                <input type="text" id="valueField" v-model="valueRef.value" />
+            </div>
+
+            <label for="broadcastField">Broadcast:</label>
+            <select name="broadcastField" v-model="broadcastRef.value">
+              <div v-if="((broadcastRef.value != null) && (broadcastRef.value == 'Yes'))">
+                <option value="Yes" selected>Yes</option>
+              </div>
+              <div v-else>
+                <option value="Yes">Yes</option>
+              </div>
+              <div v-if="((broadcastRef.value == null) || ((broadcastRef.value != null) && (broadcastRef.value == 'No')))">
+                <option value="No" selected>No</option>
+              </div>
+              <div v-else>
+                <option value="No">No</option>
+              </div>
+            </select>
+
+            <div>
+              <b>{{ errorMessageRef.value }}</b>
+            </div>
+            <br>
+            <button class="boxButtonDisabled" v-if="!enableAddButtonRef" disabled>Add</button>
+            <button class="boxButton" v-if="enableAddButtonRef" v-on:click.native="updateDataAdd">Add</button>
+            <button class="boxButtonDisabled" v-if="!enableUpdateButtonRef" disabled>Update</button>
+            <button class="boxButton" v-if="enableUpdateButtonRef" v-on:click.native="updateDataUpdate">Update</button>
+            <button class="boxButtonDisabled" v-if="!enableDeleteButtonRef" disabled>Delete</button>
+            <button class="boxButton" v-if="enableDeleteButtonRef" v-on:click.native="updateDataDelete">Delete</button>
+            <button class="boxButton" v-on:click.native="updateDataClose">Close</button>
+>        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogSendSingleMessageShowRef.value">
       <teleport to="#modals">    
         <dialog :open="dialogSendSingleMessageShowRef.value" ref="dialogSendSingleMessageRef" @close="dialogSendSingleMessageShowRef.value = false" class="topz">  
@@ -3348,6 +3674,100 @@ watch(messageRef, (newValue, oldValue) => {
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (weatherReports != null) && (weatherReports.value != null) && (weatherReports.value.length != 0))" class="grid-item">
                 Clear all weather reports from Net Central.
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+      </div>
+
+      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'GENERALRESOURCE') && (localSelectedObject.ncSelectedObject.type == 'RESOURCE'))">
+        <Tabs>
+          <Tab value="Details">
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                </tbody>
+              </table>
+              <br>
+              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This medical center is managed by another Net Central server.</div>
+          </Tab>
+          <Tab value="APRS Status">
+            <div v-if="((statusReports != null) && (statusReports.value != null))">
+              <b>APRS Status information:</b>
+              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS Status found.
+            </div>
+          </Tab>
+          <Tab value="Data">
+            <div v-if="((kvPairs != null) && (kvPairs.value != null))">
+              <b>General Resource Data:</b>
+              <EasyDataTable :headers="headersKVPairs" :items="kvPairs.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No general resource found.
+            </div>
+          </Tab>
+          <Tab value="Access">
+            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
+              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
+                <b>Only the following callsigns have the ability to send report updates:</b>
+                <div class="grid-container-access-control">
+                  <div>
+                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
+                      :body-row-class-name="getAceRowClass"
+                      @click-row="clickAce" buttons-pagination
+                    />
+                  </div>
+                  <div>
+                    <!-- buttons -->
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+                    </div>
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <br>
+                <br> Access open to all.
+                <br>
+                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+              </div>
+            </div>
+            <div v-else>
+              <br>
+              <br> This object is managed by another Net Central server.  It cannot be changed here.
+              <br>
+            </div>
+          </Tab>
+          <Tab value="Actions" v-if="(accesstokenRef.value != null)">
+            <div class="grid-container-actions">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                <button class="boxButton" v-on:click.native="updateData">Update data</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                Update data associated with the general resource object.
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
+                <button class="boxButton" v-on:click.native="remove">Remove</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
+                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
               </div>
             </div>
           </Tab>

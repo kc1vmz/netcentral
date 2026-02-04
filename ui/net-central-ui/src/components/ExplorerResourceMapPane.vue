@@ -71,7 +71,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN") || (localSelectedObjectType.value == "GENERALRESOURCE")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -86,7 +86,7 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -373,6 +373,12 @@ function createObjectNo() {
                       <div v-else>
                         <option value="5">Emergency Operations Center (EOC)</option>
                       </div>
+                      <div v-if="(type.value == '7')">
+                        <option value="7" selected>General Resource</option>
+                      </div>
+                      <div v-else>
+                        <option value="7">General Resource</option>
+                      </div>
                     </select>
                 </div>
               <div>
@@ -416,6 +422,11 @@ function createObjectNo() {
                         <b>{{ mapPoint.itemObject.callsign }}</b>
                         <br><i>{{mapPoint.itemObject.description}}</i>
                         <br>Type: {{ mapPoint.itemObject.type }}
+                      </div>
+                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.type == 'RESOURCE'))">
+                        <b>{{ mapPoint.itemObject.callsign }}</b>
+                        <br><i>{{mapPoint.itemObject.description}}</i>
+                        <br>Type: {{ mapPoint.itemObject.resourceType }}
                       </div>
                       <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object))">
                         <b>{{ mapPoint.itemObject.callsignFrom }}</b>

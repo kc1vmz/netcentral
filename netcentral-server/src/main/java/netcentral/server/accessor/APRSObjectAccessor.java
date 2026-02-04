@@ -149,6 +149,8 @@ public class APRSObjectAccessor {
     private FederatedObjectIngestionAccessor federatedObjectIngestionAccessor;
     @Inject
     private ConfigParametersAccessor configParametersAccessor;
+    @Inject
+    private GeneralResourceObjectCommandAccessor generalResourceObjectCommandAccessor;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -815,6 +817,7 @@ public class APRSObjectAccessor {
         String callsignTo = Stripper.stripWhitespace(innerAPRSMessage.getCallsignTo());
 
         APRSObject priorityObject = null;
+        APRSObject generalResourceObject = null;
         Net net = netCentralNetMessage(loggedInUser, callsignTo);
         String completedNetId = null;
         if (net != null) {
@@ -822,6 +825,9 @@ public class APRSObjectAccessor {
         } else {
             // if it is not a message to a net, is it a message to one of our priority objects?
             priorityObject = netCentralPriorityObject(loggedInUser, callsignTo);
+            if (priorityObject == null) {
+                generalResourceObject = netCentralGeneralResourceObject(loggedInUser, callsignTo);
+            }
         }
 
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMessage.getCallsignFrom())) {
@@ -858,6 +864,8 @@ public class APRSObjectAccessor {
         } else if (priorityObject != null) {
             // is this a message for Net Central priority object?
             priorityObjectCommandAccessor.processMessage(loggedInUser, priorityObject, innerAPRSMessage, source);
+        } else if (generalResourceObject != null) {
+            generalResourceObjectCommandAccessor.processMessage(loggedInUser, generalResourceObject, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && ((rec.callsign_from().equals("WHO-IS")) || (rec.callsign_from().equals("WHO-15")))) {
             processWHOISMessage(loggedInUser, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && (rec.callsign_from().equals(toolsAccessor.getWinlinkGatewayCallsign()))) {
@@ -1038,6 +1046,20 @@ public class APRSObjectAccessor {
         return obj;
     }
 
+    private APRSObject netCentralGeneralResourceObject(User loggedInUser, String callsign) {
+        APRSObject obj = null;
+
+        try {
+            obj = getObjectByCallsign(loggedInUser, callsign);
+            if (!obj.getType().equals(ObjectType.RESOURCE)) {
+                // not a priority object
+                obj = null;
+            }
+        } catch (Exception e) {
+        }
+
+        return obj;
+    }
     private APRSObjectResource createAPRSMaidenheadLocatorBeacon(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSMaidenheadLocatorBeacon> innerAPRSMaidenheadLocatorBeaconOpt, String source, ZonedDateTime heardTime) {
         APRSMaidenheadLocatorBeacon innerAPRSMaidenheadLocatorBeacon = innerAPRSMaidenheadLocatorBeaconOpt.get();
 
@@ -1268,6 +1290,7 @@ public class APRSObjectAccessor {
             case ObjectType.EOC:
             case ObjectType.SHELTER:
             case ObjectType.MEDICAL:
+            case ObjectType.RESOURCE:
                 markObjectDead(loggedInUser, object);
                 break;
             default:
@@ -1287,7 +1310,7 @@ public class APRSObjectAccessor {
         transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignFrom(), object.getCallsignFrom(), object.getComment(), false, object.getLat(), object.getLon());
     }
 
-    public List<APRSObject> getObjects(User loggedInUser, boolean priorityOnly) {
+    public List<APRSObject> getObjects(User loggedInUser, boolean priorityOnly, boolean generalOnly) {
         List<APRSObject> ret = new ArrayList<>();
         APRSObjectRecord badrec = null;
         try {
@@ -1298,10 +1321,16 @@ public class APRSObjectAccessor {
                     if (rec.source().equals("NETCENTRAL")) {
                         remote = false;
                     }
-                    if (priorityOnly){
+                    if (priorityOnly) {
                         badrec = rec;
                         if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
                                 (ObjectType.values()[rec.type()] == ObjectType.MEDICAL)) {  //|| (ObjectType.values()[rec.type()] == ObjectType.NET) - remove nets
+                            ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
+                                            rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
+                                            ObjectType.values()[rec.type()], remote));
+                        }
+                    } else if (generalOnly) {
+                        if ((ObjectType.values()[rec.type()] == ObjectType.RESOURCE)) { 
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
                                             ObjectType.values()[rec.type()], remote));
@@ -1322,7 +1351,7 @@ public class APRSObjectAccessor {
         return ret;
     }
 
-    public List<APRSObject> getNetCentralObjects(User loggedInUser, boolean priorityOnly, boolean aliveOnly) {
+    public List<APRSObject> getNetCentralObjects(User loggedInUser, boolean priorityOnly, boolean aliveOnly, boolean generalOnly) {
         List<APRSObject> ret = new ArrayList<>();
         try {
             List<APRSObjectRecord> recList = aprsObjectRepository.findAll();
@@ -1333,9 +1362,26 @@ public class APRSObjectAccessor {
                         continue;
                     }
                     if ("NETCENTRAL".equals(rec.source())) {
-                        if (priorityOnly){
+                        if (priorityOnly && generalOnly ) {
                             if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
                                     (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
+                                ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
+                                                rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
+                                                ObjectType.values()[rec.type()], false));
+                            } else if (ObjectType.values()[rec.type()] == ObjectType.RESOURCE) {
+                                ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
+                                                rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
+                                                ObjectType.values()[rec.type()], false));
+                            }
+                        } else if (priorityOnly) {
+                            if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
+                                    (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
+                                ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
+                                                rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
+                                                ObjectType.values()[rec.type()], false));
+                            }
+                        } else if (generalOnly){
+                            if (ObjectType.values()[rec.type()] == ObjectType.RESOURCE) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
                                                 ObjectType.values()[rec.type()], false));

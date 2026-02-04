@@ -109,6 +109,12 @@ onMounted(async () => {
           <div v-else>
             <option value="PRIORITYOBJECT">Priority Objects</option>
           </div>
+          <div v-if="(selectedObjectType.value == 'GENERALRESOURCE')">
+            <option value="GENERALRESOURCE" selected>General Resources</option>
+          </div>
+          <div v-else>
+            <option value="GENERALRESOURCE">General Resources</option>
+          </div>
           <div v-if="(selectedObjectType.value == 'REPEATER')">
             <option value="REPEATER" selected>Repeaters</option>
           </div>

@@ -116,7 +116,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN")) {
+  if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "GENERALRESOURCE") || (localSelectedObjectType.value == "CALLSIGN")) {
     return;
   }
   if (newValue.value.object.type != localSelectedObjectType.value) {
@@ -170,10 +170,11 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")) {
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")  && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
   if (((newValue.value.object.type == null) && (localSelectedObjectType.value == "PRIORITYOBJECT")) || 
+      ((newValue.value.object.type == null) && (localSelectedObjectType.value == "GENERALRESOURCE")) ||
       (newValue.value.object.type != null) && (localSelectedObjectType.value == "OBJECT")) {
         // not the right objects for the selected object type
         return;
@@ -366,6 +367,8 @@ function updateObjects() {
         url = buildNetCentralUrl('/APRSObjects');
       } else if (localSelectedObjectType.value == 'PRIORITYOBJECT') {
         url = buildNetCentralUrl('/APRSObjects?priority=yes');
+      } else if (localSelectedObjectType.value == 'GENERALRESOURCE') {
+        url = buildNetCentralUrl('/APRSObjects?generalresource=yes');
       } else if (localSelectedObjectType.value == 'IGATE') {
         url = buildNetCentralUrl('/trackedStations?type=IGATE');
       } else if (localSelectedObjectType.value == 'IS') {
@@ -390,7 +393,7 @@ function updateObjects() {
         .then(response => response.json())
         .then(data => {
             selectedItem.value = null;
-            if ((localSelectedObjectType.value == 'OBJECT') || (localSelectedObjectType.value == 'PRIORITYOBJECT')) {
+            if ((localSelectedObjectType.value == 'OBJECT') || (localSelectedObjectType.value == 'PRIORITYOBJECT') || (localSelectedObjectType.value == 'GENERALRESOURCE')) {
               var objects = data;
               if (objects != null) {
                 objects.forEach(function(objectItem){
@@ -465,6 +468,7 @@ watch(nudgeAddObject, (newNudgeAddObject, oldNudgeAddObject) => {
   if (newNudgeAddObject.value != null) {
     //  UNKNOWN, ITEM, STANDARD, SHELTER, MEDICAL, EOC, NET
     if ( ((localSelectedObjectType.value == 'OBJECT') && ((newNudgeAddObject.value.type == '2'))) || 
+         ((localSelectedObjectType.value == 'GENERALRESOURCE') && ((newNudgeAddObject.value.type == '7'))) || 
          ((localSelectedObjectType.value == 'PRIORITYOBJECT') && ((newNudgeAddObject.value.type == '3') || (newNudgeAddObject.value.type == '4') || (newNudgeAddObject.value.type == '5')))) {
       updateObjects();
     }

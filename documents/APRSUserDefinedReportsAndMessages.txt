@@ -1,6 +1,6 @@
 Introduction
 
-Net Central will manage a set of "priority" objects that have data specific to its type.
+Net Central will manage a set of "priority" and "general resource" objects that have data specific to its type.
 While objects will broadcast themselves as APRS objects through position packets, they can maintain significantly more information that can be queried from Net Central or APRS clients.
 
 Envelope
@@ -25,7 +25,7 @@ Input as APRS Message (:) to object callsign
     data - report specific packet
 
 
-Object Types
+Priority Object Types
 
     EO - EOC
     SH - Shelter
@@ -257,3 +257,9 @@ Priority Object Announcement Report
     Descriptions may be truncated due to packet length restrictions.
 
     This report is only sent by Net Central for other clients to see.  It cannot be set via other APRS clients.
+
+
+General Resource objects
+
+
+TBD

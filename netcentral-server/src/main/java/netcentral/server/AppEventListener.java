@@ -103,10 +103,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getReportCleanupMinutes());
                     statisticsAccessor.markLastHeartBeatTime1();
                     reportCleanupAccessor.deleteReportFiles();
                     run = reportCleanupAccessor.stayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getReportCleanupMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught cleaning up reports", e);
                     run = false;
@@ -123,10 +125,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getScheduledNetCheckMinutes());
                     statisticsAccessor.markLastHeartBeatTime2();
                     netSchedulerAccessor.startAndStopNets();
                     run = netSchedulerAccessor.stayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getScheduledNetCheckMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught in scheduled net loop", e);
                     run = false;
@@ -143,10 +147,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectBeaconMinutes());
                     statisticsAccessor.markLastHeartBeatTime3();
                     priorityObjectBeaconAccessor.beaconObjects();
                     run = priorityObjectBeaconAccessor.beaconStayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectBeaconMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught beaconing objects", e);
                     run = false;
@@ -163,10 +169,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*1); // check every minute
                     statisticsAccessor.markLastHeartBeatTime5();
                     netQuestionReminderAccessor.sendQuestionReminders();
                     run = netQuestionReminderAccessor.stayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*1); // check every minute
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught reminding net participants of questions", e);
                     run = false;
@@ -183,10 +191,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetParticipantReminderMinutes());
                     statisticsAccessor.markLastHeartBeatTime4();
                     netParticipantReminderAccessor.sendParticipantReminders();
                     run = netParticipantReminderAccessor.stayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetParticipantReminderMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught reminding net participants", e);
                     run = false;
@@ -203,10 +213,12 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             boolean run = true;
             while (run) {
                 try {
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetReportMinutes());
                     statisticsAccessor.markLastHeartBeatTime6();
                     netReportAccessor.sendReports();
                     run = netReportAccessor.stayRunning();
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetReportMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught reporting nets", e);
                     run = false;
@@ -227,7 +239,9 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     statisticsAccessor.markLastHeartBeatTime7();
                     objectCleanupAccessor.cleanupObjectsByTime(systemUser);
                     run = objectCleanupAccessor.stayRunning();
-                    Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectCleanupMinutes());
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectCleanupMinutes());
+                    }
                 } catch (InterruptedException e) {
                     logger.error("InterruptedException caught cleaning up objects", e);
                     run = false;

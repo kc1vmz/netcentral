@@ -384,6 +384,12 @@ function createObjectNo() {
                       <div v-else>
                         <option value="5">Emergency Operations Center (EOC)</option>
                       </div>
+                      <div v-if="(type.value == '7')">
+                        <option value="7" selected>General Resource</option>
+                      </div>
+                      <div v-else>
+                        <option value="7">General Resource</option>
+                      </div>
                     </select>
                 </div>
               <div>
@@ -425,6 +431,10 @@ function createObjectNo() {
                       </div>
                       <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.type == 'MEDICAL'))">
                         <b>{{ mapPoint.itemObject.name }} - Medical</b>
+                        <br><i>{{mapPoint.itemObject.description}}</i>
+                      </div>
+                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.type == 'RESOURCE'))">
+                        <b>{{ mapPoint.itemObject.name }} - {{ mapPoint.itemObject.resourceType }} (General)</b>
                         <br><i>{{mapPoint.itemObject.description}}</i>
                       </div>
                       <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object))">

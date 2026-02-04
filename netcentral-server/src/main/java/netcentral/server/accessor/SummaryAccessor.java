@@ -54,6 +54,7 @@ import netcentral.server.object.SummaryMapPoints;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
 import netcentral.server.object.report.ObjectEOCConsolidatedReport;
+import netcentral.server.object.report.ObjectGeneralResourceStatusReport;
 import netcentral.server.object.report.ObjectShelterStatusReport;
 
 @Singleton
@@ -90,6 +91,8 @@ public class SummaryAccessor {
     private IgnoreStationAccessor ignoreStationAccessor;
     @Inject
     private NetCentralServerConfig netConfigServerConfig;
+    @Inject
+    private ResourceObjectKVAccessor resourceObjectKVAccessor;
 
 
     public SummaryDashboard getDashboardSummary(User loggedInUser) {
@@ -373,7 +376,7 @@ public class SummaryAccessor {
         if (includeObjects) {
             List<APRSObject> objects = new ArrayList<>();
             try {
-                objects = aprsObjectAccessor.getObjects(loggedInUser, false);
+                objects = aprsObjectAccessor.getObjects(loggedInUser, false, false);
             } catch (Exception e) {
             }
 
@@ -400,7 +403,7 @@ public class SummaryAccessor {
         if (includePriorityObjects) {
             List<APRSObject> objects = new ArrayList<>();
             try {
-                objects = aprsObjectAccessor.getObjects(loggedInUser, true);
+                objects = aprsObjectAccessor.getObjects(loggedInUser, true, true);
             } catch (Exception e) {
             }
 
@@ -467,7 +470,35 @@ public class SummaryAccessor {
             // no map points
         } else if (objectType.equalsIgnoreCase("object")) {
             try {
-                List<APRSObject> objects = aprsObjectAccessor.getObjects(loggedInUser, false);
+                List<APRSObject> objects = aprsObjectAccessor.getObjects(loggedInUser, false, false);
+                if (objects != null) {
+                    for (APRSObject object : objects) {
+                        Object renderObject = object;
+                        if (object.getType().equals(ObjectType.SHELTER)) {
+                            renderObject = getShelterInformation(loggedInUser, object);
+                        } else if (object.getType().equals(ObjectType.EOC)) {
+                            renderObject = getEOCInformation(loggedInUser, object);
+                        } else if (object.getType().equals(ObjectType.MEDICAL)) {
+                            renderObject = getMedicalInformation(loggedInUser, object);
+                        } else if (object.getType().equals(ObjectType.RESOURCE)) {
+                            renderObject = getGeneralResourceInformation(loggedInUser, object);
+                        }
+                        if ((object.getLat() != null) && (object.getLon() != null)) {
+                            RenderedMapItem item = new RenderedMapItem(
+                                object.getLon(), object.getLat(), getNameField(object), getTitleField(object), renderObject);
+                            if (item.isValid()) {
+                                item.setObject(true);
+                                items.add(item);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Exception caught building object type map points", e);
+            }
+        } else if (objectType.equalsIgnoreCase("priorityobject")) {
+            try {
+                List<APRSObject> objects = aprsObjectAccessor.getObjects(loggedInUser, true, false);
                 if (objects != null) {
                     for (APRSObject object : objects) {
                         Object renderObject = object;
@@ -491,18 +522,14 @@ public class SummaryAccessor {
             } catch (Exception e) {
                 logger.error("Exception caught building object type map points", e);
             }
-        } else if (objectType.equalsIgnoreCase("priorityobject")) {
+        } else if (objectType.equalsIgnoreCase("generalresource")) {
             try {
-                List<APRSObject> objects = aprsObjectAccessor.getObjects(loggedInUser, true);
+                List<APRSObject> objects = aprsObjectAccessor.getObjects(loggedInUser, false, true);
                 if (objects != null) {
                     for (APRSObject object : objects) {
                         Object renderObject = object;
-                        if (object.getType().equals(ObjectType.SHELTER)) {
-                            renderObject = getShelterInformation(loggedInUser, object);
-                        } else if (object.getType().equals(ObjectType.EOC)) {
-                            renderObject = getEOCInformation(loggedInUser, object);
-                        } else if (object.getType().equals(ObjectType.MEDICAL)) {
-                            renderObject = getMedicalInformation(loggedInUser, object);
+                        if (object.getType().equals(ObjectType.RESOURCE)) {
+                            renderObject = getGeneralResourceInformation(loggedInUser, object);
                         }
                         if ((object.getLat() != null) && (object.getLon() != null)) {
                             RenderedMapItem item = new RenderedMapItem(
@@ -649,10 +676,26 @@ public class SummaryAccessor {
         return report;
     }
 
+    public Object getGeneralResourceInformation(User loggedInUser, APRSObject object) {
+        ObjectGeneralResourceStatusReport report = new ObjectGeneralResourceStatusReport();
+        report.setCallsign(object.getCallsignFrom());
+        report.setDescription(object.getComment());
+        report.setLat(object.getLat());
+        report.setLon(object.getLon());
+        report.setAlive(object.isAlive());
+        report.setType(ObjectType.RESOURCE);
+        report.setMessage(object.getComment());
+        report.setLastReportedTime(object.getLdtime());
+
+        String resourceType = resourceObjectKVAccessor.get(loggedInUser, object.getId(), "type");
+        report.setResourceType(resourceType);
+
+        return report;
+    }
+
     private String getTitleField(APRSObject object) {
         return object.getCallsignFrom();
     }
-
 
     private String getNameField(APRSObject object) {
         return object.getCallsignFrom();

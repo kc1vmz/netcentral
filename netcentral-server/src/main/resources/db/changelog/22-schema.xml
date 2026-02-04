@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="22" author="kc1vmz">
+    <createTable tableName="aprs_object_resource_kv">
+      <column name="aprs_object_resource_kv_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_object_resource_kvPK"/>
+      </column>
+      <column name="aprs_object_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="key" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(40)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="broadcast" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="aprs_object_resource_history_kv">
+      <column name="aprs_object_resource_kv_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_object_resource_history_kvPK"/>
+      </column>
+      <column name="aprs_object_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="key" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(40)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="broadcast" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="created_time" type="DATETIME">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>
