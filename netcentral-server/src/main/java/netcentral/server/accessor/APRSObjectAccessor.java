@@ -50,7 +50,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObjectAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
@@ -788,7 +788,7 @@ public class APRSObjectAccessor {
 
         if (source.equals("NETCENTRAL") && netConfigServerConfig.isFederated()) {
             // this is a locally created object - send out the creation report
-            APRSNetCentralPriorityObjectAnnounceReport report = new APRSNetCentralPriorityObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
+            APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
                                                                                         innerAPRSObject.getCallsignFrom(), innerAPRSObject.getComment());
             transceiverCommunicationAccessor.sendReport(loggedInUser, report);
         }

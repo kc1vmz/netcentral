@@ -21,7 +21,7 @@ RUN mkdir -p /netcentral/bin
 ADD docker/split/image_files/transceiver_aprsis_processes.sh /netcentral/bin/transceiver_aprsis_processes.sh
 RUN ["dos2unix", "/netcentral/bin/transceiver_aprsis_processes.sh"]
 
-ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.9.jar /netcentral/bin/transceiver-aprsis.jar
+ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.10.jar /netcentral/bin/transceiver-aprsis.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure netcentral-transceiver-aprsis auto-starts

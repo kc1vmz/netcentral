@@ -20,20 +20,21 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
     http://www.kc1vmz.com
 */
 
-public class APRSNetCentralPriorityObjectAnnounceReport extends APRSNetCentralReport {
+public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
 
     public static final String OBJECT_TYPE_EOC = "EO";
     public static final String OBJECT_TYPE_SHELTER = "SH";
     public static final String OBJECT_TYPE_MEDICAL = "MC";
+    public static final String OBJECT_TYPE_GENERAL = "GN";
 
     private String type;
     private String name;
     private String description;
 
-    public APRSNetCentralPriorityObjectAnnounceReport(){
+    public APRSNetCentralObjectAnnounceReport(){
         super();
     }
-    public APRSNetCentralPriorityObjectAnnounceReport(String objectName, String type, String name, String description) {
+    public APRSNetCentralObjectAnnounceReport(String objectName, String type, String name, String description) {
         super();
         this.setObjectName(objectName);
         this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_PRIORITY_OBJECT);
@@ -64,8 +65,8 @@ public class APRSNetCentralPriorityObjectAnnounceReport extends APRSNetCentralRe
         this.description = description;
     }
     
-    public static APRSNetCentralPriorityObjectAnnounceReport isValid(String objectName, String message) {
-        APRSNetCentralPriorityObjectAnnounceReport ret = null;
+    public static APRSNetCentralObjectAnnounceReport isValid(String objectName, String message) {
+        APRSNetCentralObjectAnnounceReport ret = null;
         if (message != null) {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
@@ -79,7 +80,7 @@ public class APRSNetCentralPriorityObjectAnnounceReport extends APRSNetCentralRe
                     }
 
                     try {
-                        ret = new APRSNetCentralPriorityObjectAnnounceReport(objectName, varFields[0], varFields[1], varFields[2]);
+                        ret = new APRSNetCentralObjectAnnounceReport(objectName, varFields[0], varFields[1], varFields[2]);
                     } catch (Exception e) {
                         ret = null;
                     }

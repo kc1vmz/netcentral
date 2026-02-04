@@ -39,7 +39,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestion
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObjectAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterCensusReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalFoodReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalMaterielReport;
@@ -98,7 +98,7 @@ public class FederatedObjectIngestionAccessor {
             if (processFederatedNetCheckInOut(loggedInUser, id, innerAPRSUserDefined, source, heardTime, APRSNetCentralNetCheckInOutReport.isValid(objectName, data))) {
                 return;
             }
-            if (processFederatedPriorityObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, APRSNetCentralPriorityObjectAnnounceReport.isValid(objectName, data))) {
+            if (processFederatedObjectAnnounce(loggedInUser, id, innerAPRSUserDefined, source, heardTime, APRSNetCentralObjectAnnounceReport.isValid(objectName, data))) {
                 return;
             }
             if (processFederatedNetMessage(loggedInUser, id, innerAPRSUserDefined, source, heardTime, APRSNetCentralNetMessageReport.isValid(objectName, data))) {
@@ -191,17 +191,19 @@ public class FederatedObjectIngestionAccessor {
         return true;
     }
 
-    private boolean processFederatedPriorityObjectAnnounce(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralPriorityObjectAnnounceReport report) {
+    private boolean processFederatedObjectAnnounce(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime, APRSNetCentralObjectAnnounceReport report) {
         if (report == null) {
             return false;
         }
         ObjectType type = ObjectType.STANDARD;
-        if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_EOC)) {
+        if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_EOC)) {
             type = ObjectType.EOC;
-        } else if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_MEDICAL)) {
+        } else if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_MEDICAL)) {
             type = ObjectType.MEDICAL;
-        } else if (report.getType().equals(APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_SHELTER)) {
+        } else if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_SHELTER)) {
             type = ObjectType.SHELTER;
+        } else if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_GENERAL)) {
+            type = ObjectType.RESOURCE;
         }
         if (type != ObjectType.STANDARD) {
             updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), type);

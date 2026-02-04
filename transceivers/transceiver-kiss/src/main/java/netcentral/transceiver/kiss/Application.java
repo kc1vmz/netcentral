@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
     info = @Info(
             title = "netcentral-kiss-transceiver",
-            version = "1.0.9"
+            version = "1.0.10"
     )
 )
 

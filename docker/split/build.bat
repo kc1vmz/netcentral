@@ -1,5 +1,5 @@
-docker build --no-cache -t netcentral-server:1.0.9 -f Dockerfile-server ../..
-docker build --no-cache -t netcentral-ui:1.0.9 -f Dockerfile-ui ../..
-docker build --no-cache -t netcentral-transceiver-aprsis:1.0.9 -f Dockerfile-aprsis ../..
-docker build --no-cache -t netcentral-transceiver-kenwood:1.0.9 -f Dockerfile-kenwood ../..
-docker build --no-cache -t netcentral-transceiver-kiss:1.0.9 -f Dockerfile-kiss ../..
+docker build --no-cache -t netcentral-server:1.0.10 -f Dockerfile-server ../..
+docker build --no-cache -t netcentral-ui:1.0.10 -f Dockerfile-ui ../..
+docker build --no-cache -t netcentral-transceiver-aprsis:1.0.10 -f Dockerfile-aprsis ../..
+docker build --no-cache -t netcentral-transceiver-kenwood:1.0.10 -f Dockerfile-kenwood ../..
+docker build --no-cache -t netcentral-transceiver-kiss:1.0.10 -f Dockerfile-kiss ../..

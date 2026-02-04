@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralPriorityObjectAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -84,15 +84,17 @@ public class ObjectBeaconAccessor {
                 try {
                     String reportObjectType = null;
                     if (netCentralObject.getType().equals(ObjectType.EOC)) {
-                        reportObjectType = APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_EOC;
+                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_EOC;
                     } else if (netCentralObject.getType().equals(ObjectType.MEDICAL)) {
-                        reportObjectType = APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_MEDICAL;
+                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_MEDICAL;
                     } else if (netCentralObject.getType().equals(ObjectType.SHELTER)) {
-                        reportObjectType = APRSNetCentralPriorityObjectAnnounceReport.OBJECT_TYPE_SHELTER;
+                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_SHELTER;
+                    } else if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
+                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_GENERAL;
                     }
 
                     if (reportObjectType != null) {
-                        APRSNetCentralPriorityObjectAnnounceReport report = new APRSNetCentralPriorityObjectAnnounceReport(netCentralObject.getCallsignFrom(), reportObjectType, netCentralObject.getCallsignFrom(), netCentralObject.getComment());
+                        APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(netCentralObject.getCallsignFrom(), reportObjectType, netCentralObject.getCallsignFrom(), netCentralObject.getComment());
                         transceiverMessageAccessor.sendReport(user, report);
                     }
                 } catch (Exception e) {
