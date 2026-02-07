@@ -31,6 +31,7 @@ import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
 import { updateNetParticipantEvent, updateNetParticipant, updateParticipant, updateParticipantEvent } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
+import { getMapServerUrl } from "@/composables/mapserver";
 
 const { socket } = useSocketIO();
 socket.on("updateNetParticipant", (data) => {
@@ -409,7 +410,7 @@ function createObjectNo() {
   <div class="grid-container" v-if="((localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null) && (mapPoints != null) && (mapPoints.value != null) )">
         <div class="grid-item">
             <l-map style="flex:1;" ref="mapRef" @ready="isReady" v-bind:zoom="zoom" :center="center" :useGlobalLeaflet="false" v-on:click.right.native="onMapClickAdd">
-              <l-tile-layer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+              <l-tile-layer :url="getMapServerUrl()"
                             layer-type="base"
                             name="OpenStreetMap"></l-tile-layer>
                 <!-- display all points -->

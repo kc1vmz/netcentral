@@ -57,6 +57,10 @@ To access the UI from systems other than localhost, update the Net Central UI .e
 VITE_APP_API_URL=http://YOURIPADDRESS:8880/api/v1  
 VITE_APP_UPDATE_URL=http://YOURIPADDRESS:8881  
 
+### Map cache
+
+To utilize a map caching service, allowing you to be completely disconnected from the Internet for operations, update the Net Central UI .env file with the URL to access map tiles:
+VITE_APP_MAP_SERVER_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
 
 ### Environment variables
 

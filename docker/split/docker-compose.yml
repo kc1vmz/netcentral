@@ -36,6 +36,7 @@ services:
       - NETCENTRAL_SERVER_UPDATE_HTTP_PORT=8881
       - VITE_APP_API_PORT=9880
       - VITE_APP_API_HOST=localhost
+      - VITE_APP_MAP_SERVER_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
       - NETCENTRAL_SERVER_USERNAME=serviceAccount
       - NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
       - NETCENTRAL_APRS_CALLSIGN=YOUR_CALLSIGN_HERE

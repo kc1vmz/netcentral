@@ -1,5 +1,6 @@
 echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export VITE_APP_UPDATE_URL=$VITE_APP_UPDATE_URL" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export VITE_APP_MAP_SERVER_URL=$VITE_APP_MAP_SERVER_URL" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export NETCENTRAL_SERVER_UPDATE_HTTP_PORT=$NETCENTRAL_SERVER_UPDATE_HTTP_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export VITE_APP_API_PORT=$VITE_APP_API_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export VITE_APP_API_HOST=$VITE_APP_API_HOST" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
@@ -15,6 +16,8 @@ echo "export NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | s
 
 echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
 echo "export VITE_APP_UPDATE_URL=$VITE_APP_UPDATE_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+echo "export VITE_APP_MAP_SERVER_URL=$VITE_APP_MAP_SERVER_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
+
 echo "export NETCENTRAL_SERVER_UPDATE_HTTP_PORT=$NETCENTRAL_SERVER_UPDATE_HTTP_PORT" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
 echo "export VITE_APP_API_PORT=$VITE_APP_API_PORT" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
 echo "export VITE_APP_API_HOST=$VITE_APP_API_HOST" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null

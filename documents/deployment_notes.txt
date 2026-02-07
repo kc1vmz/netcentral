@@ -313,6 +313,7 @@ NETCENTRAL_SERVER_LOG_RAW_PACKETS default false
 VITE_APP_API_PORT                 default 8880
 VITE_APP_UPDATE_PORT              default 8881
 VITE_APP_API_HOST                 default not specified (defaults to Node.JS address)
+VITE_APP_MAP_SERVER_URL           https://tile.openstreetmap.org/{z}/{x}/{y}.png
 
 
 
