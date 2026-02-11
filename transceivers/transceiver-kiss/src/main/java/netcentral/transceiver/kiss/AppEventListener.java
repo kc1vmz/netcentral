@@ -33,6 +33,7 @@ import netcentral.transceiver.kiss.accessor.APRSListenerState;
 import netcentral.transceiver.kiss.accessor.RegisteredTransceiverAccessor;
 import netcentral.transceiver.kiss.accessor.SendMessageQueueAccessor;
 import netcentral.transceiver.kiss.accessor.SendObjectQueueAccessor;
+import netcentral.transceiver.kiss.accessor.SendQueryQueueAccessor;
 import netcentral.transceiver.kiss.accessor.SendReportQueueAccessor;
 import netcentral.transceiver.kiss.accessor.StatisticsAccessor;
 import netcentral.transceiver.kiss.config.TNCConfiguration;
@@ -51,6 +52,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     private SendMessageQueueAccessor sendMessageQueueAccessor;
     @Inject
     private SendReportQueueAccessor sendReportQueueAccessor;
+    @Inject
+    private SendQueryQueueAccessor sendQueryQueueAccessor;
     @Inject
     private SendObjectQueueAccessor sendObjectQueueAccessor;
     @Inject
@@ -114,6 +117,9 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         statisticsAccessor.setLastHeartBeatName4("Send reports");
         new Thread(() -> {
             sendReportQueueAccessor.sendReports();
+        }).start();
+        new Thread(() -> {
+            sendQueryQueueAccessor.sendQueries();
         }).start();
     }
 }

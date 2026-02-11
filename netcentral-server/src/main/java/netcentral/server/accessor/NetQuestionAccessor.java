@@ -161,7 +161,7 @@ public class NetQuestionAccessor {
                 } catch (Exception e) {
                 }
 
-                if (netConfigServerConfig.isFederated()) {
+                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
                     APRSNetCentralNetQuestionReport report = new APRSNetCentralNetQuestionReport(net.getCallsign(), ""+number, obj.getQuestionText());
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }

@@ -52,7 +52,7 @@ public class NetReportAccessor {
         }
         User user = new User();
 
-        if (netConfigServerConfig.isFederated()) {
+        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
             // send net announcement bulletins and reports
             List <Net> nets = netAccessor.getAll(user, null);
             if (!nets.isEmpty()) {

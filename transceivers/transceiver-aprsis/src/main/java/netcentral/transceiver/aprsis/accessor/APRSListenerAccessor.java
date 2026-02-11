@@ -75,6 +75,9 @@ public class APRSListenerAccessor {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
+    public void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        sendMessage(callsignFrom, callsignTo, String.format("?%-5s", queryType));
+    }
 
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         String data = new String(obj.getBytes());
@@ -90,8 +93,6 @@ public class APRSListenerAccessor {
             if (sender != null) {
                 sender.write(aprsMessage);
                 sender.flush();
-                statisticsAccessor.markLastSentTime();
-                statisticsAccessor.incrementMessagesSent();
             } else {
                 logger.error("Sender is null - cannot send to APRS-IS server");
             }

@@ -73,6 +73,10 @@ public class APRSSerialListenerAccessor {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
+    public void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        logger.debug(String.format("Sending query %s: %s", callsignTo, queryType));
+        sendMessage(callsignFrom, callsignTo, String.format("?%-5s", queryType));
+    }
 
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         logger.info(String.format("Sending report %s: %s", obj.getObjectName(), obj.getReportData()));

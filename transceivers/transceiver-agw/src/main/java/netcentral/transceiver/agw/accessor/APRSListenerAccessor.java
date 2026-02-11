@@ -71,6 +71,10 @@ public class APRSListenerAccessor {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
+    public void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        sendMessage(callsignFrom, callsignTo, String.format("?%-5s", queryType));
+    }
+
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         logger.info(String.format("Sending report %s: %s", obj.getObjectName(), obj.getReportData()));
         // TODO: NOW IMPLEMENTATION!!!

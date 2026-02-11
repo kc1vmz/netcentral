@@ -27,6 +27,7 @@ import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.transceiver.kenwood.accessor.SendQueryQueueAccessor;
 import netcentral.transceiver.kenwood.accessor.APRSListenerAccessor;
 import netcentral.transceiver.kenwood.accessor.APRSListenerState;
 import netcentral.transceiver.kenwood.accessor.RegisteredTransceiverAccessor;
@@ -48,6 +49,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
     private SendMessageQueueAccessor sendMessageQueueAccessor;
+    @Inject
+    private SendQueryQueueAccessor sendQueryQueueAccessor;
     @Inject
     private SendReportQueueAccessor sendReportQueueAccessor;
     @Inject
@@ -85,6 +88,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         new Thread(() -> {
             sendReportQueueAccessor.sendReports();
         }).start();
-    }
+        new Thread(() -> {
+            sendQueryQueueAccessor.sendQueries();
+        }).start();    }
 }
 

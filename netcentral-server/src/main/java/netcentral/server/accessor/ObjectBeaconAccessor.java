@@ -78,7 +78,7 @@ public class ObjectBeaconAccessor {
             }
         }
  
-        if (netConfigServerConfig.isFederated()) {
+        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
             for (APRSObject netCentralObject : netCentralObjects) {
                 logger.debug("Reporting object "+netCentralObject.getCallsignFrom());
                 try {

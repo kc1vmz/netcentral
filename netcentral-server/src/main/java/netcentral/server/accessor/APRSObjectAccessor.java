@@ -51,6 +51,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
+import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
@@ -372,9 +373,9 @@ public class APRSObjectAccessor {
         
         aprsQueryRepository.save(src);
         trackStation(loggedInUser,  innerAPRSQuery.getCallsignFrom(), innerAPRSQuery.getLat(), innerAPRSQuery.getLon(), TrackedStationType.UNKNOWN, null);
+
         return new APRSObjectResource(id, innerAPRSQuery, source, heardTime);
     }
-
 
     private APRSObjectResource createAPRSPosition(User loggedInUser, String id, Optional<APRSPosition> innerAPRSPositionOpt, String source, ZonedDateTime heardTime) {
         APRSPosition innerAPRSPosition = innerAPRSPositionOpt.get();
@@ -786,11 +787,16 @@ public class APRSObjectAccessor {
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
 
-        if (source.equals("NETCENTRAL") && netConfigServerConfig.isFederated()) {
+        if (source.equals("NETCENTRAL") && netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
             // this is a locally created object - send out the creation report
             APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
                                                                                         innerAPRSObject.getCallsignFrom(), innerAPRSObject.getComment());
             transceiverCommunicationAccessor.sendReport(loggedInUser, report);
+        }
+
+        // determine if this heard object is from a Net Central somewhere else
+        if (!source.equals("NETCENTRAL")) {
+            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?");
         }
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
@@ -870,8 +876,36 @@ public class APRSObjectAccessor {
             processWHOISMessage(loggedInUser, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && (rec.callsign_from().equals(toolsAccessor.getWinlinkGatewayCallsign()))) {
             processWLNKMessage(loggedInUser, innerAPRSMessage, source);
+        } else if ((rec.callsign_from() != null) && (!innerAPRSMessage.isMustAck())) {
+            // object sent a message not needing an ack - figure out if it sent a response
+            determineObjectTypeFromMessage(loggedInUser, innerAPRSMessage.getCallsignFrom(), source, heardTime, message);
         }
+
         return new APRSObjectResource(id, innerAPRSMessage, source, heardTime);
+    }
+
+    private void determineObjectTypeFromMessage(User loggedInUser, String callsignFrom, String source, ZonedDateTime heardTime, String message) {
+        try {
+            if (!message.startsWith(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE+":")) {
+                // not saying that it is a Net Central object
+                return;
+            }
+            APRSObject obj = getObject(loggedInUser, callsignFrom);
+            if (obj == null) {
+                return;
+            }
+            String [] values = message.split(":");
+            if (values.length != 2) {
+                return;
+            }
+            ObjectType type = ObjectType.valueOf(values[1]);
+            obj.setType(type);
+
+            APRSObjectRecord updated = new APRSObjectRecord(obj.getId(), source, obj.getCallsignFrom(), obj.getCallsignTo(), heardTime, obj.isAlive(), obj.getLat(),
+                                                        obj.getLon(), "", obj.getComment(), type.ordinal());
+            aprsObjectRepository.update(updated);
+        } catch (Exception e) {
+        }
     }
 
     private void processWHOISMessage(User loggedInUser, APRSMessage innerAPRSMessage, @SuppressWarnings("unused") String source) {

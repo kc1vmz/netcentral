@@ -61,6 +61,8 @@ public class NetCentralServerConfig {
     private Integer longitudeMax;
     @Value("${netcentral.federated}")
     private Boolean federated;
+    @Value("${netcentral.federated.push}")
+    private Boolean federatedPush;
     @Value("${netcentral.net.report.minutes}")
     private Integer netReportMinutes;
     @Value("${netcentral.log.rawpackets}")
@@ -185,5 +187,11 @@ public class NetCentralServerConfig {
     }
     public void setLogRawPackets(Boolean logRawPackets) {
         this.logRawPackets = logRawPackets;
+    }
+    public Boolean isFederatedPush() {
+        return federatedPush;
+    }
+    public void setFederatedPush(Boolean federatedPush) {
+        this.federatedPush = federatedPush;
     }
 }

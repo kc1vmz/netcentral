@@ -76,6 +76,10 @@ public class NetParticipantAccessor {
 
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {
+        return  getAllParticipants(loggedInUser, net, true);
+    }
+
+    public List<Participant> getAllParticipants(User loggedInUser, Net net, boolean hydrate) {
         List<Participant> ret = new ArrayList<>();
         if ((net == null) || (net.getCallsign() == null)) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
@@ -156,7 +160,7 @@ public class NetParticipantAccessor {
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
 
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netConfigServerConfig.isFederated() && !net.isRemote() && netConfigServerConfig.isFederatedPush()) {
                 APRSNetCentralNetCheckInOutReport reportCheckin = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), true);
                 transceiverMessageAccessor.sendReport(loggedInUser, reportCheckin);
             }
@@ -259,7 +263,7 @@ public class NetParticipantAccessor {
         netParticipantRepository.delete(participantRec);
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Delete", hydrateParticipant(loggedInUser,participant));
 
-        if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+        if (netConfigServerConfig.isFederated() && !net.isRemote() && netConfigServerConfig.isFederatedPush()) {
             APRSNetCentralNetCheckInOutReport reportCheckout = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), false);
             transceiverMessageAccessor.sendReport(loggedInUser, reportCheckout);
         }

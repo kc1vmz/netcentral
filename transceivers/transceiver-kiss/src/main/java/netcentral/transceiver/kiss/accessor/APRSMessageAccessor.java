@@ -125,7 +125,21 @@ public class APRSMessageAccessor {
             if (la != null) {
                 la.sendReport(callsignFrom, obj);
             }
-           
+        }
+    }
+
+    public synchronized void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        // add message number for ack
+        if (tncConfiguration.isSerial()) {
+            APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
+            if (la != null) {
+                la.sendQuery(callsignFrom, callsignTo, queryType);
+            }
+        } else {
+            APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
+            if (la != null) {
+                la.sendQuery(callsignFrom, callsignTo, queryType);
+            }
         }
     }
 }

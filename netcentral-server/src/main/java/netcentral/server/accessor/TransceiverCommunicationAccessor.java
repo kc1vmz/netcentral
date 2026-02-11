@@ -29,6 +29,7 @@ import com.kc1vmz.netcentral.aprsobject.common.RegisteredTransceiver;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessage;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessageMany;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverObject;
+import com.kc1vmz.netcentral.aprsobject.common.TransceiverQuery;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 
@@ -47,6 +48,23 @@ public class TransceiverCommunicationAccessor {
     @Inject
     private StatisticsAccessor statisticsAccessor;
 
+
+    public void sendQuery(User loggedInUser, String callsignFrom, String callsignTo, String queryType) {
+        // send to all transceivers
+        List<RegisteredTransceiver> transceivers = registeredTransceiverAccessor.getAll(loggedInUser);
+        if ((transceivers != null) && (!transceivers.isEmpty())) {
+            for (RegisteredTransceiver transceiver : transceivers) {
+                if (transceiver.isEnabledTransmit()) {
+                    TransceiverQuery msg = new TransceiverQuery();
+                    msg.setCallsignFrom(callsignFrom);
+                    msg.setCallsignTo(callsignTo);
+                    msg.setTransceiverId(transceiver.getId());
+                    msg.setQueryType(queryType);
+                    sendQuery(transceiver, msg);
+                }
+            }
+        }
+    }
 
     public void sendMessage(User loggedInUser, String callsignFrom, String callsignTo, String message) {
         // send to all transceivers
@@ -119,6 +137,25 @@ public class TransceiverCommunicationAccessor {
         }
     }
 
+    public void sendMessageNoAck(User loggedInUser, String sourceId, String callsignFrom, String callsignTo, String message) {
+        RegisteredTransceiver transceiver = registeredTransceiverAccessor.get(loggedInUser, sourceId);
+        if (transceiver == null) {
+            logger.warn("Transceiver not provided");
+            // unknown
+            return;
+        }
+        if (transceiver.isEnabledTransmit()) {
+            TransceiverMessage msg = new TransceiverMessage();
+            msg.setCallsignFrom(callsignFrom);
+            msg.setCallsignTo(callsignTo);
+            msg.setTransceiverId(sourceId);
+            msg.setMessage(message);
+            msg.setBulletin(false);
+            msg.setAckRequested(false);
+            sendMessage(transceiver, msg);
+        }
+    }
+
     public void sendAckMessage(User loggedInUser, String sourceId, String callsignFrom, String callsignTo, String message) {
         RegisteredTransceiver transceiver = registeredTransceiverAccessor.get(loggedInUser, sourceId);
         if (transceiver == null) {
@@ -154,6 +191,12 @@ public class TransceiverCommunicationAccessor {
             msg.setBulletin(true);
             sendMessage(transceiver, msg);
         }
+    }
+
+    private void sendQuery(RegisteredTransceiver transceiver, TransceiverQuery msg) {
+        statisticsAccessor.markLastSentTime();
+        statisticsAccessor.incrementReportsSent();
+        transceiverRESTClient.sendQuery(transceiver.getFqdName(), transceiver.getPort(), msg, transceiver.getId());
     }
 
     private void sendReport(RegisteredTransceiver transceiver, TransceiverReport msg) {

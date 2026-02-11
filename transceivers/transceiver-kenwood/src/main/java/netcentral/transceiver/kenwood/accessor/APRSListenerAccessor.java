@@ -70,6 +70,10 @@ public class APRSListenerAccessor {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
+    public void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        sendMessage(callsignFrom, callsignTo, String.format("?%-5s", queryType));
+    }
+
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         char end = 0x03;
         String data = new String(obj.getBytes());

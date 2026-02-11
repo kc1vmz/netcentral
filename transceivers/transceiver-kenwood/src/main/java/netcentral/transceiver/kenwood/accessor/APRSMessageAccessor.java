@@ -89,4 +89,11 @@ public class APRSMessageAccessor {
             la.sendReport(callsignFrom, obj);
         }
     }
+
+    public synchronized void sendQuery(String callsignFrom, String callsignTo, String queryType) {
+        APRSListenerAccessor la = applicationContext.getBean(APRSListenerAccessor.class);
+        if (la != null) {
+            la.sendQuery(callsignFrom, callsignTo, queryType);
+        }
+    }
 }

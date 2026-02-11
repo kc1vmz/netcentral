@@ -23,3 +23,48 @@ INV callsign[,callsign2,...] - invite one or more callsigns to a net
 H - display help message of all commands
 
 CI, CO, T, F, X, E, B, and Y can all be combined in a single message  (ex: CI X 50 E COMM B SO)
+
+?INFO - returns net info and participants
+?CMD - returns list of valid directed query commands
+?APRSO - returns object information
+?APRSP - returns object position
+?APRSS - returns object status
+?NCNTI - returns net info
+?NCNTP - returns net participants
+
+
+List of valid commands sent to a priority object EOC callsign:
+
+?INFO - returns name, comment and supported directed query commands
+?CMD - returns list of valid directed query commands
+?APRSO - returns object information
+?APRSP - returns object position
+?APRSS - returns object status
+?NCPI - returns name, comment
+?NCPES - returns EOC status
+?NCPEM - returns EOC mobilization report
+
+
+List of valid commands sent to a priority object shelter callsign:
+
+?INFO - returns name, comment and supported directed query commands
+?CMD - returns list of valid directed query commands
+?APRSO - returns object information
+?APRSP - returns object position
+?APRSS - returns object status
+?NCPI - returns name, comment
+?NCPSS - returns shelter status
+?NCPSC - returns shelter census
+?NCPSF - returns shelter food reports
+?NCPSM - returns shelter materiel reports
+?NCPSW - returns sheleter worker census reports
+
+List of valid commands sent to a general resource object callsign:
+
+?INFO - returns name, comment and supported directed query commands
+?CMD - returns list of valid directed query commands
+?APRSO - returns object information
+?APRSP - returns object position
+?APRSS - returns object status
+?NCGRI - returns name, comment
+?NCGRV - returns token=value pairs stored for object

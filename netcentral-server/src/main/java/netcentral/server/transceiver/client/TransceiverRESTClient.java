@@ -38,6 +38,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessage;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverMessageMany;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverObject;
+import com.kc1vmz.netcentral.aprsobject.common.TransceiverQuery;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverReport;
 
 import jakarta.inject.Singleton;
@@ -45,6 +46,18 @@ import jakarta.inject.Singleton;
 @Singleton
 public class TransceiverRESTClient {
     private static final Logger logger = LogManager.getLogger(TransceiverRESTClient.class);
+
+    public void sendQuery(String fqdName, int port, TransceiverQuery msg, String transceiverId) {
+        try {
+            ObjectMapper objectMapper = getObjectMapper();
+            ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(msg);
+
+            post(buildURL(fqdName, port, "api/v1/transceiverQueries"), json, transceiverId);
+        } catch (Exception e) {
+            logger.error("Exception caught sending query to transceiver", e);
+        }
+    }
 
     public void sendObject(String fqdName, int port, TransceiverObject msg, String transceiverId) {
         try {

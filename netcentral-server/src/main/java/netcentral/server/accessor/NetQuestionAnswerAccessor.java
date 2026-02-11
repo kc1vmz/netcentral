@@ -107,7 +107,7 @@ public class NetQuestionAnswerAccessor {
             if (!net.isRemote()) {
                 transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), obj.getCallsign(), "Thank you for your answer");
 
-                if (netConfigServerConfig.isFederated()) {
+                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
                     APRSNetCentralNetQuestionAnswerReport report = new APRSNetCentralNetQuestionAnswerReport(net.getCallsign(), obj.getCallsign(), ""+question.getNumber(), obj.getAnswerText());
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }

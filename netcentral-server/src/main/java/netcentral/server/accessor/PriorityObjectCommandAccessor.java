@@ -1,5 +1,8 @@
 package netcentral.server.accessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -23,6 +26,7 @@ package netcentral.server.accessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
@@ -34,6 +38,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOper
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalMaterielReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStatusReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterWorkerReport;
+import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -43,7 +48,6 @@ import netcentral.server.object.User;
 @Singleton
 public class PriorityObjectCommandAccessor {
     private static final Logger logger = LogManager.getLogger(PriorityObjectCommandAccessor.class);
-    private static final String REPORT_COMMAND = "REPORT";
 
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
@@ -68,6 +72,11 @@ public class PriorityObjectCommandAccessor {
         }
 
         if (message.startsWith("ack")) {
+            return;
+        }
+
+        if (message.startsWith("?")) {
+            processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, priorityObject);
             return;
         }
 
@@ -109,10 +118,7 @@ public class PriorityObjectCommandAccessor {
         if (message == null) {
             return;
         }
-        if (REPORT_COMMAND.equalsIgnoreCase(message)) {
-            sendEOCReports(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message);
-            return;
-        }
+
         if (!canChange) {
             processBadCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId);
             return;
@@ -151,10 +157,6 @@ public class PriorityObjectCommandAccessor {
         Object report = null;
 
         if (message == null) {
-            return;
-        }
-        if (REPORT_COMMAND.equalsIgnoreCase(message)) {
-            sendShelterReports(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message);
             return;
         }
         if (!canChange) {
@@ -204,13 +206,7 @@ public class PriorityObjectCommandAccessor {
     }
 
     private void processMedicalCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message, boolean canChange) {
-//        boolean commandAccepted = false;
-//        Object report = null;
         if (message == null) {
-            return;
-        }
-        if (REPORT_COMMAND.equalsIgnoreCase(message)) {
-            sendMedicalReports(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message);
             return;
         }
         if (!canChange) {
@@ -224,13 +220,6 @@ public class PriorityObjectCommandAccessor {
             if (prefix.equals("MD")) {
             }
         }
-
-//        if (commandAccepted && (report != null)) {
-//            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
-//            transceiverMessageAccessor.sendReport(loggedInUser, (APRSNetCentralReport) report);
-//        }  else {
-//            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
-//        }
     }
 
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
@@ -240,101 +229,204 @@ public class PriorityObjectCommandAccessor {
         transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "ack"+msg.getMessageNumber());
     }
 
-    private void sendEOCReports(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message) {
-        try {
-            APRSNetCentralReport report = reportAccessor.getEOCContactInformation(loggedInUser, innerAPRSMessage.getCallsignTo());
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Contacts: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending EOC contact report", e);
+    public void processDirectedStatusQuery(User loggedInUser, APRSMessage innerAPRSMessage, String transceiverSourceId, APRSObject priorityObject) {
+        if (loggedInUser == null) {
+            return;
+        }
+        if (innerAPRSMessage == null) {
+            return;
+        }
+        if (innerAPRSMessage.getMessage() == null) {
+            return;
+        }
+        if (!innerAPRSMessage.getMessage().startsWith("?")) {
+            return;
         }
 
         try {
-            APRSNetCentralReport report = reportAccessor.getEOCMobilizationInformation(loggedInUser, innerAPRSMessage.getCallsignTo());
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MobStatus: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending EOC mobilization report", e);
-        }
-    }
+            String queryType = innerAPRSMessage.getMessage().substring(1);
 
-    private void sendShelterReports(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message) {
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterStatusReport(loggedInUser, innerAPRSMessage.getCallsignTo());
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Status: "+report.getReportData());
+            if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
+                // list commands
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectInfoResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
+                // announce object
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
+                if ((priorityObject.getLat() != null) && (priorityObject.getLon() != null)) {
+                    transceiverMessageAccessor.sendObject(loggedInUser, priorityObject.getCallsignFrom(), priorityObject.getCallsignFrom(),
+                                                            priorityObject.getComment(), priorityObject.isAlive(),
+                                                            priorityObject.getLat(), priorityObject.getLon());
+                }
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_STATUS)) {
+                // send status
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
+                // send priority object type
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectTypeResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_INFO)) {
+                // send priority object type
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectInfoResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_CENSUS)) {
+                // send shelter census
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectShelterCensusResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD)) {
+                // send operational food
+                List<String> responses = getPriorityObjectShelterOperationalFoodResponse(loggedInUser, priorityObject);
+                if (!responses.isEmpty()) {
+                    for (String message: responses) {
+                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                    }
+                }
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_MATERIEL)) {
+                // send materiel
+                List<String> responses = getPriorityObjectShelterOperationalMaterielResponse(loggedInUser, priorityObject);
+                if (!responses.isEmpty()) {
+                    for (String message: responses) {
+                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                    }
+                }
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_STATUS)) {
+                // send status
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectShelterStatusResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS)) {
+                // send worker census
+                List<String> responses = getPriorityObjectShelterWorkerCensusResponse(loggedInUser, priorityObject);
+                if (!responses.isEmpty()) {
+                    for (String message: responses) {
+                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                    }
+                }
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_EOC_MOBILIZATION)) {
+                // send EOC mobilization info
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectEOCMobilizationResponse(loggedInUser, priorityObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_EOC_STATUS)) {
+                // send EOC status
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectEOCStatusResponse(loggedInUser, priorityObject));
+            }
         } catch (Exception e) {
-           logger.error("Exception caught sending shelter census report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterCensusReport(loggedInUser, innerAPRSMessage.getCallsignTo());
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Census: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending shelter census report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, innerAPRSMessage.getCallsignTo(), 1);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Workers1: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending worker census shift 1 report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, innerAPRSMessage.getCallsignTo(), 2);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Workers2: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending worker census shift 2 report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, innerAPRSMessage.getCallsignTo(), 3);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Workers3: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending worker census shift 3 report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodHave: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending food (today) report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodReq: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending food (tomorrow) report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "FoodUsed: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending food (needed) report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatHave: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending materiel (today) report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatReq: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending materiel (tomorrow) report", e);
-        }
-
-        try {
-            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, innerAPRSMessage.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "MatUsed: "+report.getReportData());
-        } catch (Exception e) {
-           logger.error("Exception caught sending materiel (needed) report", e);
         }
     }
 
-    private void sendMedicalReports(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message) {
+    private String getPriorityObjectCommandsResponse(User loggedInUser, APRSObject priorityObject) {
+        String ret = "";
+        if (priorityObject.getType().equals(ObjectType.EOC)) {
+            ret = String.format("%s:%s,%s,%s,%s,%s,%s,%s",NetCentralQueryType.COMMANDS, NetCentralQueryType.COMMANDS, NetCentralQueryType.INFO, APRSQueryType.APRS_OBJECTS, APRSQueryType.APRS_POSITION, APRSQueryType.APRS_STATUS,
+                                                    NetCentralQueryType.PRIORITY_EOC_MOBILIZATION, NetCentralQueryType.PRIORITY_EOC_STATUS);
+        } else if (priorityObject.getType().equals(ObjectType.SHELTER)) {
+            ret = String.format("%s:%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",NetCentralQueryType.COMMANDS, NetCentralQueryType.COMMANDS, NetCentralQueryType.INFO, APRSQueryType.APRS_OBJECTS, APRSQueryType.APRS_POSITION, APRSQueryType.APRS_STATUS,
+                                                    NetCentralQueryType.PRIORITY_INFO, NetCentralQueryType.PRIORITY_SHELTER_CENSUS, NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD, 
+                                                    NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD, NetCentralQueryType.PRIORITY_SHELTER_STATUS, NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS,
+                                                    NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
+        }
+        return ret;
+    }
+
+    private String getPriorityObjectTypeResponse(User loggedInUser, APRSObject priorityObject) {
+        return String.format("%s:%s", NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE, priorityObject.getType().toString());
+    }
+
+    private String getPriorityObjectInfoResponse(User loggedInUser, APRSObject priorityObject) {
+        return String.format("%s:%s,%s", NetCentralQueryType.PRIORITY_INFO, priorityObject.getCallsignTo(), priorityObject.getComment());
+    }
+
+    private String getPriorityObjectEOCMobilizationResponse(User loggedInUser, APRSObject priorityObject) {
+        try {
+            APRSNetCentralReport report = reportAccessor.getEOCMobilizationInformation(loggedInUser, priorityObject.getCallsignTo());
+            return String.format("%s:%s", report.getObjectName(), report.getReportData());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
+    private String getPriorityObjectEOCStatusResponse(User loggedInUser, APRSObject priorityObject) {
+        try {
+            APRSNetCentralReport report = reportAccessor.getEOCContactInformation(loggedInUser, priorityObject.getCallsignTo());
+            return String.format("%s:%s", report.getObjectName(), report.getReportData());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
+    private String getPriorityObjectShelterStatusResponse(User loggedInUser, APRSObject priorityObject) {
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterStatusReport(loggedInUser, priorityObject.getCallsignTo());
+            return String.format("%s:%s", report.getObjectName(), report.getReportData());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
+    private String getPriorityObjectShelterCensusResponse(User loggedInUser, APRSObject priorityObject) {
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterCensusReport(loggedInUser, priorityObject.getCallsignTo());
+            return String.format("%s:%s", report.getObjectName(), report.getReportData());
+        } catch (Exception e) {
+        }
+        return "";
+    }
+
+    private List<String> getPriorityObjectShelterWorkerCensusResponse(User loggedInUser, APRSObject priorityObject) {
+        List<String> ret = new ArrayList<>();
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, priorityObject.getCallsignTo(), 1);
+            ret.add(String.format("%s:%d:%s", NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS, 1, report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, priorityObject.getCallsignTo(), 2);
+            ret.add(String.format("%s:%d:%s", NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS, 2, report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterWorkerReport(loggedInUser, priorityObject.getCallsignTo(), 3);
+            ret.add(String.format("%s:%d:%s", NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS, 3, report.getReportData()));
+        } catch (Exception e) {
+        }
+        return ret;
+    }
+
+    private List<String> getPriorityObjectShelterOperationalFoodResponse(User loggedInUser, APRSObject priorityObject) {
+        List<String> ret = new ArrayList<>();
+
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD, "OnHand", report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD, "Req", report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD, "Used", report.getReportData()));
+        } catch (Exception e) {
+        }
+
+        return ret;
+    }
+
+    private List<String> getPriorityObjectShelterOperationalMaterielResponse(User loggedInUser, APRSObject priorityObject) {
+        List<String> ret = new ArrayList<>();
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_MATERIEL, "OnHand", report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.REQUIRED);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_MATERIEL, "Req", report.getReportData()));
+        } catch (Exception e) {
+        }
+        try {
+            APRSNetCentralReport report = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, priorityObject.getCallsignTo(), ObjectShelterReportingTimeframe.USED);
+            ret.add(String.format("%s:%s:%s", NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_MATERIEL, "Used", report.getReportData()));
+        } catch (Exception e) {
+        }
+
+        return ret;
     }
 }

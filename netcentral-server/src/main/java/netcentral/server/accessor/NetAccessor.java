@@ -29,10 +29,13 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
+import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
+import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpStatus;
@@ -70,6 +73,8 @@ public class NetAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private TransceiverCommunicationAccessor transceiverMessageAccessor;
 
     public List<Net> getAll(User loggedInUser, String root) {
         List<NetRecord> recs = netRepository.findAll();
@@ -170,7 +175,7 @@ public class NetAccessor {
                     transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
 
-                    if (netConfigServerConfig.isFederated()) {
+                    if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
                         APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(obj.getCallsign(), obj.getName(), obj.getDescription());
                         transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
                         APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(obj.getCallsign(), ZonedDateTime.now());
@@ -316,7 +321,7 @@ public class NetAccessor {
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
                 }
 
-                if (netConfigServerConfig.isFederated()) {
+                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
                     APRSNetCentralNetSecureReport reportSecure = new APRSNetCentralNetSecureReport(rec.callsign(), ZonedDateTime.now());
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportSecure);
                 }
@@ -347,6 +352,93 @@ public class NetAccessor {
 
         netRepository.deleteAll();
         return null;
+    }
+
+    public void processDirectedStatusQuery(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
+        if (loggedInUser == null) {
+            return;
+        }
+        if (net == null) {
+            return;
+        }
+        if (aprsMessage == null) {
+            return;
+        }
+        if (aprsMessage.getMessage() == null) {
+            return;
+        }
+        if (!aprsMessage.getMessage().startsWith("?")) {
+            return;
+        }
+
+        try {
+            String queryType = aprsMessage.getMessage().substring(1);
+
+            if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
+                // list commands
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetCommandsResponse(loggedInUser, net));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
+                // send commands and info
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetCommandsResponse(loggedInUser, net));
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetInfoResponse(loggedInUser, net));
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
+                // announce net object
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
+                // send net position packet
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_STATUS)) {
+                // send net status
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
+                // send object type
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetObjectTypeResponse(loggedInUser, aprsMessage));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_INFO)) {
+                // send net information
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetInfoResponse(loggedInUser, net));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_PARTICIPANTS)) {
+                // send net participants
+                // send KV pairs K=V,K=V...
+                List<String> responses = getNetParticipantsResponse(loggedInUser, net);
+                if (!responses.isEmpty()) {
+                    for (String message: responses) {
+                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), message);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    private String getNetObjectTypeResponse(User loggedInUser, APRSMessage message) {
+        return String.format("%s:%s", NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE, ObjectType.NET.toString());
+    }
+
+    private List<String> getNetParticipantsResponse(User loggedInUser, Net net) {
+        List<String> ret = new ArrayList<>();
+        try {
+            List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net, false);
+            int count = 0;
+            while (count < participants.size()){
+                int callsignsLeft = 5;
+                String item = String.format("%s:", NetCentralQueryType.NET_PARTICIPANTS);
+                while ((callsignsLeft > 0) && (count < participants.size())) {
+                    item += (" "+ participants.get(count).getCallsign());
+                    count++;
+                    callsignsLeft--;
+                }
+                ret.add(item);
+            }
+        } catch (Exception e) {
+        }
+
+        return ret;
+    }
+
+    private String getNetCommandsResponse(User loggedInUser, Net net) {
+        return String.format("%s:%s,%s,%s,%s,%s,%s", NetCentralQueryType.COMMANDS, NetCentralQueryType.COMMANDS, APRSQueryType.APRS_OBJECTS, APRSQueryType.APRS_POSITION, APRSQueryType.APRS_STATUS,
+                                                    NetCentralQueryType.NET_INFO, NetCentralQueryType.NET_PARTICIPANTS);
+    }
+
+    private String getNetInfoResponse(User loggedInUser, Net net) {
+        return String.format("%s:%s,%s", NetCentralQueryType.GENERAL_INFO, net.getCallsign(), net.getDescription());
     }
 }
 

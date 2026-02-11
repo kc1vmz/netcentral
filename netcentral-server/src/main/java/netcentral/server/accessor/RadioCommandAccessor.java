@@ -158,6 +158,12 @@ public class RadioCommandAccessor {
         // message is for this net - act and respond
         boolean ackOrRejPerformed = false;
         String message = preStrip(msg.getMessage());
+
+        if (message.startsWith("?")) {
+            netAccessor.processDirectedStatusQuery(loggedInUser, net, msg, transceiverSourceId);
+            return;
+        }
+
         boolean isParticipant = isNetParticipant(loggedInUser, msg, net);
 
         if ((message == null) || (message.isEmpty()) || (message.isBlank())) {
@@ -811,7 +817,7 @@ public class RadioCommandAccessor {
             }
         }
 
-        if (netConfigServerConfig.isFederated()) {
+        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
             APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), !isNetCentral, netMessage.getMessage());
             transceiverMessageAccessor.sendReport(loggedInUser, report);
         }

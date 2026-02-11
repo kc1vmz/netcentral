@@ -1,5 +1,7 @@
 package netcentral.server.accessor;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -25,10 +27,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
-
+import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -63,6 +66,11 @@ public class GeneralResourceObjectCommandAccessor {
         }
 
         if (message.startsWith("ack")) {
+            return;
+        }
+
+        if (message.startsWith("?")) {
+            processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, generalResourceObject);
             return;
         }
 
@@ -182,5 +190,88 @@ public class GeneralResourceObjectCommandAccessor {
         } catch (Exception e) {
            logger.error("Exception caught sending KV pair", e);
         }
+    }
+
+    public void processDirectedStatusQuery(User loggedInUser, APRSMessage innerAPRSMessage, String transceiverSourceId, APRSObject aprsObject) {
+        if (loggedInUser == null) {
+            return;
+        }
+        if (innerAPRSMessage == null) {
+            return;
+        }
+        if (innerAPRSMessage.getMessage() == null) {
+            return;
+        }
+        if (!innerAPRSMessage.getMessage().startsWith("?")) {
+            return;
+        }
+
+        try {
+            String queryType = innerAPRSMessage.getMessage().substring(1);
+
+            if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
+                // list commands
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
+                // send commands and info
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectInfoResponse(loggedInUser, aprsObject));
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
+                // announce object
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
+                // send position packet
+                if ((aprsObject.getLat() != null) && (aprsObject.getLon() != null)) {
+                    transceiverMessageAccessor.sendObject(loggedInUser, aprsObject.getCallsignFrom(), aprsObject.getCallsignFrom(),
+                                                            aprsObject.getComment(), aprsObject.isAlive(),
+                                                            aprsObject.getLat(), aprsObject.getLon());
+                }
+            } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_STATUS)) {
+                // send net status
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
+                // send object type
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectTypeResponse(loggedInUser, aprsObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.GENERAL_INFO)) {
+                // send general info
+                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectInfoResponse(loggedInUser, aprsObject));
+            } else if (queryType.equalsIgnoreCase(NetCentralQueryType.GENERAL_TOKEN_VALUE)) {
+                // send KV pairs K=V,K=V...
+                List<String> responses = getKVPairs(loggedInUser, aprsObject);
+                if (!responses.isEmpty()) {
+                    for (String message: responses) {
+                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    private String getGeneralObjectTypeResponse(User loggedInUser, APRSObject generalResourceObject) {
+        return String.format("%s:%s", NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE, generalResourceObject.getType().toString());
+    }
+
+    private String getGeneralObjectCommandsResponse(User loggedInUser, APRSObject generalResourceObject) {
+        return String.format("%s:%s,%s,%s,%s,%s,%s,%s", NetCentralQueryType.COMMANDS, NetCentralQueryType.COMMANDS, APRSQueryType.APRS_OBJECTS, APRSQueryType.APRS_POSITION, APRSQueryType.APRS_STATUS,
+                                                NetCentralQueryType.GENERAL_INFO, NetCentralQueryType.GENERAL_TOKEN_VALUE, NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
+    }
+
+    private String getGeneralObjectInfoResponse(User loggedInUser, APRSObject generalResourceObject) {
+        return String.format("%s:%s,%s", NetCentralQueryType.GENERAL_INFO, generalResourceObject.getCallsignTo(), generalResourceObject.getComment());
+    }
+
+    private List<String> getKVPairs(User loggedInUser, APRSObject generalResourceObject) {
+        List<String> ret = new ArrayList<>();
+
+        try {
+            List<ResourceObjectKeyValuePair> kvPairs = resourceObjectKVAccessor.get(loggedInUser, generalResourceObject.getId());
+            if (kvPairs != null) {
+                for (ResourceObjectKeyValuePair kvPair: kvPairs) {
+                    ret.add(String.format("%s:%s=%s", NetCentralQueryType.GENERAL_TOKEN_VALUE, kvPair.getKey(), kvPair.getValue()));
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return ret;
     }
 }
