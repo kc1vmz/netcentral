@@ -42,6 +42,7 @@ import com.kc1vmz.netcentral.aprsobject.common.TransceiverQuery;
 import com.kc1vmz.netcentral.aprsobject.common.TransceiverReport;
 
 import jakarta.inject.Singleton;
+import netcentral.server.utils.Stripper;
 
 @Singleton
 public class TransceiverRESTClient {
@@ -85,6 +86,9 @@ public class TransceiverRESTClient {
 
     public void sendMessage(String fqdName, int port, TransceiverMessage msg, String transceiverId) {
         try {
+            if (isBadCallsign(msg.getCallsignTo())) {
+                return;
+            }
             ObjectMapper objectMapper = getObjectMapper();
             ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(msg);
@@ -93,6 +97,28 @@ public class TransceiverRESTClient {
         } catch (Exception e) {
             logger.error("Exception caught sending message to transceiver", e);
         }
+    }
+
+    private boolean isBadCallsign(String callsignTo) {
+        if (callsignTo == null) {
+            return true;
+        }
+        callsignTo = Stripper.stripWhitespace(callsignTo);
+        if ((callsignTo.length() == 0) || (callsignTo.length() > 9)) {
+            return true;
+        }
+        if (!callsignTo.contains("-")) {
+            return true;
+        }
+        if (callsignTo.contains(" ")) {
+            return true;
+        }
+        if ((callsignTo.charAt(0) >= '0') && (callsignTo.charAt(0) <= '9')) {
+            // starts with a number
+            return true;
+        }
+
+        return false;
     }
 
     public void sendMessages(String fqdName, int port, TransceiverMessageMany messages, String transceiverId) {

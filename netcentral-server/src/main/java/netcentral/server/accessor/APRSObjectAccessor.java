@@ -796,7 +796,7 @@ public class APRSObjectAccessor {
 
         // determine if this heard object is from a Net Central somewhere else
         if (!source.equals("NETCENTRAL")) {
-            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?");
+            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?NCOT");
         }
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
