@@ -191,7 +191,7 @@ public class NetAccessor {
                     statisticsAccessor.incrementNetsStarted();
                 }
             }
-            changePublisherAccessor.publishNetUpdate(obj.getCompletedNetId(), "Create", obj);
+            changePublisherAccessor.publishNetUpdate(obj.getCompletedNetId(), ChangePublisherAccessor.CREATE, obj);
             return obj;
         }
 
@@ -261,7 +261,7 @@ public class NetAccessor {
             }
         }
 
-        changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Update", obj);
+        changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), ChangePublisherAccessor.UPDATE, obj);
 
         return obj;
 
@@ -333,7 +333,7 @@ public class NetAccessor {
             ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
             deleteObject(loggedInUser, objectCreateRequest);
 
-            changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), "Delete", net);
+            changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), ChangePublisherAccessor.DELETE, net);
         }
 
         return null;

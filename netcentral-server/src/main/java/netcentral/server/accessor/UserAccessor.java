@@ -164,7 +164,7 @@ public class UserAccessor {
         obj.setPassword(null);
         try {
             activityAccessor.create(loggedInUser, String.format("User %s created", obj.getEmailAddress()));
-            changePublisherAccessor.publishUserUpdate(id, "Create");
+            changePublisherAccessor.publishUserUpdate(id, ChangePublisherAccessor.CREATE);
         } catch (Exception e) {
         }
         return obj;
@@ -222,7 +222,7 @@ public class UserAccessor {
         userRepository.update(updatedRec);
         try {
             activityAccessor.create(loggedInUser, String.format("User %s updated", obj.getEmailAddress()));
-            changePublisherAccessor.publishUserUpdate(id, "Update");
+            changePublisherAccessor.publishUserUpdate(id, ChangePublisherAccessor.UPDATE);
         } catch (Exception e) {
         }
         return obj;
@@ -268,7 +268,7 @@ public class UserAccessor {
         } catch (Exception e) {
         }
         userRepository.delete(recOpt.get());
-        changePublisherAccessor.publishUserUpdate(id, "Delete");
+        changePublisherAccessor.publishUserUpdate(id, ChangePublisherAccessor.DELETE);
     }
 
     public User login(LoginRequest obj) {

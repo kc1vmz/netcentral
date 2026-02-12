@@ -121,7 +121,7 @@ public class NetExpectedParticipantAccessor {
             String nid = netCallsign+"."+participant.getCallsign()+"."+cnId;
             ExpectedParticipantRecord rec = new ExpectedParticipantRecord(nid, netCallsign, completedNetId, participant.getCallsign());
             netExpectedParticipantRepository.save(rec);
-            changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, "Create", participant);
+            changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, ChangePublisherAccessor.CREATE, participant);
         } catch (Exception e) {
             logger.warn("Exception caught adding expected participant", e);
         }
@@ -151,7 +151,7 @@ public class NetExpectedParticipantAccessor {
                      ((netCompletedId != null) && (rec.completed_net_id().equals(netCompletedId) && (netCallsign.equals(rec.net_callsign()))))) {
                     // we have our record between running and scheduled
 
-                    changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, "Delete", participant);
+                    changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, ChangePublisherAccessor.DELETE, participant);
                     netExpectedParticipantRepository.delete(rec);
                     break;
                 }

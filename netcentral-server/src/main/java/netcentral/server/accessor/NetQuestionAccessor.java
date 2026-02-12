@@ -147,7 +147,7 @@ public class NetQuestionAccessor {
         NetQuestionRecord src = new NetQuestionRecord(id, obj.getCompletedNetId(), number, obj.getAskedTime(), obj.getActive(), obj.getReminderMinutes(), obj.getQuestionText(), nextReminderTime);
         NetQuestionRecord rec = netQuestionRepository.save(src);
         if (rec != null) {
-            changePublisherAccessor.publishNetQuestionUpdate(obj.getCompletedNetId(), "Create", obj);
+            changePublisherAccessor.publishNetQuestionUpdate(obj.getCompletedNetId(), ChangePublisherAccessor.CREATE, obj);
 
             if (!net.isRemote()) {
                 // tell the participants about the question
@@ -221,7 +221,7 @@ public class NetQuestionAccessor {
 
         netQuestionRepository.update(updatedRec);
 
-        changePublisherAccessor.publishNetQuestionUpdate(rec.net_question_id(), "Update", obj);
+        changePublisherAccessor.publishNetQuestionUpdate(rec.net_question_id(), ChangePublisherAccessor.UPDATE, obj);
 
         return obj;
     }

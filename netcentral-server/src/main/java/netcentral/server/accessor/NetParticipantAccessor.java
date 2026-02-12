@@ -165,7 +165,7 @@ public class NetParticipantAccessor {
                 transceiverMessageAccessor.sendReport(loggedInUser, reportCheckin);
             }
 
-            changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Create", hydrateParticipant(loggedInUser,participant));
+            changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.CREATE, hydrateParticipant(loggedInUser,participant));
             sendQuestionReminderForParticipant(loggedInUser, net, participant);
         } catch (Exception e) {
             logger.warn("Exception caught adding participant", e);
@@ -261,7 +261,7 @@ public class NetParticipantAccessor {
         }
 
         netParticipantRepository.delete(participantRec);
-        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Delete", hydrateParticipant(loggedInUser,participant));
+        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.DELETE, hydrateParticipant(loggedInUser,participant));
 
         if (netConfigServerConfig.isFederated() && !net.isRemote() && netConfigServerConfig.isFederatedPush()) {
             APRSNetCentralNetCheckInOutReport reportCheckout = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), false);
@@ -296,7 +296,7 @@ public class NetParticipantAccessor {
                                                 participantRec.start_time(), participant.getTacticalCallsign());
         netParticipantRepository.update(rec);
         participant.setStartTime(rec.start_time());
-        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), "Update", hydrateParticipant(loggedInUser, participant));
+        changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.UPDATE, hydrateParticipant(loggedInUser, participant));
     }
 
     public Participant deleteAll(User loggedInUser) {

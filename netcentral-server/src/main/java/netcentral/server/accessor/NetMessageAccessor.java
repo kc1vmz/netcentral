@@ -113,7 +113,7 @@ public class NetMessageAccessor {
         obj.setId(messageId);
         NetMessageRecord src = new NetMessageRecord(messageId, obj.getCompletedNetId(), obj.getCallsignFrom(), obj.getMessage(), ZonedDateTime.now(), obj.getRecipient());
         netMessageRepository.save(src);
-        changePublisherAccessor.publishNetMessageUpdate(obj.getCompletedNetId(), "Create", obj);
+        changePublisherAccessor.publishNetMessageUpdate(obj.getCompletedNetId(), ChangePublisherAccessor.CREATE, obj);
         return obj;
     }
 

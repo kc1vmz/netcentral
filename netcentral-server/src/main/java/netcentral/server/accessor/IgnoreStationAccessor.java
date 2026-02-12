@@ -143,7 +143,7 @@ public class IgnoreStationAccessor {
             } catch (Exception e) {
             }
             forceGetAll(loggedInUser, null); // update cache; not performant, but also limited scale
-            changePublisherAccessor.publishIgnoredUpdate(obj.getCallsign(), "Create", obj);
+            changePublisherAccessor.publishIgnoredUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, obj);
             return obj;
         }
         logger.debug("Error persisting ignored station");
@@ -167,7 +167,7 @@ public class IgnoreStationAccessor {
         IgnoreStation ignoreStation = new IgnoreStation();
         ignoreStation.setCallsign(callsign);
         ignoreStation.setType(TrackedStationType.values()[recOpt.get().type()]);
-        changePublisherAccessor.publishIgnoredUpdate(ignoreStation.getCallsign(), "Delete", ignoreStation);
+        changePublisherAccessor.publishIgnoredUpdate(ignoreStation.getCallsign(), ChangePublisherAccessor.DELETE, ignoreStation);
         ignoreStationRepository.delete(recOpt.get());
         forceGetAll(loggedInUser, null); // update cache; not performant, but also limited scale
 

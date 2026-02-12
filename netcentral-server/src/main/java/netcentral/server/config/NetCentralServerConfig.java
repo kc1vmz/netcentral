@@ -63,6 +63,8 @@ public class NetCentralServerConfig {
     private Boolean federated;
     @Value("${netcentral.federated.push}")
     private Boolean federatedPush;
+    @Value("${netcentral.federated.interrogate}")
+    private Boolean federatedInterrogate;
     @Value("${netcentral.net.report.minutes}")
     private Integer netReportMinutes;
     @Value("${netcentral.log.rawpackets}")
@@ -193,5 +195,11 @@ public class NetCentralServerConfig {
     }
     public void setFederatedPush(Boolean federatedPush) {
         this.federatedPush = federatedPush;
+    }
+    public Boolean isFederatedInterrogate() {
+        return federatedInterrogate;
+    }
+    public void setFederatedInterrogate(Boolean federatedInterrogate) {
+        this.federatedInterrogate = federatedInterrogate;
     }
 }

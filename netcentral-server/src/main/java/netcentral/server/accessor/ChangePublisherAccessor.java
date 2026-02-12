@@ -67,6 +67,10 @@ public class ChangePublisherAccessor {
     private int dashboardUpdateCount = 0;
     private ZonedDateTime lastDashboardUpdate = ZonedDateTime.now();
 
+    public static final String CREATE = "Create";
+    public static final String UPDATE = "Update";
+    public static final String DELETE = "Delete";
+
     @Inject
     private SocketIoServerRunner socketIoServerRunner;
 

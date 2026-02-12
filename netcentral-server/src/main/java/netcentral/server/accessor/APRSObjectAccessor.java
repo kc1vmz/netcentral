@@ -271,7 +271,7 @@ public class APRSObjectAccessor {
                                                                 innerAPRSWeatherReport.getRainfallSinceMidnight(), innerAPRSWeatherReport.getHumidity(), innerAPRSWeatherReport.getBarometricPressure(),
                                                                     innerAPRSWeatherReport.getLuminosity(), innerAPRSWeatherReport.getSnowfallLast24Hr(),
                                                                 0, innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon(), innerAPRSWeatherReport.getLdtime());
-        changePublisherAccessor.publishWeatherReportUpdate( innerAPRSWeatherReport.getCallsignFrom(), "Create",  weatherReport);
+        changePublisherAccessor.publishWeatherReportUpdate( innerAPRSWeatherReport.getCallsignFrom(), ChangePublisherAccessor.CREATE,  weatherReport);
         return new APRSObjectResource(id, innerAPRSWeatherReport, source, heardTime);
     }
 
@@ -776,13 +776,13 @@ public class APRSObjectAccessor {
                                                                     innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
                                                                     (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
             rec = aprsObjectRepository.update(updated);
-            changePublisherAccessor.publishObjectUpdate(first.callsign_from(), "Update", innerAPRSObject);
+            changePublisherAccessor.publishObjectUpdate(first.callsign_from(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
         } else {
             APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
                                                         innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
                                                         (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
             rec = aprsObjectRepository.save(src);
-            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignFrom(), "Create", innerAPRSObject);
+            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignFrom(), ChangePublisherAccessor.CREATE, innerAPRSObject);
         }
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
@@ -796,7 +796,7 @@ public class APRSObjectAccessor {
 
         // determine if this heard object is from a Net Central somewhere else
         if (!source.equals("NETCENTRAL")) {
-            if (netConfigServerConfig.isFederated() && !netConfigServerConfig.isFederatedPush()) {
+            if (netConfigServerConfig.isFederated() && !netConfigServerConfig.isFederatedPush() && innerAPRSObject.isAlive() && (netConfigServerConfig.isFederatedInterrogate())) {
                 // interrogate objects for object type
                 transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?"+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
             }
@@ -824,6 +824,7 @@ public class APRSObjectAccessor {
     private APRSObjectResource createAPRSMessage(User loggedInUser, String id, Optional<APRSMessage> innerAPRSMessageOpt, String source, ZonedDateTime heardTime) {
         APRSMessage innerAPRSMessage = innerAPRSMessageOpt.get();
         String callsignTo = Stripper.stripWhitespace(innerAPRSMessage.getCallsignTo());
+
         APRSObject priorityObject = null;
         APRSObject generalResourceObject = null;
         Net net = netCentralNetMessage(loggedInUser, callsignTo);
@@ -892,7 +893,7 @@ public class APRSObjectAccessor {
                 // not saying that it is a Net Central object
                 return;
             }
-            APRSObject obj = getObject(loggedInUser, callsignFrom);
+            APRSObject obj = getObjectByCallsign(loggedInUser, callsignFrom);
             if (obj == null) {
                 return;
             }
@@ -906,6 +907,8 @@ public class APRSObjectAccessor {
             APRSObjectRecord updated = new APRSObjectRecord(obj.getId(), source, obj.getCallsignFrom(), obj.getCallsignTo(), heardTime, obj.isAlive(), obj.getLat(),
                                                         obj.getLon(), "", obj.getComment(), type.ordinal());
             aprsObjectRepository.update(updated);
+            // need an update message
+            changePublisherAccessor.publishObjectUpdate(obj.getCallsignFrom(), ChangePublisherAccessor.UPDATE, obj);
         } catch (Exception e) {
         }
     }
@@ -1335,7 +1338,7 @@ public class APRSObjectAccessor {
 
         Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
         aprsObjectRepository.delete(recOpt.get());
-        changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), "Delete", object);
+        changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), ChangePublisherAccessor.DELETE, object);
         return null;
     }
 
@@ -1482,7 +1485,7 @@ public class APRSObjectAccessor {
             Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
             if (!recOpt.isEmpty()) {
                 aprsObjectRepository.delete(recOpt.get());  // there should only be one
-                changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), "Delete", object);
+                changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), ChangePublisherAccessor.DELETE, object);
             }
         } catch (Exception e) {
         }
@@ -1494,7 +1497,7 @@ public class APRSObjectAccessor {
             if ((recOpt != null) && (!recOpt.isEmpty())) {
                 APRSObject object = getObjectByCallsign(loggedInUser, messageRequest.callsign());
                 aprsObjectRepository.delete(recOpt.get(0));  // there should only be one
-                changePublisherAccessor.publishObjectUpdate(recOpt.get(0).callsign_from(), "Delete", object);
+                changePublisherAccessor.publishObjectUpdate(recOpt.get(0).callsign_from(), ChangePublisherAccessor.DELETE, object);
             }
         } catch (Exception e) {
         }

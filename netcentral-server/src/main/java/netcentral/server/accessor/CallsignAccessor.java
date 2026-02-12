@@ -121,7 +121,7 @@ public class CallsignAccessor {
         CallsignRecord src = new CallsignRecord(obj.getCallsign(), obj.getName(), obj.getCountry(), obj.getState(), obj.getLicense());
         CallsignRecord rec = callsignRepository.save(src);
         if (rec != null) {
-            changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), "Create", obj);
+            changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, obj);
             return obj;
         }
         logger.debug("Callsign not created");
@@ -149,7 +149,7 @@ public class CallsignAccessor {
         }
         CallsignRecord updatedRec = new CallsignRecord(obj.getCallsign(), obj.getName(), obj.getCountry(), obj.getState(), obj.getLicense());
         callsignRepository.update(updatedRec);
-        changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), "Update", obj);
+        changePublisherAccessor.publishCallsignUpdate(obj.getCallsign(), ChangePublisherAccessor.UPDATE, obj);
 
         return obj;
     }
@@ -171,7 +171,7 @@ public class CallsignAccessor {
         Callsign object = getByCallsign(loggedInUser, id);
         callsignRepository.delete(recOpt.get());
 
-        changePublisherAccessor.publishCallsignUpdate(recOpt.get().callsign(), "Delete", object);
+        changePublisherAccessor.publishCallsignUpdate(recOpt.get().callsign(), ChangePublisherAccessor.DELETE, object);
         
         return null;
     }

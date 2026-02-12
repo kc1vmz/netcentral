@@ -131,7 +131,7 @@ public class ScheduledNetAccessor {
                                             obj.getLastStartTime(), obj.getNextStartTime(), obj.isCheckinReminder(), obj.getCheckinMessage(), obj.isOpen(), obj.isParticipantInviteAllowed());
         ScheduledNetRecord rec = scheduledNetRepository.save(src);
         if (rec != null) {
-            changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Create", obj);
+            changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, obj);
             return obj;
         }
 
@@ -180,7 +180,7 @@ public class ScheduledNetAccessor {
 
         scheduledNetRepository.update(updatedRec);
         obj = get(loggedInUser, id);
-        changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), "Update", obj);
+        changePublisherAccessor.publishScheduledNetUpdate(obj.getCallsign(), ChangePublisherAccessor.UPDATE, obj);
 
         return obj;
 
@@ -207,7 +207,7 @@ public class ScheduledNetAccessor {
 
         ScheduledNetRecord rec = recOpt.get();
         scheduledNetRepository.delete(rec);
-        changePublisherAccessor.publishScheduledNetUpdate(rec.callsign(), "Delete", net);
+        changePublisherAccessor.publishScheduledNetUpdate(rec.callsign(), ChangePublisherAccessor.DELETE, net);
 
         return null;
     }

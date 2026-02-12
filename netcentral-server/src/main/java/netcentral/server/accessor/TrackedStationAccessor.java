@@ -185,7 +185,7 @@ public class TrackedStationAccessor {
         TrackedStationRecord rec = trackedStationRepository.save(src);
         if (rec != null) {
             TrackedStation trackedStationFinal = get(loggedInUser, id);
-            changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), "Create", trackedStationFinal);
+            changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, trackedStationFinal);
             return trackedStationFinal;
         }
 
@@ -227,7 +227,7 @@ public class TrackedStationAccessor {
         trackedStationRepository.update(updatedRec);
 
         TrackedStation trackedStationFinal = get(loggedInUser, id);
-        changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), "Update", trackedStationFinal);
+        changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), ChangePublisherAccessor.UPDATE, trackedStationFinal);
         return trackedStationFinal;
     }
 
@@ -246,7 +246,7 @@ public class TrackedStationAccessor {
         }
    
         TrackedStation trackedStation = get(loggedInUser, id);
-        changePublisherAccessor.publishTrackedStationUpdate(recOpt.get().callsign(), "Delete", trackedStation);
+        changePublisherAccessor.publishTrackedStationUpdate(recOpt.get().callsign(), ChangePublisherAccessor.DELETE, trackedStation);
         trackedStationRepository.delete(recOpt.get());
         
         return null;

@@ -101,7 +101,7 @@ public class NetQuestionAnswerAccessor {
         NetQuestionAnswerRecord src = new NetQuestionAnswerRecord(id, obj.getNetQuestionId(), obj.getCompletedNetId(), obj.getAnsweredTime(), obj.getCallsign(), obj.getAnswerText());
         NetQuestionAnswerRecord rec = netQuestionAnswerRepository.save(src);
         if (rec != null) {
-            changePublisherAccessor.publishNetQuestionAnswerUpdate(obj.getNetQuestionId(), "Create", obj);
+            changePublisherAccessor.publishNetQuestionAnswerUpdate(obj.getNetQuestionId(), ChangePublisherAccessor.CREATE, obj);
 
             // thank participant for answer
             if (!net.isRemote()) {

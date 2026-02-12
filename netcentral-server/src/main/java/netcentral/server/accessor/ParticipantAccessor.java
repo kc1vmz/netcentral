@@ -133,7 +133,7 @@ public class ParticipantAccessor {
                                                         (obj.getStatus() != null) ? obj.getStatus() : "",
                                                         (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
         participantRepository.save(src);
-        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(),"Create", obj);
+        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, obj);
         return obj;
     }
 
@@ -161,7 +161,7 @@ public class ParticipantAccessor {
                                                         (obj.getStatus() != null) ? obj.getStatus() : "",
                                                         (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "");
         participantRepository.update(updatedRec);
-        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(),"Update", obj);
+        changePublisherAccessor.publishParticipantUpdate(obj.getCallsign(),ChangePublisherAccessor.UPDATE, obj);
         return obj;
     }
 
@@ -180,7 +180,7 @@ public class ParticipantAccessor {
         }
 
         participantRepository.delete(recOpt.get());
-        changePublisherAccessor.publishParticipantUpdate(recOpt.get().callsign(),"Delete", null);
+        changePublisherAccessor.publishParticipantUpdate(recOpt.get().callsign(),ChangePublisherAccessor.DELETE, null);
         
         return null;
     }

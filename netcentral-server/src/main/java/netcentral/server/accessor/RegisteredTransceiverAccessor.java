@@ -121,7 +121,7 @@ public class RegisteredTransceiverAccessor {
             } catch (Exception e) {
             }
 
-            changePublisherAccessor.publishTransceiverUpdate(id, "Create");
+            changePublisherAccessor.publishTransceiverUpdate(id, ChangePublisherAccessor.CREATE);
 
             return obj;
         }
@@ -164,7 +164,7 @@ public class RegisteredTransceiverAccessor {
             activityAccessor.create(loggedInUser, String.format("Transceiver %s updated",  obj.getName()));
         } catch (Exception e) {
         }
-        changePublisherAccessor.publishTransceiverUpdate(obj.getId(), "Update");
+        changePublisherAccessor.publishTransceiverUpdate(obj.getId(), ChangePublisherAccessor.UPDATE);
         return get(loggedInUser, id);
     }
 
@@ -187,7 +187,7 @@ public class RegisteredTransceiverAccessor {
         }
 
         registeredTransceiverRepository.delete(recOpt.get());
-        changePublisherAccessor.publishTransceiverUpdate(id, "Delete");
+        changePublisherAccessor.publishTransceiverUpdate(id, ChangePublisherAccessor.DELETE);
         
         return null;
     }

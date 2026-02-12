@@ -130,7 +130,7 @@ public class CompletedNetAccessor {
         } catch (Exception e) {
         }
 
-        changePublisherAccessor.publishCompletedNetUpdate(obj.getCompletedNetId(), "Create");
+        changePublisherAccessor.publishCompletedNetUpdate(obj.getCompletedNetId(), ChangePublisherAccessor.CREATE);
         return get(loggedInUser, rec.completed_net_id());
     }
 
