@@ -796,7 +796,10 @@ public class APRSObjectAccessor {
 
         // determine if this heard object is from a Net Central somewhere else
         if (!source.equals("NETCENTRAL")) {
-            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?NCOT");
+            if (netConfigServerConfig.isFederated() && !netConfigServerConfig.isFederatedPush()) {
+                // interrogate objects for object type
+                transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?"+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
+            }
         }
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
@@ -821,7 +824,6 @@ public class APRSObjectAccessor {
     private APRSObjectResource createAPRSMessage(User loggedInUser, String id, Optional<APRSMessage> innerAPRSMessageOpt, String source, ZonedDateTime heardTime) {
         APRSMessage innerAPRSMessage = innerAPRSMessageOpt.get();
         String callsignTo = Stripper.stripWhitespace(innerAPRSMessage.getCallsignTo());
-
         APRSObject priorityObject = null;
         APRSObject generalResourceObject = null;
         Net net = netCentralNetMessage(loggedInUser, callsignTo);
