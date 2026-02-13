@@ -81,7 +81,7 @@ public class FederatedObjectIngestionAccessor {
     private ReportAccessor reportAccessor;
 
     
-    public void processFederatedPacket(@SuppressWarnings("unused") User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime) {
+    public void processFederatedPacket(User loggedInUser, String id, APRSUserDefined innerAPRSUserDefined, String source, ZonedDateTime heardTime) {
         try {
             String data = new String(innerAPRSUserDefined.getData());
             String objectName = innerAPRSUserDefined.getCallsignFrom();

@@ -222,7 +222,8 @@ public class APRSObjectAccessor {
         throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Object not created");
     }
 
-    private void trackIgates(User loggedInUser, List<String> callsigns, @SuppressWarnings("unused") ZonedDateTime heardTime, @SuppressWarnings("unused") String source) {
+    private void trackIgates(User loggedInUser, List<String> callsigns, ZonedDateTime heardTime, String source) {
+        
         for (String callsign : callsigns) {
             if (!callsign.isBlank() && !callsign.isEmpty()) {
                 trackStation(loggedInUser,  callsign, null, null, TrackedStationType.IGATE, null);
@@ -230,7 +231,7 @@ public class APRSObjectAccessor {
         }
     }
 
-    private void trackDigipeaters(User loggedInUser, List<String> callsigns, @SuppressWarnings("unused") ZonedDateTime heardTime, @SuppressWarnings("unused") String source) {
+    private void trackDigipeaters(User loggedInUser, List<String> callsigns, ZonedDateTime heardTime, String source) {
         String callsignLast = callsigns.get(callsigns.size()-1); // get the last
         trackStation(loggedInUser,  callsignLast, null, null, TrackedStationType.DIGIPEATER, null);
     }
@@ -275,7 +276,7 @@ public class APRSObjectAccessor {
         return new APRSObjectResource(id, innerAPRSWeatherReport, source, heardTime);
     }
 
-    private APRSObjectResource createAPRSUserDefined(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSUserDefined> innerAPRSUserDefinedOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSUserDefined(User loggedInUser, String id, Optional<APRSUserDefined> innerAPRSUserDefinedOpt, String source, ZonedDateTime heardTime) {
         APRSUserDefined innerAPRSUserDefined = innerAPRSUserDefinedOpt.get();
 
         // could be for us in a federated setup
@@ -292,7 +293,7 @@ public class APRSObjectAccessor {
         return new APRSObjectResource(id, innerAPRSUserDefined, source, heardTime);
     }
 
-    private APRSObjectResource createAPRSUnknown(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSUnknown> innerAPRSUnknownOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSUnknown(User loggedInUser, String id, Optional<APRSUnknown> innerAPRSUnknownOpt, String source, ZonedDateTime heardTime) {
         APRSUnknown innerAPRSUnknown = innerAPRSUnknownOpt.get();
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSUnknown.getCallsignFrom())) {
             return null;
@@ -303,14 +304,14 @@ public class APRSObjectAccessor {
     }
 
 
-    private APRSObjectResource createAPRSThirdPartyTraffic(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSThirdPartyTraffic> innerAPRSThirdPartyTrafficOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSThirdPartyTraffic(User loggedInUser, String id, Optional<APRSThirdPartyTraffic> innerAPRSThirdPartyTrafficOpt, String source, ZonedDateTime heardTime) {
         APRSThirdPartyTraffic innerAPRSThirdPartyTraffic = innerAPRSThirdPartyTrafficOpt.get();
 
         return new APRSObjectResource(id, innerAPRSThirdPartyTraffic, source, heardTime);
     }
 
 
-    private APRSObjectResource createAPRSTest(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSTest> innerAPRSTestOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSTest(User loggedInUser, String id, Optional<APRSTest> innerAPRSTestOpt, String source, ZonedDateTime heardTime) {
         APRSTest innerAPRSTest = innerAPRSTestOpt.get();
 
         return new APRSObjectResource(id, innerAPRSTest, source, heardTime);
@@ -401,7 +402,7 @@ public class APRSObjectAccessor {
     }
 
 
-    private void storeWeatherReport(@SuppressWarnings("unused") User loggedInUser, APRSPosition innerAPRSPosition, String source, ZonedDateTime heardTime) {
+    private void storeWeatherReport(User loggedInUser, APRSPosition innerAPRSPosition, String source, ZonedDateTime heardTime) {
         Integer wind_dir = null, wind_sp=null, gust = null, temp = null, rain_1 = null, rain24 = null, rainmid = null, rainraw = null, hum = null, baro = null, lum = null, snow24 = null;
         String report = innerAPRSPosition.getWeatherReport();
         int index = 0;
@@ -913,7 +914,7 @@ public class APRSObjectAccessor {
         }
     }
 
-    private void processWHOISMessage(User loggedInUser, APRSMessage innerAPRSMessage, @SuppressWarnings("unused") String source) {
+    private void processWHOISMessage(User loggedInUser, APRSMessage innerAPRSMessage, String source) {
         if (innerAPRSMessage.getMessage().contains(":") && (innerAPRSMessage.getMessage().contains("/"))) {
             // new style WHO-IS/15 summary message
             int index = innerAPRSMessage.getMessage().indexOf(":");
@@ -986,7 +987,7 @@ public class APRSObjectAccessor {
         }
     }
 
-    private void processWLNKMessage(User loggedInUser, APRSMessage innerAPRSMessage, @SuppressWarnings("unused") String source) {
+    private void processWLNKMessage(User loggedInUser, APRSMessage innerAPRSMessage, String source) {
         String response = innerAPRSMessage.getMessage();
         if ((response.startsWith("ack")) || (response.startsWith("rej"))) {
             return;
@@ -1099,7 +1100,7 @@ public class APRSObjectAccessor {
 
         return obj;
     }
-    private APRSObjectResource createAPRSMaidenheadLocatorBeacon(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSMaidenheadLocatorBeacon> innerAPRSMaidenheadLocatorBeaconOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSMaidenheadLocatorBeacon(User loggedInUser, String id, Optional<APRSMaidenheadLocatorBeacon> innerAPRSMaidenheadLocatorBeaconOpt, String source, ZonedDateTime heardTime) {
         APRSMaidenheadLocatorBeacon innerAPRSMaidenheadLocatorBeacon = innerAPRSMaidenheadLocatorBeaconOpt.get();
 
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom())) {
@@ -1141,7 +1142,7 @@ public class APRSObjectAccessor {
     }
 
 
-    private APRSObjectResource createAPRSAgrelo(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSAgrelo> innerAPRSAgreloOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSAgrelo(User loggedInUser, String id, Optional<APRSAgrelo> innerAPRSAgreloOpt, String source, ZonedDateTime heardTime) {
         APRSAgrelo innerAPRSAgrelo = innerAPRSAgreloOpt.get();
 
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSAgrelo.getCallsignFrom())) {
@@ -1153,7 +1154,7 @@ public class APRSObjectAccessor {
         return new APRSObjectResource(id, innerAPRSAgrelo, source, heardTime);
     }
 
-    private APRSObjectResource createAPRSRaw(@SuppressWarnings("unused") User loggedInUser, String id, Optional<APRSRaw> innerAPRSRawOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAPRSRaw(User loggedInUser, String id, Optional<APRSRaw> innerAPRSRawOpt, String source, ZonedDateTime heardTime) {
         APRSRaw innerAPRSRaw = innerAPRSRawOpt.get();
 
         if (configParametersAccessor.isLogRawPackets()) {
@@ -1163,7 +1164,7 @@ public class APRSObjectAccessor {
         return new APRSObjectResource(id, innerAPRSRaw, source, heardTime);
     }
 
-    private APRSObjectResource createAGWRaw(@SuppressWarnings("unused") User loggedInUser, String id, Optional<AGWRaw> innerAGWRawOpt, String source, ZonedDateTime heardTime) {
+    private APRSObjectResource createAGWRaw(User loggedInUser, String id, Optional<AGWRaw> innerAGWRawOpt, String source, ZonedDateTime heardTime) {
         AGWRaw innerAGWRaw = innerAGWRawOpt.get();
 
         AGWRawRecord src = new AGWRawRecord(id, source, heardTime, null, innerAGWRaw.getData());

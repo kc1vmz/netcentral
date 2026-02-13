@@ -186,7 +186,7 @@ public class APRSMessageProcessor {
         return true;
     }
 
-    private void processGenericObject(String callsignFrom, @SuppressWarnings("unused") String callsignTo, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
+    private void processGenericObject(String callsignFrom, String callsignTo, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
         if ((callsignFrom == null) || (parsedPacket == null)) { // || (callsignTo == null) 
             return;
         }
