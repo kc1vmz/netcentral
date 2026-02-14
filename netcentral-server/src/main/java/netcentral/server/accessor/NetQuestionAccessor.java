@@ -31,13 +31,10 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
-
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetQuestion;
@@ -57,7 +54,7 @@ public class NetQuestionAccessor {
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public List<NetQuestion> getAll(User loggedInUser, String completedNetId) {
         List<NetQuestionRecord> recs = netQuestionRepository.findBycompleted_net_id(completedNetId);
@@ -161,10 +158,7 @@ public class NetQuestionAccessor {
                 } catch (Exception e) {
                 }
 
-                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-                    APRSNetCentralNetQuestionReport report = new APRSNetCentralNetQuestionReport(net.getCallsign(), ""+number, obj.getQuestionText());
-                    transceiverCommunicationAccessor.sendReport(loggedInUser, report);
-                }
+                federatedObjectReporterAccessor.announce(loggedInUser, net, obj);
             }
             return obj;
         }

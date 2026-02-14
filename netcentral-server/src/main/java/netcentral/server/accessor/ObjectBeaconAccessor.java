@@ -28,11 +28,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.ResourceObjectKeyValuePair;
 import netcentral.server.object.User;
 
@@ -46,10 +44,9 @@ public class ObjectBeaconAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
-    @Inject
     private ResourceObjectKVAccessor resourceObjectKVAccessor;
-
+    @Inject
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public void beaconObjects() {
         if (!beaconStayRunning()) {
@@ -78,29 +75,8 @@ public class ObjectBeaconAccessor {
             }
         }
  
-        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-            for (APRSObject netCentralObject : netCentralObjects) {
-                logger.debug("Reporting object "+netCentralObject.getCallsignFrom());
-                try {
-                    String reportObjectType = null;
-                    if (netCentralObject.getType().equals(ObjectType.EOC)) {
-                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_EOC;
-                    } else if (netCentralObject.getType().equals(ObjectType.MEDICAL)) {
-                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_MEDICAL;
-                    } else if (netCentralObject.getType().equals(ObjectType.SHELTER)) {
-                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_SHELTER;
-                    } else if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
-                        reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_GENERAL;
-                    }
-
-                    if (reportObjectType != null) {
-                        APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(netCentralObject.getCallsignFrom(), reportObjectType, netCentralObject.getCallsignFrom(), netCentralObject.getComment());
-                        transceiverMessageAccessor.sendReport(user, report);
-                    }
-                } catch (Exception e) {
-                    logger.error("Error caught beaconing object", e);
-                }
-            }
+        for (APRSObject netCentralObject : netCentralObjects) {
+            federatedObjectReporterAccessor.announce(user, netCentralObject);
         }
  
     }

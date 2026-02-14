@@ -57,6 +57,8 @@ public class PriorityObjectCommandAccessor {
     private CallsignAceAccessor accessControlAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
+    @Inject
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
 
     public void processMessage(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
@@ -75,7 +77,7 @@ public class PriorityObjectCommandAccessor {
             return;
         }
 
-        if (message.startsWith("?")) {
+        if (message.startsWith(APRSQueryType.PREFIX)) {
             processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, priorityObject);
             return;
         }
@@ -239,7 +241,7 @@ public class PriorityObjectCommandAccessor {
         if (innerAPRSMessage.getMessage() == null) {
             return;
         }
-        if (!innerAPRSMessage.getMessage().startsWith("?")) {
+        if (!innerAPRSMessage.getMessage().startsWith(APRSQueryType.PREFIX)) {
             return;
         }
 
@@ -248,10 +250,10 @@ public class PriorityObjectCommandAccessor {
 
             if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
                 // list commands
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectInfoResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectCommandsResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectInfoResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
                 // announce object
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
@@ -264,19 +266,19 @@ public class PriorityObjectCommandAccessor {
                 // send status
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
                 // send priority object type
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectTypeResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectTypeResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_INFO)) {
                 // send priority object type
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectInfoResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectInfoResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_CENSUS)) {
                 // send shelter census
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectShelterCensusResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectShelterCensusResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_FOOD)) {
                 // send operational food
                 List<String> responses = getPriorityObjectShelterOperationalFoodResponse(loggedInUser, priorityObject);
                 if (!responses.isEmpty()) {
                     for (String message: responses) {
-                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                        federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, message);
                     }
                 }
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_OPERATIONAL_MATERIEL)) {
@@ -284,26 +286,26 @@ public class PriorityObjectCommandAccessor {
                 List<String> responses = getPriorityObjectShelterOperationalMaterielResponse(loggedInUser, priorityObject);
                 if (!responses.isEmpty()) {
                     for (String message: responses) {
-                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                        federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, message);
                     }
                 }
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_STATUS)) {
                 // send status
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectShelterStatusResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectShelterStatusResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_SHELTER_WORKER_CENSUS)) {
                 // send worker census
                 List<String> responses = getPriorityObjectShelterWorkerCensusResponse(loggedInUser, priorityObject);
                 if (!responses.isEmpty()) {
                     for (String message: responses) {
-                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                        federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, message);
                     }
                 }
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_EOC_MOBILIZATION)) {
                 // send EOC mobilization info
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectEOCMobilizationResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectEOCMobilizationResponse(loggedInUser, priorityObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.PRIORITY_EOC_STATUS)) {
                 // send EOC status
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getPriorityObjectEOCStatusResponse(loggedInUser, priorityObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getPriorityObjectEOCStatusResponse(loggedInUser, priorityObject));
             }
         } catch (Exception e) {
         }

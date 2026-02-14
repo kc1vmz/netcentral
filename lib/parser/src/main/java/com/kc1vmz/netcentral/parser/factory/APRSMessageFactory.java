@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.parser.exception.ParserException;
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
 import com.kc1vmz.netcentral.parser.util.Stripper;
@@ -83,7 +84,7 @@ public class APRSMessageFactory {
         byte [] message_bytes = Arrays.copyOfRange(data, 11, data.length);
         String messageString = new String(message_bytes);
         ret.setQuery(false);
-        if (messageString.startsWith("?")) {
+        if (messageString.startsWith(APRSQueryType.PREFIX)) {
             // this is a query
             String queryType = messageString.substring(1, 6);
             if ((queryType.startsWith("APRS")) || (queryType.startsWith("PING"))  || (queryType.startsWith("IGATE"))  || (queryType.startsWith("WX"))) {

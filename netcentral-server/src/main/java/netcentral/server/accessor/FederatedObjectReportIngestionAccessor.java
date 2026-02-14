@@ -60,8 +60,8 @@ import netcentral.server.record.aprs.APRSObjectRecord;
 import netcentral.server.repository.aprs.APRSObjectRepository;
 
 @Singleton
-public class FederatedObjectIngestionAccessor {
-    private static final Logger logger = LogManager.getLogger(FederatedObjectIngestionAccessor.class);
+public class FederatedObjectReportIngestionAccessor {
+    private static final Logger logger = LogManager.getLogger(FederatedObjectReportIngestionAccessor.class);
 
     @Inject
     private NetAccessor netAccessor;
@@ -465,7 +465,7 @@ public class FederatedObjectIngestionAccessor {
         return true;
     }
 
-    public boolean isFederatedPacket(APRSUserDefined innerAPRSUserDefined) {
+    public boolean isFederatedUserDefinedPacket(APRSUserDefined innerAPRSUserDefined) {
         boolean federated = false;
         if ((innerAPRSUserDefined != null) && 
             (innerAPRSUserDefined.getDti() == NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND) && 

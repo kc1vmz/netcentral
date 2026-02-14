@@ -28,12 +28,11 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -94,8 +93,7 @@ public class RadioCommandAccessor {
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
-
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {
         try {
@@ -159,7 +157,7 @@ public class RadioCommandAccessor {
         boolean ackOrRejPerformed = false;
         String message = preStrip(msg.getMessage());
 
-        if (message.startsWith("?")) {
+        if (message.startsWith(APRSQueryType.PREFIX)) {
             netAccessor.processDirectedStatusQuery(loggedInUser, net, msg, transceiverSourceId);
             return;
         }
@@ -817,10 +815,7 @@ public class RadioCommandAccessor {
             }
         }
 
-        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), !isNetCentral, netMessage.getMessage());
-            transceiverMessageAccessor.sendReport(loggedInUser, report);
-        }
+        federatedObjectReporterAccessor.announce(loggedInUser, net, netMessage, isNetCentral);
     }
 
     private void processNetQuestion(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {

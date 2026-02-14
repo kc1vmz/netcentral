@@ -1,5 +1,7 @@
 package com.kc1vmz.netcentral.aprsobject.object.reports;
 
+import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -26,26 +28,49 @@ public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
     public static final String OBJECT_TYPE_SHELTER = "SH";
     public static final String OBJECT_TYPE_MEDICAL = "MC";
     public static final String OBJECT_TYPE_GENERAL = "GN";
+    public static final String UNKNOWN = "UK";
 
     private String type;
     private String name;
     private String description;
+    private ObjectType objectType;
 
     public APRSNetCentralObjectAnnounceReport(){
         super();
     }
-    public APRSNetCentralObjectAnnounceReport(String objectName, String type, String name, String description) {
+    public APRSNetCentralObjectAnnounceReport(String objectName, String type, String name, String description, ObjectType objectType) {
         super();
         this.setObjectName(objectName);
-        this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_PRIORITY_OBJECT);
-        this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE);
+        if (objectType.equals(ObjectType.EOC)) {
+            this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC);
+            this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE);
+        } else if (objectType.equals(ObjectType.SHELTER)) {
+            this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER);
+            this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE);
+        } else if (objectType.equals(ObjectType.MEDICAL)) {
+            this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_MEDICAL);
+            this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE);
+        } else if (objectType.equals(ObjectType.RESOURCE)) {
+            this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_GENERAL_RESOURCE_OBJECT);
+            this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_GENERAL_RESOURCE_OBJECT_ANNOUNCE);
+        } else {
+            this.setReportObjectType(UNKNOWN);
+            this.setReportType(UNKNOWN);
+        }
         String data = String.format("%s:%s:%s", type, name, description);
         this.setReportData(data);
         this.setType(type);
+        this.setObjectType(objectType);
         this.setName(name);
         this.setDescription(description);
     }
 
+    public ObjectType getObjectType() {
+        return objectType;
+    }
+    public void setObjectType(ObjectType objectType) {
+        this.objectType = objectType;
+    }
     public String getType() {
         return type;
     }
@@ -70,20 +95,38 @@ public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
         if (message != null) {
             String objectType = message.substring(0, 2);
             String reportType = message.substring(2, 4);
+            boolean isValid = false;
+            ObjectType type = ObjectType.UNKNOWN;
 
-            if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_PRIORITY_OBJECT)) {
-                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE)) {
-                    String remainder = message.substring(4);
-                    String [] varFields = remainder.split(":");
-                    if ((varFields == null) || (varFields.length != 3)) {
-                        return ret;
-                    }
+            if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE)) {
+                if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_EOC)) {
+                    isValid = true;
+                    type = ObjectType.EOC;
+                } else if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_SHELTER)) {
+                    isValid = true;
+                    type = ObjectType.SHELTER;
+                } else if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_MEDICAL)) {
+                    isValid = true;
+                    type = ObjectType.MEDICAL;
+                }
+            } else if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_GENERAL_RESOURCE_OBJECT)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_GENERAL_RESOURCE_OBJECT_ANNOUNCE)) {
+                    isValid = true;
+                    type = ObjectType.RESOURCE;
+                }
+            }
 
-                    try {
-                        ret = new APRSNetCentralObjectAnnounceReport(objectName, varFields[0], varFields[1], varFields[2]);
-                    } catch (Exception e) {
-                        ret = null;
-                    }
+            if (isValid) {
+                String remainder = message.substring(4);
+                String [] varFields = remainder.split(":");
+                if ((varFields == null) || (varFields.length != 3)) {
+                    return ret;
+                }
+
+                try {
+                    ret = new APRSNetCentralObjectAnnounceReport(objectName, varFields[0], varFields[1], varFields[2], type);
+                } catch (Exception e) {
+                    ret = null;
                 }
             }
         }

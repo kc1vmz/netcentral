@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.parser.exception.ParserException;
+import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSQuery;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
 
@@ -39,11 +40,11 @@ public class APRSQueryFactory {
         ret.setData(data);
         ret.setDti(data[0]);
         String message = new String(data);
-        if (!message.startsWith("?")) {
+        if (!message.startsWith(APRSQueryType.PREFIX)) {
             throw new ParserException("Not a valid query packet");
         }
         message = message.substring(1);
-        int index = message.indexOf("?");
+        int index = message.indexOf(APRSQueryType.PREFIX);
         if (index == -1) {
             throw new ParserException("Not a valid query packet");
         }

@@ -84,6 +84,25 @@ public class TransceiverCommunicationAccessor {
         }
     }
 
+    public void sendMessageNoAck(User loggedInUser, String callsignFrom, String callsignTo, String message) {
+        // send to all transceivers
+        List<RegisteredTransceiver> transceivers = registeredTransceiverAccessor.getAll(loggedInUser);
+        if ((transceivers != null) && (!transceivers.isEmpty())) {
+            for (RegisteredTransceiver transceiver : transceivers) {
+                if (transceiver.isEnabledTransmit()) {
+                    TransceiverMessage msg = new TransceiverMessage();
+                    msg.setCallsignFrom(callsignFrom);
+                    msg.setCallsignTo(callsignTo);
+                    msg.setTransceiverId(transceiver.getId());
+                    msg.setMessage(message);
+                    msg.setBulletin(false);
+                    msg.setAckRequested(false);
+                    sendMessage(transceiver, msg);
+                }
+            }
+        }
+    }
+
     public void sendReport(User loggedInUser, APRSNetCentralReport report) {
         // send to all transceivers
         List<RegisteredTransceiver> transceivers = registeredTransceiverAccessor.getAll(loggedInUser);

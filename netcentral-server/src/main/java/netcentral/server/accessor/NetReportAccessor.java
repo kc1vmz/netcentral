@@ -22,29 +22,19 @@ package netcentral.server.accessor;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.Net;
 import netcentral.server.object.User;
 
 @Singleton
 public class NetReportAccessor {
-    private static final Logger logger = LogManager.getLogger(NetReportAccessor.class);
     private boolean stop = false;
 
     @Inject
-    private TransceiverCommunicationAccessor transceiverMessageAccessor;
-    @Inject
     private NetAccessor netAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig; 
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public void sendReports() {
         if (!stayRunning()) {
@@ -52,24 +42,12 @@ public class NetReportAccessor {
         }
         User user = new User();
 
-        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-            // send net announcement bulletins and reports
-            List <Net> nets = netAccessor.getAll(user, null);
-            if (!nets.isEmpty()) {
-                for (Net net : nets) {
-                    if (net.isRemote()) {
-                        continue;
-                    }
-
-                    try {
-                        APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(net.getCallsign(), net.getName(), net.getDescription());
-                        transceiverMessageAccessor.sendReport(user, reportAnnounce);
-                        APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(net.getCallsign(), net.getStartTime());
-                        transceiverMessageAccessor.sendReport(user, reportStart);
-                    } catch (Exception e) {
-                        logger.debug("Exception caught reporting nets", e);
-                    }
-                }
+        // send net announcement bulletins and reports
+        List <Net> nets = netAccessor.getAll(user, null);
+        if (!nets.isEmpty()) {
+            for (Net net : nets) {
+                federatedObjectReporterAccessor.announce(user, net);
+                federatedObjectReporterAccessor.announceStart(user, net);
             }
         }
     }

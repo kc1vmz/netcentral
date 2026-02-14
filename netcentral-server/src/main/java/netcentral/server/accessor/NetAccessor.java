@@ -32,9 +32,6 @@ import org.apache.logging.log4j.Logger;
 import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import io.micronaut.context.ApplicationContext;
@@ -74,7 +71,7 @@ public class NetAccessor {
     @Inject
     private UserAccessor userAccessor;
     @Inject
-    private TransceiverCommunicationAccessor transceiverMessageAccessor;
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public List<Net> getAll(User loggedInUser, String root) {
         List<NetRecord> recs = netRepository.findAll();
@@ -175,12 +172,7 @@ public class NetAccessor {
                     transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
 
-                    if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-                        APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(obj.getCallsign(), obj.getName(), obj.getDescription());
-                        transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
-                        APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(obj.getCallsign(), ZonedDateTime.now());
-                        transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
-                    }
+                    federatedObjectReporterAccessor.announce(loggedInUser, obj);
                 }
 
                 // also put the object into our ecosystem
@@ -321,10 +313,7 @@ public class NetAccessor {
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
                 }
 
-                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-                    APRSNetCentralNetSecureReport reportSecure = new APRSNetCentralNetSecureReport(rec.callsign(), ZonedDateTime.now());
-                    transceiverCommunicationAccessor.sendReport(loggedInUser, reportSecure);
-                }
+                federatedObjectReporterAccessor.secure(loggedInUser, net);
 
                 statisticsAccessor.incrementNetsClosed();
             }
@@ -367,7 +356,7 @@ public class NetAccessor {
         if (aprsMessage.getMessage() == null) {
             return;
         }
-        if (!aprsMessage.getMessage().startsWith("?")) {
+        if (!aprsMessage.getMessage().startsWith(APRSQueryType.PREFIX)) {
             return;
         }
 
@@ -376,11 +365,11 @@ public class NetAccessor {
 
             if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
                 // list commands
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetCommandsResponse(loggedInUser, net));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, getNetCommandsResponse(loggedInUser, net));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
                 // send commands and info
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetCommandsResponse(loggedInUser, net));
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetInfoResponse(loggedInUser, net));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, getNetCommandsResponse(loggedInUser, net));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, getNetInfoResponse(loggedInUser, net));
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
                 // announce net object
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
@@ -389,17 +378,17 @@ public class NetAccessor {
                 // send net status
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
                 // send object type
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetObjectTypeResponse(loggedInUser, aprsMessage));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, getNetObjectTypeResponse(loggedInUser, aprsMessage));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_INFO)) {
                 // send net information
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), getNetInfoResponse(loggedInUser, net));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, getNetInfoResponse(loggedInUser, net));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_PARTICIPANTS)) {
                 // send net participants
                 // send KV pairs K=V,K=V...
                 List<String> responses = getNetParticipantsResponse(loggedInUser, net);
                 if (!responses.isEmpty()) {
                     for (String message: responses) {
-                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, aprsMessage.getCallsignTo(), aprsMessage.getCallsignFrom(), message);
+                        federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, aprsMessage, message);
                     }
                 }
             }

@@ -30,13 +30,10 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionAnswerReport;
-
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetQuestion;
@@ -56,7 +53,7 @@ public class NetQuestionAnswerAccessor {
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public List<NetQuestionAnswer> getAll(User loggedInUser, String netQuestionId) {
         List<NetQuestionAnswerRecord> recs = netQuestionAnswerRepository.findBynet_question_id(netQuestionId);
@@ -107,10 +104,7 @@ public class NetQuestionAnswerAccessor {
             if (!net.isRemote()) {
                 transceiverCommunicationAccessor.sendMessage(loggedInUser, net.getCallsign(), obj.getCallsign(), "Thank you for your answer");
 
-                if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-                    APRSNetCentralNetQuestionAnswerReport report = new APRSNetCentralNetQuestionAnswerReport(net.getCallsign(), obj.getCallsign(), ""+question.getNumber(), obj.getAnswerText());
-                    transceiverCommunicationAccessor.sendReport(loggedInUser, report);
-                }
+                federatedObjectReporterAccessor.announce(loggedInUser, net, question, obj);
             }
             return obj;
         }

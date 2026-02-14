@@ -28,13 +28,10 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetCheckInOutReport;
-
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
@@ -72,8 +69,7 @@ public class NetParticipantAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
-
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     public List<Participant> getAllParticipants(User loggedInUser, Net net) {
         return  getAllParticipants(loggedInUser, net, true);
@@ -160,10 +156,7 @@ public class NetParticipantAccessor {
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
 
-            if (netConfigServerConfig.isFederated() && !net.isRemote() && netConfigServerConfig.isFederatedPush()) {
-                APRSNetCentralNetCheckInOutReport reportCheckin = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), true);
-                transceiverMessageAccessor.sendReport(loggedInUser, reportCheckin);
-            }
+            federatedObjectReporterAccessor.announce(loggedInUser, net, participant, true);
 
             changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.CREATE, hydrateParticipant(loggedInUser,participant));
             sendQuestionReminderForParticipant(loggedInUser, net, participant);
@@ -263,10 +256,7 @@ public class NetParticipantAccessor {
         netParticipantRepository.delete(participantRec);
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.DELETE, hydrateParticipant(loggedInUser,participant));
 
-        if (netConfigServerConfig.isFederated() && !net.isRemote() && netConfigServerConfig.isFederatedPush()) {
-            APRSNetCentralNetCheckInOutReport reportCheckout = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), false);
-            transceiverMessageAccessor.sendReport(loggedInUser, reportCheckout);
-        }
+        federatedObjectReporterAccessor.announce(loggedInUser, net, participant, false);
 
         return getAllParticipants(loggedInUser, net); 
     }

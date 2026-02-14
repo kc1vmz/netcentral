@@ -50,6 +50,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
@@ -147,11 +148,13 @@ public class APRSObjectAccessor {
     @Inject
     private NetCentralServerConfig netConfigServerConfig;
     @Inject
-    private FederatedObjectIngestionAccessor federatedObjectIngestionAccessor;
+    private FederatedObjectReportIngestionAccessor federatedObjectIngestionAccessor;
     @Inject
     private ConfigParametersAccessor configParametersAccessor;
     @Inject
     private GeneralResourceObjectCommandAccessor generalResourceObjectCommandAccessor;
+    @Inject
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     
     public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -285,7 +288,7 @@ public class APRSObjectAccessor {
             String dataStr = new String(innerAPRSUserDefined.getData());
             logger.info("User defined packet data - " + dataStr);
 
-            if (federatedObjectIngestionAccessor.isFederatedPacket(innerAPRSUserDefined)) {
+            if (federatedObjectIngestionAccessor.isFederatedUserDefinedPacket(innerAPRSUserDefined)) {
                 federatedObjectIngestionAccessor.processFederatedPacket(loggedInUser, id, innerAPRSUserDefined, source, heardTime);
             }
         }
@@ -788,19 +791,13 @@ public class APRSObjectAccessor {
 
         trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
 
-        if (source.equals("NETCENTRAL") && netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
+        if (source.equals("NETCENTRAL")) {
             // this is a locally created object - send out the creation report
-            APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(innerAPRSObject.getCallsignFrom(), innerAPRSObject.getType().name(), 
-                                                                                        innerAPRSObject.getCallsignFrom(), innerAPRSObject.getComment());
-            transceiverCommunicationAccessor.sendReport(loggedInUser, report);
-        }
-
-        // determine if this heard object is from a Net Central somewhere else
-        if (!source.equals("NETCENTRAL")) {
-            if (netConfigServerConfig.isFederated() && !netConfigServerConfig.isFederatedPush() && innerAPRSObject.isAlive() && (netConfigServerConfig.isFederatedInterrogate())) {
-                // interrogate objects for object type
-                transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), "?"+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
-            }
+            federatedObjectReporterAccessor.announce(loggedInUser, innerAPRSObject);
+        } else {
+            // determine if this heard object is from a Net Central somewhere else
+            // interrogate objects for object type
+            federatedObjectReporterAccessor.interrogate(loggedInUser, source, innerAPRSObject);
         }
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
@@ -882,16 +879,16 @@ public class APRSObjectAccessor {
             processWLNKMessage(loggedInUser, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && (!innerAPRSMessage.isMustAck())) {
             // object sent a message not needing an ack - figure out if it sent a response
-            determineObjectTypeFromMessage(loggedInUser, innerAPRSMessage.getCallsignFrom(), source, heardTime, message);
+            actOnObjectMessage(loggedInUser, innerAPRSMessage.getCallsignFrom(), source, heardTime, message);
         }
 
         return new APRSObjectResource(id, innerAPRSMessage, source, heardTime);
     }
 
-    private void determineObjectTypeFromMessage(User loggedInUser, String callsignFrom, String source, ZonedDateTime heardTime, String message) {
+    private void actOnObjectMessage(User loggedInUser, String callsignFrom, String source, ZonedDateTime heardTime, String message) {
         try {
             if (!message.startsWith(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE+":")) {
-                // not saying that it is a Net Central object
+                actOnObjectReportMessage(loggedInUser, callsignFrom, source, heardTime, message);
                 return;
             }
             APRSObject obj = getObjectByCallsign(loggedInUser, callsignFrom);
@@ -904,14 +901,55 @@ public class APRSObjectAccessor {
             }
             ObjectType type = ObjectType.valueOf(values[1]);
             obj.setType(type);
+            updateObjectFromMessage(loggedInUser, obj, source, heardTime);
 
+        } catch (Exception e) {
+        }
+    }
+
+    private void updateObjectFromMessage(User loggedInUser, APRSObject obj, String source, ZonedDateTime heardTime) {
             APRSObjectRecord updated = new APRSObjectRecord(obj.getId(), source, obj.getCallsignFrom(), obj.getCallsignTo(), heardTime, obj.isAlive(), obj.getLat(),
-                                                        obj.getLon(), "", obj.getComment(), type.ordinal());
+                                                        obj.getLon(), "", obj.getComment(), obj.getType().ordinal());
             aprsObjectRepository.update(updated);
             // need an update message
             changePublisherAccessor.publishObjectUpdate(obj.getCallsignFrom(), ChangePublisherAccessor.UPDATE, obj);
+    }
+
+    private void actOnObjectReportMessage(User loggedInUser, String callsignFrom, String source, ZonedDateTime heardTime, String message) {
+        APRSObject obj = getObjectByCallsign(loggedInUser, callsignFrom);
+        if ((obj == null) || ((!obj.getType().equals(ObjectType.STANDARD) && (!obj.getType().equals(ObjectType.UNKNOWN))))) {
+            // dont have an object yet or already has a specific type - get out - it wont ever change
+            return;
+        }
+
+        try {
+            APRSNetCentralNetAnnounceReport report = APRSNetCentralNetAnnounceReport.isValid(callsignFrom, message);
+            if (report != null) {
+                // object is a net
+                obj.setType(ObjectType.NET);
+                updateObjectFromMessage(loggedInUser, obj, source, heardTime);
+                // create a remote net
+                String completedNetId = UUID.randomUUID().toString();
+                Net remoteNet = new Net(callsignFrom, report.getName(), report.getDescription(), null, heardTime, completedNetId, null, null, false, "NETCENTRAL", false, null, false, false, true);
+                netAccessor.create(loggedInUser, remoteNet);
+
+                return;
+            }
         } catch (Exception e) {
         }
+
+        try {
+            APRSNetCentralObjectAnnounceReport report = APRSNetCentralObjectAnnounceReport.isValid(callsignFrom, message);
+            if (report != null) {
+                // object is a net
+                obj.setType(report.getObjectType());
+                updateObjectFromMessage(loggedInUser, obj, source, heardTime);
+
+                return;
+            }
+        } catch (Exception e) {
+        }
+
     }
 
     private void processWHOISMessage(User loggedInUser, APRSMessage innerAPRSMessage, String source) {

@@ -51,6 +51,8 @@ public class GeneralResourceObjectCommandAccessor {
     private StatisticsAccessor statisticsAccessor;
     @Inject
     private ResourceObjectKVAccessor resourceObjectKVAccessor;
+    @Inject
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
 
     public void processMessage(User loggedInUser, APRSObject generalResourceObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
@@ -69,7 +71,7 @@ public class GeneralResourceObjectCommandAccessor {
             return;
         }
 
-        if (message.startsWith("?")) {
+        if (message.startsWith(APRSQueryType.PREFIX)) {
             processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, generalResourceObject);
             return;
         }
@@ -202,7 +204,7 @@ public class GeneralResourceObjectCommandAccessor {
         if (innerAPRSMessage.getMessage() == null) {
             return;
         }
-        if (!innerAPRSMessage.getMessage().startsWith("?")) {
+        if (!innerAPRSMessage.getMessage().startsWith(APRSQueryType.PREFIX)) {
             return;
         }
 
@@ -211,11 +213,11 @@ public class GeneralResourceObjectCommandAccessor {
 
             if (queryType.equalsIgnoreCase(NetCentralQueryType.COMMANDS)) {
                 // list commands
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.INFO)) {
                 // send commands and info
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectInfoResponse(loggedInUser, aprsObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getGeneralObjectCommandsResponse(loggedInUser, aprsObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getGeneralObjectInfoResponse(loggedInUser, aprsObject));
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_OBJECTS)) {
                 // announce object
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
@@ -229,16 +231,16 @@ public class GeneralResourceObjectCommandAccessor {
                 // send net status
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE)) {
                 // send object type
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectTypeResponse(loggedInUser, aprsObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getGeneralObjectTypeResponse(loggedInUser, aprsObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.GENERAL_INFO)) {
                 // send general info
-                transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), getGeneralObjectInfoResponse(loggedInUser, aprsObject));
+                federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, getGeneralObjectInfoResponse(loggedInUser, aprsObject));
             } else if (queryType.equalsIgnoreCase(NetCentralQueryType.GENERAL_TOKEN_VALUE)) {
                 // send KV pairs K=V,K=V...
                 List<String> responses = getKVPairs(loggedInUser, aprsObject);
                 if (!responses.isEmpty()) {
                     for (String message: responses) {
-                        transceiverMessageAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, innerAPRSMessage.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), message);
+                        federatedObjectReporterAccessor.sendCommandResponse(loggedInUser, transceiverSourceId, innerAPRSMessage, message);
                     }
                 }
             }

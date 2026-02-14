@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
-import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
 
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -46,6 +45,7 @@ import jakarta.inject.Inject;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
+import netcentral.server.accessor.FederatedObjectReporterAccessor;
 import netcentral.server.accessor.NetAccessor;
 import netcentral.server.accessor.NetExpectedParticipantAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
@@ -55,7 +55,6 @@ import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
 import netcentral.server.accessor.TransceiverCommunicationAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -95,7 +94,7 @@ public class NetController {
     @Inject
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     @Post
     public Net create(HttpRequest<?> request,  @Body Net obj) {
@@ -345,10 +344,7 @@ public class NetController {
             }
         }
 
-        if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPush()) {
-            APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), true, message);
-            transceiverCommunicationAccessor.sendReport(loggedInUser, report);
-        }
+        federatedObjectReporterAccessor.announce(loggedInUser, net, msg, true);
 
         return "{ \"message\" : \""+message+"\"}";
     }

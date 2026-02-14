@@ -61,8 +61,10 @@ public class NetCentralServerConfig {
     private Integer longitudeMax;
     @Value("${netcentral.federated}")
     private Boolean federated;
-    @Value("${netcentral.federated.push}")
-    private Boolean federatedPush;
+    @Value("${netcentral.federated.push.udp}")
+    private Boolean federatedPushUserDefinedPacket;
+    @Value("${netcentral.federated.push.message}")
+    private Boolean federatedPushMessage;
     @Value("${netcentral.federated.interrogate}")
     private Boolean federatedInterrogate;
     @Value("${netcentral.net.report.minutes}")
@@ -190,11 +192,17 @@ public class NetCentralServerConfig {
     public void setLogRawPackets(Boolean logRawPackets) {
         this.logRawPackets = logRawPackets;
     }
-    public Boolean isFederatedPush() {
-        return federatedPush;
+    public Boolean isFederatedPushUserDefinedPacket() {
+        return federatedPushUserDefinedPacket;
     }
-    public void setFederatedPush(Boolean federatedPush) {
-        this.federatedPush = federatedPush;
+    public void setFederatedPushUserDefinedPacket(Boolean federatedPushUserDefinedPacket) {
+        this.federatedPushUserDefinedPacket = federatedPushUserDefinedPacket;
+    }
+    public Boolean isFederatedPushMessage() {
+        return federatedPushMessage;
+    }
+    public void setFederatedPushMessage(Boolean federatedPushMessage) {
+        this.federatedPushMessage = federatedPushMessage;
     }
     public Boolean isFederatedInterrogate() {
         return federatedInterrogate;
