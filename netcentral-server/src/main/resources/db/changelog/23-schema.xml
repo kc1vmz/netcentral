@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="23" author="kc1vmz">
+    <createTable tableName="config_settings">
+      <column name="config_set" type="INT">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="config_settingsPK"/>
+      </column>
+      <column name="object_beacon_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="object_cleanup_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="report_cleanup_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="scheduled_net_check_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="net_participant_reminder_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="net_report_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="bulletin_announce" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_latitude_min" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_longitude_min" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_latitude_max" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_longitude_max" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_push_udp" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_push_message" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_interrogate" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="log_raw_packets" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

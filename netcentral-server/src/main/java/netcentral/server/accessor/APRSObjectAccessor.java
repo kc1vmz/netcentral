@@ -58,7 +58,6 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
@@ -146,7 +145,7 @@ public class APRSObjectAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private FederatedObjectReportIngestionAccessor federatedObjectIngestionAccessor;
     @Inject
@@ -283,7 +282,7 @@ public class APRSObjectAccessor {
         APRSUserDefined innerAPRSUserDefined = innerAPRSUserDefinedOpt.get();
 
         // could be for us in a federated setup
-        if (netConfigServerConfig.isFederated()) {
+        if (netCentralServerConfigAccessor.isFederated()) {
 
             String dataStr = new String(innerAPRSUserDefined.getData());
             logger.info("User defined packet data - " + dataStr);

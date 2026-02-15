@@ -45,7 +45,7 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.SoftwareIdentity;
@@ -53,14 +53,14 @@ import netcentral.server.object.SoftwareIdentity;
 @Singleton
 public class NetMessageReport {
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     private static final Logger logger = LogManager.getLogger(NetMessageReport.class);
 
     private final static int MAX_ROWS = 25;
 
     public String createReport(CompletedNet net, List<NetMessage> messages) throws FileNotFoundException {
-        String filename = getUniqueFileName(netConfigServerConfig.getTempReportDir(), "pdf");
+        String filename = getUniqueFileName(netCentralServerConfigAccessor.getTempReportDir(), "pdf");
         try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(new FileOutputStream(filename)));
             Document document = new Document(pdf);
@@ -90,7 +90,7 @@ public class NetMessageReport {
                 }
             }
             document.close();
-            return filename.substring(netConfigServerConfig.getTempReportDir().length());
+            return filename.substring(netCentralServerConfigAccessor.getTempReportDir().length());
         } catch (Exception e) {
             logger.error("Exception caught creating Net Message Report - ", e);
         }

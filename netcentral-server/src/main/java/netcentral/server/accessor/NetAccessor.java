@@ -39,7 +39,6 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
@@ -65,7 +64,7 @@ public class NetAccessor {
     @Inject
     private StatisticsAccessor statisticsAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
@@ -170,7 +169,7 @@ public class NetAccessor {
                         announcement = String.format("APRS Net %s started", obj.getCallsign());
                     }
                     transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
-                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
+                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
 
                     federatedObjectReporterAccessor.announce(loggedInUser, obj);
                 }
@@ -310,7 +309,7 @@ public class NetAccessor {
                 if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
                     // announce the object and send the bulletin
                     transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("APRS Net %s ended", rec.callsign()), false, rec.lat(), rec.lon());
-                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netConfigServerConfig.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
+                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
                 }
 
                 federatedObjectReporterAccessor.secure(loggedInUser, net);

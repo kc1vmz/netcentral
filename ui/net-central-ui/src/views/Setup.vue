@@ -22,11 +22,11 @@
   <div>
       <PageHeaderPane title="Setup" description="Configuration settings for Net Central."/>
       <div>
-        <splitpanes class="default-theme" horizontal style="height: 100vh; width: 100%" @resized="storePaneSize1" v-model="paneSizes1">
-          <pane min-size="5" max-size="60" style="width: 100%" :size="paneSizes1">
+        <splitpanes class="default-theme" horizontal style="height: 100vh; width: 100%" @resized="storePaneSize1">
+          <pane style="width: 100%" :size="paneSizes1">
             <div class="content">
               <div class="pagesubheader">Transceiver Configuration</div>
-              <splitpanes vertical  @resized="storePaneSize2" v-model="paneSizes2">
+              <splitpanes vertical  @resized="storePaneSize2">
                 <pane min-size="40" max-size="60" :size="paneSizes2">
                   <div class="content">
                     <TransceiversListPane/> 
@@ -40,10 +40,10 @@
               </splitpanes>
             </div>
           </pane>
-          <pane min-size="5" max-size="60" style="width: 100%"  :size="100-paneSizes1">
+          <pane style="width: 100%" :size="paneSizes4">
             <div class="content">
               <div class="pagesubheader">Users</div>
-              <splitpanes vertical  @resized="storePaneSize3" v-model="paneSizes3">
+              <splitpanes vertical @resized="storePaneSize3">
                 <pane min-size="40" max-size="60" :size="paneSizes3">
                   <div class="content">
                     <UsersListPane/> 
@@ -55,6 +55,14 @@
                   </div>
                 </pane>
               </splitpanes>
+            </div>
+          </pane>
+          <pane style="width: 100%" :size="paneSizes5">
+            <div class="content">
+              <div class="pagesubheader">Settings</div>
+                <div class="content">
+                  <SettingsPane/> 
+                </div>
             </div>
           </pane>
         </splitpanes>
@@ -70,14 +78,16 @@ import TransceiverDetailsPane from '@/components/TransceiverDetailsPane.vue'
 import UsersListPane from '@/components/UsersListPane.vue'
 import UserDetailsPane from '@/components/UserDetailsPane.vue'
 import PageHeaderPane from '@/components/PageHeaderPane.vue'
-import { selectedObject , updateSelectedObject, setSelectedObjectionSelectionValue } from "@/SelectedObject.js";
-import { ref, onMounted, watch } from 'vue'
-import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";
+import SettingsPane from '@/components/SettingsPane.vue'
+import { ref, onMounted } from 'vue'
+import { getToken, redirect } from "@/LoginInformation.js";
 import { useRouter } from 'vue-router';
 
-const paneSizes1 = ref(50)
+const paneSizes1 = ref(33)
 const paneSizes2 = ref(50)
 const paneSizes3 = ref(50)
+const paneSizes4 = ref(33)
+const paneSizes5 = ref(34)
 var router = useRouter();
 
 onMounted(() => {
@@ -86,7 +96,7 @@ onMounted(() => {
   if (storedSizesSetup1) {
     paneSizes1.value = JSON.parse(storedSizesSetup1)
   } else {
-    paneSizes1.value = 50;
+    paneSizes1.value = 33;
   }
   const storedSizesSetup2 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-2')
   if (storedSizesSetup2) {
@@ -100,11 +110,35 @@ onMounted(() => {
   } else {
     paneSizes3.value = 50;
   }
+  const storedSizesSetup4 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-4')
+  if (storedSizesSetup4) {
+    paneSizes4.value = JSON.parse(storedSizesSetup4)
+  } else {
+    paneSizes4.value = 33;
+  }
+  const storedSizesSetup5 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-5')
+  if (storedSizesSetup5) {
+    paneSizes5.value = JSON.parse(storedSizesSetup5)
+  } else {
+    paneSizes5.value = 34;
+  }
 })
 
 const storePaneSize1 = ({ prevPane }) => {
-  paneSizes1.value = prevPane.size;
-  localStorage.setItem('NetCentral-splitpanes-sizes-setup-1', JSON.stringify(paneSizes1.value))
+  if (prevPane.index == 0) {
+    var total = paneSizes1.value + paneSizes4.value;
+    paneSizes1.value = prevPane.size;
+    paneSizes4.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-setup-1', JSON.stringify(paneSizes1.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-setup-4', JSON.stringify(paneSizes4.value))
+  } else {
+    var total = paneSizes4.value + paneSizes5.value;
+    paneSizes4.value = prevPane.size;
+    paneSizes5.value = total - prevPane.size;
+    localStorage.setItem('NetCentral-splitpanes-sizes-setup-4', JSON.stringify(paneSizes4.value))
+    localStorage.setItem('NetCentral-splitpanes-sizes-setup-5', JSON.stringify(paneSizes5.value))
+  }
+
 }
 const storePaneSize2 = ({ prevPane }) => {
   paneSizes2.value = prevPane.size;

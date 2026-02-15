@@ -32,14 +32,14 @@ import io.micronaut.context.event.StartupEvent;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 
 @Singleton
 public class SocketIoServerRunner implements ApplicationEventListener<StartupEvent> {
     private static final Logger logger = LogManager.getLogger(SocketIoServerRunner.class);
 
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     private SocketIOServer server = null;
 
@@ -48,8 +48,8 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
             return;
         }
         Configuration config = new Configuration();
-        config.setOrigin(netConfigServerConfig.getUpdateUrl()); // Separate URL for Socket.IO
-        config.setPort(netConfigServerConfig.getUpdatePort()); // Separate port for Socket.IO
+        config.setOrigin(netCentralServerConfigAccessor.getUpdateUrl()); // Separate URL for Socket.IO
+        config.setPort(netCentralServerConfigAccessor.getUpdatePort()); // Separate port for Socket.IO
         config.setHttpCompression(false);
         config.setWebsocketCompression(false);
         config.setUpgradeTimeout(10000000);

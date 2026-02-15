@@ -36,7 +36,6 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStat
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.auth.SessionCacheAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ObjectEOCStatus;
 import netcentral.server.enums.ObjectShelterState;
 import netcentral.server.enums.ObjectShelterStatus;
@@ -90,7 +89,7 @@ public class SummaryAccessor {
     @Inject
     private IgnoreStationAccessor ignoreStationAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private ResourceObjectKVAccessor resourceObjectKVAccessor;
 
@@ -245,7 +244,7 @@ public class SummaryAccessor {
 
 
     public SummaryMapPoints getNetMapPoints(User loggedInUser, String callsign, Boolean includeTrackedStations, Boolean includeInfrastructure, Boolean includeObjects, Boolean includePriorityObjects) {
-        SummaryMapPoints ret = new SummaryMapPoints(netConfigServerConfig.getLatitudeMin(), netConfigServerConfig.getLatitudeMax(), netConfigServerConfig.getLongitudeMin(), netConfigServerConfig.getLongitudeMax());
+        SummaryMapPoints ret = new SummaryMapPoints(netCentralServerConfigAccessor.getLatitudeMin(), netCentralServerConfigAccessor.getLatitudeMax(), netCentralServerConfigAccessor.getLongitudeMin(), netCentralServerConfigAccessor.getLongitudeMax());
         List<RenderedMapItem> items = new ArrayList<>();
 
         // fix up inputs
@@ -461,7 +460,7 @@ public class SummaryAccessor {
     }
 
     public SummaryMapPoints getObjectTypeMapPoints(User loggedInUser, String objectType) {
-        SummaryMapPoints ret = new SummaryMapPoints(netConfigServerConfig.getLatitudeMin(), netConfigServerConfig.getLatitudeMax(), netConfigServerConfig.getLongitudeMin(), netConfigServerConfig.getLongitudeMax());
+        SummaryMapPoints ret = new SummaryMapPoints(netCentralServerConfigAccessor.getLatitudeMin(), netCentralServerConfigAccessor.getLatitudeMax(), netCentralServerConfigAccessor.getLongitudeMin(), netCentralServerConfigAccessor.getLongitudeMax());
         List<RenderedMapItem> items = new ArrayList<>();
 
         if (objectType == null) {

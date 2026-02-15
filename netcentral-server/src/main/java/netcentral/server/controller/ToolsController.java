@@ -43,9 +43,9 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.APRSObjectAccessor;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.accessor.ToolsAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.User;
 import netcentral.server.object.request.NTSSendRadiogramRequest;
 import netcentral.server.object.request.WinlinkSendMessageRequest;
@@ -61,7 +61,7 @@ public class ToolsController {
     @Inject
     private ToolsAccessor toolsAccessor;
     @Inject
-    private NetCentralServerConfig netCentralServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private RawPacketReport rawPacketReport;
     @Inject 
@@ -125,7 +125,7 @@ public class ToolsController {
             List<APRSRaw> rawPackets = aprsObjectAccessor.getRawPackets(loggedInUser);
             String filename = rawPacketReport.createReport(rawPackets);
 
-            filename = netCentralServerConfig.getTempReportDir()+filename;
+            filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
             String newFilename = String.format("RawPacketReport-%s.txt", PrettyZonedDateTimeFormatter.format(ZonedDateTime.now()));
             return HttpResponse.ok(fileBytes)

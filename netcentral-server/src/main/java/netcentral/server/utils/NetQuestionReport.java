@@ -45,21 +45,21 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.SoftwareIdentity;
 
 @Singleton
 public class NetQuestionReport {
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     private static final Logger logger = LogManager.getLogger(NetQuestionReport.class);
 
     private final static int MAX_ROWS = 25;
 
     public String createReport(CompletedNet net, List<NetQuestionReportItem> messages) throws FileNotFoundException {
-        String filename = getUniqueFileName(netConfigServerConfig.getTempReportDir(), "pdf");
+        String filename = getUniqueFileName(netCentralServerConfigAccessor.getTempReportDir(), "pdf");
         try {
             PdfDocument pdf = new PdfDocument(new PdfWriter(new FileOutputStream(filename)));
             Document document = new Document(pdf);
@@ -89,7 +89,7 @@ public class NetQuestionReport {
                 }
             }
             document.close();
-            return filename.substring(netConfigServerConfig.getTempReportDir().length());
+            return filename.substring(netCentralServerConfigAccessor.getTempReportDir().length());
         } catch (Exception e) {
             logger.error("Exception caught creating Net Question Answer Report - ", e);
         }

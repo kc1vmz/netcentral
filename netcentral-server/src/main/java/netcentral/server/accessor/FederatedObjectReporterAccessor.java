@@ -42,7 +42,6 @@ import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
 import netcentral.server.object.NetQuestion;
@@ -57,10 +56,10 @@ public class FederatedObjectReporterAccessor {
     @Inject
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     public void announce(User loggedInUser, APRSObject object) {
-        if (netConfigServerConfig.isFederated() && object.isAlive()) {
+        if (netCentralServerConfigAccessor.isFederated() && object.isAlive()) {
             try {
                 String reportObjectType = null;
                 if (object.getType().equals(ObjectType.EOC)) {
@@ -75,10 +74,10 @@ public class FederatedObjectReporterAccessor {
 
                 if (reportObjectType != null) {
                     APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(object.getCallsignFrom(), reportObjectType, object.getCallsignFrom(), object.getComment(), object.getType());
-                    if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                    if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                         transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                     } 
-                    if (netConfigServerConfig.isFederatedPushMessage()) {
+                    if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                         sendReportAsMessage(loggedInUser, report);
                     }
                 }
@@ -90,14 +89,14 @@ public class FederatedObjectReporterAccessor {
 
     public void announce(User loggedInUser, Net net) {
         try {
-            if (netConfigServerConfig.isFederated()  && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated()  && !net.isRemote()) {
                 APRSNetCentralNetAnnounceReport reportAnnounce = new APRSNetCentralNetAnnounceReport(net.getCallsign(), net.getName(), net.getDescription());
                 APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(net.getCallsign(), ZonedDateTime.now());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportAnnounce);
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, reportAnnounce);
                     sendReportAsMessage(loggedInUser, reportStart);
                 }
@@ -109,12 +108,12 @@ public class FederatedObjectReporterAccessor {
 
     public void secure(User loggedInUser, Net net) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetSecureReport reportSecure = new APRSNetCentralNetSecureReport(net.getCallsign(), ZonedDateTime.now());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportSecure);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, reportSecure);
                 }
             }
@@ -125,12 +124,12 @@ public class FederatedObjectReporterAccessor {
 
     public void announce(User loggedInUser, Net net, Participant participant, boolean checkIn) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetCheckInOutReport reportCheckin = new APRSNetCentralNetCheckInOutReport(net.getCallsign(), participant.getCallsign(), checkIn);
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportCheckin);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, reportCheckin);
                 }
             }
@@ -141,12 +140,12 @@ public class FederatedObjectReporterAccessor {
 
     public void announce(User loggedInUser, Net net, NetQuestion obj) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetQuestionReport report = new APRSNetCentralNetQuestionReport(net.getCallsign(), ""+ obj.getNumber(), obj.getQuestionText());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, report);
                 }
             }
@@ -157,12 +156,12 @@ public class FederatedObjectReporterAccessor {
 
     public void announce(User loggedInUser, Net net, NetQuestion question, NetQuestionAnswer answer) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetQuestionAnswerReport report = new APRSNetCentralNetQuestionAnswerReport(net.getCallsign(), answer.getCallsign(), ""+question.getNumber(), answer.getAnswerText());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, report);
                 }
             }
@@ -173,12 +172,12 @@ public class FederatedObjectReporterAccessor {
 
     public void announceStart(User loggedInUser, Net net) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetStartReport reportStart = new APRSNetCentralNetStartReport(net.getCallsign(), net.getStartTime());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket()) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, reportStart);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, reportStart);
                 }
             }
@@ -189,12 +188,12 @@ public class FederatedObjectReporterAccessor {
 
     public void announce(User loggedInUser, Net net, NetMessage netMessage, boolean isNetCentral) {
         try {
-            if (netConfigServerConfig.isFederated() && !net.isRemote()) {
+            if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
                 APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), !isNetCentral, netMessage.getMessage());
-                if (netConfigServerConfig.isFederatedPushUserDefinedPacket() ) {
+                if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket() ) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }
-                if (netConfigServerConfig.isFederatedPushMessage()) {
+                if (netCentralServerConfigAccessor.isFederatedPushMessage()) {
                     sendReportAsMessage(loggedInUser, report);
                 }
             }
@@ -225,7 +224,7 @@ public class FederatedObjectReporterAccessor {
 
     public void interrogate(User loggedInUser, String source, APRSObject innerAPRSObject) {
         try {
-            if (netConfigServerConfig.isFederated() && netConfigServerConfig.isFederatedPushMessage() && innerAPRSObject.isAlive() && (netConfigServerConfig.isFederatedInterrogate())) {
+            if (netCentralServerConfigAccessor.isFederated() && netCentralServerConfigAccessor.isFederatedPushMessage() && innerAPRSObject.isAlive() && (netCentralServerConfigAccessor.isFederatedInterrogate())) {
                 transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), APRSQueryType.PREFIX+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
             }
         } catch (Exception e) {

@@ -34,26 +34,26 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSRaw;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 
 @Singleton
 public class RawPacketReport {
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     private static final String NEW_LINE_SEPARATOR = "\n";
 
     private static final Logger logger = LogManager.getLogger(RawPacketReport.class);
 
     public String createReport(List<APRSRaw> rawPackets) throws FileNotFoundException {
-        String filename = getUniqueFileName(netConfigServerConfig.getTempReportDir(), "txt");
+        String filename = getUniqueFileName(netCentralServerConfigAccessor.getTempReportDir(), "txt");
 
         try (FileWriter fileWriter = new FileWriter(filename)) {
             // write the packets
             for (APRSRaw rawPacket : rawPackets) {
                 fileWriter.append(rawPacket.getPrettyHeardTime()+" "+new String(rawPacket.getData())+NEW_LINE_SEPARATOR);
             }
-            return filename.substring(netConfigServerConfig.getTempReportDir().length());
+            return filename.substring(netCentralServerConfigAccessor.getTempReportDir().length());
         } catch (Exception e) {
             logger.error("Exception caught creating raw packet report", e);
         }

@@ -33,6 +33,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.ConfigParametersAccessor;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.accessor.NetParticipantReminderAccessor;
 import netcentral.server.accessor.NetQuestionReminderAccessor;
 import netcentral.server.accessor.NetReportAccessor;
@@ -42,7 +43,6 @@ import netcentral.server.accessor.ObjectCleanupAccessor;
 import netcentral.server.accessor.ReportCleanupAccessor;
 import netcentral.server.accessor.StatisticsAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.User;
 import netcentral.server.utils.APRSCreateObjectQueue;
 
@@ -57,7 +57,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     private StatisticsAccessor statisticsAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private ObjectBeaconAccessor priorityObjectBeaconAccessor;
     @Inject
@@ -94,7 +94,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     }
 
     void initializeSettableConfigParameters() {
-        configParametersAccessor.setLogRawPackets(netConfigServerConfig.isLogRawPackets());
+        configParametersAccessor.setLogRawPackets(netCentralServerConfigAccessor.isLogRawPackets());
     }
 
     void startReportCleanupThread() {
@@ -107,7 +107,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     reportCleanupAccessor.deleteReportFiles();
                     run = reportCleanupAccessor.stayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getReportCleanupMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getReportCleanupMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught cleaning up reports", e);
@@ -129,7 +129,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     netSchedulerAccessor.startAndStopNets();
                     run = netSchedulerAccessor.stayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getScheduledNetCheckMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getScheduledNetCheckMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught in scheduled net loop", e);
@@ -151,7 +151,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     priorityObjectBeaconAccessor.beaconObjects();
                     run = priorityObjectBeaconAccessor.beaconStayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectBeaconMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getObjectBeaconMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught beaconing objects", e);
@@ -195,7 +195,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     netParticipantReminderAccessor.sendParticipantReminders();
                     run = netParticipantReminderAccessor.stayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetParticipantReminderMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getNetParticipantReminderMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught reminding net participants", e);
@@ -217,7 +217,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     netReportAccessor.sendReports();
                     run = netReportAccessor.stayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getNetReportMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getNetReportMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("Exception caught reporting nets", e);
@@ -240,7 +240,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     objectCleanupAccessor.cleanupObjectsByTime(systemUser);
                     run = objectCleanupAccessor.stayRunning();
                     if (run) {
-                        Thread.sleep(MINUTES_TO_MILLIS*netConfigServerConfig.getObjectCleanupMinutes());
+                        Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getObjectCleanupMinutes());
                     }
                 } catch (InterruptedException e) {
                     logger.error("InterruptedException caught cleaning up objects", e);
@@ -253,7 +253,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     }
 
     void startAPRSObjectProcessorThreads() {
-        for (int i = 0; i < netConfigServerConfig.getQueueObjectHandlerThreads(); i++) {
+        for (int i = 0; i < netCentralServerConfigAccessor.getQueueObjectHandlerThreads(); i++) {
             new Thread(() -> {
                 boolean run = true;
                 boolean shutdownok = false;

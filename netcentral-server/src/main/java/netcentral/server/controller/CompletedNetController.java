@@ -43,11 +43,11 @@ import netcentral.server.accessor.ChangePublisherAccessor;
 import netcentral.server.accessor.CompletedExpectedParticipantAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.accessor.NetMessageAccessor;
 import netcentral.server.accessor.NetQuestionAccessor;
 import netcentral.server.accessor.NetQuestionAnswerAccessor;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.object.CompletedExpectedParticipant;
 import netcentral.server.object.CompletedNet;
 import netcentral.server.object.CompletedParticipant;
@@ -79,7 +79,7 @@ public class CompletedNetController {
     @Inject
     private NetParticipantReport netParticipantReport;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
@@ -173,7 +173,7 @@ public class CompletedNetController {
 
             String filename = netParticipantReport.createReport(net, participants, expectedParticipants);
 
-            filename = netConfigServerConfig.getTempReportDir()+filename;
+            filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
             String newFilename = String.format("NetReport-%s-%s.pdf", net.getCallsign(), net.getPrettyStartTime());
             return HttpResponse.ok(fileBytes)
@@ -204,7 +204,7 @@ public class CompletedNetController {
 
             String filename = netMessageReport.createReport(net, messages);
 
-            filename = netConfigServerConfig.getTempReportDir()+filename;
+            filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
             String newFilename = String.format("NetMessagesReport-%s-%s.pdf", net.getCallsign(), net.getPrettyStartTime());
             return HttpResponse.ok(fileBytes)
@@ -225,7 +225,7 @@ public class CompletedNetController {
             List<NetQuestionReportItem> lines = getQuestionAnswerReportLines(loggedInUser, net.getCompletedNetId());
             String filename = netQuestionReport.createReport(net, lines);
 
-            filename = netConfigServerConfig.getTempReportDir()+filename;
+            filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
             String newFilename = String.format("NetQuestionsReport-%s-%s.pdf", net.getCallsign(), net.getPrettyStartTime());
             return HttpResponse.ok(fileBytes)

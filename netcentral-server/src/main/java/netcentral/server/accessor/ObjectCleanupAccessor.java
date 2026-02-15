@@ -30,7 +30,6 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.auth.SessionAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.User;
 
@@ -42,7 +41,7 @@ public class ObjectCleanupAccessor {
     @Inject
     private APRSObjectAccessor aprsObjectAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private SessionAccessor sessionAccessor;
     @Inject
@@ -73,7 +72,7 @@ public class ObjectCleanupAccessor {
         }
 
         try {
-            ZonedDateTime before = ZonedDateTime.now().minusMinutes(netConfigServerConfig.getObjectCleanupMinutes());
+            ZonedDateTime before = ZonedDateTime.now().minusMinutes(netCentralServerConfigAccessor.getObjectCleanupMinutes());
             User systemUser = sessionAccessor.getSystemUser();
             // delete weather report
             aprsObjectAccessor.deleteWeatherReports(systemUser, before);

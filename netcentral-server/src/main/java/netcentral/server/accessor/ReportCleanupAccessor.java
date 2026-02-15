@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.config.NetCentralServerConfig;
 
 
 @Singleton
@@ -43,7 +42,7 @@ public class ReportCleanupAccessor {
     private static final Logger logger = LogManager.getLogger(ReportCleanupAccessor.class);
 
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
@@ -55,7 +54,7 @@ public class ReportCleanupAccessor {
         ZonedDateTime n = ZonedDateTime.now().plusMinutes(3);
         writeLock.lock();
         try {
-            File directory = new File(netConfigServerConfig.getTempReportDir());
+            File directory = new File(netCentralServerConfigAccessor.getTempReportDir());
             File[] files = directory.listFiles();
             if (files != null) {
                 for (File file : files) {

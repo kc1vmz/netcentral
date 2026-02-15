@@ -29,13 +29,13 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.accessor.StatisticsAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 
 @Singleton
 public class APRSCreateObjectQueue {
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
 
@@ -46,7 +46,7 @@ public class APRSCreateObjectQueue {
 
     private void initializeQueue() {
         if (queue == null) {
-            queue = new ArrayBlockingQueue<>(netConfigServerConfig.getQueueObjectHandlerSize());
+            queue = new ArrayBlockingQueue<>(netCentralServerConfigAccessor.getQueueObjectHandlerSize());
         }
     }
     public synchronized ArrayBlockingQueue<APRSObjectResource> getQueue() {

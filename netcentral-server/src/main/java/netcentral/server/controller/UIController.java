@@ -68,6 +68,7 @@ import netcentral.server.accessor.CallsignAccessor;
 import netcentral.server.accessor.CompletedNetAccessor;
 import netcentral.server.accessor.CompletedParticipantAccessor;
 import netcentral.server.accessor.NetAccessor;
+import netcentral.server.accessor.NetCentralServerConfigAccessor;
 import netcentral.server.accessor.NetParticipantAccessor;
 import netcentral.server.accessor.ParticipantAccessor;
 import netcentral.server.accessor.RegisteredTransceiverAccessor;
@@ -79,7 +80,6 @@ import netcentral.server.accessor.UIAccessor;
 import netcentral.server.accessor.UserAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.auth.SessionTrackedObjectAccessor;
-import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.ObjectShelterReportingTimeframe;
 import netcentral.server.enums.RadioStyle;
@@ -138,7 +138,7 @@ public class UIController {
     @Inject
     private CompletedParticipantAccessor completedParticipantAccessor;
     @Inject
-    private NetCentralServerConfig netConfigServerConfig;
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
     @Inject
     private ReportAccessor reportAccessor;
     @Inject
@@ -1856,7 +1856,7 @@ public class UIController {
         CompletedNet net = completedNetAccessor.get(loggedInUser, id);
 
         try {
-            filename = netConfigServerConfig.getTempReportDir()+filename;
+            filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
             byte[] fileBytes = Files.readAllBytes(Paths.get(filename));
             String newFilename = String.format("NetReport-%s-%s.pdf", net.getCallsign(), net.getPrettyStartTime());
             return HttpResponse.ok(fileBytes)
