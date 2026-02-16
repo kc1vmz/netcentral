@@ -150,7 +150,16 @@ public class RadioCommandAccessor {
 
     private void processMessage(User loggedInUser, APRSMessage msg, Net net, String transceiverSourceId) {
         if (net.isRemote()) {
-            return; // do not process any of these messages - they are not yours
+            if (netAccessor.processFederatedNetReport(loggedInUser, net, msg, transceiverSourceId)) {
+                return;
+            } else if (netMessageAccessor.processFederatedNetReport(loggedInUser, net, msg, transceiverSourceId)) {
+                return;
+            } else if (netQuestionAccessor.processFederatedNetReport(loggedInUser, net, msg, transceiverSourceId)) {
+                return;
+            } else if (netQuestionAnswerAccessor.processFederatedNetReport(loggedInUser, net, msg, transceiverSourceId)) {
+                return;
+            }
+            return;
         }
 
         // message is for this net - act and respond

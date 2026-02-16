@@ -2942,6 +2942,18 @@ function findValues(key) {
                 </tbody>
               </table>
           </Tab>
+          <Tab value="APRS Status">
+            <div v-if="((statusReports != null) && (statusReports.value != null))">
+              <b>APRS Status information:</b>
+              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS Status found.
+            </div>
+          </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
               <div v-if="accesstokenRef.value != null" class="grid-item">
@@ -2956,18 +2968,6 @@ function findValues(key) {
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Remove the station from Net Central.  It may be added if heard again via APRS.
               </div>
-            </div>
-          </Tab>
-          <Tab value="APRS Status">
-            <div v-if="((statusReports != null) && (statusReports.value != null))">
-              <b>APRS Status information:</b>
-              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
-              :rows-per-page="10" buttons-pagination
-              />
-            </div>
-            <div v-else>
-              <br>
-              <br> No APRS Status found.
             </div>
           </Tab>
         </Tabs>

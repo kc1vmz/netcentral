@@ -31,6 +31,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
@@ -54,6 +57,8 @@ public class NetMessageAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private UserAccessor userAccessor;
+    @Inject
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     public List<NetMessage> getAll(User loggedInUser, String callsignNet, String completedNetId) {
         List<NetMessage> ret = new ArrayList<>();
@@ -131,4 +136,39 @@ public class NetMessageAccessor {
         netMessageRepository.deleteAll();
         return null;
     }
+
+    public boolean processFederatedNetReport(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
+        if (loggedInUser == null) {
+            return false;
+        }
+        if (net == null) {
+            return false;
+        }
+        if (aprsMessage == null) {
+            return false;
+        }
+        if (aprsMessage.getMessage() == null) {
+            return false;
+        }
+
+        try {
+            APRSNetCentralNetMessageReport report = APRSNetCentralNetMessageReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                if (netCentralServerConfigAccessor.isFederated()) {
+                    // act upon valid report because we are federated
+                    NetMessage netMessage = new NetMessage(net.getCallsign(), net.getCompletedNetId(), 
+                                            "", // TODO- who sent it
+                                            report.getMessageText(), ZonedDateTime.now(),
+                                        report.getRecipient().equals(APRSNetCentralNetMessageReport.RECIPIENT_ALL) ? NetMessage.RECIPIENT_ENTIRE_NET : NetMessage.RECIPIENT_NET_CONTROL);
+                    // handle a net message being sent
+                    create(loggedInUser, netMessage);
+                }
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
+
 }

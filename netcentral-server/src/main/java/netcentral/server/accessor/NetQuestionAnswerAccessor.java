@@ -30,6 +30,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionAnswerReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
@@ -120,5 +123,32 @@ public class NetQuestionAnswerAccessor {
         }
 
         netQuestionAnswerRepository.deleteAll();
+    }
+
+    public boolean processFederatedNetReport(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
+        if (loggedInUser == null) {
+            return false;
+        }
+        if (net == null) {
+            return false;
+        }
+        if (aprsMessage == null) {
+            return false;
+        }
+        if (aprsMessage.getMessage() == null) {
+            return false;
+        }
+
+        try {
+            APRSNetCentralNetQuestionAnswerReport report = APRSNetCentralNetQuestionAnswerReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // ignore answers
+                // TODO - how to look up question by number
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
     }
 }

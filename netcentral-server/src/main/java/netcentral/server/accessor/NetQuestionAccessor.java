@@ -31,6 +31,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
+
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
@@ -55,6 +58,8 @@ public class NetQuestionAccessor {
     private ChangePublisherAccessor changePublisherAccessor;
     @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
+    @Inject
+    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
 
     public List<NetQuestion> getAll(User loggedInUser, String completedNetId) {
         List<NetQuestionRecord> recs = netQuestionRepository.findBycompleted_net_id(completedNetId);
@@ -220,4 +225,35 @@ public class NetQuestionAccessor {
         return obj;
     }
 
+    public boolean processFederatedNetReport(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
+        if (loggedInUser == null) {
+            return false;
+        }
+        if (net == null) {
+            return false;
+        }
+        if (aprsMessage == null) {
+            return false;
+        }
+        if (aprsMessage.getMessage() == null) {
+            return false;
+        }
+
+        try {
+            APRSNetCentralNetQuestionReport report = APRSNetCentralNetQuestionReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // handle a net question being asked
+                if (netCentralServerConfigAccessor.isFederated()) {
+                    // act upon valid report because we are federated
+                    NetQuestion netQuestion = new NetQuestion(UUID.randomUUID().toString(), net.getCompletedNetId(), Integer.parseInt(report.getQuestionNumber()),
+                                                                ZonedDateTime.now(), false, 0, report.getQuestionText(), ZonedDateTime.now().plusYears(100));
+                    create(loggedInUser, netQuestion, net, null);
+                }
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
 }

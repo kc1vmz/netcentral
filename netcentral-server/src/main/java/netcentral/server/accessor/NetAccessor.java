@@ -32,6 +32,13 @@ import org.apache.logging.log4j.Logger;
 import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetCheckInOutReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetMessageReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionAnswerReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetQuestionReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetSecureReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetStartReport;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import io.micronaut.context.ApplicationContext;
@@ -39,6 +46,8 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
@@ -340,6 +349,90 @@ public class NetAccessor {
 
         netRepository.deleteAll();
         return null;
+    }
+
+    public boolean processFederatedNetReport(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
+        if (loggedInUser == null) {
+            return false;
+        }
+        if (net == null) {
+            return false;
+        }
+        if (aprsMessage == null) {
+            return false;
+        }
+        if (aprsMessage.getMessage() == null) {
+            return false;
+        }
+
+        try {
+            APRSNetCentralNetAnnounceReport report = APRSNetCentralNetAnnounceReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // handle a new net announcement - ignore it
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        try {
+            APRSNetCentralNetCheckInOutReport report = APRSNetCentralNetCheckInOutReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // handle a check in / out
+                if (netCentralServerConfigAccessor.isFederated()) {
+                    // act upon valid report because we are federated
+                    ZonedDateTime now = ZonedDateTime.now();
+
+                    Participant participant = getParticipant(loggedInUser, report.getReportData()); 
+                    if (participant == null) {
+                        participant = new Participant(report.getReportData(), "Unknown", null, now, 
+                                                            null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN,
+                                                            0, null, now);
+                        participant = participantAccessor.create(loggedInUser, participant);
+                    }
+
+                    if (report.isCheckIn()) {
+                        netParticipantAccessor.addParticipant(loggedInUser, net, participant);
+                    } else {
+                        netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+                    }
+                }
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        try {
+            APRSNetCentralNetSecureReport report = APRSNetCentralNetSecureReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // handle a net being secured - just delete it
+                delete(loggedInUser, aprsMessage.getCallsignFrom());
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        try {
+            APRSNetCentralNetStartReport report = APRSNetCentralNetStartReport.isValid(aprsMessage.getCallsignFrom(), aprsMessage.getMessage());
+            if (report != null) {
+                // handle a net being started
+                net.setStartTime(report.getStartTime());
+                update(loggedInUser, net.getCallsign(), net);
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
+
+    private Participant getParticipant(User loggedInUser, String callsign) {
+        Participant ret = null;
+        try {
+            ret = participantAccessor.get(loggedInUser, callsign);
+        } catch (Exception e) {
+            ret = null;
+        }
+        return ret;
     }
 
     public void processDirectedStatusQuery(User loggedInUser, Net net, APRSMessage aprsMessage, String transceiverSourceId) {
