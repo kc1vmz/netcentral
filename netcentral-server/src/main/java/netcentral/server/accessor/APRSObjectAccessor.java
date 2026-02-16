@@ -1363,17 +1363,19 @@ public class APRSObjectAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Object not found");
         }
 
-        switch (object.getType()) {
-            case ObjectType.EOC:
-            case ObjectType.SHELTER:
-            case ObjectType.MEDICAL:
-            case ObjectType.RESOURCE:
-                markObjectDead(loggedInUser, object);
-                break;
-            default:
-                break;
+        if (!object.isRemote()) {
+            // only speak about objects we own
+            switch (object.getType()) {
+                case ObjectType.EOC:
+                case ObjectType.SHELTER:
+                case ObjectType.MEDICAL:
+                case ObjectType.RESOURCE:
+                    markObjectDead(loggedInUser, object);
+                    break;
+                default:
+                    break;
+            }
         }
-
         Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
         aprsObjectRepository.delete(recOpt.get());
         changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), ChangePublisherAccessor.DELETE, object);
@@ -1381,7 +1383,7 @@ public class APRSObjectAccessor {
     }
 
     private void markObjectDead(User loggedInUser, APRSObject object) {
-        if ((object.getLat() == null) || (object.getLon() == null)) {
+        if ((object.getLat() == null) || (object.getLon() == null) || object.isRemote()) {
             return;
         }
         transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignFrom(), object.getCallsignFrom(), object.getComment(), false, object.getLat(), object.getLon());
