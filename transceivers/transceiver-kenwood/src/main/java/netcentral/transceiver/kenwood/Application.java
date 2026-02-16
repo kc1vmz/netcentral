@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
     info = @Info(
             title = "netcentral-kenwood-transceiver",
-            version = "1.0.10"
+            version = "1.0.11"
     )
 )
 

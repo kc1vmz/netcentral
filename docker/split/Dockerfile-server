@@ -23,7 +23,7 @@ RUN mkdir -p /netcentral/bin
 ADD docker/split/image_files/server_processes.sh /netcentral/bin/server_processes.sh
 RUN ["dos2unix", "/netcentral/bin/server_processes.sh"]
 
-ADD netcentral-server/target/netcentral-server-1.0.10.jar /netcentral/bin/netcentral-server.jar
+ADD netcentral-server/target/netcentral-server-1.0.11.jar /netcentral/bin/netcentral-server.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 ADD docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh

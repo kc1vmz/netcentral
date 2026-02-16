@@ -22,5 +22,5 @@ package netcentral.transceiver.kiss.object;
 
 public class SoftwareIdentity {
     public final static String NAME = "Net Central KISS Transceiver";
-    public final static String VERSION = "1.0.10";
+    public final static String VERSION = "1.0.11";
 }
