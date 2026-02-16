@@ -38,7 +38,7 @@ public class TransceiverQueryAccessor {
     @Inject
     private APRSConfiguration aprsConfiguration;
     @Inject
-    private SendQueryQueueAccessor sendQueryQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
 
 
     public void create(TransceiverQuery obj) {
@@ -55,6 +55,6 @@ public class TransceiverQueryAccessor {
             obj.setCallsignFrom(aprsConfiguration.getCallsign());
         }
 
-        sendQueryQueueAccessor.queueSendQuery(obj);
+        sendQueueAccessor.queueRequest(obj);
     }
 }

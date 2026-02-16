@@ -35,7 +35,7 @@ public class TransceiverObjectAccessor {
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
-    private SendObjectQueueAccessor sendObjectQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
     @Inject
     private APRSConfiguration aprsConfiguration;
 
@@ -55,6 +55,6 @@ public class TransceiverObjectAccessor {
 
         // need to send this object out via APRS
         logger.info(String.format("object received %s (%s): %s", obj.getName(), obj.isAlive() ? "Alive" : "Dead", obj.getMessage()));
-        sendObjectQueueAccessor.queueSendObject(obj);
+        sendQueueAccessor.queueRequest(obj);
     }
 }

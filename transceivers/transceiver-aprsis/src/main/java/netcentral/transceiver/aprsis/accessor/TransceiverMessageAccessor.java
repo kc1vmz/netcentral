@@ -39,7 +39,7 @@ public class TransceiverMessageAccessor {
     @Inject
     private APRSConfiguration aprsConfiguration;
     @Inject
-    private SendMessageQueueAccessor sendMessageQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
 
     public void create(TransceiverMessage obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
@@ -55,7 +55,7 @@ public class TransceiverMessageAccessor {
             obj.setCallsignFrom(aprsConfiguration.getUsername());
         }
 
-        sendMessageQueueAccessor.queueSendMessage(obj);
+        sendQueueAccessor.queueRequest(obj);
     }
 
     public void create(TransceiverMessageMany obj) {
@@ -67,6 +67,6 @@ public class TransceiverMessageAccessor {
             return;
         }
 
-        sendMessageQueueAccessor.queueSendMessageMany(obj);
+        sendQueueAccessor.queueRequest(obj);
     }
 }

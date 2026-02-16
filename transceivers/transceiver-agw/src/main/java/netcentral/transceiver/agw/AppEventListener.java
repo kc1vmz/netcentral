@@ -30,10 +30,7 @@ import jakarta.inject.Singleton;
 import netcentral.transceiver.agw.accessor.APRSListenerAccessor;
 import netcentral.transceiver.agw.accessor.APRSListenerState;
 import netcentral.transceiver.agw.accessor.RegisteredTransceiverAccessor;
-import netcentral.transceiver.agw.accessor.SendMessageQueueAccessor;
-import netcentral.transceiver.agw.accessor.SendObjectQueueAccessor;
-import netcentral.transceiver.agw.accessor.SendQueryQueueAccessor;
-import netcentral.transceiver.agw.accessor.SendReportQueueAccessor;
+import netcentral.transceiver.agw.accessor.SendQueueAccessor;
 import netcentral.transceiver.agw.accessor.StatisticsAccessor;
 
 @Singleton
@@ -45,13 +42,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     private APRSListenerState aprsListenerState;
     @Inject
-    private SendMessageQueueAccessor sendMessageQueueAccessor;
-    @Inject
-    private SendReportQueueAccessor sendReportQueueAccessor;
-    @Inject
-    private SendQueryQueueAccessor sendQueryQueueAccessor;
-    @Inject
-    private SendObjectQueueAccessor sendObjectQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
     @Inject
     RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
@@ -75,20 +66,9 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                 logger.error("Exception caught in listener thread", e);;
             }
         }).start();
-        statisticsAccessor.setLastHeartBeatName2("Send messages");
+        statisticsAccessor.setLastHeartBeatName2("Send requests");
         new Thread(() -> {
-            sendMessageQueueAccessor.sendMessages();
-        }).start();
-        statisticsAccessor.setLastHeartBeatName3("Send objects");
-        new Thread(() -> {
-            sendObjectQueueAccessor.sendObjects();
-        }).start();
-        statisticsAccessor.setLastHeartBeatName4("Send reports");
-        new Thread(() -> {
-            sendReportQueueAccessor.sendReports();
-        }).start();
-        new Thread(() -> {
-            sendQueryQueueAccessor.sendQueries();
+            sendQueueAccessor.sendMessages();
         }).start();
     }
 }

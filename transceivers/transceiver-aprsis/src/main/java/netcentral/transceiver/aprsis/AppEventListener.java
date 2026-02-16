@@ -30,10 +30,7 @@ import jakarta.inject.Singleton;
 import netcentral.transceiver.aprsis.accessor.APRSListenerAccessor;
 import netcentral.transceiver.aprsis.accessor.APRSListenerState;
 import netcentral.transceiver.aprsis.accessor.RegisteredTransceiverAccessor;
-import netcentral.transceiver.aprsis.accessor.SendMessageQueueAccessor;
-import netcentral.transceiver.aprsis.accessor.SendObjectQueueAccessor;
-import netcentral.transceiver.aprsis.accessor.SendQueryQueueAccessor;
-import netcentral.transceiver.aprsis.accessor.SendReportQueueAccessor;
+import netcentral.transceiver.aprsis.accessor.SendQueueAccessor;
 import netcentral.transceiver.aprsis.accessor.StatisticsAccessor;
 
 
@@ -45,13 +42,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     APRSListenerState aprsListenerState;
     @Inject
-    private SendMessageQueueAccessor sendMessageQueueAccessor;
-    @Inject
-    private SendReportQueueAccessor sendReportQueueAccessor;
-    @Inject
-    private SendQueryQueueAccessor sendQueryQueueAccessor;
-    @Inject
-    private SendObjectQueueAccessor sendObjectQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
     @Inject
     RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
@@ -77,19 +68,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             }
         }).start();
         new Thread(() -> {
-            statisticsAccessor.setLastHeartBeatName2("Send messages");
-            sendMessageQueueAccessor.sendMessages();
-        }).start();
-        new Thread(() -> {
-            statisticsAccessor.setLastHeartBeatName3("Send objects");
-            sendObjectQueueAccessor.sendObjects();
-        }).start();
-        new Thread(() -> {
-            statisticsAccessor.setLastHeartBeatName4("Send reports");
-            sendReportQueueAccessor.sendReports();
-        }).start();
-        new Thread(() -> {
-            sendQueryQueueAccessor.sendQueries();
+            statisticsAccessor.setLastHeartBeatName2("Send requests");
+            sendQueueAccessor.sendMessages();
         }).start();
     }
 }

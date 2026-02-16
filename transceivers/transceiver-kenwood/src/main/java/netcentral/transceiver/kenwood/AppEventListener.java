@@ -27,13 +27,10 @@ import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.transceiver.kenwood.accessor.SendQueryQueueAccessor;
 import netcentral.transceiver.kenwood.accessor.APRSListenerAccessor;
 import netcentral.transceiver.kenwood.accessor.APRSListenerState;
 import netcentral.transceiver.kenwood.accessor.RegisteredTransceiverAccessor;
-import netcentral.transceiver.kenwood.accessor.SendMessageQueueAccessor;
-import netcentral.transceiver.kenwood.accessor.SendObjectQueueAccessor;
-import netcentral.transceiver.kenwood.accessor.SendReportQueueAccessor;
+import netcentral.transceiver.kenwood.accessor.SendQueueAccessor;
 import netcentral.transceiver.kenwood.accessor.StatisticsAccessor;
 
 
@@ -48,13 +45,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
-    private SendMessageQueueAccessor sendMessageQueueAccessor;
-    @Inject
-    private SendQueryQueueAccessor sendQueryQueueAccessor;
-    @Inject
-    private SendReportQueueAccessor sendReportQueueAccessor;
-    @Inject
-    private SendObjectQueueAccessor sendObjectQueueAccessor;
+    private SendQueueAccessor sendQueueAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
 
@@ -76,20 +67,10 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                 logger.error("Exception caught in listener thread", e);;
             }
         }).start();
-        statisticsAccessor.setLastHeartBeatName2("Send messages");
+        statisticsAccessor.setLastHeartBeatName2("Send requests");
         new Thread(() -> {
-            sendMessageQueueAccessor.sendMessages();
+            sendQueueAccessor.sendMessages();
         }).start();
-        statisticsAccessor.setLastHeartBeatName3("Send objects");
-        new Thread(() -> {
-            sendObjectQueueAccessor.sendObjects();
-        }).start();
-        statisticsAccessor.setLastHeartBeatName4("Send reports");
-        new Thread(() -> {
-            sendReportQueueAccessor.sendReports();
-        }).start();
-        new Thread(() -> {
-            sendQueryQueueAccessor.sendQueries();
-        }).start();    }
+    }
 }
 
