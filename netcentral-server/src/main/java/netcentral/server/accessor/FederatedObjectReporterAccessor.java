@@ -189,7 +189,7 @@ public class FederatedObjectReporterAccessor {
     public void announce(User loggedInUser, Net net, NetMessage netMessage, boolean isNetCentral) {
         try {
             if (netCentralServerConfigAccessor.isFederated() && !net.isRemote()) {
-                APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), !isNetCentral, netMessage.getMessage());
+                APRSNetCentralNetMessageReport report = new APRSNetCentralNetMessageReport(net.getCallsign(), isNetCentral, netMessage.getMessage());
                 if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket() ) {
                     transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                 }
