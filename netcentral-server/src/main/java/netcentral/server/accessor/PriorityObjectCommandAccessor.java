@@ -77,6 +77,11 @@ public class PriorityObjectCommandAccessor {
             return;
         }
 
+        if (priorityObject.getCallsignFrom().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
+            // the message is from inside the house
+            return;
+        }
+
         if (message.startsWith(APRSQueryType.PREFIX)) {
             processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, priorityObject);
             return;
@@ -110,7 +115,9 @@ public class PriorityObjectCommandAccessor {
     private void processBadCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
         logger.warn("Unexpected or unauthorized message sent to priority object - "+((priorityObject.getCallsignFrom() != null) ? priorityObject.getCallsignFrom() : "UNKNOWN"));
         logger.warn("Message: "+((innerAPRSMessage.getMessage() != null) ? innerAPRSMessage.getMessage() : "UNKNOWNMESSAGE"));
-        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+        if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+        }
     }
 
     private void processEOCCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message, boolean canChange) {
@@ -142,7 +149,10 @@ public class PriorityObjectCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
             transceiverMessageAccessor.sendReport(loggedInUser, (APRSNetCentralReport) report);
         }  else {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+                // dont send bad command back to itself
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            }
         }
     }
 
@@ -187,7 +197,10 @@ public class PriorityObjectCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
             transceiverMessageAccessor.sendReport(loggedInUser, (APRSNetCentralReport) report);
         }  else {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+                // dont send bad command back to itself
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            }
         }
     }
 

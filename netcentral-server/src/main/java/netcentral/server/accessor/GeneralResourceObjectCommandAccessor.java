@@ -31,6 +31,7 @@ import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import jakarta.inject.Inject;
@@ -71,6 +72,12 @@ public class GeneralResourceObjectCommandAccessor {
             return;
         }
 
+        if (generalResourceObject.getCallsignFrom().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
+            // the message is from inside the house
+            return;
+        }
+
+        // is this a directed query
         if (message.startsWith(APRSQueryType.PREFIX)) {
             processDirectedStatusQuery(loggedInUser, innerAPRSMessage, transceiverSourceId, generalResourceObject);
             return;
@@ -102,7 +109,10 @@ public class GeneralResourceObjectCommandAccessor {
     private void processBadCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
         logger.warn("Unexpected or unauthorized message sent to general resource object - "+((priorityObject.getCallsignFrom() != null) ? priorityObject.getCallsignFrom() : "UNKNOWN"));
         logger.warn("Message: "+((innerAPRSMessage.getMessage() != null) ? innerAPRSMessage.getMessage() : "UNKNOWNMESSAGE"));
-        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+        if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+            // dont send bad command back to itself
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+        }
     }
 
     private void processGeneralResourceCommand(User loggedInUser, APRSObject generalResourceObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message, boolean canChange) {
@@ -114,6 +124,16 @@ public class GeneralResourceObjectCommandAccessor {
         if (REPORT_COMMAND.equalsIgnoreCase(message)) {
             sendKVPairs(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId, message);
             return;
+        }
+
+        // is this a federated announcement message 
+        try {
+            APRSNetCentralObjectAnnounceReport report = APRSNetCentralObjectAnnounceReport.isValid(generalResourceObject.getCallsignFrom(), message);
+            if (report != null) {
+                // ignore this announcement - we already know
+                return;
+            }
+        } catch (Exception e) {
         }
 
         if (message.contains("=")) {
@@ -141,7 +161,10 @@ public class GeneralResourceObjectCommandAccessor {
         if (commandAccepted) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
         }  else {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(generalResourceObject.getCallsignFrom())) {
+                // dont send bad command back to itself
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            }
         }
     }
 

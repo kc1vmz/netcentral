@@ -186,7 +186,7 @@ public class APRSTCPIPListenerAccessor {
     public void sendObject(String objectName, String messageText, boolean alive, String lat, String lon) {
         logger.info(String.format("Sending object %s: %s", objectName,  messageText));
         KISSPacket packet = new KISSPacket();
-        packet.setCallsignFrom(aprsConfiguration.getCallsign());
+        packet.setCallsignFrom(objectName); // aprsConfiguration.getCallsign());
         packet.setApplicationName(NetCentralToCallConstant.TOCALL_NC1);
         packet.setDigipeaters(getDigipeaterList());
         packet.setValid(true);

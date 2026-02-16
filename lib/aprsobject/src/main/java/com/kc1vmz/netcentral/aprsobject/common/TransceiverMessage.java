@@ -20,29 +20,16 @@ package com.kc1vmz.netcentral.aprsobject.common;
     http://www.kc1vmz.com
 */
 
-public class TransceiverMessage {
+public class TransceiverMessage extends TransceiverRequest {
 
-    private String transceiverId;
-    private String callsignFrom;
     private String callsignTo;
     private String message;
     private boolean bulletin;
     private boolean ackRequested;
 
     public TransceiverMessage() {
+        super();
         ackRequested = true;
-    }
-    public String getTransceiverId() {
-        return transceiverId;
-    }
-    public void setTransceiverId(String transceiverId) {
-        this.transceiverId = transceiverId;
-    }
-    public String getCallsignFrom() {
-        return callsignFrom;
-    }
-    public void setCallsignFrom(String callsignFrom) {
-        this.callsignFrom = callsignFrom;
     }
     public String getCallsignTo() {
         return callsignTo;

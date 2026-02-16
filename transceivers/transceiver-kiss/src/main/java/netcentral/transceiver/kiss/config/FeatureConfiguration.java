@@ -31,8 +31,6 @@ public class FeatureConfiguration {
     private boolean listenerSleep;
     @Value("${feature.listener.readlock.enabled}")
     private boolean listenerReadLock;
-    @Value("${feature.messagecache.delete.seconds}")
-    private Integer messageCacheDeleteSeconds;
     @Value("${feature.listener.enabled}")
     private boolean listenerEnabled;
     @Value("${feature.listener.igate}")
@@ -59,12 +57,6 @@ public class FeatureConfiguration {
     }
     public void setListenerReadLock(boolean listenerReadLock) {
         this.listenerReadLock = listenerReadLock;
-    }
-    public Integer getMessageCacheDeleteSeconds() {
-        return messageCacheDeleteSeconds;
-    }
-    public void setMessageCacheDeleteSeconds(Integer messageCacheDeleteSeconds) {
-        this.messageCacheDeleteSeconds = messageCacheDeleteSeconds;
     }
     public boolean isListenerIgateEnabled() {
         return listenerIgateEnabled;

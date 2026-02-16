@@ -20,21 +20,16 @@ package com.kc1vmz.netcentral.aprsobject.common;
     http://www.kc1vmz.com
 */
 
-public class TransceiverObject {
+public class TransceiverObject extends TransceiverRequest {
 
-    private String transceiverId;
-    private String callsignFrom;
     private String name;
     private String message;
     private boolean alive;
     private String lat;
     private String lon;
 
-    public String getTransceiverId() {
-        return transceiverId;
-    }
-    public void setTransceiverId(String transceiverId) {
-        this.transceiverId = transceiverId;
+    public TransceiverObject() {
+        super();
     }
     public String getMessage() {
         return message;
@@ -53,12 +48,6 @@ public class TransceiverObject {
     }
     public void setAlive(boolean alive) {
         this.alive = alive;
-    }
-    public String getCallsignFrom() {
-        return callsignFrom;
-    }
-    public void setCallsignFrom(String callsignFrom) {
-        this.callsignFrom = callsignFrom;
     }
     public String getLat() {
         return lat;

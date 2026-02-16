@@ -20,30 +20,19 @@ package com.kc1vmz.netcentral.aprsobject.common;
     http://www.kc1vmz.com
 */
 
-public class TransceiverQuery {
+public class TransceiverQuery extends TransceiverRequest {
 
-    private String transceiverId;
     private String queryType;
-    private String callsignFrom;
     private String callsignTo;
 
+    public TransceiverQuery() {
+        super();
+    }
     public String getQueryType() {
         return queryType;
     }
     public void setQueryType(String queryType) {
         this.queryType = queryType;
-    }
-    public String getTransceiverId() {
-        return transceiverId;
-    }
-    public void setTransceiverId(String transceiverId) {
-        this.transceiverId = transceiverId;
-    }
-    public String getCallsignFrom() {
-        return callsignFrom;
-    }
-    public void setCallsignFrom(String callsignFrom) {
-        this.callsignFrom = callsignFrom;
     }
     public String getCallsignTo() {
         return callsignTo;

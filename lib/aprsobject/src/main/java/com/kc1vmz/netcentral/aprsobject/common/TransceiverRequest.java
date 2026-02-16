@@ -1,8 +1,8 @@
-package netcentral.transceiver.kiss.config;
+package com.kc1vmz.netcentral.aprsobject.common;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,18 +20,23 @@ package netcentral.transceiver.kiss.config;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.context.annotation.Value;
-import jakarta.inject.Singleton;
+public class TransceiverRequest {
 
-@Singleton
-public class QueueConfiguration {
-    @Value("${netcentral.queue.size}")
-    private Integer queueSize;
+    private String transceiverId;
+    private String callsignFrom;
 
-    public Integer getQueueSize() {
-        return queueSize;
+    public TransceiverRequest() {
     }
-    public void setQueueSize(Integer queueSize) {
-        this.queueSize = queueSize;
+    public String getTransceiverId() {
+        return transceiverId;
+    }
+    public void setTransceiverId(String transceiverId) {
+        this.transceiverId = transceiverId;
+    }
+    public String getCallsignFrom() {
+        return callsignFrom;
+    }
+    public void setCallsignFrom(String callsignFrom) {
+        this.callsignFrom = callsignFrom;
     }
 }

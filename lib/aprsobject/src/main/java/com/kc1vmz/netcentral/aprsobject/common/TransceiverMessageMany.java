@@ -22,24 +22,15 @@ package com.kc1vmz.netcentral.aprsobject.common;
 
 import java.util.List;
 
-public class TransceiverMessageMany {
+public class TransceiverMessageMany extends TransceiverRequest {
 
-    private String transceiverId;
-    private String callsignFrom;
     private String callsignTo;
     private List<String> messages;
+    private boolean ackRequested;
 
-    public String getTransceiverId() {
-        return transceiverId;
-    }
-    public void setTransceiverId(String transceiverId) {
-        this.transceiverId = transceiverId;
-    }
-    public String getCallsignFrom() {
-        return callsignFrom;
-    }
-    public void setCallsignFrom(String callsignFrom) {
-        this.callsignFrom = callsignFrom;
+    public TransceiverMessageMany() {
+        super();
+        ackRequested = true;
     }
     public String getCallsignTo() {
         return callsignTo;
@@ -52,5 +43,11 @@ public class TransceiverMessageMany {
     }
     public void setMessages(List<String> messages) {
         this.messages = messages;
+    }
+    public boolean isAckRequested() {
+        return ackRequested;
+    }
+    public void setAckRequested(boolean ackRequested) {
+        this.ackRequested = ackRequested;
     }
 }
