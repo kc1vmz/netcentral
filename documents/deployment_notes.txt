@@ -39,6 +39,8 @@ If running on Microsoft Windows, make sure you have applied all available update
 Automated installations
 
 To automatically install Net Central on a Linux system, use the netcentral_installer.sh bash script to install Net Central from source or from pre-built components.
+It can be found in Github at XXXXXXX
+Download using wget (wget XXXXXX), make the download executable (chmod +x netcentral_installer.sh), and then run ./netcentral_installer.sh.
 It will automatically install all dependencies.
 
 There is no automated installation for Microsoft Windows.

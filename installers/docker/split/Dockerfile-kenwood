@@ -18,19 +18,19 @@ RUN mkdir -p /netcentral/tmp
 RUN mkdir -p /netcentral/tmp/logs
 RUN mkdir -p /netcentral/bin
 
-ADD docker/split/image_files/transceiver_kenwood_processes.sh /netcentral/bin/transceiver_kenwood_processes.sh
+ADD installers/docker/split/image_files/transceiver_kenwood_processes.sh /netcentral/bin/transceiver_kenwood_processes.sh
 RUN ["dos2unix", "/netcentral/bin/transceiver_kenwood_processes.sh"]
 
 ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.11.jar /netcentral/bin/transceiver-kenwood.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure netcentral-transceiver-aprsis auto-starts
-ADD docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
+ADD installers/docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
 RUN ["dos2unix", "/netcentral/bin/config_env.sh"]
 RUN chmod +x /netcentral/bin/config_env.sh
 
 # make sure netcentral-transceiver-aprsis auto-starts
-ADD docker/split/image_files/netcentral-transceiver-kenwood /etc/init.d/netcentral-transceiver-kenwood
+ADD installers/docker/split/image_files/netcentral-transceiver-kenwood /etc/init.d/netcentral-transceiver-kenwood
 RUN ["dos2unix", "/etc/init.d/netcentral-transceiver-kenwood"]
 RUN chmod +x /etc/init.d/netcentral-transceiver-kenwood
 RUN rc-update add netcentral-transceiver-kenwood default

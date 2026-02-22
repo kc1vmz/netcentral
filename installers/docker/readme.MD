@@ -22,11 +22,11 @@ You can build the images by building Net Central from source code, or from build
 Download the entire source from Github.
 Build the software using "mvn clean package"
 
-If you are using the "full" version, from the "docker\full" directory, run the "build.bat" file.  
+If you are using the "full" version, from the "installers\docker\full" directory, run the "build.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the image and make it available to run.
 
-If you are using the "split" version, from the "docker\split" directory, run the "build.bat" file.  
+If you are using the "split" version, from the "installers\docker\split" directory, run the "build.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the images and make them available to run.
 
@@ -34,11 +34,11 @@ This will build the images and make them available to run.
 
 Download netcentral-docker-image-build-scripts-1.0.11.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.11 and expand it.
 
-If you are using the "full" version, from the "docker\full" directory, run the "build_nosource.bat" file.  
+If you are using the "full" version, from the "installers\docker\full" directory, run the "build_nosource.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the image and make it available to run.
 
-If you are using the "split" version, from the "docker\split" directory, run the "build_nosource.bat" file.  
+If you are using the "split" version, from the "installers\docker\split" directory, run the "build_nosource.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
 This will build the images and make them available to run.
 
@@ -92,13 +92,13 @@ You may also want to change the service account username and password as well.
 
 ### Environment variables for "docker run"
 
-To use "docker run" you can edit "docker\full\run.bat" and change the values of the following environment variables:
+To use "docker run" you can edit "installers\docker\full\run.bat" and change the values of the following environment variables:
 
 YOUR_CALLSIGN_HERE  (found twice)
 YOUR_PASSCODE_HERE
 YOUR_QUERY_HERE (must be in quotation marks)
 
-If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "docker\full\run.bat" and change the values of the following environment variables:
+If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "installers\docker\full\run.bat" and change the values of the following environment variables:
 
 NETCENTRAL_SERVER_USERNAME
 NETCENTRAL_SERVER_PASSWORD
@@ -108,13 +108,13 @@ If you change these values, you must remember them for later when you create you
 
 ### Environment variables for "docker-compose"
 
-To use "docker run" you can edit "docker\[full or split]\docker-compose.yml" and change the values of the following environment variables:
+To use "docker run" you can edit "installers\docker\[full or split]\docker-compose.yml" and change the values of the following environment variables:
 
 YOUR_CALLSIGN_HERE  (found twice)
 YOUR_PASSCODE_HERE
 YOUR_QUERY_HERE (must be in quotation marks)
 
-If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "docker\[full or split]\run.bat" and change the values of the following environment variables:
+If you want to change the service account username and password from its default of serviceAccount / serviceAccountPassword, you can edit "installers\docker\[full or split]\run.bat" and change the values of the following environment variables:
 
 NETCENTRAL_SERVER_USERNAME
 NETCENTRAL_SERVER_PASSWORD
@@ -136,7 +136,7 @@ If you wish to change these defaults, do so with caution.  If you change the por
 
 If you are using Docker Desktop, there are two ways you run Net Central - using "docker run" and "docker-compose".
 
-To use the "docker run" method, use the modified run.bat script in "docker\full". This method can only be used for the "full" version.
+To use the "docker run" method, use the modified run.bat script in "installers\docker\full". This method can only be used for the "full" version.
 
 To use the "docker-compose" method, run the modified "docker-compose.yml" file using "docker-compose up".  This method can be used for the "full" version, and MUST be used for the "split" version.
  

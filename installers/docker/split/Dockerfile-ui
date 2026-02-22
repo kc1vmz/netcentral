@@ -24,10 +24,10 @@ RUN mkdir -p /netcentral/tmp/reports
 RUN mkdir -p /netcentral/bin
 RUN mkdir -p /netcentral/bin/ui
 
-ADD docker/split/image_files/ui_processes.sh /netcentral/bin/ui_processes.sh
+ADD installers/docker/split/image_files/ui_processes.sh /netcentral/bin/ui_processes.sh
 RUN ["dos2unix", "/netcentral/bin/ui_processes.sh"]
 
-ADD docker/split/image_files/nc_setcap.sh /netcentral/bin/nc_setcap.sh
+ADD installers/docker/split/image_files/nc_setcap.sh /netcentral/bin/nc_setcap.sh
 RUN ["dos2unix", "/netcentral/bin/nc_setcap.sh"]
 RUN ["/netcentral/bin/nc_setcap.sh"]
 
@@ -35,7 +35,7 @@ ADD ui/net-central-ui/target/netcentral-ui-1.0.11.zip /netcentral/bin/netcentral
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure netcentral-ui auto-starts
-ADD docker/split/image_files/netcentral-ui /etc/init.d/netcentral-ui
+ADD installers/docker/split/image_files/netcentral-ui /etc/init.d/netcentral-ui
 RUN ["dos2unix", "/etc/init.d/netcentral-ui"]
 RUN chmod +x /etc/init.d/netcentral-ui
 RUN rc-update add netcentral-ui default

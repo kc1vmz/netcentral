@@ -20,18 +20,18 @@ RUN mkdir -p /netcentral/tmp/logs
 RUN mkdir -p /netcentral/tmp/reports
 RUN mkdir -p /netcentral/bin
 
-ADD docker/split/image_files/server_processes.sh /netcentral/bin/server_processes.sh
+ADD installers/docker/split/image_files/server_processes.sh /netcentral/bin/server_processes.sh
 RUN ["dos2unix", "/netcentral/bin/server_processes.sh"]
 
 ADD netcentral-server/target/netcentral-server-1.0.11.jar /netcentral/bin/netcentral-server.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
-ADD docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
+ADD installers/docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh
 RUN ["dos2unix", "/netcentral/bin/config_env.sh"]
 RUN chmod +x /netcentral/bin/config_env.sh
 
 # make sure netcentral-server auto-starts
-ADD docker/split/image_files/netcentral-server /etc/init.d/netcentral-server
+ADD installers/docker/split/image_files/netcentral-server /etc/init.d/netcentral-server
 RUN ["dos2unix", "/etc/init.d/netcentral-server"]
 RUN chmod +x /etc/init.d/netcentral-server
 RUN rc-update add netcentral-server default

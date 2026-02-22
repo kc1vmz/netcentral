@@ -32,14 +32,14 @@ RUN mkdir -p /netcentral/tmp/reports
 RUN mkdir -p /netcentral/src
 RUN mkdir -p /netcentral/src/ui
 
-ADD docker/full/image_files/all_processes.sh /netcentral/src/all_processes.sh
-ADD docker/full/image_files/nc_mysql_init.sh /netcentral/src/nc_mysql_init.sh
-ADD docker/full/image_files/nc_mysql_init_done.sh /netcentral/src/nc_mysql_init_done.sh
+ADD installers/docker/full/image_files/all_processes.sh /netcentral/src/all_processes.sh
+ADD installers/docker/full/image_files/nc_mysql_init.sh /netcentral/src/nc_mysql_init.sh
+ADD installers/docker/full/image_files/nc_mysql_init_done.sh /netcentral/src/nc_mysql_init_done.sh
 RUN ["dos2unix", "/netcentral/src/all_processes.sh"]
 RUN ["dos2unix", "/netcentral/src/nc_mysql_init.sh"]
 RUN ["dos2unix", "/netcentral/src/nc_mysql_init_done.sh"]
 
-ADD docker/full/image_files/nc_setcap.sh /netcentral/src/nc_setcap.sh
+ADD installers/docker/full/image_files/nc_setcap.sh /netcentral/src/nc_setcap.sh
 RUN ["dos2unix", "/netcentral/src/nc_setcap.sh"]
 RUN ["/netcentral/src/nc_setcap.sh"]
 
@@ -55,24 +55,24 @@ RUN chown -R ${UNAME}:${GNAME} /netcentral
 RUN rc-update add mariadb default
 
 # make sure netcentral-transceiver-aprsis auto-starts
-ADD docker/full/image_files/config_env.sh /netcentral/src/config_env.sh
+ADD installers/docker/full/image_files/config_env.sh /netcentral/src/config_env.sh
 RUN ["dos2unix", "/netcentral/src/config_env.sh"]
 RUN chmod +x /netcentral/src/config_env.sh
 
 # make sure netcentral-server auto-starts
-ADD docker/full/image_files/netcentral-server /etc/init.d/netcentral-server
+ADD installers/docker/full/image_files/netcentral-server /etc/init.d/netcentral-server
 RUN ["dos2unix", "/etc/init.d/netcentral-server"]
 RUN chmod +x /etc/init.d/netcentral-server
 RUN rc-update add netcentral-server default
 
 # make sure netcentral-transceiver-aprsis auto-starts
-ADD docker/full/image_files/netcentral-transceiver-aprsis /etc/init.d/netcentral-transceiver-aprsis
+ADD installers/docker/full/image_files/netcentral-transceiver-aprsis /etc/init.d/netcentral-transceiver-aprsis
 RUN ["dos2unix", "/etc/init.d/netcentral-transceiver-aprsis"]
 RUN chmod +x /etc/init.d/netcentral-transceiver-aprsis
 RUN rc-update add netcentral-transceiver-aprsis default
 
 # make sure netcentral-ui auto-starts
-ADD docker/full/image_files/netcentral-ui /etc/init.d/netcentral-ui
+ADD installers/docker/full/image_files/netcentral-ui /etc/init.d/netcentral-ui
 RUN ["dos2unix", "/etc/init.d/netcentral-ui"]
 RUN chmod +x /etc/init.d/netcentral-ui
 RUN rc-update add netcentral-ui default
