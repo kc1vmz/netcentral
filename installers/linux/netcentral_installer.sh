@@ -226,13 +226,17 @@ if [ "$NC_OS" = "Linux" ]; then
 
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
-          sudo systemctl enable netcentral-transceiver-aprsis
+          if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-aprsis
+          fi
           sudo systemctl enable netcentral-ui
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
-            sleep 10
-            sudo systemctl start netcentral-transceiver-aprsis
+            if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
+              sleep 10
+              sudo systemctl start netcentral-transceiver-aprsis
+            fi
             sleep 10
             sudo systemctl start netcentral-ui
           fi
@@ -381,13 +385,17 @@ if [ "$NC_OS" = "Linux" ]; then
 
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
-          sudo systemctl enable netcentral-transceiver-aprsis
+          if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-aprsis
+          fi
           sudo systemctl enable netcentral-ui
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
-            sleep 10
-            sudo systemctl start netcentral-transceiver-aprsis
+            if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
+              sleep 10
+              sudo systemctl start netcentral-transceiver-aprsis
+            fi
             sleep 10
             sudo systemctl start netcentral-ui
           fi
