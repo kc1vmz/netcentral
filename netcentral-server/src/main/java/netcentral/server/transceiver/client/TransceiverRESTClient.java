@@ -107,6 +107,9 @@ public class TransceiverRESTClient {
         if ((callsignTo.length() == 0) || (callsignTo.length() > 9)) {
             return true;
         }
+        if (callsignTo.startsWith("BLN")) {
+            return false;
+        }
         if (!callsignTo.contains("-")) {
             return true;
         }
