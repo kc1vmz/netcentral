@@ -206,8 +206,8 @@ function calculateDuration(seconds) {
             <div>{{ summary.value.registeredTransceiversReceive }} Enabled for receive</div>
             <div>{{ summary.value.registeredTransceiversTransmit }} Enabled for transmit</div>
             <br>
-            <div>{{ ncStats.value.objectsReceived }} Objects received</div>
-            <div>{{ ncStats.value.objectsSent }} Objects sent</div>
+            <div>{{ ncStats.value.objectsReceived }} Packets received</div>
+            <div>{{ ncStats.value.objectsSent }} Packets sent</div>
             <div>{{ ncStats.value.messagesSent }} Messages sent</div>
             <div>{{ ncStats.value.reportsSent }} Reports sent</div>
             <div>{{ ncStats.value.acksRequested }} Acks requested</div>
