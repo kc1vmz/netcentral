@@ -2938,6 +2938,7 @@ function findValues(key) {
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                 </tbody>
               </table>
@@ -2984,6 +2985,7 @@ function findValues(key) {
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                 </tbody>
               </table>
@@ -3285,6 +3287,7 @@ function findValues(key) {
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                 </tbody>
               </table>
@@ -3436,6 +3439,7 @@ function findValues(key) {
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                 </tbody>
               </table>
@@ -3555,6 +3559,7 @@ function findValues(key) {
                   <tr><td><b>Callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsign }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Ignored since:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyIgnoreStartTime }}</td></tr>
                 </tbody>
               </table>
@@ -3690,6 +3695,7 @@ function findValues(key) {
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                 </tbody>
               </table>

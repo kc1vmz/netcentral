@@ -389,7 +389,7 @@ public class SummaryAccessor {
                     } else if (object.getType().equals(ObjectType.MEDICAL)) {
                         renderObject = getMedicalInformation(loggedInUser, object);
                     }
-                    RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignFrom(), renderObject);
+                    RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignTo(), renderObject);
                     if (item.isValid()) {
                         item.setObject(true);
                         items.add(item);
@@ -416,7 +416,7 @@ public class SummaryAccessor {
                     } else if (object.getType().equals(ObjectType.MEDICAL)) {
                         renderObject = getMedicalInformation(loggedInUser, object);
                     }
-                    RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignFrom(), renderObject);
+                    RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignTo(), renderObject);
                     if (item.isValid()) {
                         item.setObject(true);
                         items.add(item);
@@ -623,7 +623,7 @@ public class SummaryAccessor {
 
     public Object getEOCInformation(User loggedInUser, APRSObject object) {
         ObjectEOCConsolidatedReport report = new ObjectEOCConsolidatedReport();
-        report.setCallsign(object.getCallsignFrom());
+        report.setCallsign(object.getCallsignTo());
         report.setDescription(object.getComment());
         report.setLat(object.getLat());
         report.setLon(object.getLon());
@@ -654,7 +654,7 @@ public class SummaryAccessor {
 
     public Object getShelterInformation(User loggedInUser, APRSObject object) {
         ObjectShelterStatusReport report = new ObjectShelterStatusReport();
-        report.setCallsign(object.getCallsignFrom());
+        report.setCallsign(object.getCallsignTo());
         report.setDescription(object.getComment());
         report.setLat(object.getLat());
         report.setLon(object.getLon());
@@ -677,7 +677,7 @@ public class SummaryAccessor {
 
     public Object getGeneralResourceInformation(User loggedInUser, APRSObject object) {
         ObjectGeneralResourceStatusReport report = new ObjectGeneralResourceStatusReport();
-        report.setCallsign(object.getCallsignFrom());
+        report.setCallsign(object.getCallsignTo());
         report.setDescription(object.getComment());
         report.setLat(object.getLat());
         report.setLon(object.getLon());
@@ -693,10 +693,10 @@ public class SummaryAccessor {
     }
 
     private String getTitleField(APRSObject object) {
-        return object.getCallsignFrom();
+        return object.getCallsignTo();
     }
 
     private String getNameField(APRSObject object) {
-        return object.getCallsignFrom();
+        return object.getCallsignTo();
     }
 }

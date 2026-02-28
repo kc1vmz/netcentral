@@ -77,7 +77,7 @@ public class PriorityObjectCommandAccessor {
             return;
         }
 
-        if (priorityObject.getCallsignFrom().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
+        if (priorityObject.getCallsignTo().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
             // the message is from inside the house
             return;
         }
@@ -113,10 +113,10 @@ public class PriorityObjectCommandAccessor {
     }
 
     private void processBadCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
-        logger.warn("Unexpected or unauthorized message sent to priority object - "+((priorityObject.getCallsignFrom() != null) ? priorityObject.getCallsignFrom() : "UNKNOWN"));
+        logger.warn("Unexpected or unauthorized message sent to priority object - "+((priorityObject.getCallsignTo() != null) ? priorityObject.getCallsignTo() : "UNKNOWN"));
         logger.warn("Message: "+((innerAPRSMessage.getMessage() != null) ? innerAPRSMessage.getMessage() : "UNKNOWNMESSAGE"));
-        if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+        if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignTo())) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
         }
     }
 
@@ -137,21 +137,21 @@ public class PriorityObjectCommandAccessor {
             // header is 4 characters
             String prefix = message.substring(0, 2).toUpperCase();
             if (prefix.equals("EO")) {
-                if ((report = APRSNetCentralEOCContactReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                if ((report = APRSNetCentralEOCContactReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralEOCContactReport) report);
-                } else if ((report = APRSNetCentralEOCMobilizationReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                } else if ((report = APRSNetCentralEOCMobilizationReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralEOCMobilizationReport) report);
                 }
             }
         }
 
         if (commandAccepted && (report != null)) {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
             transceiverMessageAccessor.sendReport(loggedInUser, (APRSNetCentralReport) report);
         }  else {
-            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignTo())) {
                 // dont send bad command back to itself
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
             }
         }
     }
@@ -180,26 +180,26 @@ public class PriorityObjectCommandAccessor {
             // header is 4 characters
             String prefix = message.substring(0, 2).toUpperCase();
             if (prefix.equals("SH")) {
-                if ((report = APRSNetCentralShelterWorkerReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                if ((report = APRSNetCentralShelterWorkerReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralShelterWorkerReport) report);
-                } else if ((report = APRSNetCentralShelterStatusReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                } else if ((report = APRSNetCentralShelterStatusReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralShelterStatusReport) report);
-                } else if ((report = APRSNetCentralShelterOperationalMaterielReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                } else if ((report = APRSNetCentralShelterOperationalMaterielReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralShelterOperationalMaterielReport) report);
-                } else if ((report = APRSNetCentralShelterOperationalFoodReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                } else if ((report = APRSNetCentralShelterOperationalFoodReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralShelterOperationalFoodReport) report);
-                } else if ((report = APRSNetCentralShelterCensusReport.isValid(priorityObject.getCallsignFrom(), message)) != null) {
+                } else if ((report = APRSNetCentralShelterCensusReport.isValid(priorityObject.getCallsignTo(), message)) != null) {
                     commandAccepted = updateReport(loggedInUser, (APRSNetCentralShelterCensusReport) report);
                 }
             }
         }
         if (commandAccepted && (report != null)) {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
             transceiverMessageAccessor.sendReport(loggedInUser, (APRSNetCentralReport) report);
         }  else {
-            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignTo())) {
                 // dont send bad command back to itself
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
             }
         }
     }
@@ -271,7 +271,7 @@ public class PriorityObjectCommandAccessor {
                 // announce object
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
                 if ((priorityObject.getLat() != null) && (priorityObject.getLon() != null)) {
-                    transceiverMessageAccessor.sendObject(loggedInUser, priorityObject.getCallsignFrom(), priorityObject.getCallsignFrom(),
+                    transceiverMessageAccessor.sendObject(loggedInUser, priorityObject.getCallsignTo(), priorityObject.getCallsignTo(),
                                                             priorityObject.getComment(), priorityObject.isAlive(),
                                                             priorityObject.getLat(), priorityObject.getLon());
                 }

@@ -73,7 +73,7 @@ public class FederatedObjectReporterAccessor {
                 }
 
                 if (reportObjectType != null) {
-                    APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(object.getCallsignFrom(), reportObjectType, object.getCallsignFrom(), object.getComment(), object.getType());
+                    APRSNetCentralObjectAnnounceReport report = new APRSNetCentralObjectAnnounceReport(object.getCallsignTo(), reportObjectType, object.getCallsignTo(), object.getComment(), object.getType());
                     if (netCentralServerConfigAccessor.isFederatedPushUserDefinedPacket()) {
                         transceiverCommunicationAccessor.sendReport(loggedInUser, report);
                     } 
@@ -225,7 +225,7 @@ public class FederatedObjectReporterAccessor {
     public void interrogate(User loggedInUser, String source, APRSObject innerAPRSObject) {
         try {
             if (netCentralServerConfigAccessor.isFederated() && netCentralServerConfigAccessor.isFederatedPushMessage() && innerAPRSObject.isAlive() && (netCentralServerConfigAccessor.isFederatedInterrogate())) {
-                transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignFrom(), APRSQueryType.PREFIX+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
+                transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, source, null, innerAPRSObject.getCallsignTo(), APRSQueryType.PREFIX+NetCentralQueryType.NET_CENTRAL_OBJECT_TYPE);
             }
         } catch (Exception e) {
             logger.error("Exception caught", e);

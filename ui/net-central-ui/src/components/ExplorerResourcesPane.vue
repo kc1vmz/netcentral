@@ -190,8 +190,8 @@ watch(updateObjectEvent, (newValue, oldValue) => {
       }
 
       if(!found) {
-        newValue.value.object.name = newValue.value.object.callsignFrom;
-        newValue.value.object.callsign = newValue.value.object.callsignFrom;
+        newValue.value.object.name = newValue.value.object.callsignTo;
+        newValue.value.object.callsign = newValue.value.object.callsignTo;
         newValue.value.object.prettyLastHeard = newValue.value.object.prettyLdtime;
         if (newValue.value.object.alive) {
           newValue.value.object.status = "Alive";
@@ -317,7 +317,7 @@ const headersIgnore = [
         { text: "Type", value: "type", sortable: true},
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
-        { text: "Ignored since", value: "prettyLastHeard", sortable: true}];  // reusing prettyLastHeard
+        { text: "Ignored since", value: "prettyIgnoreStartTime", sortable: true}];  // reusing prettyLastHeard
 const headersInternetServer = [
         { text: "Server name", value: "name", sortable: true },
         { text: "IP address", value: "ipAddress", sortable: true },
@@ -397,8 +397,8 @@ function updateObjects() {
               var objects = data;
               if (objects != null) {
                 objects.forEach(function(objectItem){
-                                objectItem.name = objectItem.callsignFrom;
-                                objectItem.callsign = objectItem.callsignFrom;
+                                objectItem.name = objectItem.callsignTo;
+                                objectItem.callsign = objectItem.callsignTo;
                                 objectItem.prettyLastHeard = objectItem.prettyLdtime;
                                 if (objectItem.alive) {
                                   objectItem.status = "Alive";

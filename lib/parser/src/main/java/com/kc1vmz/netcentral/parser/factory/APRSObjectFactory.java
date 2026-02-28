@@ -41,6 +41,9 @@ public class APRSObjectFactory {
         logger.debug("Parsing APRSObject object");
         APRSObject ret = new APRSObject();
 
+        String callsignFrom = AgwHeaderParser.getCallsignFrom(header);
+        callsignFrom = Stripper.stripWhitespace(callsignFrom);
+
         ret.setHeader(header);
         ret.setData(data);
         ret.setDti(data[0]);
@@ -48,7 +51,8 @@ public class APRSObjectFactory {
         byte [] objectNameBytes = Arrays.copyOfRange(data, 1, 10);
         String objectName = new String (objectNameBytes);
         objectName = Stripper.stripWhitespace(objectName);
-        ret.setCallsignFrom((objectName.length()> 0) ? objectName : AgwHeaderParser.getCallsignFrom(header));
+        ret.setCallsignTo((objectName.length()> 0) ? objectName : AgwHeaderParser.getCallsignTo(header));
+        ret.setCallsignFrom(callsignFrom);
 
         switch (data[10]) {
             case '*' -> { ret.setAlive(true); }

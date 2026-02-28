@@ -430,7 +430,7 @@ function createObjectNo() {
                         <br>Type: {{ mapPoint.itemObject.resourceType }}
                       </div>
                       <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object))">
-                        <b>{{ mapPoint.itemObject.callsignFrom }}</b>
+                        <b>{{ mapPoint.itemObject.callsignTo }}</b>
                         <br><i>{{mapPoint.itemObject.comment}}</i>
                       </div>
                       <div v-else-if="(mapPoint.itemObject != null)">

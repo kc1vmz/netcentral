@@ -770,7 +770,10 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSObject.getCallsignFrom())) {
             return null;
         }
-        List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_from(innerAPRSObject.getCallsignFrom());
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSObject.getCallsignTo())) {
+            return null;
+        }
+        List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSObject.getCallsignTo());
         APRSObjectRecord rec;
         if ((foundRecList != null) && (!foundRecList.isEmpty())) {
             // objects get overwritten, not created new
@@ -779,16 +782,17 @@ public class APRSObjectAccessor {
                                                                     innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
                                                                     (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
             rec = aprsObjectRepository.update(updated);
-            changePublisherAccessor.publishObjectUpdate(first.callsign_from(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
+            changePublisherAccessor.publishObjectUpdate(first.callsign_to(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
         } else {
             APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
                                                         innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
                                                         (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
             rec = aprsObjectRepository.save(src);
-            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignFrom(), ChangePublisherAccessor.CREATE, innerAPRSObject);
+            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignTo(), ChangePublisherAccessor.CREATE, innerAPRSObject);
         }
 
-        trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
+        trackStation(loggedInUser,  rec.callsign_from(), null, null, TrackedStationType.STATION, null); // create station representing from 
+        trackStationFromObject(loggedInUser,  rec.callsign_to(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
 
         if (source.equals("NETCENTRAL")) {
             // this is a locally created object - send out the creation report
@@ -911,7 +915,7 @@ public class APRSObjectAccessor {
                                                         obj.getLon(), "", obj.getComment(), obj.getType().ordinal());
             aprsObjectRepository.update(updated);
             // need an update message
-            changePublisherAccessor.publishObjectUpdate(obj.getCallsignFrom(), ChangePublisherAccessor.UPDATE, obj);
+            changePublisherAccessor.publishObjectUpdate(obj.getCallsignTo(), ChangePublisherAccessor.UPDATE, obj);
     }
 
     private void actOnObjectReportMessage(User loggedInUser, String callsignFrom, String source, ZonedDateTime heardTime, String message) {
@@ -1157,10 +1161,18 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSItem.getCallsignFrom())) {
             return null;
         }
+        if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSItem.getCallsignTo())) {
+            return null;
+        }
 
         // treat an item like an object 
+        List<APRSObjectRecord> foundRecList = null; 
+        
+        try {
+            foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSItem.getCallsignFrom());
+        } catch (Exception e) {
+        }
 
-        List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_from(innerAPRSItem.getCallsignFrom());
         APRSObjectRecord rec;
         if ((foundRecList != null) && (!foundRecList.isEmpty())) {
             // objects get overwritten, not created new
@@ -1378,7 +1390,7 @@ public class APRSObjectAccessor {
         }
         Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
         aprsObjectRepository.delete(recOpt.get());
-        changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), ChangePublisherAccessor.DELETE, object);
+        changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_to(), ChangePublisherAccessor.DELETE, object);
         return null;
     }
 
@@ -1386,7 +1398,7 @@ public class APRSObjectAccessor {
         if ((object.getLat() == null) || (object.getLon() == null) || object.isRemote()) {
             return;
         }
-        transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignFrom(), object.getCallsignFrom(), object.getComment(), false, object.getLat(), object.getLon());
+        transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignTo(), object.getCallsignTo(), object.getComment(), false, object.getLat(), object.getLon());
     }
 
     public List<APRSObject> getObjects(User loggedInUser, boolean priorityOnly, boolean generalOnly) {
@@ -1423,7 +1435,7 @@ public class APRSObjectAccessor {
             }
         } catch (Exception e) {
             if (badrec != null) {
-                logger.error("Exception caught for callsign: "+badrec.callsign_from(), e);
+                logger.error("Exception caught for callsign: "+badrec.callsign_to(), e);
             }
         }
 
@@ -1502,7 +1514,7 @@ public class APRSObjectAccessor {
     public APRSObject getObjectByCallsign(User loggedInUser, String callsign) {
         APRSObject ret = null;
         try {
-            List<APRSObjectRecord> recList = aprsObjectRepository.findBycallsign_from(callsign);
+            List<APRSObjectRecord> recList = aprsObjectRepository.findBycallsign_to(callsign);
             if ((recList != null) && (!recList.isEmpty())) {
                 APRSObjectRecord rec = recList.get(0); // should only be one
                 boolean remote = true;
@@ -1525,7 +1537,7 @@ public class APRSObjectAccessor {
             Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
             if (!recOpt.isEmpty()) {
                 aprsObjectRepository.delete(recOpt.get());  // there should only be one
-                changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_from(), ChangePublisherAccessor.DELETE, object);
+                changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_to(), ChangePublisherAccessor.DELETE, object);
             }
         } catch (Exception e) {
         }
@@ -1533,11 +1545,11 @@ public class APRSObjectAccessor {
 
     public void deleteObject(User loggedInUser, ObjectCreateRequest messageRequest) {
        try {
-            List<APRSObjectRecord> recOpt = aprsObjectRepository.findBycallsign_from(messageRequest.callsign());
+            List<APRSObjectRecord> recOpt = aprsObjectRepository.findBycallsign_to(messageRequest.callsign());
             if ((recOpt != null) && (!recOpt.isEmpty())) {
                 APRSObject object = getObjectByCallsign(loggedInUser, messageRequest.callsign());
                 aprsObjectRepository.delete(recOpt.get(0));  // there should only be one
-                changePublisherAccessor.publishObjectUpdate(recOpt.get(0).callsign_from(), ChangePublisherAccessor.DELETE, object);
+                changePublisherAccessor.publishObjectUpdate(recOpt.get(0).callsign_to(), ChangePublisherAccessor.DELETE, object);
             }
         } catch (Exception e) {
         }
@@ -1561,7 +1573,7 @@ public class APRSObjectAccessor {
         obj.setLon(messageRequest.lon());
         obj.setType(ObjectType.values()[messageRequest.type()]);
         obj.setLdtime(now);
-        obj.setCallsignFrom(messageRequest.callsign());
+        obj.setCallsignTo(messageRequest.callsign());
         String id = UUID.randomUUID().toString();
 
         Optional<APRSObject> innerAPRSObjectOpt = Optional.of(obj);

@@ -831,31 +831,31 @@ public class UIController {
         APRSNetCentralShelterOperationalMaterielReport reportMateriel = null;
 
         try {
-            List<APRSMessage> messagesFrom = aprsObjectAccessor.getMessagesFrom(loggedInUser, obj.getCallsignFrom());
+            List<APRSMessage> messagesFrom = aprsObjectAccessor.getMessagesFrom(loggedInUser, obj.getCallsignTo());
             messages.addAll(messagesFrom);
         } catch (Exception e) {
             // ignore
         }
 
         try {
-            List<APRSMessage> messagesTo = aprsObjectAccessor.getMessagesTo(loggedInUser, obj.getCallsignFrom());
+            List<APRSMessage> messagesTo = aprsObjectAccessor.getMessagesTo(loggedInUser, obj.getCallsignTo());
             messages.addAll(messagesTo);
         } catch (Exception e) {
             // ignore
         }
 
         try {
-            List<APRSMessage> messagesTo = aprsObjectAccessor.getMessagesTo(loggedInUser, obj.getCallsignFrom());
+            List<APRSMessage> messagesTo = aprsObjectAccessor.getMessagesTo(loggedInUser, obj.getCallsignTo());
             messages.addAll(messagesTo);
         } catch (Exception e) {
             // ignore
         }
 
         if (obj.getType().equals(ObjectType.SHELTER)) {
-            reportPopulation = reportAccessor.getLatestShelterCensusReport(loggedInUser, obj.getCallsignFrom());
-            reportWorkers = reportAccessor.getLatestShelterWorkerReport(loggedInUser, obj.getCallsignFrom(), 1);
-            reportFood = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.ON_HAND);
-            reportMateriel = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.ON_HAND);
+            reportPopulation = reportAccessor.getLatestShelterCensusReport(loggedInUser, obj.getCallsignTo());
+            reportWorkers = reportAccessor.getLatestShelterWorkerReport(loggedInUser, obj.getCallsignTo(), 1);
+            reportFood = reportAccessor.getLatestShelterOperationalFoodReport(loggedInUser, obj.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
+            reportMateriel = reportAccessor.getLatestShelterOperationalMaterielReport(loggedInUser, obj.getCallsignTo(), ObjectShelterReportingTimeframe.ON_HAND);
             shelter = true;
         } else if (obj.getType().equals(ObjectType.MEDICAL)) {
             medical = true;
@@ -863,7 +863,7 @@ public class UIController {
             eoc = true;
         }
 
-        List<APRSStatus> aprsStatus = aprsObjectAccessor.getStatus(loggedInUser, obj.getCallsignFrom());
+        List<APRSStatus> aprsStatus = aprsObjectAccessor.getStatus(loggedInUser, obj.getCallsignTo());
 
         MapMarkerFactory mapMarkerFactory = new MapMarkerFactory();
         mapMarkerFactory.processObject(obj, "|");
@@ -907,7 +907,7 @@ public class UIController {
 
         APRSObject object = aprsObjectAccessor.getObject(loggedInUser, id);
 
-        return CollectionUtils.mapOf("friendlyName", getFriendlyName(loggedInUser), "token", token, "user", loggedInUser, "callsign", object.getCallsignFrom(), "id", id,
+        return CollectionUtils.mapOf("friendlyName", getFriendlyName(loggedInUser), "token", token, "user", loggedInUser, "callsign", object.getCallsignTo(), "id", id,
                                             "form", formGenerator.generate("/object-delete-action/"+id, BlankRequest.class));
     }
 
@@ -932,7 +932,7 @@ public class UIController {
 
         APRSObject object = aprsObjectAccessor.getObject(loggedInUser, id);
 
-        return CollectionUtils.mapOf("friendlyName", getFriendlyName(loggedInUser), "token", token, "user", loggedInUser, "callsign", object.getCallsignFrom(), "id", id,
+        return CollectionUtils.mapOf("friendlyName", getFriendlyName(loggedInUser), "token", token, "user", loggedInUser, "callsign", object.getCallsignTo(), "id", id,
                                             "form", formGenerator.generate("/object-remove-action/"+id, BlankRequest.class));
     }
 

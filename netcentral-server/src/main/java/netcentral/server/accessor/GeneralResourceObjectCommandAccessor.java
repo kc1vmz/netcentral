@@ -72,7 +72,7 @@ public class GeneralResourceObjectCommandAccessor {
             return;
         }
 
-        if (generalResourceObject.getCallsignFrom().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
+        if (generalResourceObject.getCallsignTo().equalsIgnoreCase(innerAPRSMessage.getCallsignTo())) {
             // the message is from inside the house
             return;
         }
@@ -107,11 +107,11 @@ public class GeneralResourceObjectCommandAccessor {
     }
 
     private void processBadCommand(User loggedInUser, APRSObject priorityObject, APRSMessage innerAPRSMessage, String transceiverSourceId) {
-        logger.warn("Unexpected or unauthorized message sent to general resource object - "+((priorityObject.getCallsignFrom() != null) ? priorityObject.getCallsignFrom() : "UNKNOWN"));
+        logger.warn("Unexpected or unauthorized message sent to general resource object - "+((priorityObject.getCallsignTo() != null) ? priorityObject.getCallsignTo() : "UNKNOWN"));
         logger.warn("Message: "+((innerAPRSMessage.getMessage() != null) ? innerAPRSMessage.getMessage() : "UNKNOWNMESSAGE"));
-        if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(priorityObject.getCallsignFrom())) {
+        if (!innerAPRSMessage.getCallsignTo().equalsIgnoreCase(priorityObject.getCallsignTo())) {
             // dont send bad command back to itself
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, priorityObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
         }
     }
 
@@ -128,7 +128,7 @@ public class GeneralResourceObjectCommandAccessor {
 
         // is this a federated announcement message 
         try {
-            APRSNetCentralObjectAnnounceReport report = APRSNetCentralObjectAnnounceReport.isValid(generalResourceObject.getCallsignFrom(), message);
+            APRSNetCentralObjectAnnounceReport report = APRSNetCentralObjectAnnounceReport.isValid(generalResourceObject.getCallsignTo(), message);
             if (report != null) {
                 // ignore this announcement - we already know
                 return;
@@ -159,11 +159,11 @@ public class GeneralResourceObjectCommandAccessor {
         }
 
         if (commandAccepted) {
-            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Update message accepted");
         }  else {
-            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(generalResourceObject.getCallsignFrom())) {
+            if (!innerAPRSMessage.getCallsignFrom().equalsIgnoreCase(generalResourceObject.getCallsignTo())) {
                 // dont send bad command back to itself
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), "Bad or unauthorized message.");
             }
         }
     }
@@ -190,11 +190,11 @@ public class GeneralResourceObjectCommandAccessor {
             List<ResourceObjectKeyValuePair> kvPairs = resourceObjectKVAccessor.get(loggedInUser, generalResourceObject.getId());
             if (kvPairs != null) {
                 for (ResourceObjectKeyValuePair kvPair: kvPairs) {
-                    transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), 
+                    transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), 
                                                             kvPair.getKey()+"="+kvPair.getValue());
                 }
             } else {
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), 
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), 
                                                             "No values found");
             }
         } catch (Exception e) {
@@ -206,10 +206,10 @@ public class GeneralResourceObjectCommandAccessor {
         try {
             String value = resourceObjectKVAccessor.get(loggedInUser, generalResourceObject.getId(), message);
             if (value != null) {
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), 
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), 
                                                             message+"="+value);
             } else {
-                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignFrom(), innerAPRSMessage.getCallsignFrom(), 
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, generalResourceObject.getCallsignTo(), innerAPRSMessage.getCallsignFrom(), 
                                                             message+" not found");
             }
         } catch (Exception e) {
@@ -246,7 +246,7 @@ public class GeneralResourceObjectCommandAccessor {
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_POSITION)) {
                 // send position packet
                 if ((aprsObject.getLat() != null) && (aprsObject.getLon() != null)) {
-                    transceiverMessageAccessor.sendObject(loggedInUser, aprsObject.getCallsignFrom(), aprsObject.getCallsignFrom(),
+                    transceiverMessageAccessor.sendObject(loggedInUser, aprsObject.getCallsignTo(), aprsObject.getCallsignTo(),
                                                             aprsObject.getComment(), aprsObject.isAlive(),
                                                             aprsObject.getLat(), aprsObject.getLon());
                 }

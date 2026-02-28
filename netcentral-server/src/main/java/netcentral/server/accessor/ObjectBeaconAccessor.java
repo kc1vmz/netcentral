@@ -31,6 +31,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.object.Net;
 import netcentral.server.object.ResourceObjectKeyValuePair;
 import netcentral.server.object.User;
 
@@ -47,6 +48,8 @@ public class ObjectBeaconAccessor {
     private ResourceObjectKVAccessor resourceObjectKVAccessor;
     @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
+    @Inject
+    private NetAccessor netAccessor;
 
     public void beaconObjects() {
         if (!beaconStayRunning()) {
@@ -54,17 +57,27 @@ public class ObjectBeaconAccessor {
         }
         User user = new User();
 
-        // need to beacon each NetCentral object
+        // beacon active nets
+        try {
+            List<Net> nets = netAccessor.getAll(user, null);
+            if ((nets != null) && (!nets.isEmpty())) {
+                for (Net net : nets) {
+                    transceiverMessageAccessor.sendObject(user, net.getCallsign(), net.getName(), String.format("Net %s", net.getName()),true, net.getLat(), net.getLon());
+                }
+            }
+        } catch (Exception e) {
+        }
 
+        // need to beacon each NetCentral object
         List<APRSObject> netCentralObjects = getObjects(user);
         if (netCentralObjects.isEmpty()) {
             return;
         }
 
         for (APRSObject netCentralObject : netCentralObjects) {
-            logger.debug("Beaconing object "+netCentralObject.getCallsignFrom());
+            logger.debug("Beaconing object "+netCentralObject.getCallsignTo());
             try {
-                transceiverMessageAccessor.sendObject(user, netCentralObject.getCallsignFrom(), netCentralObject.getCallsignFrom(),
+                transceiverMessageAccessor.sendObject(user, netCentralObject.getCallsignTo(), netCentralObject.getCallsignTo(),
                                                             netCentralObject.getComment(), netCentralObject.isAlive(),
                                                             netCentralObject.getLat(), netCentralObject.getLon());
                 if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
@@ -88,7 +101,7 @@ public class ObjectBeaconAccessor {
                 for (ResourceObjectKeyValuePair kvPair : kvPairs) {
                     if (kvPair.isBroadcast()) {
                         String message = String.format("%s:%s", kvPair.getKey(), kvPair.getValue());
-                        transceiverMessageAccessor.sendMessage(user, netCentralObject.getCallsignFrom(), netCentralObject.getCallsignFrom(), message);
+                        transceiverMessageAccessor.sendMessage(user, netCentralObject.getCallsignTo(), netCentralObject.getCallsignTo(), message);
                     }
                 }
             }

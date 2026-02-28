@@ -31,5 +31,6 @@ import netcentral.server.record.aprs.APRSObjectRecord;
 @JdbcRepository(dialect = Dialect.MYSQL) 
 public interface APRSObjectRepository extends CrudRepository<APRSObjectRecord, String> {
     public List<APRSObjectRecord> findBycallsign_from(String callsign_from);
+    public List<APRSObjectRecord> findBycallsign_to(String callsign_to);
     public void deleteByHeard_timeBefore(ZonedDateTime heard_time);
 }

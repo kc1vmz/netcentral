@@ -164,6 +164,7 @@ public class NetAccessor {
                 // announce the object and send the bulletin
                 if (!obj.isRemote()) {
                     // only for local nets
+                    String objectMessage = String.format("Net %s", obj.getName());
                     String announcement = "";
                     if ((obj.getVoiceFrequency() != null) && (!obj.getVoiceFrequency().isEmpty())) {
                         if ((obj.getVoiceFrequency().length() == 10) || (obj.getVoiceFrequency().length() == 20)) {
@@ -174,8 +175,8 @@ public class NetAccessor {
                     if (announcement.isEmpty()) {
                         announcement = String.format("APRS Net %s started", obj.getCallsign());
                     }
-                    transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), announcement, true, obj.getLat(), obj.getLon());
-                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), String.format("APRS Net %s started", obj.getCallsign()));
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), objectMessage, true, obj.getLat(), obj.getLon());
+                    transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), announcement);
 
                     federatedObjectReporterAccessor.announce(loggedInUser, obj);
                 }
@@ -254,7 +255,7 @@ public class NetAccessor {
         // announce changes in object
         if (obj != null) {
             if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null) && (!obj.isRemote())) {
-                transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), String.format("APRS Net %s updated", obj.getCallsign()), true, obj.getLat(), obj.getLon());
+                transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), String.format("Net %s", obj.getName()), true, obj.getLat(), obj.getLon());
             }
         }
 
@@ -314,7 +315,7 @@ public class NetAccessor {
             if (!net.isRemote()) {
                 if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
                     // announce the object and send the bulletin
-                    transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("APRS Net %s ended", rec.callsign()), false, rec.lat(), rec.lon());
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("Net %s", rec.name()), false, rec.lat(), rec.lon());
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
                 }
 

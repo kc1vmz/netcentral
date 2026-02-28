@@ -187,6 +187,11 @@ public class IgnoreStationAccessor {
 
     public boolean isIgnored(User loggedInUser, String callsign) {
         boolean ret = false;
+
+        if (callsign == null) {
+            return false;
+        }
+
         List<IgnoreStation> ignoreList = getAll(loggedInUser, null);
         if (ignoreList != null) {
             for (IgnoreStation station : ignoreList) {

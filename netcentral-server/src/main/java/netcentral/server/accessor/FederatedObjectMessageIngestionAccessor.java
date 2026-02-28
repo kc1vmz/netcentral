@@ -411,10 +411,10 @@ public class FederatedObjectMessageIngestionAccessor {
         return true;
     }
 
-    private void updateFederatedObjectType(String callsignFrom, ObjectType type) {
+    private void updateFederatedObjectType(String callsign, ObjectType type) {
         // make the generic object a Net
         try {
-            List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_from(callsignFrom);
+            List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_to(callsign);
             if ((foundRecList != null) && (!foundRecList.isEmpty())) {
                 // objects get overwritten, not created new
                 APRSObjectRecord first = foundRecList.get(0);

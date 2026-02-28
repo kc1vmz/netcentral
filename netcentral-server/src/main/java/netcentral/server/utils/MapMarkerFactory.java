@@ -123,11 +123,11 @@ public class MapMarkerFactory {
                         continue;
                     }
                     String name = String.format("Callsign: %s Status: %s Last heard: %s", 
-                                        obj.getCallsignFrom(), 
+                                        obj.getCallsignTo(), 
                                         obj.isAlive() ? "Alive" : "Dead", 
                                         (obj.getLdtime() != null) ? obj.getLdtime().toString() : "");
                     RenderedMapItem item = new RenderedMapItem(
-                        obj.getLon(), obj.getLat(), name, obj.getCallsignFrom(), obj);
+                        obj.getLon(), obj.getLat(), name, obj.getCallsignTo(), obj);
                     if ((item != null) && (item.isValid())) {
                         item.setObject(true);
                         items.add(item);

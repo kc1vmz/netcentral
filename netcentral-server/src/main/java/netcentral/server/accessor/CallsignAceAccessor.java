@@ -60,7 +60,7 @@ public class CallsignAceAccessor {
 
     public boolean isWriteable(User loggedInUser, APRSObject priorityObject, String callsignChecked) {
         boolean ret = false;
-        String callsignTarget = priorityObject.getCallsignFrom();
+        String callsignTarget = priorityObject.getCallsignTo();
 
         List<CallsignAce> acl = getAcl(loggedInUser, callsignTarget);
         if ((acl == null) || (acl.isEmpty())) {

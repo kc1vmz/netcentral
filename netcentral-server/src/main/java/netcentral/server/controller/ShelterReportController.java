@@ -110,7 +110,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterWorkerReport report = reportAccessor.getShelterWorkerReport(loggedInUser, obj.getCallsignFrom(), shift, reportDate);
+        APRSNetCentralShelterWorkerReport report = reportAccessor.getShelterWorkerReport(loggedInUser, obj.getCallsignTo(), shift, reportDate);
         if (report == null) {
             return null;
         }
@@ -126,7 +126,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalFoodReport report = reportAccessor.getShelterOperationalFoodReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
+        APRSNetCentralShelterOperationalFoodReport report = reportAccessor.getShelterOperationalFoodReport(loggedInUser, obj.getCallsignTo(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
         if (report == null) {
             return null;
         }
@@ -143,7 +143,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalMaterielReport report = reportAccessor.getShelterOperationalMaterielReport(loggedInUser, obj.getCallsignFrom(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
+        APRSNetCentralShelterOperationalMaterielReport report = reportAccessor.getShelterOperationalMaterielReport(loggedInUser, obj.getCallsignTo(), ObjectShelterReportingTimeframe.values()[timeframe], reportDate);
         if (report == null) {
             return null;
         }
@@ -160,7 +160,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterCensusReport report = reportAccessor.getShelterCensusReport(loggedInUser, obj.getCallsignFrom(),reportDate);
+        APRSNetCentralShelterCensusReport report = reportAccessor.getShelterCensusReport(loggedInUser, obj.getCallsignTo(),reportDate);
         if (report == null) {
             return null;
         }
@@ -177,7 +177,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        List<APRSNetCentralShelterCensusReport> reports = reportAccessor.getAllLatestShelterCensusReport(loggedInUser, obj.getCallsignFrom());
+        List<APRSNetCentralShelterCensusReport> reports = reportAccessor.getAllLatestShelterCensusReport(loggedInUser, obj.getCallsignTo());
         if (reports != null) {
             for (APRSNetCentralShelterCensusReport report : reports) {
                 ret.add(new ObjectShelterCensusReport(report.getObjectName(), report.getP03(), report.getP47(), report.getP812(), report.getP1318(), report.getP1965(), report.getP66(), report.getDateReported()));
@@ -193,11 +193,11 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        reportAccessor.deleteAllShelterCensusInformation(loggedInUser, obj.getCallsignFrom());
-        reportAccessor.deleteAllShelterOperationalFoodInformation(loggedInUser, obj.getCallsignFrom());
-        reportAccessor.deleteAllShelterOperationalMaterielInformation(loggedInUser, obj.getCallsignFrom());
-        reportAccessor.deleteAllShelterWorkerInformation(loggedInUser, obj.getCallsignFrom());
-        reportAccessor.deleteAllShelterStatusInformation(loggedInUser, obj.getCallsignFrom());
+        reportAccessor.deleteAllShelterCensusInformation(loggedInUser, obj.getCallsignTo());
+        reportAccessor.deleteAllShelterOperationalFoodInformation(loggedInUser, obj.getCallsignTo());
+        reportAccessor.deleteAllShelterOperationalMaterielInformation(loggedInUser, obj.getCallsignTo());
+        reportAccessor.deleteAllShelterWorkerInformation(loggedInUser, obj.getCallsignTo());
+        reportAccessor.deleteAllShelterStatusInformation(loggedInUser, obj.getCallsignTo());
         return;
     }
 
@@ -208,7 +208,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterStatusReport aprsReport = new APRSNetCentralShelterStatusReport(obj.getCallsignFrom(), report.getStatus().ordinal(), report.getState().ordinal(), report.getMessage(), ZonedDateTime.now());
+        APRSNetCentralShelterStatusReport aprsReport = new APRSNetCentralShelterStatusReport(obj.getCallsignTo(), report.getStatus().ordinal(), report.getState().ordinal(), report.getMessage(), ZonedDateTime.now());
         aprsReport = reportAccessor.addShelterStatusReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
             // send message
@@ -227,7 +227,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterCensusReport aprsReport = new APRSNetCentralShelterCensusReport(obj.getCallsignFrom(), report.getPopulation03(), report.getPopulation47(), report.getPopulation812(),
+        APRSNetCentralShelterCensusReport aprsReport = new APRSNetCentralShelterCensusReport(obj.getCallsignTo(), report.getPopulation03(), report.getPopulation47(), report.getPopulation812(),
                                                                 report.getPopulation1318(), report.getPopulation1965(), report.getPopulation66(), report.getReportTime());
         aprsReport = reportAccessor.addShelterCensusReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
@@ -247,7 +247,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterWorkerReport aprsReport = new APRSNetCentralShelterWorkerReport(obj.getCallsignFrom(), report.getShift(), report.getHealth(), report.getMental(), report.getSpiritual(),
+        APRSNetCentralShelterWorkerReport aprsReport = new APRSNetCentralShelterWorkerReport(obj.getCallsignTo(), report.getShift(), report.getHealth(), report.getMental(), report.getSpiritual(),
                                                                         report.getCaseworker(), report.getFeeding(), report.getOther(), report.getReportTime());
         aprsReport = reportAccessor.addShelterWorkerReport(loggedInUser, aprsReport);
         if (aprsReport != null) {
@@ -267,7 +267,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalFoodReport aprsReport = new APRSNetCentralShelterOperationalFoodReport(obj.getCallsignFrom(), report.getTimeframe().ordinal(), report.getBreakfast(), report.getLunch(), report.getDinner(),
+        APRSNetCentralShelterOperationalFoodReport aprsReport = new APRSNetCentralShelterOperationalFoodReport(obj.getCallsignTo(), report.getTimeframe().ordinal(), report.getBreakfast(), report.getLunch(), report.getDinner(),
                                                                                 report.getSnack(),
                                                                                 report.getReportTime(), ZonedDateTime.now());
         aprsReport = reportAccessor.addShelterOperationalFoodReport(loggedInUser, aprsReport);
@@ -288,7 +288,7 @@ public class ShelterReportController {
 
         APRSObject obj = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
 
-        APRSNetCentralShelterOperationalMaterielReport aprsReport = new APRSNetCentralShelterOperationalMaterielReport(obj.getCallsignFrom(), report.getTimeframe().ordinal(), report.getCots(),
+        APRSNetCentralShelterOperationalMaterielReport aprsReport = new APRSNetCentralShelterOperationalMaterielReport(obj.getCallsignTo(), report.getTimeframe().ordinal(), report.getCots(),
                                                                                 report.getBlankets(), report.getComfort(), report.getCleanup(), report.getSignage(), report.getOther(),
                                                                                 report.getReportTime(), ZonedDateTime.now());
         aprsReport = reportAccessor.addShelterOperationalMaterielReport(loggedInUser, aprsReport);

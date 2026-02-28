@@ -181,7 +181,7 @@
   <div class="main">
     <div><hr/></div>
     <div style="margin:20px;">
-      <h1>Known APRS object - {{obj.callsignFrom}}</h1>
+      <h1>Known APRS object - {{obj.callsignTo}}</h1>
     </div>
 
     <div class="line"><hr/></div>
@@ -191,7 +191,7 @@
     <h2>Object information</h2>
     <p>
     <div class="table-container" >
-        <br>Callsign: {{obj.callsignFrom}}
+        <br>Callsign: {{obj.callsignTo}}
         <br>Type: {{obj.type}}
         <br>Alive: {{obj.alive}}
         <br>Location: {{obj.lat}} {{obj.lon}}
@@ -262,7 +262,7 @@
     <div>
       <div>
         <h2>Shelter Population</h2>
-        <a class="block" href="/object/{{obj.callsignFrom}}/report-population">Report population...</a>
+        <a class="block" href="/object/{{obj.callsignTo}}/report-population">Report population...</a>
         <h2>Current Population by age:</h2>
         <table>
           <thead>
@@ -287,7 +287,7 @@
       </div>
       <div>
         <h2>Shelter Workers</h2>
-        <a class="block" href="/object/{{obj.callsignFrom}}/report-workers">Report workers...</a>
+        <a class="block" href="/object/{{obj.callsignTo}}/report-workers">Report workers...</a>
         <h3>Current Workforce:</h3>
         <table>
           <thead>
@@ -313,7 +313,7 @@
       </div>
       <div>
         <h2>Shelter Food Availability</h2>
-        <a class="block" href="/object/{{obj.callsignFrom}}/report-food">Report food availability...</a>
+        <a class="block" href="/object/{{obj.callsignTo}}/report-food">Report food availability...</a>
         <h3>Current Food Availability:</h3>
         <table>
           <thead>
@@ -338,7 +338,7 @@
       </div>
       <div>
         <h2>Shelter Materiel Availability</h2>
-        <a class="block" href="/object/{{obj.callsignFrom}}/report-materiel">Report materiel availability...</a>
+        <a class="block" href="/object/{{obj.callsignTo}}/report-materiel">Report materiel availability...</a>
         <h3>Current Materiel Availability:</h3>
         <table>
           <thead>
