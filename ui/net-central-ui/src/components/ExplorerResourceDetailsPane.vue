@@ -306,6 +306,9 @@ var newKeyModeRef = ref(true);
 var ignoreExisting = ref(false);
 var ignoreExisting2 = ref(false);
 
+const ignoredSinceTime = reactive({value : null});
+const ignored = reactive({value : false});
+
 
 const headers = [
         { text: "Time", value: "prettyLdtime", sortable: true },
@@ -774,6 +777,29 @@ function fetchKVPairs() {
     .catch(error => { console.error('Error getting KV pairs from server:', error); })
 }
 
+function getIgnoredInformation() {
+  ignoredSinceTime.value = "";
+  ignored.value = false;
+
+  fetch(buildNetCentralUrl('/ignoreStations/'+localSelectedObject.ncSelectedObject.callsign), getGetRequestOptions())
+    .then(response => {
+        if (response.status == 200) {
+            return response.json();
+        } else {
+          return null;
+        }
+      })
+    .then(data => {
+      if (data != null) {
+        ignoredSinceTime.value = data.prettyIgnoreStartTime;
+        ignored.value = true;
+      } else {
+        ignoredSinceTime.value = null;
+        ignored.value = false;
+      }
+    })
+    .catch(error => { console.error('Error getting reported objects from server:', error); })
+}
 
 watch(
   localSelectedObject,
@@ -806,7 +832,9 @@ watch(
        updateLocalSelectedObjectType(selectedObjectType);
     }
 
+
     if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
+      getIgnoredInformation();
       fetch(buildNetCentralUrl('/APRSObjects/statusMessages/'+localSelectedObject.ncSelectedObject.callsign), getGetRequestOptions())
         .then(response => {
             if (response.status == 200) {
@@ -1410,6 +1438,7 @@ function performStopIgnoring() {
       })
       .then(data => {
           dialogStopIgnoringShow.value = false;
+          getIgnoredInformation();
       })
       .catch(error => { console.error('Error stopping ignoring callsign:', error); })
 }
@@ -1448,6 +1477,7 @@ function performStartIgnoring() {
       })
       .then(data => {
           dialogStartIgnoringShow.value = false;
+          getIgnoredInformation();
       })
       .catch(error => { console.error('Error starting ignoring callsign:', error); })
 }
@@ -2971,6 +3001,8 @@ function findValues(key) {
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
           </Tab>
@@ -2988,10 +3020,10 @@ function findValues(key) {
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
               </div>
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 Ignoring this station / object and do not accept new updates from APRS.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
@@ -3018,6 +3050,8 @@ function findValues(key) {
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
               <br>
@@ -3320,6 +3354,8 @@ function findValues(key) {
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
               <br>
@@ -3472,6 +3508,8 @@ function findValues(key) {
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
               <br>
@@ -3650,6 +3688,8 @@ function findValues(key) {
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
           </Tab>
@@ -3703,11 +3743,17 @@ function findValues(key) {
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Edit properties of the callsign.
               </div>
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
               </div>
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 Ignoring this station and do not accept new updates from APRS.
+              </div>
+              <div v-if="accesstokenRef.value != null && ignored.value" class="grid-item">
+                <button class="boxButton" v-on:click.native="stopIgnoring">Stop Ignoring</button>
+              </div>
+              <div v-if="accesstokenRef.value != null && ignored.value" class="grid-item">
+                Stop ignoring this station and accept new updates from APRS.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton" v-on:click.native="remove">Remove</button>
@@ -3738,6 +3784,8 @@ function findValues(key) {
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
               <br>
@@ -3835,6 +3883,8 @@ function findValues(key) {
                   <tr><td><b>Transmit power:</b></td> <td> {{ localSelectedObject.ncSelectedObject.transmitPower }}W</td></tr>
                   <tr><td><b>Tracked?</b></td> <td>{{ localSelectedObject.ncSelectedObject.trackingActive }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
               </table>
           </Tab>
@@ -3880,11 +3930,17 @@ function findValues(key) {
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Edit properties of the station.
               </div>
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
               </div>
-              <div v-if="accesstokenRef.value != null" class="grid-item">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
                 Ignoring this station / object and do not accept new updates from APRS.
+              </div>
+              <div v-if="accesstokenRef.value != null && ignored.value" class="grid-item">
+                <button class="boxButton" v-on:click.native="stopIgnoring">Stop Ignoring</button>
+              </div>
+              <div v-if="accesstokenRef.value != null && ignored.value" class="grid-item">
+                Stop ignoring this station and accept new updates from APRS.
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 <button class="boxButton" v-on:click.native="sendSingleMessage">Send Message</button>

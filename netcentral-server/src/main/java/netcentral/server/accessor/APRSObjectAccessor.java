@@ -335,16 +335,19 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSStatus.getCallsignFrom())) {
             return null;
         }
+        // TODO: rule-based system to use status to define station type
         TrackedStationType type = TrackedStationType.UNKNOWN;
         if (innerAPRSStatus.getStatus() != null) {
-            if (innerAPRSStatus.getStatus().toUpperCase().contains("BBS")) {
+            if (innerAPRSStatus.getStatus().toUpperCase().contains("BBS".toUpperCase())) {
                 type = TrackedStationType.BBS;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("(D-Star)")) {
+            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("(D-Star)".toUpperCase())) {
                 type = TrackedStationType.DSTAR;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("DIGI")) {
+            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("DIGI".toUpperCase())) {
                 type = TrackedStationType.DIGIPEATER;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("MMDVM")) {
+            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("MMDVM".toUpperCase())) {
                 type = TrackedStationType.MMDVM;
+            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("LoRa APRS IGATE".toUpperCase())) {
+                type = TrackedStationType.IGATE;
             }
         }
         trackStation(loggedInUser,  innerAPRSStatus.getCallsignFrom(), null, null, type, innerAPRSStatus.getStatus());
@@ -773,26 +776,31 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSObject.getCallsignTo())) {
             return null;
         }
-        List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSObject.getCallsignTo());
-        APRSObjectRecord rec;
-        if ((foundRecList != null) && (!foundRecList.isEmpty())) {
-            // objects get overwritten, not created new
-            APRSObjectRecord first = foundRecList.get(0);
-            APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSObject.isAlive(), innerAPRSObject.getLat(),
-                                                                    innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
-                                                                    (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
-            rec = aprsObjectRepository.update(updated);
-            changePublisherAccessor.publishObjectUpdate(first.callsign_to(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
-        } else {
-            APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
-                                                        innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
-                                                        (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
-            rec = aprsObjectRepository.save(src);
-            changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignTo(), ChangePublisherAccessor.CREATE, innerAPRSObject);
-        }
 
-        trackStation(loggedInUser,  rec.callsign_from(), null, null, TrackedStationType.STATION, null); // create station representing from 
-        trackStationFromObject(loggedInUser,  rec.callsign_to(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
+        try {
+            List<APRSObjectRecord> foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSObject.getCallsignTo());
+            APRSObjectRecord rec;
+            if ((foundRecList != null) && (!foundRecList.isEmpty())) {
+                // objects get overwritten, not created new
+                APRSObjectRecord first = foundRecList.get(0);
+                APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSObject.isAlive(), innerAPRSObject.getLat(),
+                                                                        innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
+                                                                        (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
+                rec = aprsObjectRepository.update(updated);
+                changePublisherAccessor.publishObjectUpdate(first.callsign_to(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
+            } else {
+                APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
+                                                            innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
+                                                            (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
+                rec = aprsObjectRepository.save(src);
+                changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignTo(), ChangePublisherAccessor.CREATE, innerAPRSObject);
+            }
+
+            trackStation(loggedInUser,  rec.callsign_from(), null, null, TrackedStationType.STATION, null); // create station representing from 
+            trackStationFromObject(loggedInUser,  rec.callsign_to(), innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getComment());
+        } catch (Exception e) {
+            logger.error("Exception caught creating APRS object", e);
+        }
 
         if (source.equals("NETCENTRAL")) {
             // this is a locally created object - send out the creation report
@@ -1568,6 +1576,7 @@ public class APRSObjectAccessor {
         APRSObject obj = new APRSObject();
         obj.setAlive(alive);
         obj.setCallsignTo(messageRequest.callsign());
+        obj.setCallsignFrom(messageRequest.callsign());
         obj.setComment(messageRequest.description());
         obj.setLat(messageRequest.lat());
         obj.setLon(messageRequest.lon());

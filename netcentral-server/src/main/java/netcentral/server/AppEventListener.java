@@ -29,6 +29,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
+import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;
@@ -254,33 +255,99 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     void startAPRSObjectProcessorThreads() {
         for (int i = 0; i < netCentralServerConfigAccessor.getQueueObjectHandlerThreads(); i++) {
-            new Thread(() -> {
-                boolean run = true;
-                boolean shutdownok = false;
-                ArrayBlockingQueue<APRSObjectResource> queue = aprsCreateObjectQueue.getQueue();
-                User user = new User();
-                while (run) {
-                    try {
-                        APRSObjectResource aprsObject = queue.take();
-                        int queueSize = queue.size();
-                        statisticsAccessor.setOutstandingObjects(queueSize);
-                        aprsObjectAccessor.create(user, aprsObject);
-                        run = aprsCreateObjectQueue.stayRunning();
-                    } catch (InterruptedException e) {
-                        logger.error("InterruptedException caught processing objects", e);
-                        run = false;
-                        shutdownok = true;
-                    } catch (Exception e) {
-                        logger.error("Exception caught processing objects", e);
+            new Thread(null, () -> {
+                while (true) {
+                    boolean run = true;
+                    boolean shutdownok = false;
+                    ArrayBlockingQueue<APRSObjectResource> queue = aprsCreateObjectQueue.getQueue();
+                    User user = new User();
+                    APRSObjectResource aprsObject = null;
+                    while (run) {
+                        try {
+                            shutdownok = false;
+                            aprsObject = queue.take();
+                            int queueSize = queue.size();
+                            statisticsAccessor.setOutstandingObjects(queueSize);
+                            aprsObjectAccessor.create(user, aprsObject);
+                            run = aprsCreateObjectQueue.stayRunning();
+                            if (!run) {
+                                // if told to shutdown, that's ok
+                                shutdownok = true;
+                            }
+                        } catch (InterruptedException e) {
+                            logger.error("InterruptedException caught processing objects", e);
+                            run = false;
+                            shutdownok = true;
+                        } catch (Exception e) {
+                            logger.error("Exception caught processing objects", e);
+                        }
+                    }
+                    if (!shutdownok) { 
+                        logger.error("Unexpected end of processing loop - go again");
+                        if (aprsObject != null) {
+                            logger.error("Object in question: "+getObjectIdentified(aprsObject));
+                        }
+                    } else {
+                        logger.info("End of processing loop");
+                        break;
                     }
                 }
-                if (!shutdownok) { 
-                    logger.error("Unexpected end of processing loop");
-                } else {
-                    logger.info("End of processing loop");
-                }
-            }).start();
+            }, "ObjProcessorThread").start();
         }
+    }
+
+    private String getObjectIdentified(APRSObjectResource obj) {
+        String ret = "";
+
+        statisticsAccessor.incrementObjectsReceived();
+        statisticsAccessor.markLastReceivedTime();
+
+        try {
+            if (obj == null) {
+                ret = "Object is null";
+            } else if (obj.getInnerAPRSAgrelo().isPresent()) {
+                ret = "Agrelo" + obj.getInnerAPRSAgrelo().get().getCallsignFrom()+">"+obj.getInnerAPRSAgrelo().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSItem().isPresent()) {
+                ret = "Item" + obj.getInnerAPRSItem().get().getCallsignFrom()+">"+obj.getInnerAPRSItem().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSMaidenheadLocatorBeacon().isPresent()) {
+                ret = "MaidenheadLocator" + obj.getInnerAPRSMaidenheadLocatorBeacon().get().getCallsignFrom()+">"+obj.getInnerAPRSMaidenheadLocatorBeacon().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSMessage().isPresent()) {
+                ret = "Message" + obj.getInnerAPRSMessage().get().getCallsignFrom()+">"+obj.getInnerAPRSMessage().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSMicE().isPresent()) {
+                ret = "MicE" + obj.getInnerAPRSMicE().get().getCallsignFrom()+">"+obj.getInnerAPRSMicE().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSObject().isPresent()) {
+                ret = "Object" + obj.getInnerAPRSObject().get().getCallsignFrom()+">"+obj.getInnerAPRSObject().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSPosition().isPresent()) {
+                ret = "Position" + obj.getInnerAPRSPosition().get().getCallsignFrom()+">"+obj.getInnerAPRSPosition().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSQuery().isPresent()) {
+                ret = "Query" + obj.getInnerAPRSQuery().get().getCallsignFrom()+">"+obj.getInnerAPRSQuery().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSStationCapabilities().isPresent()) {
+                ret = "StationCapabilities" + obj.getInnerAPRSStationCapabilities().get().getCallsignFrom()+">"+obj.getInnerAPRSStationCapabilities().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSStatus().isPresent()) {
+                ret = "Status" + obj.getInnerAPRSStatus().get().getCallsignFrom()+">"+obj.getInnerAPRSStatus().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSTelemetry().isPresent()) {
+                ret = "Telemetry" + obj.getInnerAPRSTelemetry().get().getCallsignFrom()+">"+obj.getInnerAPRSTelemetry().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSTest().isPresent()) {
+                ret = "Test" + obj.getInnerAPRSTest().get().getCallsignFrom()+">"+obj.getInnerAPRSTest().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSThirdPartyTraffic().isPresent()) {
+                ret = "ThirdParty" + obj.getInnerAPRSThirdPartyTraffic().get().getCallsignFrom()+">"+obj.getInnerAPRSThirdPartyTraffic().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSUnknown().isPresent()) {
+                ret = "Unknown" + obj.getInnerAPRSUnknown().get().getCallsignFrom()+">"+obj.getInnerAPRSUnknown().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSUserDefined().isPresent()) {
+                ret = "UserDefined" + obj.getInnerAPRSUserDefined().get().getCallsignFrom()+">"+obj.getInnerAPRSUserDefined().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSWeatherReport().isPresent()) {
+                ret = "WeatherReport" + obj.getInnerAPRSWeatherReport().get().getCallsignFrom()+">"+obj.getInnerAPRSWeatherReport().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAPRSRaw().isPresent()) {
+                ret = "Raw" + obj.getInnerAPRSRaw().get().getCallsignFrom()+">"+obj.getInnerAPRSRaw().get().getCallsignTo()+" "+obj.getHeardTime().toString();
+            } else if (obj.getInnerAGWRaw().isPresent()) {
+                ret = "AGWRaw" + obj.getInnerAGWRaw().get().getHeader()+">"+obj.getInnerAGWRaw().get().getData()+" "+obj.getHeardTime().toString();
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught creating packet identifier string", e);
+            ret = e.getMessage();
+        }
+
+        return ret;
     }
 }
 

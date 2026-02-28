@@ -75,4 +75,12 @@ public class IgnoreStationController {
         ignoreStation.setIgnoreStartTime(ZonedDateTime.now());
         return ignoreStationAccessor.create(loggedInUser, ignoreStation);
     }
+
+    @Get("/{callsign}")
+    public IgnoreStation getIgnoreState(HttpRequest<?> request, @PathVariable String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        return ignoreStationAccessor.getIgnoredStation(loggedInUser, callsign);
+    }
 }

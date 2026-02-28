@@ -185,22 +185,38 @@ public class IgnoreStationAccessor {
         forceGetAll(loggedInUser, null); // update cache
     }
 
-    public boolean isIgnored(User loggedInUser, String callsign) {
-        boolean ret = false;
+    public IgnoreStation getIgnoredStation(User loggedInUser, String callsign) {
+        IgnoreStation ret = null;
 
         if (callsign == null) {
-            return false;
+            return ret;
         }
 
         List<IgnoreStation> ignoreList = getAll(loggedInUser, null);
         if (ignoreList != null) {
             for (IgnoreStation station : ignoreList) {
-                if ( station.getCallsign().equals(callsign)) {
-                    ret = true;
+                if (station.getCallsign().equals(callsign)) {
+                    ret = station;
                     break;
                 }
             }
         }
         return ret;
     }
+
+    public boolean isIgnored(User loggedInUser, String callsign) {
+        boolean ret = false;
+
+        if (callsign == null) {
+            return ret;
+        }
+
+        IgnoreStation station = getIgnoredStation(loggedInUser, callsign);
+        if (station != null) {
+            ret = true;
+        }
+
+        return ret;
+    }
+
 }
