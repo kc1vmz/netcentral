@@ -194,7 +194,7 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
   }
 });
 
-const localSelectedObject = reactive({ncSelectedObject : { id : null }});
+const localSelectedObject = reactive({ncSelectedObject : null});
 
 const dialogAceAdd = ref(null);
 const dialogAceAddShow = reactive({value : false});
@@ -362,9 +362,18 @@ const headersKVPairs = [
         { text: "Broadcast", value: "broadcast", sortable: true }
       ];
 
+const headersReportedObjects = [
+        { text: "Name", value: "callsignTo", sortable: true },
+        { text: "Comment", value: "comment", sortable: true},
+        { text: "Last heard", value: "prettyLdtime", sortable: true }
+      ];
+
 onMounted(() => {
     accesstokenRef.value = getToken();
     localLoggedInUserRef.value = getUser();
+    if (selectedObjectType.value != null) {
+       updateLocalSelectedObjectType(selectedObjectType);
+    }
 })
 
 function updateLocalSelectedObject(newObject) {
@@ -378,7 +387,7 @@ function updateLocalSelectedObjectType(newObjectType) {
 
 // Watch for changes in the selected object ref
 watch(selectedObject, (newSelectedObject, oldSelectedObject) => {
-  updateLocalSelectedObject(newSelectedObject);
+    updateLocalSelectedObject(newSelectedObject);
 });
 watch(selectedObjectType, (newSelectedObjectType, oldSelectedObjectType) => {
   updateLocalSelectedObjectType(newSelectedObjectType);
@@ -396,6 +405,7 @@ const selectedAce = reactive({value : null});
 const accessControlList = reactive({value : null});
 const weatherReports = reactive({value : null});
 const statusReports = reactive({value : null});
+const reportedObjects = reactive({value : null});
 const kvPairs = reactive({value : null});
 const latestWeatherReport = reactive({value : null});
 const shelterStatusReport = reactive({value : null});
@@ -789,7 +799,12 @@ watch(
     eocContactReports.value = null;
     selectedAce.value = null;
     statusReports.value = null;
+    reportedObjects.value = null;
     kvPairs.value = null;
+
+    if ((localSelectedObjectType.value == null) && (selectedObjectType.value != null)) {
+       updateLocalSelectedObjectType(selectedObjectType);
+    }
 
     if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
       fetch(buildNetCentralUrl('/APRSObjects/statusMessages/'+localSelectedObject.ncSelectedObject.callsign), getGetRequestOptions())
@@ -808,6 +823,22 @@ watch(
           }
         })
         .catch(error => { console.error('Error getting status reports from server:', error); })
+      fetch(buildNetCentralUrl('/trackedStations/'+localSelectedObject.ncSelectedObject.callsign)+'/objects', getGetRequestOptions())
+        .then(response => {
+            if (response.status == 200) {
+              return response.json();
+            } else {
+              return null;
+            }
+          })
+        .then(data => {
+          if (data.length > 0) {
+            reportedObjects.value = data;
+          } else {
+            reportedObjects.value = null;
+          }
+        })
+        .catch(error => { console.error('Error getting reported objects from server:', error); })
       }
     if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'WEATHER') && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
       fetch(buildNetCentralUrl('/weatherReports/callsigns/'+localSelectedObject.ncSelectedObject.callsign+'/all'), getGetRequestOptions())
@@ -3564,6 +3595,16 @@ function findValues(key) {
                 </tbody>
               </table>
           </Tab>
+          <Tab value="Objects">
+            <div v-if="((reportedObjects != null) && (reportedObjects.value != null))">
+              <b>APRS objects reported:</b>
+              <EasyDataTable :headers="headersReportedObjects" :items="reportedObjects.value"  :rows-per-page="10" buttons-pagination />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS objects reported by this station.
+            </div>
+          </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
             <div class="grid-container-actions">
               <div v-if="accesstokenRef.value != null" class="grid-item">
@@ -3807,6 +3848,16 @@ function findValues(key) {
             <div v-else>
               <br>
               <br> No APRS Status found.
+            </div>
+          </Tab>
+          <Tab value="Objects">
+            <div v-if="((reportedObjects != null) && (reportedObjects.value != null))">
+              <b>APRS objects reported:</b>
+              <EasyDataTable :headers="headersReportedObjects" :items="reportedObjects.value"  :rows-per-page="10" buttons-pagination />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS objects reported by this station.
             </div>
           </Tab>
           <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">

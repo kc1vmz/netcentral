@@ -1664,4 +1664,26 @@ public class APRSObjectAccessor {
 
         return ret;
     }
+
+    public List<APRSObject> getObjectsForTrackedStation(User loggedInUser, TrackedStation trackedStation) {
+        List<APRSObject> ret = new ArrayList<>();
+        try {
+            List<APRSObjectRecord> recList = aprsObjectRepository.findBycallsign_from(trackedStation.getCallsign());
+            if (!recList.isEmpty()) {
+                for (APRSObjectRecord rec : recList) {
+                    boolean remote = true;
+                    if (rec.source().equals("NETCENTRAL")) {
+                        remote = false;
+                    }
+                    ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
+                                        rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
+                                        ObjectType.values()[rec.type()], remote));
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Exception caught getting objects for tracked station", e);
+        }
+
+        return ret;
+    }
 }

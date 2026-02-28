@@ -1,5 +1,7 @@
 package netcentral.server.controller;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -22,6 +24,8 @@ package netcentral.server.controller;
 
 import java.util.List;
 
+import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
+
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.annotation.Body;
@@ -35,6 +39,7 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.TrackedStationAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.TrackedStation;
@@ -47,6 +52,8 @@ public class TrackedStationController {
     SessionAccessor sessionAccessor;
     @Inject
     private TrackedStationAccessor trackedStationAccessor;
+    @Inject
+    private APRSObjectAccessor aprsObjectAccessor;
 
     @Post
     public TrackedStation create(HttpRequest<?> request,  @Body TrackedStation obj) {
@@ -91,4 +98,17 @@ public class TrackedStationController {
 
         return;
     }
+
+    @Get("/{callsign}/objects")
+    public List<APRSObject> getObjects(HttpRequest<?> request, @PathVariable String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
+        if (trackedStation == null) {
+            return new ArrayList<>();
+        }
+
+        return aprsObjectAccessor.getObjectsForTrackedStation(loggedInUser, trackedStation);
+    }
+
 }
