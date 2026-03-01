@@ -1161,9 +1161,19 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom())) {
             return null;
         }
+        String comment = innerAPRSMaidenheadLocatorBeacon.getComment();
+        if ((comment != null) && (comment.length() > 64)) {
+            comment = comment.substring(0, 64);
+        }
 
+        trackStation(loggedInUser,  innerAPRSMaidenheadLocatorBeacon.getCallsignFrom(), null, null, TrackedStationType.UNKNOWN, comment);
+
+        String gridLocator = innerAPRSMaidenheadLocatorBeacon.getGridLocator();
+        if ((gridLocator != null) && (gridLocator.length() > 15)) {
+            gridLocator = gridLocator.substring(0, 15);
+        }
         APRSMaidenheadLocatorBeaconRecord src = new APRSMaidenheadLocatorBeaconRecord(id, source, heardTime, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom(),
-                                                                innerAPRSMaidenheadLocatorBeacon.getComment(), innerAPRSMaidenheadLocatorBeacon.getGridLocator());
+                                                                comment, gridLocator);
         aprsMaidenheadLocatorBeaconRepository.save(src);
         return new APRSObjectResource(id, innerAPRSMaidenheadLocatorBeacon, source, heardTime);
     }

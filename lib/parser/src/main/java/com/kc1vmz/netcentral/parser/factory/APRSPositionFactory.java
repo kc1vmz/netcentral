@@ -71,20 +71,16 @@ public class APRSPositionFactory {
             try {
                 ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
             } catch (APRSTimeConversionException e) {
-                logger.error("Exception caught", e);
+                logger.error("Exception caught converting position packet time for callsign "+ret.getCallsignFrom(), e);
             }
         }
 
-        byte symbolCode = 0;
-
         if ((data[messageIndex] < '0') || (data[messageIndex] > '9')) { // if it is not a digit, then it is compressed
             // compressed location data
-            symbolCode = data[messageIndex+9];
             byte [] compressedData = Arrays.copyOfRange(data, messageIndex, messageIndex+13);
             lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             messageIndex += 13; // compressed is 13 bytes
-            logger.info(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
         } else {
             byte [] latByte = Arrays.copyOfRange(data, messageIndex, messageIndex+8);
             messageIndex += 9;
@@ -99,7 +95,6 @@ public class APRSPositionFactory {
                 messageIndex +=9;
                 // good lon
             }
-            symbolCode = data[messageIndex];
             messageIndex++;
             lat = new String(latByte);
             lon = new String(lonByte);
@@ -107,11 +102,7 @@ public class APRSPositionFactory {
 
         byte [] comment = Arrays.copyOfRange(data, messageIndex, data.length);
         String commentStr = new String(comment);
-        if (symbolCode == '_') {
-            // have a weather report
-            ret.setHasWeatherReport(true);
-            ret.setWeatherReport(commentStr);
-        } else if (commentStr.startsWith("PHG")) {
+        if (commentStr.startsWith("PHG")) {
             // supports PHG
             ret.setPower(calculatePower(comment[3]));
             ret.setHeight(calculateHeight(comment[4]));

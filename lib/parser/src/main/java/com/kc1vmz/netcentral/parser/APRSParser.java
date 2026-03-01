@@ -193,7 +193,7 @@ public class APRSParser {
                 newdata[0] = '>';
                 System.arraycopy(data, 0, newdata, 1, data.length);
                 data = newdata;
-                logger.warn("BEACON / ID packet found - transmogrifying into a message");
+                logger.debug("BEACON / ID packet found - transmogrifying into a message");
             }
         } else {
             filterDTIDoNotUse(data);

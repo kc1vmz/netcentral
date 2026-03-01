@@ -110,7 +110,6 @@ public class APRSWeatherReportFactory {
                 ret.setLat(lat);
                 ret.setLon(lon);
                 messageIndex += 21; // compressed + _ + compressed wind speed/dir + T
-                logger.info(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
             } else if (data[26] == '_') {
                 // unmcompressed
                 byte [] lat = Arrays.copyOfRange(data, 8, 16);
@@ -302,7 +301,7 @@ public class APRSWeatherReportFactory {
                         break;
                 }
             } catch (Exception e) {
-                logger.error("Error parsing weather data " + new String(weatherData_bytes), e);
+                logger.error(String.format("Error parsing weather data - %s>%s %s", ret.getCallsignFrom(), ret.getCallsignTo(), new String(weatherData_bytes)), e);
                 break;
             }
         }
