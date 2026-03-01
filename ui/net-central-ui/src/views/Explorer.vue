@@ -90,7 +90,7 @@ const storePaneSize2 = ({ prevPane }) => {
 }
 </script>
 
-<style>
+<style scoped>
 /* Basic styling for the content inside the panes */
 .content {
   display: flex;

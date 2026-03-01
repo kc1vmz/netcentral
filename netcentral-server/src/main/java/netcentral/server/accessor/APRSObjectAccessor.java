@@ -1169,6 +1169,7 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSItem.getCallsignFrom())) {
             return null;
         }
+
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSItem.getCallsignTo())) {
             return null;
         }
@@ -1177,24 +1178,41 @@ public class APRSObjectAccessor {
         List<APRSObjectRecord> foundRecList = null; 
         
         try {
-            foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSItem.getCallsignFrom());
+            foundRecList = aprsObjectRepository.findBycallsign_to(innerAPRSItem.getCallsignTo());
         } catch (Exception e) {
         }
 
         APRSObjectRecord rec;
         if ((foundRecList != null) && (!foundRecList.isEmpty())) {
-            // objects get overwritten, not created new
+            // because objects can be dups from different From's, lets look for this from
             APRSObjectRecord first = foundRecList.get(0);
-            APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSItem.isAlive(), innerAPRSItem.getLat(),
-                                                                    innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), first.type());
-            rec = aprsObjectRepository.update(updated);
+            boolean found = false;
+            for (int i = 0; i < foundRecList.size(); i++) {
+                first = foundRecList.get(i);
+                if (first.callsign_from().equalsIgnoreCase(innerAPRSItem.getCallsignFrom())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                // objects get overwritten, not created new
+                APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSItem.isAlive(), innerAPRSItem.getLat(),
+                                                                        innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), first.type());
+                rec = aprsObjectRepository.update(updated);
+            } else {
+                // create new for this from/to pair
+                APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSItem.getCallsignFrom(), innerAPRSItem.getCallsignTo(), heardTime, innerAPRSItem.isAlive(),
+                                                            innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal());
+                rec = aprsObjectRepository.save(src);
+            }
         } else {
             APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSItem.getCallsignFrom(), innerAPRSItem.getCallsignTo(), heardTime, innerAPRSItem.isAlive(),
                                                         innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal());
             rec = aprsObjectRepository.save(src);
         }
 
-        trackStationFromObject(loggedInUser,  rec.callsign_from(), innerAPRSItem.getLat(), innerAPRSItem.getLon(), innerAPRSItem.getComment());
+        trackStationFromObject(loggedInUser,  rec.callsign_to(), innerAPRSItem.getLat(), innerAPRSItem.getLon(), innerAPRSItem.getComment());
+        trackStation(loggedInUser,  rec.callsign_from(), null, null, TrackedStationType.UNKNOWN, null);
         return new APRSObjectResource(id, innerAPRSItem, source, heardTime);
     }
 

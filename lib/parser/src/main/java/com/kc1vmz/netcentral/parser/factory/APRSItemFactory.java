@@ -28,6 +28,8 @@ import org.apache.logging.log4j.Logger;
 import com.kc1vmz.netcentral.aprsobject.object.APRSItem;
 import com.kc1vmz.netcentral.aprsobject.utils.CompressedDataFormatUtils;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
+import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
+import com.kc1vmz.netcentral.parser.util.Stripper;
 
 public class APRSItemFactory {
     private static final Logger logger = LogManager.getLogger(APRSItemFactory.class);
@@ -36,6 +38,9 @@ public class APRSItemFactory {
     public static APRSItem parse(byte [] header, byte [] data) throws ParserException {
         logger.debug("Parsing APRSItem object");
         APRSItem ret = new APRSItem();
+
+        String callsignFrom = AgwHeaderParser.getCallsignFrom(header);
+        callsignFrom = Stripper.stripWhitespace(callsignFrom);
 
         ret.setHeader(header);
         ret.setData(data);
@@ -60,20 +65,20 @@ public class APRSItemFactory {
         }
 
         if (!found) {
-            throw new ParserException(String.format("Packet from %s does not properly describe alive or dead", ret.getCallsignFrom()));
-        } else {
-            ret.setCallsignFrom(callsign);  // might not be the same as the header callsign
+            throw new ParserException(String.format("Packet from %s does not properly describe alive or dead", ret.getCallsignTo()));
         }
+        ret.setCallsignTo(callsign);  // might not be the same as the header callsign
+        ret.setCallsignFrom(callsignFrom);  // might not be the same as the header callsign
 
         if (data[fixedStart+1] == '/') {
             // compressed data format
-            byte [] compressedData = Arrays.copyOfRange(data, fixedStart+1, fixedStart+14);
+            byte [] compressedData = Arrays.copyOfRange(data, fixedStart+2, fixedStart+15);
             String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             ret.setLat(lat);
             String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             ret.setLon(lon);
 
-            byte [] comment = Arrays.copyOfRange(data, fixedStart+14, data.length);
+            byte [] comment = Arrays.copyOfRange(data, fixedStart+15, data.length);
             ret.setComment(new String(comment));
         } else {
             // regular format

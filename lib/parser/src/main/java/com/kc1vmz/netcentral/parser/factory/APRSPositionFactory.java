@@ -80,10 +80,11 @@ public class APRSPositionFactory {
         if ((data[messageIndex] < '0') || (data[messageIndex] > '9')) { // if it is not a digit, then it is compressed
             // compressed location data
             symbolCode = data[messageIndex+9];
-            lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(data), "NS");
-            lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(data), "EW");
+            byte [] compressedData = Arrays.copyOfRange(data, messageIndex-1, messageIndex+13-1);
+            lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
+            lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             messageIndex += 13; // compressed is 13 bytes
-            logger.warn(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
+            logger.info(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
         } else {
             byte [] latByte = Arrays.copyOfRange(data, messageIndex+0, messageIndex+8);
             messageIndex += 9;
