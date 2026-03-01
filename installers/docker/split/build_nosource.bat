@@ -26,8 +26,8 @@ set NC_SRC_URL_ROOT=
 
 copy image_files\*.* tmp\docker\full\image_files
 
-docker build --no-cache -t netcentral-server:1.0.11 -f Dockerfile-server ../..
-docker build --no-cache -t netcentral-ui:1.0.11 -f Dockerfile-ui ../..
-docker build --no-cache -t netcentral-transceiver-aprsis:1.0.11 -f Dockerfile-aprsis ../..
-docker build --no-cache -t netcentral-transceiver-kenwood:1.0.11 -f Dockerfile-kenwood ../..
-docker build --no-cache -t netcentral-transceiver-kiss:1.0.11 -f Dockerfile-kiss ../..
+docker build --no-cache -t netcentral-server:1.0.12 -f Dockerfile-server ../..
+docker build --no-cache -t netcentral-ui:1.0.12 -f Dockerfile-ui ../..
+docker build --no-cache -t netcentral-transceiver-aprsis:1.0.12 -f Dockerfile-aprsis ../..
+docker build --no-cache -t netcentral-transceiver-kenwood:1.0.12 -f Dockerfile-kenwood ../..
+docker build --no-cache -t netcentral-transceiver-kiss:1.0.12 -f Dockerfile-kiss ../..

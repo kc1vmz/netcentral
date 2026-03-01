@@ -12,13 +12,13 @@ SET NC_BUILD_SRC=N
 SET NC_TEMP_DIR=%TEMP%\netcentral
 SET NC_TR_APRSIS=Y
 SET NC_TR_APRSIS_QUERY=r/42.222/-71.57/500
-SET NC_VERSION=1.0.11
+SET NC_VERSION=1.0.12
 SET NC_DB_CREATE=Y
 SET NC_JAVA_INSTALL=Y
 SET NC_INSTALL_SERVICES=Y
 
 REM Prompt the user for input
-SET /P "NC_VERSION=What version of Net Central? (Default: 1.0.11): "
+SET /P "NC_VERSION=What version of Net Central? (Default: 1.0.12): "
 SET /P "NC_INSTALL_DIR=Where should Net Central be installed? (Default: %NC_INSTALL_DIR%): "
 SET /P "NC_TEMP_DIR=Where should Net Central temp space be located? (Default: %NC_TEMP_DIR%): "
 SET /P "NC_DB_NAME=Net Central database name? (Default: %NC_DB_NAME%): "

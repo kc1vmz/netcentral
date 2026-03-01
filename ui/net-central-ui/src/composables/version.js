@@ -18,4 +18,4 @@
     http://www.kc1vmz.com
 */
 
-export const netCentralVersion = "v1.0.11";
+export const netCentralVersion = "v1.0.12";

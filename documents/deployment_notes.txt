@@ -115,7 +115,7 @@ transceiver-aprsis-*.jar
 Optional module downloads are:
 transceiver-agw-*.jar
 transceiver-kenwood-*.jar
-transceiver-kiss-1.0.11.jar
+transceiver-kiss-1.0.12.jar
 
 For running Net Central in containers like Docker Desktop:
 netcentral-docker-image-build-scripts-*.zip
