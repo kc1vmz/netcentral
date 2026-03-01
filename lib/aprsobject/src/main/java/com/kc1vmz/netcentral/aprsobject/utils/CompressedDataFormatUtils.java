@@ -26,29 +26,54 @@ public class CompressedDataFormatUtils {
      * Long = -180 + ((x1-33) x 913 + (x2-33) x 912 + (x3-33) x 91 + x4-33) / 190463
      */
 
+    // expecting YYYYXXXX
+    public static double getLatitudeShort(byte [] data) {
+        double a = (double) data[0];
+        double b = (double) data[1];
+        double c = (double) data[2];
+        double d = (double) data[3];
+        return getLatitude(a, b, c, d);
+    }
+
+    // expecting /YYYYXXXX
     public static double getLatitude(byte [] data) {
+        double a = (double) data[1];
+        double b = (double) data[2];
+        double c = (double) data[3];
+        double d = (double) data[4];
+        return getLatitude(a, b, c, d);
+    }
+
+    private static double getLatitude(double a, double b, double c, double d) {
         double c1 = 91;
         double c2 = 33;
         double c3 = 380926;
-        double d2 = (double) data[2];
-        double d3 = (double) data[3];
-        double d4 = (double) data[4];
-        double d5 = (double) data[5];
-        return (double) 90 - (((d2-c2) * (c1*c1*c1)) + ((d3-c2) * (c1*c1)) + ((d4-c2) * c1) + (d5-c2)) / c3;
-
-//        return (double) 90 - (((data[2]-33) * (91^3)) + ((data[3]-33) * (91^2)) + ((data[4]-33) * 91) + (data[5]-33)) / 380926;
+        return (double) 90 - (((a-c2) * (c1*c1*c1)) + ((b-c2) * (c1*c1)) + ((c-c2) * c1) + (d-c2)) / c3;
     }
+
+    // expecting /YYYYXXXX
     public static double getLongitude(byte [] data) {
+        double a = (double) data[5];
+        double b = (double) data[6];
+        double c = (double) data[7];
+        double d = (double) data[8];
+        return getLongitude(a, b, c, d) ;
+    }
+
+    // expecting YYYYXXXX
+    public static double getLongitudeShort(byte [] data) {
+        double a = (double) data[4];
+        double b = (double) data[5];
+        double c = (double) data[6];
+        double d = (double) data[7];
+        return getLongitude(a, b, c, d);
+    }
+
+    public static double getLongitude(double a, double b, double c, double d) {
         double c1 = 91;
         double c2 = 33;
         double c3 = 190463;
-        double d6 = (double) data[6];
-        double d7 = (double) data[7];
-        double d8 = (double) data[8];
-        double d9 = (double) data[9];
-        return (double) -180 + (((d6-c2) * (c1*c1*c1)) + ((d7-c2) * (c1*c1)) + ((d8-c2) * c1) + (d9-c2)) / c3;
-
-//        return (double)-180 + ((data[6]-33) * (91^3) + (data[7]-33) * (91^2) + (data[8]-33) * 91 + data[9]-33) / 190463;
+        return (double) -180 + (((a-c2) * (c1*c1*c1)) + ((b-c2) * (c1*c1)) + ((c-c2) * c1) + (d-c2)) / c3;
     }
 
     public static String convertDecimalToDDMMSSx(double value, String suffixValuesPosNeg) {

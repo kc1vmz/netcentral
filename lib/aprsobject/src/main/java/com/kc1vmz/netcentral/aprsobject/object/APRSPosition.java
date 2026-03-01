@@ -60,6 +60,9 @@ public class APRSPosition implements APRSPacketInterface {
         this.lat = lat;
     }
     public String getLon() {
+        if ((lon != null) && (lon.length() == 8)) {
+            return "0"+lon;
+        }
         return lon;
     }
     public void setLon(String lon) {

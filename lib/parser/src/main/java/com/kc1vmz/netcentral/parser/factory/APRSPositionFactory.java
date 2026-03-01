@@ -80,17 +80,19 @@ public class APRSPositionFactory {
         if ((data[messageIndex] < '0') || (data[messageIndex] > '9')) { // if it is not a digit, then it is compressed
             // compressed location data
             symbolCode = data[messageIndex+9];
-            byte [] compressedData = Arrays.copyOfRange(data, messageIndex-1, messageIndex+13-1);
+            byte [] compressedData = Arrays.copyOfRange(data, messageIndex, messageIndex+13);
             lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             messageIndex += 13; // compressed is 13 bytes
             logger.info(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
         } else {
-            byte [] latByte = Arrays.copyOfRange(data, messageIndex+0, messageIndex+8);
+            byte [] latByte = Arrays.copyOfRange(data, messageIndex, messageIndex+8);
             messageIndex += 9;
-            byte [] lonByte = Arrays.copyOfRange(data, messageIndex+0, messageIndex+9);
+            byte [] lonByte = Arrays.copyOfRange(data, messageIndex, messageIndex+9);
             if ((lonByte[8] != 'E') && (lonByte[8] != 'W')) {
                 lonByte = Arrays.copyOfRange(data, messageIndex+0, messageIndex+8);
+                String prependZero = "0"+new String(lonByte);
+                lonByte = prependZero.getBytes();
                 messageIndex +=8;
                 // bad lon - fixed up
             } else {

@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.aprsobject.utils.CompressedDataFormatUtils;
 import com.kc1vmz.netcentral.parser.exception.APRSTimeConversionException;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
@@ -70,6 +71,8 @@ public class APRSWeatherReportFactory {
             if ((lon[8] != 'E') && (lon[8] != 'W')) {
                 lon = Arrays.copyOfRange(data, messageIndex+9, messageIndex+17);
                 // bad lon - short one character
+                String prependZero = "0"+new String(lon);
+                lon = prependZero.getBytes();
                 messageIndex += 17;
             } else {
                 messageIndex +=18;
@@ -90,8 +93,54 @@ public class APRSWeatherReportFactory {
             }
             messageIndex += 8;
         } else if ((data[0] == '/') || (data[0] == '@')) {
-        } else if (data[0] == '=') {
+            // time is same in both
+            byte [] time_bytes = Arrays.copyOfRange(data, 1, 9);
+            ret.setTime(new String(time_bytes));
+            try {
+                ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
+            } catch (APRSTimeConversionException e) {
+                logger.error("Exception caught", e);
+            }
 
+            if (data[17] == '_') {
+                // compressed location data
+                byte [] compressedData = Arrays.copyOfRange(data, messageIndex+9, messageIndex+17);
+                String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitudeShort(compressedData), "NS");
+                String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitudeShort(compressedData), "EW");
+                ret.setLat(lat);
+                ret.setLon(lon);
+                messageIndex += 21; // compressed + _ + compressed wind speed/dir + T
+                logger.info(String.format("**** COMPRESSED LAT LON %s %s **** ", lat, lon));
+            } else if (data[26] == '_') {
+                // unmcompressed
+                byte [] lat = Arrays.copyOfRange(data, 8, 16);
+                ret.setLat(new String(lat));
+                //byte symTableId = data[messageIndex+8];
+                byte [] lon = Arrays.copyOfRange(data, 17, 26);
+
+                if ((lon[8] != 'E') && (lon[8] != 'W')) {
+                    lon = Arrays.copyOfRange(data, 17, 25);
+                    // bad lon - short one character
+                    String prependZero = "0"+new String(lon);
+                    lon = prependZero.getBytes();
+                    messageIndex = 25;
+                } else {
+                    messageIndex = 26;
+                }
+                ret.setLon(new String(lon));
+
+                byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, messageIndex, messageIndex+7);
+                String directionAndSpeed = new String(directionAndSpeed_bytes);
+                String [] dsArray = directionAndSpeed.split("/");
+                if ((dsArray != null) && (dsArray.length == 2)) {
+                   ret.setWindDirection(Integer.parseInt(dsArray[0]));
+                   ret.setWindSpeed(Integer.parseInt(dsArray[1]));
+                }
+
+                messageIndex += 7; // skip wind speed and direction
+            } else {
+                // bad format
+            }
         }
 
         byte [] weatherData_bytes = Arrays.copyOfRange(data, messageIndex, data.length);

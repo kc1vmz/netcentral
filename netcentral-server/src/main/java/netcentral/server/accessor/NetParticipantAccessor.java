@@ -103,16 +103,19 @@ public class NetParticipantAccessor {
             // liveParticipant.setStatus(item.getStatus()); - already in liveParticipant
 
             // get curent location
-            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
-            liveParticipant.setLat(trackedStation.getLat());
-            liveParticipant.setLon(trackedStation.getLon());
-            liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
-            liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
-            liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
-            liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
-            liveParticipant.setLastHeardTime(trackedStation.getLastHeard());
+            try {
+                TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
+                liveParticipant.setLat(trackedStation.getLat());
+                liveParticipant.setLon(trackedStation.getLon());
+                liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
+                liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
+                liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
+                liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
+                liveParticipant.setLastHeardTime(trackedStation.getLastHeard());
 
-            ret.add(liveParticipant);
+                ret.add(liveParticipant);
+            } catch (Exception e) {
+            }
         }
         return ret;
     }
@@ -127,14 +130,17 @@ public class NetParticipantAccessor {
         // liveParticipant.setStatus(item.getStatus()); - already in liveParticipant
 
         // get curent location
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
-        liveParticipant.setLat(trackedStation.getLat());
-        liveParticipant.setLon(trackedStation.getLon());
-        liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
-        liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
-        liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
-        liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
-        liveParticipant.setLastHeardTime(trackedStation.getLastHeard());
+        try {
+            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
+            liveParticipant.setLat(trackedStation.getLat());
+            liveParticipant.setLon(trackedStation.getLon());
+            liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
+            liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
+            liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
+            liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
+            liveParticipant.setLastHeardTime(trackedStation.getLastHeard());
+        } catch (Exception e) {
+        }
 
         return liveParticipant;
     }

@@ -267,28 +267,31 @@ public class SummaryAccessor {
                 List<Participant> p = netParticipantAccessor.getAllParticipants(loggedInUser, net);
                 if (p != null) {
                     for (Participant participant : p) {
-                        Participant liveParticipant = participantAccessor.get(loggedInUser, participant.getCallsign());
-                        liveParticipant.setStartTime(participant.getStartTime());
-                        liveParticipant.setTacticalCallsign(participant.getTacticalCallsign());
+                        try {
+                            Participant liveParticipant = participantAccessor.get(loggedInUser, participant.getCallsign());
+                            liveParticipant.setStartTime(participant.getStartTime());
+                            liveParticipant.setTacticalCallsign(participant.getTacticalCallsign());
 
-                        // get curent location
-                        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, participant.getCallsign());
-                        liveParticipant.setLat(trackedStation.getLat());
-                        liveParticipant.setLon(trackedStation.getLon());
-                        liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
-                        liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
-                        liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
-                        liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
+                            // get curent location
+                            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, participant.getCallsign());
+                            liveParticipant.setLat(trackedStation.getLat());
+                            liveParticipant.setLon(trackedStation.getLon());
+                            liveParticipant.setElectricalPowerType(trackedStation.getElectricalPowerType());
+                            liveParticipant.setBackupElectricalPowerType(trackedStation.getBackupElectricalPowerType());
+                            liveParticipant.setRadioStyle(trackedStation.getRadioStyle());
+                            liveParticipant.setTransmitPower(trackedStation.getTransmitPower());
 
-                        if ((liveParticipant.getLat() != null) && (liveParticipant.getLon() != null)) {
-                            String name = String.format("Callsign: %s Status: %s Voice: %s", liveParticipant.getCallsign(), 
-                                (liveParticipant.getStatus() == null) ? "Unknown" : liveParticipant.getStatus(), 
-                                (liveParticipant.getVoiceFrequency() == null) ? "Unknown" : liveParticipant.getVoiceFrequency());
-                            RenderedMapItem item = new RenderedMapItem(
-                                liveParticipant.getLon(), liveParticipant.getLat(), name, liveParticipant.getCallsign(), liveParticipant);
-                            if (item.isValid()) {
-                                items.add(item);
+                            if ((liveParticipant.getLat() != null) && (liveParticipant.getLon() != null)) {
+                                String name = String.format("Callsign: %s Status: %s Voice: %s", liveParticipant.getCallsign(), 
+                                    (liveParticipant.getStatus() == null) ? "Unknown" : liveParticipant.getStatus(), 
+                                    (liveParticipant.getVoiceFrequency() == null) ? "Unknown" : liveParticipant.getVoiceFrequency());
+                                RenderedMapItem item = new RenderedMapItem(
+                                    liveParticipant.getLon(), liveParticipant.getLat(), name, liveParticipant.getCallsign(), liveParticipant);
+                                if (item.isValid()) {
+                                    items.add(item);
+                                }
                             }
+                        } catch (Exception e) {
                         }
                     }
 

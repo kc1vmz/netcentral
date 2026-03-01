@@ -69,27 +69,29 @@ public class APRSItemFactory {
         }
         ret.setCallsignTo(callsign);  // might not be the same as the header callsign
         ret.setCallsignFrom(callsignFrom);  // might not be the same as the header callsign
-
-        if (data[fixedStart+1] == '/') {
+        fixedStart++; // skip up/down
+        if (data[fixedStart] == '/') {
             // compressed data format
-            byte [] compressedData = Arrays.copyOfRange(data, fixedStart+2, fixedStart+15);
+            byte [] compressedData = Arrays.copyOfRange(data, fixedStart, fixedStart+13); // expecting /YYYYXXXX$csT
             String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             ret.setLat(lat);
             String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             ret.setLon(lon);
 
-            byte [] comment = Arrays.copyOfRange(data, fixedStart+15, data.length);
+            byte [] comment = Arrays.copyOfRange(data, fixedStart+13, data.length);
             ret.setComment(new String(comment));
         } else {
             // regular format
-            byte [] lat = Arrays.copyOfRange(data, fixedStart+1, fixedStart+1+8);  // take 8 characters
+            byte [] lat = Arrays.copyOfRange(data, fixedStart, fixedStart+8);  // take 8 characters
             ret.setLat(new String(lat));
             //byte symTableId = data[messageIndex+8];
-            byte [] lon = Arrays.copyOfRange(data, fixedStart+1+8+1, fixedStart+1+8+1+9);  // take 9 characters after the separator
+            byte [] lon = Arrays.copyOfRange(data, fixedStart+9, fixedStart+18);  // take 9 characters after the separator
 
-            int messageStart = fixedStart+1+8+9+1;
+            int messageStart = fixedStart+19;
             if ((lon[8] != 'E') && (lon[8] != 'W')) {
-                lon = Arrays.copyOfRange(data, fixedStart+1+8+1+9, fixedStart+1+8+1+8);  // bad lon - take only 8
+                lon = Arrays.copyOfRange(data, fixedStart+9, fixedStart+17);  // bad lon - take only 8
+                String prependZero = "0"+new String(lon);
+                lon = prependZero.getBytes();
                 messageStart--;
             }
             ret.setLon(new String(lon));

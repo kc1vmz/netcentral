@@ -79,7 +79,7 @@ public class APRSObjectFactory {
             String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
             ret.setLon(lon);
 
-            byte [] comment = Arrays.copyOfRange(data, 30, data.length);
+            byte [] comment = Arrays.copyOfRange(data, 31, data.length);
             ret.setComment(new String(comment));
         } else {
             // regular format

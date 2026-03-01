@@ -29,7 +29,6 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
-import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.accessor.APRSObjectAccessor;

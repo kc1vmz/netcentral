@@ -579,7 +579,10 @@ public class APRSObjectAccessor {
                 trackedStation.setType(type);
             }
             trackedStation.setLastHeard(ZonedDateTime.now());
-            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            try {
+                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            } catch (Exception e) {
+            }
         }
 
         // given a tracked station, register their root callsign
@@ -681,7 +684,10 @@ public class APRSObjectAccessor {
                 }
             }
             trackedStation.setLastHeard(ZonedDateTime.now());
-            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            try {
+                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            } catch (Exception e) {
+            }
         }
     }
 

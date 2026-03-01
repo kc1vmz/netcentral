@@ -489,7 +489,12 @@ public class RadioCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You are not in this net");
             return;
         }
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+
+        TrackedStation trackedStation = null;
+        try {
+            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        } catch (Exception e) {
+        }
         if (trackedStation == null) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Cannot find station");
             return;
@@ -511,7 +516,10 @@ public class RadioCommandAccessor {
         }
 
         trackedStation.setRadioStyle(valueEnum);
-        trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        try {
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
+        }
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), 
                                                     String.format("Radio style updated to %s", trackedStation.getRadioStyle()));
     }
@@ -522,7 +530,11 @@ public class RadioCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You are not in this net");
             return;
         }
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        TrackedStation trackedStation = null;
+        try {
+            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        } catch (Exception e) {
+        }
         if (trackedStation == null) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Cannot find station");
             return;
@@ -541,7 +553,10 @@ public class RadioCommandAccessor {
             valueEnum = ElectricalPowerType.SOLAR;
         }
         trackedStation.setElectricalPowerType(valueEnum);
-        trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        try {
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
+        }
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), 
                                                     String.format("Electrical power updated to %s", trackedStation.getElectricalPowerType()));
     }
@@ -552,7 +567,11 @@ public class RadioCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You are not in this net");
             return;
         }
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        TrackedStation trackedStation = null;
+        try {
+            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        } catch (Exception e) {
+        }
         if (trackedStation == null) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Cannot find station");
             return;
@@ -571,7 +590,10 @@ public class RadioCommandAccessor {
             valueEnum = ElectricalPowerType.SOLAR;
         }
         trackedStation.setBackupElectricalPowerType(valueEnum);
-        trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        try {
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
+        }
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), 
                                                     String.format("Backup electrical power updated to %s", trackedStation.getBackupElectricalPowerType()));
     }
@@ -582,14 +604,21 @@ public class RadioCommandAccessor {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You are not in this net");
             return;
         }
-        TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        TrackedStation trackedStation = null;
+        try {
+            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
+        } catch (Exception e) {
+        }
         if (trackedStation == null) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Cannot find station");
             return;
         }
 
         trackedStation.setTransmitPower(Integer.parseInt(value));
-        trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        try {
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
+        }
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), 
                                                     String.format("Transmit power updated to %d", trackedStation.getTransmitPower()));
     }
