@@ -46,6 +46,7 @@ import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
+import netcentral.server.object.ExpectedParticipant;
 import netcentral.server.object.Net;
 import netcentral.server.object.Participant;
 import netcentral.server.object.User;
@@ -77,6 +78,8 @@ public class NetAccessor {
     private UserAccessor userAccessor;
     @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
+    @Inject
+    private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
 
     public List<Net> getAll(User loggedInUser, String root) {
         List<NetRecord> recs = netRepository.findAll();
@@ -300,6 +303,12 @@ public class NetAccessor {
                             }
                         } catch (Exception e) {
                         }
+                    }
+                }
+                List<ExpectedParticipant> expectedParticipants = netExpectedParticipantAccessor.getExpectedParticipants(loggedInUser, net);
+                if ((expectedParticipants != null) && (!expectedParticipants.isEmpty())) {
+                    for (ExpectedParticipant expectedParticipant : expectedParticipants)  {
+                        netExpectedParticipantAccessor.removeExpectedParticipant(loggedInUser, net, expectedParticipant);
                     }
                 }
             }
