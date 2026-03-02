@@ -293,7 +293,14 @@ public class UserAccessor {
     }
 
     private User validateUser(LoginRequest obj) {
-        User user = getUserByName(null, obj.username(), true);
+        User user = null;
+        
+        try {
+            user = getUserByName(null, obj.username(), true);
+        } catch (Exception e) {
+            logger.debug("Username not found", e);
+        }
+
         if (user != null) {
             try {
                 BCryptPasswordEncoderService bCryptPasswordEncoderService = new BCryptPasswordEncoderService();
@@ -306,10 +313,12 @@ public class UserAccessor {
                 user = null;
             }
         }
+
         if (user == null) {
             logger.debug("Invalid username or password");
             throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
+
         return user;
     }
 
