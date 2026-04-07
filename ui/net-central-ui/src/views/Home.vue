@@ -54,6 +54,7 @@
         <br><b>Q</b> - send a question to all participants in net
         <br><b>A n</b> - answer question n sent to the net
         <br><b>QL</b> - send a list of unanswered questions
+        <br><b>QR n</b> - Report on question n and its answers 
         <br><b>INV callsign[,callsign2,...] </b> - invite one or more callsigns to a net
         <br><b>H</b> - display help message of all commands
         <br>

@@ -19,6 +19,7 @@ O callsign - get known operational status of a station by its callsign
 Q - send a question to all participants in net
 A n - answer question n sent to the net
 QL - send a list of unanswered questions
+QR n - Report on question n and its answers 
 INV callsign[,callsign2,...] - invite one or more callsigns to a net
 H - display help message of all commands
 

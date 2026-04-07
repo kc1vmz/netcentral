@@ -69,6 +69,7 @@ public class RadioCommandAccessor {
     private static final String COMMAND_RADIO_STYLE = "Y";
     private static final String COMMAND_NET_QUESTION = "Q";
     private static final String COMMAND_NET_QUESTION_LIST = "QL";
+    private static final String COMMAND_NET_QUESTION_REPORT = "QR";
     private static final String COMMAND_NET_ANSWER = "A";
     private static final String COMMAND_NET_INVITE = "INV";
 
@@ -231,6 +232,17 @@ public class RadioCommandAccessor {
                     }
                 }
                 processNetQuestionAnswer(loggedInUser, msg, net, transceiverSourceId);
+                // cannot have multiple
+                break;
+            } else if (COMMAND_NET_QUESTION_REPORT.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processNetQuestionReport(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
             } else if (COMMAND_NET_QUESTION_LIST.equalsIgnoreCase(command)) {
@@ -456,6 +468,56 @@ public class RadioCommandAccessor {
                 processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                 break;
             }
+        }
+    }
+
+    private void processNetQuestionReport(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        String questionNumberStr = Stripper.stripWhitespace(message.getMessage().substring(3)); // go past "QR "
+
+        int questionNumber = -1;
+        try {
+            Integer temp = Integer.parseInt(questionNumberStr);
+            questionNumber = temp;
+        } catch (Exception e) {
+        }
+
+        if (questionNumber == -1) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Question not found");
+            return; // cannot find question
+        }
+
+        NetQuestion netQuestion = null;
+        try {
+            netQuestion = netQuestionAccessor.getByQuestionNumber(loggedInUser, net.getCompletedNetId(), questionNumber);
+        } catch (Exception e) {
+        }
+
+        if (netQuestion == null) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Question not found");
+            return; // did not find question
+        }
+
+        List<NetQuestionAnswer> answers = new ArrayList<>();
+        try {
+            answers = netQuestionAnswerAccessor.getAll(loggedInUser, netQuestion.getNetQuestionId());
+        } catch (Exception e) {
+        }
+
+        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Question report");
+        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(),  netQuestion.getQuestionText());
+
+        if (!answers.isEmpty()) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(),  netQuestion.getQuestionText());
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(),  "Number of answers = " + answers.size());
+            for (NetQuestionAnswer answer : answers) {
+                String text = String.format("%s:%s", answer.getCallsign(), answer.getAnswerText());
+                if (text.length() > 63) {
+                    text = text.substring(0, 63);
+                }
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(),  text);
+            }
+        } else {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(),  "No answers");
         }
     }
 
@@ -760,6 +822,7 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
         helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
+        helpMessages.add(String.format("%s X - %s", COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
         helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
