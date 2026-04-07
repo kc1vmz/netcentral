@@ -23,6 +23,8 @@ package com.kc1vmz.netcentral.aprsobject.object;
 import com.kc1vmz.netcentral.aprsobject.interfaces.APRSPacketInterface;
 
 public class APRSUnknown implements APRSPacketInterface {
+    public static final int MAX_DATA_SIZE = 64;
+
     private byte [] data;
     private byte [] header;
     private String callsignFrom;

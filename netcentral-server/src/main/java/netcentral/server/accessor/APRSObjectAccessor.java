@@ -300,8 +300,17 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSUnknown.getCallsignFrom())) {
             return null;
         }
-        APRSUnknownRecord src = new APRSUnknownRecord(id, source, heardTime, innerAPRSUnknown.getCallsignFrom(), innerAPRSUnknown.getCallsignTo(), new String(innerAPRSUnknown.getData()));
-        aprsUnknownRepository.save(src);
+        String data = new String(innerAPRSUnknown.getData());
+        if (data.length() > APRSUnknown.MAX_DATA_SIZE) {
+            data = data.substring(0, APRSUnknown.MAX_DATA_SIZE);
+        }
+
+        try {
+            APRSUnknownRecord src = new APRSUnknownRecord(id, source, heardTime, innerAPRSUnknown.getCallsignFrom(), innerAPRSUnknown.getCallsignTo(), data);
+            aprsUnknownRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving unknown APRS object", e);
+        }
         return new APRSObjectResource(id, innerAPRSUnknown, source, heardTime);
     }
 
@@ -352,9 +361,13 @@ public class APRSObjectAccessor {
         }
         trackStation(loggedInUser,  innerAPRSStatus.getCallsignFrom(), null, null, type, innerAPRSStatus.getStatus());
 
-        APRSStatusRecord src = new APRSStatusRecord(id, source, heardTime, innerAPRSStatus.getCallsignFrom(), innerAPRSStatus.getTime(), 
-                                                                innerAPRSStatus.getLdtime(), innerAPRSStatus.getStatus());
-        aprsStatusRepository.save(src);
+        try {
+            APRSStatusRecord src = new APRSStatusRecord(id, source, heardTime, innerAPRSStatus.getCallsignFrom(), innerAPRSStatus.getTime(), 
+                                                                    innerAPRSStatus.getLdtime(), innerAPRSStatus.getStatus());
+            aprsStatusRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving status object", e);
+        }
         return new APRSObjectResource(id, innerAPRSStatus, source, heardTime);
     }
 
@@ -375,9 +388,13 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSQuery.getCallsignFrom())) {
             return null;
         }
-        APRSQueryRecord src = new APRSQueryRecord(id, source, heardTime, innerAPRSQuery.getCallsignFrom(), innerAPRSQuery.getQueryType(), innerAPRSQuery.getLat(), innerAPRSQuery.getLon(), innerAPRSQuery.getRadius());
-        
-        aprsQueryRepository.save(src);
+
+        try {
+            APRSQueryRecord src = new APRSQueryRecord(id, source, heardTime, innerAPRSQuery.getCallsignFrom(), innerAPRSQuery.getQueryType(), innerAPRSQuery.getLat(), innerAPRSQuery.getLon(), innerAPRSQuery.getRadius());
+            aprsQueryRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving query object", e);
+        }
         trackStation(loggedInUser,  innerAPRSQuery.getCallsignFrom(), innerAPRSQuery.getLat(), innerAPRSQuery.getLon(), TrackedStationType.UNKNOWN, null);
 
         return new APRSObjectResource(id, innerAPRSQuery, source, heardTime);
@@ -393,10 +410,16 @@ public class APRSObjectAccessor {
             logger.warn(String.format("Position comment too long from %s - %s", innerAPRSPosition.getCallsignFrom(), comment));
             comment = comment.substring(0, MAX_COMMENT_LENGTH);
         }
-        APRSPositionRecord src = new APRSPositionRecord(id, source, heardTime, innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), innerAPRSPosition.getTime(),
-                                                    innerAPRSPosition.getPower(), innerAPRSPosition.getHeight(), innerAPRSPosition.getGain(), innerAPRSPosition.getRange(), 
-                                                    innerAPRSPosition.getStrength(), innerAPRSPosition.getDirectivity(), comment);
-        aprsPositionRepository.save(src);
+
+        try {
+            APRSPositionRecord src = new APRSPositionRecord(id, source, heardTime, innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), innerAPRSPosition.getTime(),
+                                                        innerAPRSPosition.getPower(), innerAPRSPosition.getHeight(), innerAPRSPosition.getGain(), innerAPRSPosition.getRange(), 
+                                                        innerAPRSPosition.getStrength(), innerAPRSPosition.getDirectivity(), comment);
+            aprsPositionRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving position object", e);
+        }
+
         TrackedStationType type = TrackedStationType.UNKNOWN;
         if (innerAPRSPosition.isHasWeatherReport()) {
             type = TrackedStationType.WEATHER;
@@ -825,13 +848,19 @@ public class APRSObjectAccessor {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSMicE.getCallsignFrom())) {
             return null;
         }
-        APRSPositionRecord src = new APRSPositionRecord(id, source, heardTime, innerAPRSMicE.getCallsignFrom(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), "",
-                                                    null, null, null, null, 
-                                                    null, null, innerAPRSMicE.getStatus());
 
-        APRSPositionRecord rec = aprsPositionRepository.save(src);
-        TrackedStationType type = TrackedStationType.UNKNOWN;
-        trackStation(loggedInUser,  rec.callsign_from(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), type, null);
+        try {
+            APRSPositionRecord src = new APRSPositionRecord(id, source, heardTime, innerAPRSMicE.getCallsignFrom(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), "",
+                                                        null, null, null, null, 
+                                                        null, null, innerAPRSMicE.getStatus());
+
+            APRSPositionRecord rec = aprsPositionRepository.save(src);
+            TrackedStationType type = TrackedStationType.UNKNOWN;
+            trackStation(loggedInUser,  rec.callsign_from(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), type, null);
+        } catch (Exception e) {
+            logger.error("Exception caught saving MicE object", e);
+        }
+
         return new APRSObjectResource(id, innerAPRSMicE, source, heardTime);
     }
 
@@ -1108,12 +1137,16 @@ public class APRSObjectAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net is null");
         }
 
-        APRSMessageRecord src = new APRSMessageRecord(UUID.randomUUID().toString(), net.getCompletedNetId(), source, netMessage.getReceivedTime(), net.getCallsign(), net.getCallsign(), netMessage.getMessage(),
-                                                    null, false, false, 
-                                                    false, false, false,
-                                                    null, false, null);
+        try {
+            APRSMessageRecord src = new APRSMessageRecord(UUID.randomUUID().toString(), net.getCompletedNetId(), source, netMessage.getReceivedTime(), net.getCallsign(), net.getCallsign(), netMessage.getMessage(),
+                                                        null, false, false, 
+                                                        false, false, false,
+                                                        null, false, null);
 
-        aprsMessageRepository.save(src);
+            aprsMessageRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving message object", e);
+        }
     }
 
     private Net netCentralNetMessage(User loggedInUser, String callsignTo) {
@@ -1172,9 +1205,14 @@ public class APRSObjectAccessor {
         if ((gridLocator != null) && (gridLocator.length() > 15)) {
             gridLocator = gridLocator.substring(0, 15);
         }
-        APRSMaidenheadLocatorBeaconRecord src = new APRSMaidenheadLocatorBeaconRecord(id, source, heardTime, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom(),
-                                                                comment, gridLocator);
-        aprsMaidenheadLocatorBeaconRepository.save(src);
+
+        try {
+            APRSMaidenheadLocatorBeaconRecord src = new APRSMaidenheadLocatorBeaconRecord(id, source, heardTime, innerAPRSMaidenheadLocatorBeacon.getCallsignFrom(),
+                                                                    comment, gridLocator);
+            aprsMaidenheadLocatorBeaconRepository.save(src);
+        } catch (Exception e) {
+            logger.error("Exception caught saving Maidenhead object", e);
+        }
         return new APRSObjectResource(id, innerAPRSMaidenheadLocatorBeacon, source, heardTime);
     }
 
