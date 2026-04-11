@@ -13,3 +13,4 @@ copy ..\transceivers\transceiver-test\target\transceiver-test*.jar target
 copy ..\ui\net-central-ui\target\netcentral-ui*.zip target
 copy ..\documents\target\netcentral-documents*.zip target
 copy ..\installers\linux\netcentral_installer.sh target
+copy ..\installers\linux\netcentral_uninstaller.sh target
