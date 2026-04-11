@@ -40,6 +40,7 @@ import netcentral.server.object.ScheduledNet;
 import netcentral.server.object.User;
 import netcentral.server.record.ScheduledNetRecord;
 import netcentral.server.repository.ScheduledNetRepository;
+import netcentral.server.utils.LatLonConverter;
 
 @Singleton
 public class ScheduledNetAccessor {
@@ -118,6 +119,11 @@ public class ScheduledNetAccessor {
         } catch (Exception e) {
         }
 
+        String lon = LatLonConverter.convertLongitudeAPRS(obj.getLon());
+        obj.setLon(lon);
+        String lat = LatLonConverter.convertLatitudeAPRS(obj.getLat());
+        obj.setLat(lat);
+
         ScheduledNetRecord src = new ScheduledNetRecord(obj.getCallsign(), 
                                             (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "",
                                             obj.getName(), 
@@ -165,6 +171,11 @@ public class ScheduledNetAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Scheduled Net not found");
         }
         ScheduledNetRecord rec = recOpt.get();
+
+        String lon = LatLonConverter.convertLongitudeAPRS(obj.getLon());
+        obj.setLon(lon);
+        String lat = LatLonConverter.convertLatitudeAPRS(obj.getLat());
+        obj.setLat(lat);
 
         ScheduledNetRecord updatedRec = new ScheduledNetRecord(rec.callsign(), 
                                             (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "",

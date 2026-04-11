@@ -251,6 +251,10 @@ public class NetAccessor {
         if (!recOpt.isPresent()) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
+        String lon = LatLonConverter.convertLongitudeAPRS(obj.getLon());
+        obj.setLon(lon);
+        String lat = LatLonConverter.convertLatitudeAPRS(obj.getLat());
+        obj.setLat(lat);
         NetRecord rec = recOpt.get();
         NetRecord updatedRec = new NetRecord(rec.callsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
