@@ -53,6 +53,7 @@ import netcentral.server.object.User;
 import netcentral.server.object.request.ObjectCreateRequest;
 import netcentral.server.record.NetRecord;
 import netcentral.server.repository.NetRepository;
+import netcentral.server.utils.LatLonConverter;
 
 @Singleton
 public class NetAccessor {
@@ -155,9 +156,13 @@ public class NetAccessor {
             creatorName = loggedInUser.getEmailAddress();
         }
         String completed_net_id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
+        String lon = LatLonConverter.convertLongitudeAPRS(obj.getLon());
+        obj.setLon(lon);
+        String lat = LatLonConverter.convertLatitudeAPRS(obj.getLat());
+        obj.setLat(lat);
         NetRecord src = new NetRecord(obj.getCallsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
-                                            ZonedDateTime.now(), completed_net_id, obj.getLat(), obj.getLon(), obj.isAnnounce(),
+                                            ZonedDateTime.now(), completed_net_id, lat, lon, obj.isAnnounce(),
                                             creatorName, obj.isCheckinReminder(), obj.getCheckinMessage(),
                                             obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote());
         NetRecord rec = netRepository.save(src);

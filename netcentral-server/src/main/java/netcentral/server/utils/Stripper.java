@@ -38,7 +38,7 @@ public class Stripper {
             } else if (valStripped.charAt(lenStripped-1) == 0) {
                 valStripped = valStripped.substring(0, lenStripped-1);
             } else {
-                valStripped = val;
+//                valStripped = val;
                 break;
             }
         }

@@ -156,10 +156,11 @@ public class NetMessageAccessor {
             if (report != null) {
                 if (netCentralServerConfigAccessor.isFederated()) {
                     // act upon valid report because we are federated
-                    NetMessage netMessage = new NetMessage(net.getCallsign(), net.getCompletedNetId(), 
-                                            "", // TODO- who sent it
+                    NetMessage netMessage = new NetMessage(null, net.getCompletedNetId(), 
+                                            net.getCallsign(),
                                             report.getMessageText(), ZonedDateTime.now(),
-                                        report.getRecipient().equals(APRSNetCentralNetMessageReport.RECIPIENT_ALL) ? NetMessage.RECIPIENT_ENTIRE_NET : NetMessage.RECIPIENT_NET_CONTROL);
+                                            report.getRecipient().equals(APRSNetCentralNetMessageReport.RECIPIENT_ALL) ? 
+                                                    NetMessage.RECIPIENT_ENTIRE_NET : NetMessage.RECIPIENT_NET_CONTROL);
                     // handle a net message being sent
                     create(loggedInUser, netMessage);
                 }
