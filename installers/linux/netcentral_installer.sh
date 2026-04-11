@@ -152,6 +152,7 @@ if [ "$NC_OS" = "Linux" ]; then
       JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{sub("^$", "0", $2); print $1$2}')
       if [ "$JAVA_VER" -ge 17 ]; then
         # fall through
+        echo Java 17+ verified
       else
         echo Java 17 or greater not installed - exiting.
         sudo cp /etc/environment.pre_net_central_install /etc/environment 
@@ -379,6 +380,7 @@ if [ "$NC_OS" = "Linux" ]; then
     JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{sub("^$", "0", $2); print $1$2}')
     if [ "$JAVA_VER" -ge 17 ]; then
       # fall through
+      echo Java 17+ verified
     else
       echo Java 17 or greater not installed - exiting.
       sudo cp /etc/environment.pre_net_central_install /etc/environment 
