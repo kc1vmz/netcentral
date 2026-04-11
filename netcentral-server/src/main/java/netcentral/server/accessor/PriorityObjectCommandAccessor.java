@@ -90,10 +90,18 @@ public class PriorityObjectCommandAccessor {
         boolean canChange = allowedToChange(loggedInUser, priorityObject, innerAPRSMessage);
 
         switch (priorityObject.getType()) {
-            case ObjectType.EOC -> processEOCCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
-            case ObjectType.SHELTER -> processShelterCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
-            case ObjectType.MEDICAL -> processMedicalCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
-            default -> processBadCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId);
+            case EOC:
+                processEOCCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
+                break;
+            case SHELTER:
+                processShelterCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
+                break;
+            case MEDICAL:
+                processMedicalCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId, message, canChange);
+                break;
+            default:
+                processBadCommand(loggedInUser, priorityObject, innerAPRSMessage, transceiverSourceId);
+                break;
         }
     }
 

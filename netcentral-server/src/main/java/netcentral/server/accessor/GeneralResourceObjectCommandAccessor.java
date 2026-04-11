@@ -28,7 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
-import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
@@ -86,8 +85,12 @@ public class GeneralResourceObjectCommandAccessor {
         boolean canChange = allowedToChange(loggedInUser, generalResourceObject, innerAPRSMessage);
 
         switch (generalResourceObject.getType()) {
-            case ObjectType.RESOURCE -> processGeneralResourceCommand(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId, message, canChange);
-            default -> processBadCommand(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId);
+            case RESOURCE:
+                processGeneralResourceCommand(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId, message, canChange);
+                break;
+            default:
+                processBadCommand(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId);
+                break;
         }
     }
 

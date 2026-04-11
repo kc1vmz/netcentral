@@ -1458,10 +1458,10 @@ public class APRSObjectAccessor {
         if (!object.isRemote()) {
             // only speak about objects we own
             switch (object.getType()) {
-                case ObjectType.EOC:
-                case ObjectType.SHELTER:
-                case ObjectType.MEDICAL:
-                case ObjectType.RESOURCE:
+                case EOC:
+                case SHELTER:
+                case MEDICAL:
+                case RESOURCE:
                     markObjectDead(loggedInUser, object);
                     break;
                 default:

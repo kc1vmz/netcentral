@@ -168,13 +168,13 @@ Ensure that ports 8880 and 80 are open on the server's firewall. Failure to open
 
 ### Java
 
-Java 21 JDK is required for build, and a JRE based on Java 21 for execution.  
+Java 21 JDK is preferred for build, but a JRE based on Java 17 for execution.  
 
 Obtain the Java 21 JDK for your specific platform and build using maven or your favorite IDE supporting maven projects.
 
 ### Third-party software
 
-Java 21 JRE must be installed and configured prior to running any Net Central service.
+Java 17 or higher JRE must be installed and configured prior to running any Net Central service.
 MySQL must be installed and configured prior to running the Net Central server.  Currently tested with MySQL version 8.x.
 Node.JS must be installed prior to running the user interface.  Currently supports Node.JS version 20.19 or 22.12+
 

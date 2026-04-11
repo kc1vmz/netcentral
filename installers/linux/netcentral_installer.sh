@@ -4,6 +4,11 @@ NC_OS=$(uname)
 if [ "$NC_OS" = "Linux" ]; then
   echo "Welcome to the Net Central installer for Linux"
 
+  if [ -n "${NETCENTRAL_SERVER_TEMP_DIR+x}" ]; then
+    echo A previous version of Net Central was detected. Please uninstall then reinstall.
+    exit 1
+  fi
+
   if [[ -f /etc/redhat-release ]]; then
     pkg_manager=yum
   elif [[ -f /etc/debian_version ]]; then
@@ -23,6 +28,15 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_BUILD_SRC=N
   NC_TEMP_DIR=~/netcentral/tmp
   NC_TR_APRSIS=Y
+  NC_TR_KENWOOD=N
+  NC_TR_KENWOOD_PORT=/dev/rfcomm0
+  NC_TR_KENWOOD_BAUD=9600
+  NC_TR_KISS=N
+  NC_TR_KISS_HOST=
+  NC_TR_KISS_PORT=
+  NC_TR_KISS_BAUD=
+  NC_TR_KISS_CMD1=
+  NC_TR_KISS_CMD2=
   NC_TR_APRSIS_QUERY=r/42.222/-71.57/500
   NC_VERSION=1.0.12
   NC_DB_CREATE=Y
@@ -60,13 +74,19 @@ if [ "$NC_OS" = "Linux" ]; then
   NETCENTRAL_SERVER_MYSQL_PASSWORD=$NC_DB_PASS
   NETCENTRAL_SERVER_MYSQL_DBNAME=$NC_DB_NAME
 
-  echo "NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_MYSQL_USERNAME=$NETCENTRAL_SERVER_MYSQL_USERNAME" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_MYSQL_PASSWORD=$NETCENTRAL_SERVER_MYSQL_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
-  echo "NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
+  sudo cp /etc/environment /etc/environment.pre_net_central_install
+
+  echo "NETCENTRAL_INSTALL_DIR=$NC_INSTALL_DIR" | sudo tee -a /etc/environment >  /dev/null
+
+  if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
+    echo "NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_MYSQL_USERNAME=$NETCENTRAL_SERVER_MYSQL_USERNAME" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_MYSQL_PASSWORD=$NETCENTRAL_SERVER_MYSQL_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
+  fi
 
     read -e -i $NC_TR_APRSIS -p "Connect to APRS-IS (Y/n)?: " NC_TR_APRSIS
     if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
@@ -76,9 +96,44 @@ if [ "$NC_OS" = "Linux" ]; then
       NETCENTRAL_TRANS_APRSIS_PASSCODE=$NC_TR_APRSIS_PASSCODE
       NETCENTRAL_TRANS_APRSIS_CALLSIGN=$NC_CALLSIGN
       NETCENTRAL_TRANS_APRSIS_QUERY=$NC_TR_APRSIS_QUERY
-      echo "NETCENTRAL_TRANS_APRSIS_PASSCODE=$NETCENTRAL_TRANS_APRSIS_PASSCODE" | sudo tee -a /etc/environment >  /dev/null
-      echo "NETCENTRAL_TRANS_APRSIS_CALLSIGN=$NETCENTRAL_TRANS_APRSIS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
-      echo "NETCENTRAL_TRANS_APRSIS_QUERY=$NETCENTRAL_TRANS_APRSIS_QUERY" | sudo tee -a /etc/environment >  /dev/null
+      if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
+        echo "NETCENTRAL_TRANS_APRSIS_PASSCODE=$NETCENTRAL_TRANS_APRSIS_PASSCODE" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_APRSIS_CALLSIGN=$NETCENTRAL_TRANS_APRSIS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_APRSIS_QUERY=$NETCENTRAL_TRANS_APRSIS_QUERY" | sudo tee -a /etc/environment >  /dev/null
+      fi
+    fi
+
+    read -e -i $NC_TR_KENWOOD -p "Connect to native Kenwood (y/N)?: " NC_TR_KENWOOD
+    if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+      read -e -i $NC_TR_KENWOOD_PORT -p "Serial port to use?: " NC_TR_KENWOOD_PORT
+      read -e -i $NC_TR_KENWOOD_BAUD -p "Baud rate?: " NC_TR_KENWOOD_BAUD
+      NETCENTRAL_TRANS_KENWOOD_TNC_PORT=$NC_TR_KENWOOD_PORT
+      NETCENTRAL_TRANS_KENWOOD_TNC_BAUD=$NC_TR_KENWOOD_BAUD
+      if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
+        echo "NETCENTRAL_TRANS_KENWOOD_TNC_PORT=$NETCENTRAL_TRANS_KENWOOD_TNC_PORT" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KENWOOD_TNC_BAUD=$NETCENTRAL_TRANS_KENWOOD_TNC_BAUD" | sudo tee -a /etc/environment >  /dev/null
+      fi
+    fi
+
+    read -e -i $NC_TR_KISS -p "Connect to KISS-enabled radio (y/N)?: " NC_TR_KISS
+    if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+      read -e -i $NC_TR_KISS_HOST -p "Hostname (if using TCP/IP port)?: " NC_TR_KISS_HOST
+      read -e -i $NC_TR_KISS_PORT -p "Port to use?: " NC_TR_KISS_PORT
+      read -e -i $NC_TR_KISS_BAUD -p "Baud rate (if using serial port)?: " NC_TR_KISS_BAUD
+      read -e -i $NC_TR_KISS_CMD1 -p "Init command 1 (optional)?: " NC_TR_KISS_CMD1
+      read -e -i $NC_TR_KISS_CMD2 -p "Init command 2 (optional)?: " NC_TR_KISS_CMD2
+      NETCENTRAL_TRANS_KISS_TNC_HOST=$NC_TR_KISS_HOST
+      NETCENTRAL_TRANS_KISS_TNC_PORT=$NC_TR_KISS_PORT
+      NETCENTRAL_TRANS_KISS_TNC_BAUD=$NC_TR_KISS_BAUD
+      NETCENTRAL_TRANS_KISS_TNC_INIT1=$NC_TR_KISS_CMD1
+      NETCENTRAL_TRANS_KISS_TNC_INIT2=$NC_TR_KISS_CMD2
+      if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
+        echo "NETCENTRAL_TRANS_KISS_TNC_HOST=$NETCENTRAL_TRANS_KISS_TNC_HOST" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KISS_TNC_PORT=$NETCENTRAL_TRANS_KISS_TNC_PORT" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KISS_TNC_BAUD=$NETCENTRAL_TRANS_KISS_TNC_BAUD" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KISS_TNC_INIT1=$NETCENTRAL_TRANS_KISS_TNC_INIT1" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KISS_TNC_INIT2=$NETCENTRAL_TRANS_KISS_TNC_INIT2" | sudo tee -a /etc/environment >  /dev/null
+      fi
     fi
 
     mkdir $NC_INSTALL_DIR
@@ -92,6 +147,16 @@ if [ "$NC_OS" = "Linux" ]; then
       if [[ "$NC_JAVA_INSTALL" =~ ^[Yy]$ ]]; then
         echo Installing Java 21
         sudo yum install java-21-openjdk-devel -y
+      fi
+
+      JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{sub("^$", "0", $2); print $1$2}')
+      if [ "$JAVA_VER" -ge 17 ]; then
+        # fall through
+      else
+        echo Java 17 or greater not installed - exiting.
+        sudo cp /etc/environment.pre_net_central_install /etc/environment 
+        sudo rm /etc/environment.pre_net_central_install
+        exit 1
       fi
 
       if [[ "$NC_DB_CREATE" =~ ^[Yy]$ ]]; then
@@ -192,7 +257,7 @@ if [ "$NC_OS" = "Linux" ]; then
 
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
-            echo 'Description=Net APRS-IS Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
+            echo 'Description=Net Central APRS-IS Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
             echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
             echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
             echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
@@ -212,6 +277,51 @@ if [ "$NC_OS" = "Linux" ]; then
             echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
           fi
 
+          if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+            echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Description=Net Central Kenwood Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Type=simple' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/transceiver-kenwood-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KENWOOD_TNC_PORT='$NETCENTRAL_TRANS_KENWOOD_TNC_PORT | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KENWOOD_TNC_BAUD='$NETCENTRAL_TRANS_KENWOOD_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+          fi
+
+          if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+            echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Description=Net Central KISS Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Type=simple' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/transceiver-kiss-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_HOST='$NETCENTRAL_TRANS_KISS_TNC_HOST | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_PORT='$NETCENTRAL_TRANS_KISS_TNC_PORT | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_BAUD='$NETCENTRAL_TRANS_KISS_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT1='$NETCENTRAL_TRANS_KISS_TNC_INIT1 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT2='$NETCENTRAL_TRANS_KISS_TNC_INIT2 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+          fi
+
           echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'Description=Net Central Web Server UI' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
@@ -229,15 +339,26 @@ if [ "$NC_OS" = "Linux" ]; then
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             sudo systemctl enable netcentral-transceiver-aprsis
           fi
+          if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-kenwood
+          fi
+          if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-kiss
+          fi
           sudo systemctl enable netcentral-ui
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
+            sleep 10
             if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
-              sleep 10
               sudo systemctl start netcentral-transceiver-aprsis
             fi
-            sleep 10
+            if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+              sudo systemctl start netcentral-transceiver-kenwood
+            fi
+            if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+              sudo systemctl start netcentral-transceiver-kiss
+            fi
             sudo systemctl start netcentral-ui
           fi
         fi
@@ -253,6 +374,16 @@ if [ "$NC_OS" = "Linux" ]; then
     if [[ "$NC_JAVA_INSTALL" =~ ^[Yy]$ ]]; then
       echo Installing Java 21
       sudo apt install default-jdk -y
+    fi
+
+    JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{sub("^$", "0", $2); print $1$2}')
+    if [ "$JAVA_VER" -ge 17 ]; then
+      # fall through
+    else
+      echo Java 17 or greater not installed - exiting.
+      sudo cp /etc/environment.pre_net_central_install /etc/environment 
+      sudo rm /etc/environment.pre_net_central_install
+      exit 1
     fi
 
     if [[ "$NC_DB_CREATE" =~ ^[Yy]$ ]]; then
@@ -371,6 +502,51 @@ if [ "$NC_OS" = "Linux" ]; then
             echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
           fi
 
+          if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+            echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Description=Net Central Kenwood Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Type=simple' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/transceiver-kenwood-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KENWOOD_TNC_PORT='$NETCENTRAL_TRANS_KENWOOD_TNC_PORT | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KENWOOD_TNC_BAUD='$NETCENTRAL_TRANS_KENWOOD_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+            echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kenwood.service >  /dev/null
+          fi
+
+          if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+            echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Description=Net Central KISS Transceiver' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Type=simple' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/transceiver-kiss-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_HOST='$NETCENTRAL_TRANS_KISS_TNC_HOST | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_PORT='$NETCENTRAL_TRANS_KISS_TNC_PORT | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_BAUD='$NETCENTRAL_TRANS_KISS_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT1='$NETCENTRAL_TRANS_KISS_TNC_INIT1 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT2='$NETCENTRAL_TRANS_KISS_TNC_INIT2 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+          fi
+
           echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'Description=Net Central Web Server UI' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo '[Service]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
@@ -388,15 +564,26 @@ if [ "$NC_OS" = "Linux" ]; then
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             sudo systemctl enable netcentral-transceiver-aprsis
           fi
+          if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-kenwood
+          fi
+          if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+            sudo systemctl enable netcentral-transceiver-kiss
+          fi
           sudo systemctl enable netcentral-ui
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
+            sleep 10
             if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
-              sleep 10
               sudo systemctl start netcentral-transceiver-aprsis
             fi
-            sleep 10
+            if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
+              sudo systemctl start netcentral-transceiver-kenwood
+            fi
+            if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
+              sudo systemctl start netcentral-transceiver-kiss
+            fi
             sudo systemctl start netcentral-ui
           fi
       fi
@@ -404,7 +591,9 @@ if [ "$NC_OS" = "Linux" ]; then
     fi
   fi
 
-  echo Environment variables have been added to /etc/environment.  Make sure to reboot or run 'source /etc/environment' to add them into any new terminal.
+  if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
+    echo Environment variables have been added to /etc/environment.  Make sure to reboot or run 'source /etc/environment' to add them into any new terminal.
+  fi
 
   if [[ "$NC_DB_CREATE" =~ ^[Nn]$ ]]; then
     echo Be sure to run the following commands against the MariaSB/MySQL server you are using:
@@ -437,6 +626,15 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_JAVA_INSTALL=
   NC_INSTALL_SERVICES=
   NC_START_SERVICES=
+  NC_TR_KENWOOD=
+  NC_TR_KENWOOD_PORT=
+  NC_TR_KENWOOD_BAUD=
+  NC_TR_KISS=
+  NC_TR_KISS_HOST=
+  NC_TR_KISS_PORT=
+  NC_TR_KISS_BAUD=
+  NC_TR_KISS_CMD1=
+  NC_TR_KISS_CMD2=
 
 elif [ "$NC_OS" = "Darwin" ]; then
 

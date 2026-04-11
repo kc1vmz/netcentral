@@ -15,8 +15,8 @@
   </parent>
   <properties>
     <packaging>jar</packaging>
-    <jdk.version>21</jdk.version>
-    <release.version>21</release.version>
+    <jdk.version>17</jdk.version>
+    <release.version>17</release.version>
     <micronaut.version>4.9.4</micronaut.version>
     <micronaut.aot.enabled>false</micronaut.aot.enabled>
     <micronaut.aot.packageName>transceiver.kenwood.aot.generated</micronaut.aot.packageName>
@@ -60,12 +60,12 @@
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
-        <version>6.4.4</version>
+        <version>6.5.9</version>
     </dependency>
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>6.5.7</version>
+        <version>6.5.9</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-rsa -->
     <dependency>
@@ -76,7 +76,7 @@
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-crypto</artifactId>
-        <version>6.5.7</version>
+        <version>6.5.9</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -147,6 +147,7 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
+      <version>2.25.4</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

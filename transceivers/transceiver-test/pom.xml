@@ -15,8 +15,8 @@
   </parent>
   <properties>
     <packaging>jar</packaging>
-    <jdk.version>21</jdk.version>
-    <release.version>21</release.version>
+    <jdk.version>17</jdk.version>
+    <release.version>17</release.version>
 	  <micronaut.version>4.9.4</micronaut.version>
     <micronaut.runtime>netty</micronaut.runtime>
     <micronaut.aot.enabled>false</micronaut.aot.enabled>
@@ -60,7 +60,7 @@
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
-        <version>6.5.7</version>
+        <version>6.5.9</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8 -->
     <dependency>
@@ -71,7 +71,7 @@
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>6.5.7</version>
+        <version>6.5.9</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-rsa -->
     <dependency>
@@ -82,7 +82,7 @@
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-crypto</artifactId>
-        <version>6.5.7</version>
+        <version>6.5.9</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -153,6 +153,7 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
+      <version>2.25.4</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -240,8 +241,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.1</version>
           <configuration>
-            <source>21</source>
-            <target>21</target>
+            <source>17</source>
+            <target>17</target>
             <!-- Uncomment to enable incremental compilation -->
             <!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
             <annotationProcessorPaths combine.children="append">
