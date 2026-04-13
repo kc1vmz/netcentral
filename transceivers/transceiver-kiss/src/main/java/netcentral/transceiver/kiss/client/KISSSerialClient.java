@@ -46,6 +46,7 @@ public class KISSSerialClient {
             return;
         } else {
             for (int i = 0; i < comPorts.length; i++) {
+                logger.info("Comparing to port "+comPorts[i].getSystemPortName());
                 if (comPorts[i].getSystemPortName().equals(comPort)) {
                     index = i;
                     break;
