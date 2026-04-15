@@ -150,4 +150,7 @@ getRedirect();
 </template>
 
 <style scoped>
+input {
+    border: 1px solid #000;
+}
 </style>

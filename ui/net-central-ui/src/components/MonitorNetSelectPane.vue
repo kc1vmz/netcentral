@@ -923,4 +923,7 @@ function performEditNetExpectedParticipantsScheduled() {
   display: grid;
   grid-template-columns: 40% 20% 40%;
 }
+input {
+    border: 1px solid #000;
+}
 </style>

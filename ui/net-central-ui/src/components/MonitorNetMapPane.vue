@@ -485,4 +485,7 @@ html, body {
 .grid-item {
   flex: 1;
 }
+input {
+    border: 1px solid #000;
+}
 </style>

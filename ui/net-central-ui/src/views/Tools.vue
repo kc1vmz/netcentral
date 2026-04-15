@@ -814,4 +814,8 @@ function setRawLoggingValue(value) {
   gap: 10px;
 }
 
+input {
+    border: 1px solid #000;
+}
+
 </style>

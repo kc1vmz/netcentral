@@ -620,4 +620,8 @@ function performEditUser() {
   margin: 5px;
   gap: 5px;
 }
+
+input {
+    border: 1px solid #000;
+}
 </style>

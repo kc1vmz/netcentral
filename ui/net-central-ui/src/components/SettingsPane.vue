@@ -238,4 +238,9 @@ function update() {
   width: 10%; /* Makes the input field fill the width of its container */
   box-sizing: border-box; /* Ensures padding/border doesn't add to the width */
 }
+
+input {
+    border: 1px solid #000;
+}
+
 </style>

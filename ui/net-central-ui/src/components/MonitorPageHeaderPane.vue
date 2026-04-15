@@ -585,4 +585,8 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+input {
+    border: 1px solid #000;
+}
 </style>

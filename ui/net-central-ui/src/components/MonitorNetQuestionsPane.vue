@@ -243,3 +243,9 @@ function getBodyRowClass(item, rowNumber) {
     <div v-if="isMobileClient() && (!localSelectedNet.ncSelectedNet.remote)"><button class="boxButton" v-on:click.native="askQuestion">Ask Question</button></div>
   </div>
 </template>
+
+<style scoped>
+input {
+    border: 1px solid #000;
+}
+</style>

@@ -3999,4 +3999,7 @@ function findValues(key) {
   font-size: 3rem; 
   font-weight: 400;
 }
+input {
+    border: 1px solid #000;
+}
 </style>
