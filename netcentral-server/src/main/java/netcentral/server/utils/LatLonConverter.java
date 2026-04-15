@@ -53,7 +53,7 @@ public class LatLonConverter {
                 // already APRS
                 return value;
             }
-            // does not have a space in it - it is Decimal Degrees  ([-]XXX.YYYY)
+            // does not have a space in it - it is Decimal Degrees  -DDD.dddd
             return convertLongitudeDD(value);
         }
 

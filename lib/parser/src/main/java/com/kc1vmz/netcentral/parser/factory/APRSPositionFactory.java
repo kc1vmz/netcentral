@@ -112,16 +112,18 @@ public class APRSPositionFactory {
         } else if (commentStr.startsWith("RNG")) {
             // supports RNG
             ret.setRange(calculateRange(comment[3], comment[4], comment[5], comment[6]));
+            commentStr = commentStr.substring(7);  // skip RNG data
         } else if (commentStr.startsWith("DFS")) {
             // supports DFS
             ret.setStrength(calculateStrength(comment[3]));
             ret.setHeight(calculateHeight(comment[4]));
             ret.setGain(calculateGain(comment[5]));
             ret.setDirectivity(calculateDirectivity(comment[6]));
-            commentStr = commentStr.substring(7);  // skip PHG data
-        } else if ((commentStr.length() == 7) && (commentStr.charAt(3) == '/')) {
-            // weather report
-            commentStr = commentStr.substring(7);  // skip 
+            commentStr = commentStr.substring(7);  // skip DFS data
+        } else if ((commentStr.length() > 7) && (commentStr.charAt(3) == '/') && (commentStr.charAt(7) == 'g')) {
+            // weather report starts with 'g'
+            ret.setHasWeatherReport(true);
+            ret.setWeatherReport(commentStr);
         }
         ret.setComment(commentStr);
         ret.setLat(lat);

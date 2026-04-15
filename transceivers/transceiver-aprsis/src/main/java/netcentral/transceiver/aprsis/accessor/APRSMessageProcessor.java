@@ -59,7 +59,6 @@ import com.kc1vmz.netcentral.parser.util.Stripper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.ab0oo.aprs.parser.APRSPacket;
-import net.ab0oo.aprs.parser.Digipeater;
 import netcentral.transceiver.aprsis.client.NetCentralRESTClient;
 import netcentral.transceiver.aprsis.config.APRSConfiguration;
 import netcentral.transceiver.aprsis.config.NetCentralClientConfig;
@@ -164,7 +163,9 @@ public class APRSMessageProcessor {
 
         ZonedDateTime heardTime = ZonedDateTime.now();
 
-        processGenericObject(packet.getSourceCall(), packet.getDestinationCall(),parsedPacket, heardTime, packet.getDigipeaters(), packet.getIgate());
+        List<String> digipeaters = new ArrayList<>();
+        digipeaters.add(packet.getLastUsedDigi());
+        processGenericObject(packet.getSourceCall(), packet.getDestinationCall(),parsedPacket, heardTime, digipeaters, packet.getIgate());
 
         return true;
     }
@@ -189,7 +190,7 @@ public class APRSMessageProcessor {
         return true;
     }
 
-    private void processGenericObject(String callsignFrom, String callsignTo, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, ArrayList<Digipeater> digipeaters, String iGate) {
+    private void processGenericObject(String callsignFrom, String callsignTo, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaterList, String iGate) {
         if ((callsignFrom == null) || (callsignTo == null) || (parsedPacket == null)) {
             return;
         }
@@ -245,7 +246,6 @@ public class APRSMessageProcessor {
         if ((iGateList != null) && (!iGateList.isEmpty())) {
             objectResource.setInnerIgates(iGateList);
         }
-        List<String> digipeaterList = processDigipeaters(digipeaters);
         if ((digipeaterList != null) && (!digipeaterList.isEmpty())) {
             objectResource.setInnerDigipeaters(digipeaterList);
         }
@@ -310,22 +310,6 @@ public class APRSMessageProcessor {
                 aprsMessageAccessor.sendAckMessage(parsedPacket.getCallsignTo(), parsedPacket.getCallsignFrom(), "ack"+message);
             }
         }
-    }
-
-    private List<String> processDigipeaters(ArrayList<Digipeater> digipeaters) {
-        List<String> ret = new ArrayList<>();
-        if (digipeaters != null) {
-            for (Digipeater digipeater : digipeaters) {
-/*                if ((digipeater.getCallsign().startsWith("WIDE1")) || (digipeater.getCallsign().startsWith("WIDE2")) || (digipeater.getCallsign().startsWith("WIDE3")) || (digipeater.getCallsign().isEmpty()) ||
-                    (digipeater.getCallsign().startsWith("WIDE4")) || (digipeater.getCallsign().startsWith("WIDE5")) || (digipeater.getCallsign().startsWith("WIDE6")) || (digipeater.getCallsign().startsWith("WIDE7")) ||
-                    (digipeater.getCallsign().startsWith("TCPIP")) ) {
-                    continue;
-                } */
-                ret.add(digipeater.getCallsign());
-            }
-            return ret;
-        }
-        return null;
     }
 
     private List<String> processIGate(String igate) {

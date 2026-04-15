@@ -40,6 +40,7 @@ import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
 import netcentral.server.enums.TrackedStationType;
 import netcentral.server.enums.UserRole;
+import netcentral.server.exceptions.TrackedStationExists;
 import netcentral.server.object.RenderedMapItem;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
@@ -157,7 +158,7 @@ public class TrackedStationAccessor {
         }
     }
 
-    public TrackedStation create(User loggedInUser, TrackedStation obj) {
+    public synchronized TrackedStation create(User loggedInUser, TrackedStation obj) throws TrackedStationExists {
         if (obj == null) {
             logger.debug("Station is null");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not provided");
@@ -171,8 +172,10 @@ public class TrackedStationAccessor {
             List<TrackedStationRecord> existingList = trackedStationRepository.findByname(obj.getName());
             if ((existingList != null) && (!existingList.isEmpty())) {
                 logger.debug("Station name already exists");
-                throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station already exists");
+                throw new TrackedStationExists(HttpStatus.BAD_REQUEST, "Station already exists");
             }
+        } catch (TrackedStationExists e) {
+            throw e;
         } catch (Exception e) {
         }
 
@@ -264,25 +267,28 @@ public class TrackedStationAccessor {
         TrackedStation ret = null;
 
         try {
-            List<TrackedStation> stations = getAll(loggedInUser, name, callsign, type.toString());
-            if ((stations != null) && (!stations.isEmpty())) {
-                ret = stations.get(0);
-            }
-        } catch (Exception e) {
-            logger.error("Exception caught enumerating tracked stations prior to create", e);
-        }
-
-        if (ret == null) {
-            // not found - create it
             ret = new TrackedStation(null, type, name, null, callsign, 
                                 lat, lon, null, null, null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
             ret = create(loggedInUser, ret);
-        } else {
-            ret.setLastHeard(ZonedDateTime.now());
-            ret.setLat(lat);
-            ret.setLon(lon);
-            ret = update(loggedInUser, ret.getId(), ret);
+            return ret;
+        } catch (TrackedStationExists e) {
+            // fall through to update
+        } catch (Exception e) {
+            logger.error("Exception caught enumerating tracked stations prior to create", e);
+            return null;
         }
+
+        ret = getByCallsign(loggedInUser, callsign);
+
+        ret.setLastHeard(ZonedDateTime.now());
+        ret.setLat(lat);
+        ret.setLon(lon);
+
+        if (type != TrackedStationType.UNKNOWN) {
+            ret.setType(type);
+        }
+
+        ret = update(loggedInUser, ret.getId(), ret);
 
         return ret;
     }

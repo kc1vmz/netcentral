@@ -64,6 +64,7 @@ import netcentral.server.enums.TrackedStationStatus;
 import netcentral.server.enums.TrackedStationType;
 import netcentral.server.enums.UserRole;
 import netcentral.server.enums.WinlinkSessionState;
+import netcentral.server.exceptions.TrackedStationExists;
 import netcentral.server.object.Callsign;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
@@ -253,6 +254,7 @@ public class APRSObjectAccessor {
 
     private APRSObjectResource createAPRSWeatherReport(User loggedInUser, String id, Optional<APRSWeatherReport> innerAPRSWeatherReportOpt, String source, ZonedDateTime heardTime) {
         APRSWeatherReport innerAPRSWeatherReport = innerAPRSWeatherReportOpt.get();
+
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSWeatherReport.getCallsignFrom())) {
             return null;
         }
@@ -424,6 +426,9 @@ public class APRSObjectAccessor {
         if (innerAPRSPosition.isHasWeatherReport()) {
             type = TrackedStationType.WEATHER;
             storeWeatherReport(loggedInUser, innerAPRSPosition, source, heardTime);
+        } else {
+            TrackedStation temp = processObjectComment(innerAPRSPosition.getComment(), TrackedStationType.UNKNOWN);
+            type = temp.getType();
         }
         trackStation(loggedInUser,  innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), type, null);
         return new APRSObjectResource(id, innerAPRSPosition, source, heardTime);
@@ -579,37 +584,37 @@ public class APRSObjectAccessor {
 
         TrackedStation trackedStation = null;
         try {
-            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
-        } catch (Exception e) {
-        }
-
-        if (trackedStation == null) {
             String id = UUID.randomUUID().toString();
             trackedStation = new TrackedStation(id, type, callsign, description, callsign, lat, lon, null, null, 
                                     null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
             trackedStationAccessor.create(loggedInUser, trackedStation);
-        } else {
-            if (lat != null) {
-                trackedStation.setLat(lat);
-            }
-            if (lon != null) {
-                trackedStation.setLon(lon);
-            }
-            if (description != null) {
-                trackedStation.setDescription(description);
-            }
-            if (type != TrackedStationType.UNKNOWN) {
-                trackedStation.setType(type);
-            }
-            trackedStation.setLastHeard(ZonedDateTime.now());
-            try {
-                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
-            } catch (Exception e) {
-            }
+            // given a tracked station, register their root callsign
+            registerCallsign(loggedInUser, trackedStation.getCallsign());
+            return;
+        } catch (TrackedStationExists e) {
+            // fall through and do update
+        } catch (Exception e) {
+            return;
         }
 
-        // given a tracked station, register their root callsign
-        registerCallsign(loggedInUser, trackedStation.getCallsign());
+        trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
+        if (lat != null) {
+            trackedStation.setLat(lat);
+        }
+        if (lon != null) {
+            trackedStation.setLon(lon);
+        }
+        if (description != null) {
+            trackedStation.setDescription(description);
+        }
+        if (type != TrackedStationType.UNKNOWN) {
+            trackedStation.setType(type);
+        }
+        trackedStation.setLastHeard(ZonedDateTime.now());
+        try {
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
+        }
     }
 
     private void registerCallsign(User loggedInUser, String callsign) {
@@ -634,7 +639,6 @@ public class APRSObjectAccessor {
     }
 
     private void trackStationFromObject(User loggedInUser, String callsign, String lat, String lon, String description) {
-        TrackedStation trackedStation = null;
         TrackedStationType type = TrackedStationType.OBJECT;
 
         if ((callsign.startsWith("WIDE1")) || (callsign.startsWith("WIDE2")) || (callsign.startsWith("WIDE3")) || (callsign.isEmpty()) || 
@@ -642,19 +646,12 @@ public class APRSObjectAccessor {
             return;
         }
 
-        try {
-            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
-        } catch (Exception e) {
-        }
-
         TrackedStation infoFromComment = processObjectComment(description, type);
-        if (infoFromComment != null) {
-            type = infoFromComment.getType();
-        }
+        type = infoFromComment.getType();
 
-        if (trackedStation == null) {
+        try {
             String id = UUID.randomUUID().toString();
-            trackedStation = new TrackedStation(id, type, 
+            TrackedStation trackedStation = new TrackedStation(id, type, 
                             callsign, description, callsign, lat, lon, 
                             (infoFromComment != null) ? infoFromComment.getFrequencyTx() : null, 
                             (infoFromComment != null) ? infoFromComment.getFrequencyRx() : null, 
@@ -667,7 +664,18 @@ public class APRSObjectAccessor {
                             (infoFromComment != null) ? infoFromComment.getTransmitPower() : 0
                             );
             trackedStationAccessor.create(loggedInUser, trackedStation);
-        } else {
+            registerCallsign(loggedInUser, trackedStation.getCallsign());
+            return;
+        } catch (TrackedStationExists e) {
+            // exists - do an update
+        } catch (Exception e) {
+            // no hope - return
+            return;             
+        }
+
+        // do an update
+        try {
+            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
             if (lat != null) {
                 trackedStation.setLat(lat);
             }
@@ -707,19 +715,17 @@ public class APRSObjectAccessor {
                 }
             }
             trackedStation.setLastHeard(ZonedDateTime.now());
-            try {
-                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
-            } catch (Exception e) {
-            }
+            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+        } catch (Exception e) {
         }
     }
 
     private TrackedStation processObjectComment(String comment, TrackedStationType type) {
-        if (comment == null) {
-            return null;
-        }
         TrackedStation ret = new TrackedStation();
         ret.setType(type);
+        if (comment == null) {
+            return ret;
+        }
 
         int index = 0; 
         String remain = "";

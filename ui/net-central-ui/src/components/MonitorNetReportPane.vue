@@ -341,7 +341,7 @@ function performSendMessage() {
       <div v-if="((localSelectedNet == null) || (localSelectedNet.ncSelectedNet == null) || (localSelectedNet.ncSelectedNet.callsign == null))">
         <!-- no nets -->
       </div>
-      <div v-else-if="((localSelectedNet != null) || (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
+      <div v-else-if="((localSelectedNet != null) && (localSelectedNet.ncSelectedNet != null) && (localSelectedNet.ncSelectedNet.type == null))">
         <div v-if="!isMobileClient()" class="pagesubheader">Participant Information</div>
         <div v-else class="mobilepagesubheader">Participant Information</div>
         <div class="line"><hr/></div>
