@@ -43,6 +43,7 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_JAVA_INSTALL=Y
   NC_INSTALL_SERVICES=Y
   NC_START_SERVICES=N
+  NC_TR_KISS_DIGI_PATH=WIDE2-1,WIDE1-1
 
   read -e -i $NC_VERSION -p "What version of Net Central?: " NC_VERSION
   read -e -i $NC_INSTALL_DIR -p "Where should Net Central be installed?: " NC_INSTALL_DIR
@@ -105,8 +106,8 @@ if [ "$NC_OS" = "Linux" ]; then
 
     read -e -i $NC_TR_KENWOOD -p "Connect to native Kenwood (y/N)?: " NC_TR_KENWOOD
     if [[ "$NC_TR_KENWOOD" =~ ^[Yy]$ ]]; then
-      read -e -i $NC_TR_KENWOOD_PORT -p "Serial port to use?: " NC_TR_KENWOOD_PORT
-      read -e -i $NC_TR_KENWOOD_BAUD -p "Baud rate?: " NC_TR_KENWOOD_BAUD
+      read -e -p "Serial port to use?: " NC_TR_KENWOOD_PORT
+      read -e -p "Baud rate?: " NC_TR_KENWOOD_BAUD
       NETCENTRAL_TRANS_KENWOOD_TNC_PORT=$NC_TR_KENWOOD_PORT
       NETCENTRAL_TRANS_KENWOOD_TNC_BAUD=$NC_TR_KENWOOD_BAUD
       if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
@@ -117,22 +118,25 @@ if [ "$NC_OS" = "Linux" ]; then
 
     read -e -i $NC_TR_KISS -p "Connect to KISS-enabled radio (y/N)?: " NC_TR_KISS
     if [[ "$NC_TR_KISS" =~ ^[Yy]$ ]]; then
-      read -e -i $NC_TR_KISS_HOST -p "Hostname (if using TCP/IP port)?: " NC_TR_KISS_HOST
-      read -e -i $NC_TR_KISS_PORT -p "Port to use?: " NC_TR_KISS_PORT
-      read -e -i $NC_TR_KISS_BAUD -p "Baud rate (if using serial port)?: " NC_TR_KISS_BAUD
-      read -e -i $NC_TR_KISS_CMD1 -p "Init command 1 (optional)?: " NC_TR_KISS_CMD1
-      read -e -i $NC_TR_KISS_CMD2 -p "Init command 2 (optional)?: " NC_TR_KISS_CMD2
+      read -e -p "Hostname (if using TCP/IP port)?: " NC_TR_KISS_HOST
+      read -e -p "Port to use?: " NC_TR_KISS_PORT
+      read -e -p "Baud rate (if using serial port)?: " NC_TR_KISS_BAUD
+      read -e -p "Init command 1 (optional)?: " NC_TR_KISS_CMD1
+      read -e -p "Init command 2 (optional)?: " NC_TR_KISS_CMD2
+      read -e -i $NC_TR_KISS_DIGI_PATH -p "Digipeater path?: " NC_TR_KISS_DIGI_PATH
       NETCENTRAL_TRANS_KISS_TNC_HOST=$NC_TR_KISS_HOST
       NETCENTRAL_TRANS_KISS_TNC_PORT=$NC_TR_KISS_PORT
       NETCENTRAL_TRANS_KISS_TNC_BAUD=$NC_TR_KISS_BAUD
       NETCENTRAL_TRANS_KISS_TNC_INIT1=$NC_TR_KISS_CMD1
       NETCENTRAL_TRANS_KISS_TNC_INIT2=$NC_TR_KISS_CMD2
+      NETCENTRAL_TRANS_KISS_DIGI_PATH=$NC_TR_KISS_DIGI_PATH
       if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
         echo "NETCENTRAL_TRANS_KISS_TNC_HOST=$NETCENTRAL_TRANS_KISS_TNC_HOST" | sudo tee -a /etc/environment >  /dev/null
         echo "NETCENTRAL_TRANS_KISS_TNC_PORT=$NETCENTRAL_TRANS_KISS_TNC_PORT" | sudo tee -a /etc/environment >  /dev/null
         echo "NETCENTRAL_TRANS_KISS_TNC_BAUD=$NETCENTRAL_TRANS_KISS_TNC_BAUD" | sudo tee -a /etc/environment >  /dev/null
         echo "NETCENTRAL_TRANS_KISS_TNC_INIT1=$NETCENTRAL_TRANS_KISS_TNC_INIT1" | sudo tee -a /etc/environment >  /dev/null
         echo "NETCENTRAL_TRANS_KISS_TNC_INIT2=$NETCENTRAL_TRANS_KISS_TNC_INIT2" | sudo tee -a /etc/environment >  /dev/null
+        echo "NETCENTRAL_TRANS_KISS_DIGI_PATH=$NETCENTRAL_TRANS_KISS_DIGI_PATH" | sudo tee -a /etc/environment >  /dev/null
       fi
     fi
 
@@ -316,6 +320,7 @@ if [ "$NC_OS" = "Linux" ]; then
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_BAUD='$NETCENTRAL_TRANS_KISS_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT1='$NETCENTRAL_TRANS_KISS_TNC_INIT1 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT2='$NETCENTRAL_TRANS_KISS_TNC_INIT2 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_DIGI_PATH='$NETCENTRAL_TRANS_KISS_DIGI_PATH | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
@@ -542,6 +547,7 @@ if [ "$NC_OS" = "Linux" ]; then
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_BAUD='$NETCENTRAL_TRANS_KISS_TNC_BAUD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT1='$NETCENTRAL_TRANS_KISS_TNC_INIT1 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_TRANS_KISS_TNC_INIT2='$NETCENTRAL_TRANS_KISS_TNC_INIT2 | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
+            echo 'Environment=NETCENTRAL_TRANS_KISS_DIGI_PATH='$NETCENTRAL_TRANS_KISS_DIGI_PATH | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_USERNAME='$NETCENTRAL_SERVER_USERNAME | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_PASSWORD='$NETCENTRAL_SERVER_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-transceiver-kiss.service >  /dev/null
@@ -637,6 +643,7 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_TR_KISS_BAUD=
   NC_TR_KISS_CMD1=
   NC_TR_KISS_CMD2=
+  NC_TR_KISS_DIGI_PATH=
 
 elif [ "$NC_OS" = "Darwin" ]; then
 
