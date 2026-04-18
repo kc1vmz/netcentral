@@ -32,7 +32,7 @@ This will build the images and make them available to run.
 
 ### Building from pre-built downloaded images
 
-Download netcentral-docker-image-build-scripts-1.0.16.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.16 and expand it.
+Download netcentral-docker-image-build-scripts-1.0.17.zip from https://github.com/kc1vmz/netcentral/releases/tag/v1.0.17 and expand it.
 
 If you are using the "full" version, from the "installers\docker\full" directory, run the "build_nosource.bat" file.  
 Make sure that your container software such as Docker Desktop is already running.
