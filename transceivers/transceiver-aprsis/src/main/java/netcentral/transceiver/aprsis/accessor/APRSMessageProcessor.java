@@ -88,7 +88,8 @@ public class APRSMessageProcessor {
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
     @Inject
     private StatisticsAccessor statisticsAccessor;
-
+    @Inject
+    private PacketLoggerAccessor packetLoggerAccessor;
 
     private ExecutorService executorService = null;
 
@@ -300,7 +301,6 @@ public class APRSMessageProcessor {
         }
     }
 
-
     private void ackIfOurs(APRSMessage parsedPacket) {
         if (parsedPacket.isMustAck() && (parsedPacket.getMessageNumber() != null)) {
             if (parsedPacket.getCallsignTo().equals(aprsConfiguration.getUsername())) {
@@ -319,5 +319,46 @@ public class APRSMessageProcessor {
             return ret;
         }
         return null;
+    }
+
+    public void logPacketToNetCentral(String data) {
+        if (data == null) {
+            return;
+        }
+
+        data = data.substring(0, data.length()-2); // remove CRLF used by radio client
+        packetLoggerAccessor.savePacket(data);
+
+        if (getRegisteredTransceiver() == null) {
+            logger.error("Transceiver not yet registered with server");
+            registeredTransceiverAccessor.resetRegisteredTransceiver();
+            registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
+            return;
+        }
+
+        APRSObjectResource rawPacket = new APRSObjectResource();
+        APRSRaw packet = new APRSRaw();
+        packet.setData(data.getBytes());
+        packet.setHeardTime(ZonedDateTime.now());
+        rawPacket.setInnerAPRSRaw(packet);
+        rawPacket.setSource(registeredTransceiverAccessor.getRegisteredTransceiverId());
+
+        try {
+            APRSObjectResource savedPacket = netControlRESTClient.saveRawPacket(rawPacket, loginResponse.getAccessToken());
+            if (savedPacket == null) {
+                logger.error(String.format("Packet not saved"));
+            } else {
+                logger.debug(String.format("Packet saved with id %s created", savedPacket.getId()));
+            }
+        } catch (LoginFailureException e) {
+            logger.error("LoginFailureException caught - resetting registered transceiver", e);
+            loginResponse = null;
+            registeredTransceiver = null;
+        }
+
+        if (registeredTransceiver == null) {
+            registeredTransceiverAccessor.resetRegisteredTransceiver();
+            registeredTransceiverAccessor.registerTransceiver();  // reregister internally, here will get again
+        }
     }
 }

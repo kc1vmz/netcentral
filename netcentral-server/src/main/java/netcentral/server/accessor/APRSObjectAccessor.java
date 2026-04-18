@@ -22,6 +22,8 @@ package netcentral.server.accessor;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -157,7 +159,7 @@ public class APRSObjectAccessor {
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
 
     
-    public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
+public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
 
         statisticsAccessor.incrementObjectsReceived();
         statisticsAccessor.markLastReceivedTime();
@@ -1699,6 +1701,20 @@ public class APRSObjectAccessor {
         }
     }
 
+    public void deleteAllRawPackets(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        if (!loggedInUser.getRole().equals(UserRole.SYSADMIN)) {
+            // no privs
+            logger.error("No privileges to allow delete all");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "No privileges to allow delete all");
+        }
+
+        aprsRawRepository.deleteAll();
+    }
+
     public void deleteAllData(User loggedInUser) {
         if (loggedInUser == null) {
             logger.debug("User not logged in");
@@ -1733,19 +1749,32 @@ public class APRSObjectAccessor {
         }
     }
 
-    public List<APRSRaw> getRawPackets(User loggedInUser) {
+    public List<APRSRaw> getRawPackets(User loggedInUser, ZonedDateTime sinceTime) {
         List<APRSRaw> ret = new ArrayList<>();
 
        try {
             List<APRSRawRecord> recs = aprsRawRepository.findAll();
             if ((recs != null) && (!recs.isEmpty())) {
                 for (APRSRawRecord rec : recs) {
+                    if (sinceTime != null) {
+                        if (rec.heard_time().isBefore(sinceTime)) {
+                            continue;
+                        }
+                    }
                     APRSRaw rawObj = new APRSRaw();
                     rawObj.setData(rec.data().getBytes());
                     rawObj.setHeardTime(rec.heard_time());
                     ret.add(rawObj);
                 }
             }
+
+            Collections.sort(ret, new Comparator<APRSRaw>() {
+                @Override
+                public int compare(APRSRaw obj1, APRSRaw obj2) {
+                    return obj1.getHeardTime().compareTo(obj2.getHeardTime());
+                }
+            });
+
         } catch (Exception e) {
         }
 
@@ -1772,5 +1801,12 @@ public class APRSObjectAccessor {
         }
 
         return ret;
+    }
+
+    public void logRawPacket(APRSObjectResource packet) {
+        if (configParametersAccessor.isLogRawPackets()) {
+            APRSRawRecord src = new APRSRawRecord(packet.getId().get(), packet.getSource(), packet.getInnerAPRSRaw().get().getHeardTime(), new String(packet.getInnerAPRSRaw().get().getData()));
+            aprsRawRepository.save(src);
+        }
     }
 }

@@ -102,8 +102,8 @@ public class ObjectCleanupAccessor {
         }
         if ((!loggedInUser.getRole().equals(UserRole.SYSADMIN)) && (!loggedInUser.getRole().equals(UserRole.SYSTEM))) {
             // no privs
-            logger.error("No privileges to allow delete all");
-            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "No privileges to allow delete all");
+            logger.error("No privileges to delete all APRS data");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "No privileges to delete all APRS data");
         }
 
         try {
@@ -123,6 +123,25 @@ public class ObjectCleanupAccessor {
             changePublisherAccessor.publishAllUpdate();
         } catch (Exception e) {
             logger.error("Exception caught cleaning up objects", e);
+        }
+    }
+
+    public void cleanupAllRawPackets(User loggedInUser) {
+        if (loggedInUser == null) {
+            logger.debug("User not logged in");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+        if ((!loggedInUser.getRole().equals(UserRole.SYSADMIN)) && (!loggedInUser.getRole().equals(UserRole.SYSTEM))) {
+            // no privs
+            logger.error("No privileges to delete all raw packets");
+            throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "No privileges to delete all raw packets");
+        }
+
+        try {
+            // delete raw packets
+            aprsObjectAccessor.deleteAllRawPackets(loggedInUser);
+        } catch (Exception e) {
+            logger.error("Exception caught cleaning up raw packets", e);
         }
     }
 

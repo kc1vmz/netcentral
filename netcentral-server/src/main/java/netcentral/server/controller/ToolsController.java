@@ -38,9 +38,11 @@ import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.NetCentralServerConfigAccessor;
@@ -117,12 +119,16 @@ public class ToolsController {
     }
 
     @Get(uri = "/rawPackets", produces = MediaType.TEXT_PLAIN)
-    public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request) {
+    public HttpResponse<byte[]> downloadCompletedNetReport(HttpRequest<?> request, @Nullable @QueryValue String since) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         try {
-            List<APRSRaw> rawPackets = aprsObjectAccessor.getRawPackets(loggedInUser);
+            ZonedDateTime sinceTime = null;
+            if (since != null) {
+                sinceTime = ZonedDateTime.parse(since);
+            } 
+            List<APRSRaw> rawPackets = aprsObjectAccessor.getRawPackets(loggedInUser, sinceTime);
             String filename = rawPacketReport.createReport(rawPackets);
 
             filename = netCentralServerConfigAccessor.getTempReportDir()+filename;
@@ -134,6 +140,4 @@ public class ToolsController {
             return HttpResponse.serverError();
         }
     }
-
-
 }

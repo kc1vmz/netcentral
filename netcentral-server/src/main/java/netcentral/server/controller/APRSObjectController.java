@@ -91,6 +91,22 @@ public class APRSObjectController {
         return HttpResponse.created(obj).headers(headers -> headers.location(location));
     }
 
+    @Post("/rawSent")
+    public HttpResponse<APRSObjectResource> createRawSentFromTransceiver(HttpRequest<?> request,  @Body APRSObjectResource obj) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+        String id = UUID.randomUUID().toString();
+
+        if (obj.getHeardTime() == null) {
+            obj.setHeardTime(ZonedDateTime.now());
+        }
+        obj.setId(id);
+        URI location = UriBuilder.of("/api/v1/APRSObjects/rawSent/"+id).build();
+        logRawPacket(loggedInUser, obj);
+
+        return HttpResponse.created(obj).headers(headers -> headers.location(location));
+    }
+
     @Get 
     public List<APRSObject> getAll(HttpRequest<?> request, @QueryValue("priority") Optional<Boolean> priority, @QueryValue("generalresource") Optional<Boolean> general) {
         String token = sessionAccessor.getTokenFromSession(request);
@@ -149,6 +165,10 @@ public class APRSObjectController {
         aprsCreateObjectQueue.addAPRSObject(obj);
     }
 
+    private void logRawPacket(User loggedInUser, APRSObjectResource obj) {
+        aprsObjectAccessor.logRawPacket(obj);
+    }
+
     @Get("/statusMessages/{callsign}")
     public List<APRSStatus> getAllStatus(HttpRequest<?> request, @PathVariable String callsign) {
         String token = sessionAccessor.getTokenFromSession(request);
@@ -164,6 +184,17 @@ public class APRSObjectController {
         loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
 
         objectCleanupAccessor.cleanupAllAPRSData(loggedInUser);
+
+        return;
+    }
+
+    @Delete("/all/rawPackets")
+    public void deleteAllRawPackets(HttpRequest<?> request) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+        loggedInUser = userAccessor.get(loggedInUser, loggedInUser.getId());
+
+        objectCleanupAccessor.cleanupAllRawPackets(loggedInUser);
 
         return;
     }

@@ -20,6 +20,25 @@
 
 <template>
     <!-- dialogs -->
+
+    <div v-if="dialogDeleteRawPacketsShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogDeleteRawPacketsShow.value" ref="dialogDeleteRawPackets" @close="dialogDeleteRawPacketsShow.value = false" class="topz">  
+          <form v-if="dialogDeleteRawPacketsShow.value" method="dialog">
+            <div class="pagesubheader">Confirm</div>
+            <div class="line"><hr/></div>
+            Do you wish to delete all logged raw packets?
+            <br>
+            <div>
+              <b>{{ errorMessage }}</b>
+            </div>
+            <br>
+            <button class="boxButton" v-on:click.native="deleteRawPacketsYes">Yes</button>
+            <button class="boxButton" v-on:click.native="deleteRawPacketsNo">No</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogEnableRawPacketLoggingShow.value">
       <teleport to="#modals">
         <dialog :open="dialogEnableRawPacketLoggingShow.value" ref="dialogEnableRawPacketLogging" @close="dialogEnableRawPacketLoggingShow.value = false" class="topz">  
@@ -64,6 +83,10 @@
             <div class="line"><hr/></div>
             Do you wish to download all heard raw packet data from Net Central ?
             <br>
+            <br>
+            <div>
+              Since date/time: <VueDatePicker v-model="todayDatePickerRef.value" :time-config="{ enableTimePicker: true }" />
+            </div>
             <div>
               <b>{{ errorMessage }}</b>
             </div>
@@ -305,6 +328,14 @@
         Download all heard APRS packets to a file.
       </div>
     </div>
+    <div class="grid-container">
+      <div class="grid-item">
+        <button class="bigBoxButton" v-on:click.native="deleteRawPackets"><b>Delete raw packets</b></button>
+      </div>
+      <div class="grid-item">
+        Delete all logged raw packets.
+      </div>
+    </div>
     <div class="grid-container" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'SYSADMIN'))">
       <div class="grid-item">
         <button class="bigBoxButton" v-on:click.native="deleteAllData"><b>Delete all APRS data</b></button>
@@ -343,6 +374,10 @@ var dialogExportRawPackets = ref(null);
 
 var dialogEnableRawPacketLoggingShow = reactive({ value : false });
 var dialogEnableRawPacketLogging = ref(null);
+
+var dialogDeleteRawPacketsShow = reactive({ value : false });
+var dialogDeleteRawPackets = ref(null);
+
 var dialogDisableRawPacketLoggingShow = reactive({ value : false });
 var dialogDisableRawPacketLogging = ref(null);
 
@@ -395,7 +430,10 @@ var ntsMessage23 = ref('');
 var ntsMessage24 = ref('');
 var ntsMessage25 = ref('');
 var ntsCheck = ref('');
+const todayDatePickerRef = reactive( { value : new Date() });
+
 var router = useRouter();
+
 
 onMounted(() => {
   redirect(getToken(), "Tools", router);
@@ -712,11 +750,46 @@ function exportRawPackets() {
 
 function exportRawPacketsYes() {
   dialogExportRawPacketsShow.value = false;
-  window.open(buildNetCentralUrl("/tools/rawPackets"), '_blank');
+  window.open(buildNetCentralUrl("/tools/rawPackets?since="+todayDatePickerRef.value.toISOString()), '_blank');
 }
 
 function exportRawPacketsNo() {
   dialogExportRawPacketsShow.value = false;
+}
+
+function deleteRawPackets() {
+  dialogDeleteRawPacketsShow.value = true;
+}
+
+function deleteRawPacketsYes() {
+  // delete raw packets
+  // send this to the server
+  var url = buildNetCentralUrl('/APRSObjects/all/rawPackets');
+
+  var requestOptions = {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json",
+                "SessionID" : getToken()
+      },
+    body: null
+  };
+
+  fetch(url, requestOptions)
+    .then(response => {
+      if (response.status != 200) {
+        errorMessage.value = "Error deleting all raw packets - "+response.status;
+      } else {
+        dialogDeleteRawPacketsShow.value = false;
+      }
+      return response;
+    })
+    .then(data => {
+    })
+    .catch(error => { console.error('Error deleting all raw packets:', error); })
+}
+
+function deleteRawPacketsNo() {
+  dialogDeleteRawPacketsShow.value = false;
 }
 
 function enableRawPacketLogging() {

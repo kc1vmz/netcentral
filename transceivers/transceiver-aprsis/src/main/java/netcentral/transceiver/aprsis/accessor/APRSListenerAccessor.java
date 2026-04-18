@@ -93,6 +93,7 @@ public class APRSListenerAccessor {
             if (sender != null) {
                 sender.write(aprsMessage);
                 sender.flush();
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
             } else {
                 logger.error("Sender is null - cannot send to APRS-IS server");
             }
@@ -110,6 +111,7 @@ public class APRSListenerAccessor {
             if (sender != null) {
                 sender.write(aprsMessage);
                 sender.flush();
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -129,6 +131,7 @@ public class APRSListenerAccessor {
             if (sender != null) {
                 sender.write(aprsMessage);
                 sender.flush();
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -159,6 +162,7 @@ public class APRSListenerAccessor {
             if (sender != null) {
                 sender.write(aprsMessage);
                 sender.flush();
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {

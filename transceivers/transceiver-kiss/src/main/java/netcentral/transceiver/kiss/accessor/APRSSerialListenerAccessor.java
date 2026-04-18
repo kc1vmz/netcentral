@@ -97,6 +97,7 @@ public class APRSSerialListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
+                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -142,6 +143,7 @@ public class APRSSerialListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
+                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();                
             } else {
@@ -171,6 +173,7 @@ public class APRSSerialListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
+                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -215,6 +218,7 @@ public class APRSSerialListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
+                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {

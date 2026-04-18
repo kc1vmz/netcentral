@@ -105,6 +105,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -141,6 +142,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -186,6 +188,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -234,6 +237,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {

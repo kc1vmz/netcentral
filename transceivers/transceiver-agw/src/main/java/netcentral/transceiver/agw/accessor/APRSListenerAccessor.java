@@ -79,6 +79,7 @@ public class APRSListenerAccessor {
         logger.info(String.format("Sending report %s: %s", obj.getObjectName(), obj.getReportData()));
         // TODO: NOW IMPLEMENTATION!!!
 
+//        aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
         statisticsAccessor.markLastSentTime();
         statisticsAccessor.incrementMessagesSent();
 
@@ -96,6 +97,7 @@ public class APRSListenerAccessor {
             if (client != null) {
                 AgwCommand cmd = new AgwCommand((byte) (tncConfiguration.getChannel()), (byte)'K', callsignFrom, NetCentralToCallConstant.TOCALL_NC1, aprsMessage, digipeaters);
                 client.writeV(cmd);
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -121,6 +123,7 @@ public class APRSListenerAccessor {
             if (client != null) {
                 AgwCommand cmd = new AgwCommand((byte) tncConfiguration.getChannel(), (byte)'K', callsignFrom, callsignTo, aprsMessage, digipeaters);
                 client.writeV(cmd);
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -156,6 +159,7 @@ public class APRSListenerAccessor {
             if (client != null) {
                 AgwCommand cmd = new AgwCommand((byte) tncConfiguration.getChannel(), (byte)'K', aprsConfiguration.getCallsign(), null, new String(aprsMessage.getBytes()), digipeaters);
                 client.writeV(cmd);
+                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {

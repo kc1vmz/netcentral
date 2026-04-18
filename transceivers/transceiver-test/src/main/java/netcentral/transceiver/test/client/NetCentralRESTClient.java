@@ -59,18 +59,31 @@ public class NetCentralRESTClient {
         return String.format("http://%s:%d/%s", netControlConfig.getServer(), netControlConfig.getPort(), tail);
     }
 
-    public APRSObjectResource create(APRSObjectResource res, String sessionId) {
+    public APRSObjectResource create(APRSObjectResource res, String sessionId) throws LoginFailureException {
+        return sendToNetCentralServer(res, sessionId, buildURL("api/v1/APRSObjects"));
+    }
+
+    public APRSObjectResource saveRawPacket(APRSObjectResource res, String sessionId) throws LoginFailureException {
+        return sendToNetCentralServer(res, sessionId, buildURL("api/v1/APRSObjects/rawSent"));
+    }
+
+    private APRSObjectResource sendToNetCentralServer(APRSObjectResource res, String sessionId, String url) throws LoginFailureException {
+        APRSObjectResource ret = null;
         try {
             ObjectMapper objectMapper = getObjectMapper();
             ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(res);
 
-            String val = post(buildURL("api/v1/APRSObjects"), sessionId, json);
-            logger.debug("response = " + val);
+            String val = post(url, sessionId, json);
+            if (val != null) {
+                logger.debug("POST response = " + val);
+                ret = objectMapper.readValue(val, APRSObjectResource.class);
+            }
+        } catch (LoginFailureException e) {
+            throw new LoginFailureException();
         } catch (Exception e) {
             logger.error("Exception caught creating APRS object", e);
         }
-        APRSObjectResource ret = null;
         return ret;
     }
 
