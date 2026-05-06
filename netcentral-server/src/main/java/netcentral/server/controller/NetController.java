@@ -187,7 +187,7 @@ public class NetController {
             participant = null;
         }
         if (participant == null) {
-            participant = new Participant(callsign, "", "", ZonedDateTime.now(), null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null);
+            participant = new Participant(callsign, "", "", ZonedDateTime.now(), null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null, false);
             participant =  participantAccessor.create(loggedInUser, participant);
         }
 

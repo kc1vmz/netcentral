@@ -51,14 +51,15 @@
         <br><b>L</b> - list net participants, their callsigns, status, location, and voice freqency monitored
         <br><b>P callsign</b> - ping callsign to test connectivity
         <br><b>O callsign</b> - get known operational status of a station by its callsign
-        <br><b>Q</b> - send a question to all participants in net
-        <br><b>A n</b> - answer question n sent to the net
+        <br><b>Q questiontext</b> - send a question to all participants in net
+        <br><b>A n answertext</b> - answer question n sent to the net
         <br><b>QL</b> - send a list of unanswered questions
         <br><b>QR n</b> - Report on question n and its answers 
         <br><b>INV callsign[,callsign2,...] </b> - invite one or more callsigns to a net
+        <br><b>NCI</b> - toggle notification of all check-ins and check-outs (default OFF)
         <br><b>H</b> - display help message of all commands
         <br>
-        <br><b>CI, CO, T, F, X, E, B, and Y</b> can all be combined in a single message  (ex: CI X 50 E COMM B SO)
+        <br><b>CI, CO, T, F, X, E, B, NCI and Y</b> can all be combined in a single message  (ex: CI X 50 E COMM B SO NCI)
         <br>
         <br>You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!
     </div>

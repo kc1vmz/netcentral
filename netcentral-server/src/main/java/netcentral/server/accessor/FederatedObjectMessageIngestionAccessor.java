@@ -333,7 +333,7 @@ public class FederatedObjectMessageIngestionAccessor {
         Participant participant = null;
         try {
             participant = new Participant(report.getReportData(), "Unknown", null, heardTime, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, 
-                                        RadioStyle.UNKNOWN, 0, null, heardTime);
+                                        RadioStyle.UNKNOWN, 0, null, heardTime, false);
             Participant cparticipant = participantAccessor.create(loggedInUser, participant);
             participant = cparticipant;
         } catch (Exception e) {

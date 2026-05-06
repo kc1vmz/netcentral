@@ -402,7 +402,7 @@ public class NetAccessor {
                     if (participant == null) {
                         participant = new Participant(report.getReportData(), "Unknown", null, now, 
                                                             null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN,
-                                                            0, null, now);
+                                                            0, null, now, false);
                         participant = participantAccessor.create(loggedInUser, participant);
                     }
 

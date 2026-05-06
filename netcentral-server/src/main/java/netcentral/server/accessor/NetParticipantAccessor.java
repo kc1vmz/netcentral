@@ -84,7 +84,7 @@ public class NetParticipantAccessor {
         List<NetParticipantRecord> participantRecs = netParticipantRepository.findBynet_callsign(net.getCallsign());
         if ((participantRecs != null) && (!participantRecs.isEmpty())) {
             for (NetParticipantRecord rec: participantRecs) {
-                ret.add(new Participant(rec.participant_callsign(), "", "", rec.start_time(), null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, rec.tactical_callsign(), null));
+                ret.add(new Participant(rec.participant_callsign(), "", "", rec.start_time(), null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, rec.tactical_callsign(), null, rec.notify_on_check_in_checkOut()));
             }
         }
         ret = hydrateParticipants(loggedInUser, ret);
@@ -100,6 +100,7 @@ public class NetParticipantAccessor {
             Participant liveParticipant = participantAccessor.get(loggedInUser, item.getCallsign());
             liveParticipant.setStartTime(item.getStartTime());
             liveParticipant.setTacticalCallsign(item.getTacticalCallsign());
+            liveParticipant.setNotifyOnCheckInCheckOut(item.isNotifyOnCheckInCheckOut());
             // liveParticipant.setStatus(item.getStatus()); - already in liveParticipant
 
             // get curent location
@@ -127,6 +128,7 @@ public class NetParticipantAccessor {
         Participant liveParticipant = participantAccessor.get(loggedInUser, item.getCallsign());
         liveParticipant.setStartTime(item.getStartTime());
         liveParticipant.setTacticalCallsign(item.getTacticalCallsign());
+        liveParticipant.setNotifyOnCheckInCheckOut(item.isNotifyOnCheckInCheckOut());
         // liveParticipant.setStatus(item.getStatus()); - already in liveParticipant
 
         // get curent location
@@ -145,6 +147,20 @@ public class NetParticipantAccessor {
         return liveParticipant;
     }
 
+    public Participant getParticipant(User loggedInUser, Net net, String participantCallsign) {
+        Participant participant = new Participant();
+        // update the tactical call sign
+        NetParticipantRecord participantRec = netParticipantRepository.find(net.getCallsign(), participantCallsign);
+        if (participantRec == null) {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Not a net participant");
+        }
+        participant.setNotifyOnCheckInCheckOut(participantRec.notify_on_check_in_checkOut());
+        participant.setTacticalCallsign(participantRec.tactical_callsign());
+        participant.setCallsign(participantCallsign);
+        participant.setStartTime(participantRec.start_time());
+        return participant;
+    }
+
     public List<Participant> addParticipant(User loggedInUser, Net net, Participant participant) {
         if (loggedInUser == null) {
             logger.debug("User not logged in");
@@ -158,7 +174,7 @@ public class NetParticipantAccessor {
         }
         try {
             String nid = net.getCallsign()+"."+participant.getCallsign();
-            NetParticipantRecord rec = new NetParticipantRecord(nid, net.getCallsign(), participant.getCallsign(), ZonedDateTime.now(), null);
+            NetParticipantRecord rec = new NetParticipantRecord(nid, net.getCallsign(), participant.getCallsign(), ZonedDateTime.now(), null, participant.isNotifyOnCheckInCheckOut());
             netParticipantRepository.save(rec);
             participant.setStartTime(rec.start_time());
 
@@ -289,7 +305,7 @@ public class NetParticipantAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Not a net participant");
         }
         NetParticipantRecord rec = new NetParticipantRecord(participantRec.net_participant_id(), participantRec.net_callsign(), participantRec.participant_callsign(), 
-                                                participantRec.start_time(), participant.getTacticalCallsign());
+                                                participantRec.start_time(), participant.getTacticalCallsign(), participant.isNotifyOnCheckInCheckOut());
         netParticipantRepository.update(rec);
         participant.setStartTime(rec.start_time());
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.UPDATE, hydrateParticipant(loggedInUser, participant));

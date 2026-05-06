@@ -34,6 +34,8 @@ public record NetParticipantRecord(@Id @NonNull @NotBlank @Size(max = 36) String
                 @NonNull @NotBlank @Size(max = 36) String net_callsign, 
                 @NonNull @NotBlank @Size(max = 36) String participant_callsign,
                 @NonNull @NotBlank ZonedDateTime start_time,
-                @Nullable @Size(max = 36) String tactical_callsign) {  
+                @Nullable @Size(max = 36) String tactical_callsign,
+                @NonNull @NotBlank boolean notify_on_check_in_checkOut
+) {
 }
 

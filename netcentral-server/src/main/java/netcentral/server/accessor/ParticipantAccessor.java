@@ -66,7 +66,7 @@ public class ParticipantAccessor {
                         // only take those with the optional root
                         continue;
                     }
-                    ret.add(new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null));
+                    ret.add(new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null, false));
                 }
             }
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class ParticipantAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
         }
         ParticipantRecord rec = recOpt.get();
-        return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN,RadioStyle.UNKNOWN, 0, null, null);
+        return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN,RadioStyle.UNKNOWN, 0, null, null, false);
     }
 
     public Participant getByCallsign(User loggedInUser, String callsign) {
@@ -103,7 +103,7 @@ public class ParticipantAccessor {
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");
             }
             ParticipantRecord rec = recOptional.get();
-            return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null);
+            return new Participant(rec.callsign(), rec.status(), rec.vfreq(), null, null, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0, null, null, false);
         } catch (Exception e) {
             logger.debug("Participant not found");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Participant not found");

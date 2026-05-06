@@ -44,12 +44,13 @@ public class Participant {
     private String tacticalCallsign;
     private ZonedDateTime lastHeardTime;
     private String prettyLastHeardTime;
+    private boolean notifyOnCheckInCheckOut;
 
     public Participant() {
     }
     public Participant(String callsign, String status, String voiceFrequency, ZonedDateTime startTime, String lat, String lon,
                                 ElectricalPowerType electricalPowerType,  ElectricalPowerType backupElectricalPowerType, RadioStyle radioStyle, int transmitPower, String tacticalCallsign,
-                                ZonedDateTime lastHeardTime) {
+                                ZonedDateTime lastHeardTime, boolean notifyOnCheckInCheckOut) {
         this.callsign = callsign;
         this.status = status;
         this.voiceFrequency = voiceFrequency;
@@ -61,6 +62,7 @@ public class Participant {
         this.radioStyle = radioStyle;
         this.transmitPower = transmitPower;
         this.tacticalCallsign = tacticalCallsign;
+        this.setNotifyOnCheckInCheckOut(notifyOnCheckInCheckOut);
         this.setLastHeardTime(lastHeardTime);
     }
     public Participant(Participant participant) {
@@ -77,6 +79,7 @@ public class Participant {
             this.transmitPower = participant.getTransmitPower();
             this.tacticalCallsign = participant.getTacticalCallsign();
             this.setLastHeardTime(participant.getLastHeardTime());
+            this.setNotifyOnCheckInCheckOut(participant.isNotifyOnCheckInCheckOut());
         }
     }
 
@@ -166,4 +169,10 @@ public class Participant {
     public void setPrettyLastHeardTime(String prettyLastHeardTime) {
         this.prettyLastHeardTime = prettyLastHeardTime;
     } 
+    public boolean isNotifyOnCheckInCheckOut() {
+        return notifyOnCheckInCheckOut;
+    }
+    public void setNotifyOnCheckInCheckOut(boolean notifyOnCheckInCheckOut) {
+        this.notifyOnCheckInCheckOut = notifyOnCheckInCheckOut;
+    }
 }

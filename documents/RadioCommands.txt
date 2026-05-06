@@ -21,9 +21,10 @@ A n - answer question n sent to the net
 QL - send a list of unanswered questions
 QR n - Report on question n and its answers 
 INV callsign[,callsign2,...] - invite one or more callsigns to a net
+NCI - toggle notification of all check-ins and check-outs (default OFF)
 H - display help message of all commands
 
-CI, CO, T, F, X, E, B, and Y can all be combined in a single message  (ex: CI X 50 E COMM B SO)
+CI, CO, T, F, X, E, B, NCI and Y can all be combined in a single message  (ex: CI X 50 E COMM B SO NCI)
 
 ?INFO - returns net info and participants
 ?CMD - returns list of valid directed query commands

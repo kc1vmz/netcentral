@@ -72,6 +72,8 @@ public class RadioCommandAccessor {
     private static final String COMMAND_NET_QUESTION_REPORT = "QR";
     private static final String COMMAND_NET_ANSWER = "A";
     private static final String COMMAND_NET_INVITE = "INV";
+    private static final String COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE = "NCI";
+
 
     @Inject
     private NetAccessor netAccessor;
@@ -413,6 +415,16 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
+            } else if (COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE.equalsIgnoreCase(command)) {
+                if (!ackOrRejPerformed) {
+                    ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
+                    ackOrRejPerformed = true;
+                    if (!isParticipant) {
+                        break;
+                    }
+                }
+                processCheckInOutNotificationToggle(loggedInUser, msg, net, transceiverSourceId);
+                index++;
             } else if (COMMAND_PING_PARTICIPANT.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
@@ -699,6 +711,26 @@ public class RadioCommandAccessor {
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), callsign, "You were pinged by "+message.getCallsignFrom() );
     }
 
+    private void processCheckInOutNotificationToggle(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        Participant participant = netParticipantAccessor.getParticipant(loggedInUser, net,  message.getCallsignFrom());
+        if (participant == null) {
+            transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You are not in this net");
+            return;
+        }
+
+        // toggle the check-in/check-out notification toggle in a participant record
+        participant.setNotifyOnCheckInCheckOut(!participant.isNotifyOnCheckInCheckOut());
+        netParticipantAccessor.updateParticipant(loggedInUser, net, participant);
+        String msg;
+
+        if (participant.isNotifyOnCheckInCheckOut()) {
+            msg = "You will receive check-in and check-out notifications";
+        } else {
+            msg = "You will not receive check-in and check-out notifications";
+        }
+        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), msg);
+    }
+
     private void processVoiceFrequency(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, String value) {
         Participant participant = participantAccessor.getByCallsign(loggedInUser, message.getCallsignFrom());
         if (participant == null) {
@@ -824,6 +856,7 @@ public class RadioCommandAccessor {
         helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
         helpMessages.add(String.format("%s X - %s", COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
         helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
+        helpMessages.add(String.format("%s - %s", COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE, "Toggle notification of check-ins and check-outs"));
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
 
@@ -999,8 +1032,8 @@ public class RadioCommandAccessor {
             // check if in this net
             for (Net netEntry : nets) {
                 if (netEntry.getCallsign().equalsIgnoreCase(net.getCallsign())) {
-                    transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "Checked out of net "+net.getCallsign());
                     netParticipantAccessor.removeParticipant(loggedInUser, net, participant);
+                    notifyParticipantsOfCheckOut(loggedInUser, net, participant, transceiverSourceId);
                     return;
                 }
             }
@@ -1063,9 +1096,42 @@ public class RadioCommandAccessor {
             participant = participantAccessor.create(loggedInUser, participant);
         }
         netParticipantAccessor.addParticipant(loggedInUser, net, participant);
-        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), "You checked into net "+net.getCallsign()+". Help - send H");
+        notifyParticipantsOfCheckIn(loggedInUser, net, participant, transceiverSourceId);
         if ((net.getCheckinMessage() != null) && (!net.getCheckinMessage().isEmpty())) {
             transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), net.getCheckinMessage());
+        }
+    }
+
+    private void notifyParticipantsOfCheckIn(User loggedInUser, Net net, Participant participant, String transceiverSourceId) {
+        notifyParticipantsOfCheckInCheckOut(loggedInUser, net, participant, transceiverSourceId, true);
+    }
+
+    private void notifyParticipantsOfCheckOut(User loggedInUser, Net net, Participant participant, String transceiverSourceId) {
+        notifyParticipantsOfCheckInCheckOut(loggedInUser, net, participant, transceiverSourceId, false);
+    }
+
+    private void notifyParticipantsOfCheckInCheckOut(User loggedInUser, Net net, Participant participant,  String transceiverSourceId, boolean checkIn) {
+        String msg;
+
+        // send to participant
+        if (checkIn) {
+            msg = String.format("You checked into net %s - send H for help", net.getCallsign());
+        } else {
+            msg = String.format("You checked out of net %s", net.getCallsign());
+        }
+        transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), participant.getCallsign(), msg);
+
+        // send to participants requesting notification
+        List<Participant> netParticipants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
+        if (checkIn) {
+            msg = String.format("%s has checked into net %s", participant.getCallsign(), net.getCallsign());
+        } else {
+            msg = String.format("%s has checked out of net %s",  participant.getCallsign(), net.getCallsign());
+        }
+        for (Participant netParticipant : netParticipants) {
+            if (!participant.getCallsign().equals(netParticipant.getCallsign())) {
+                transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), netParticipant.getCallsign(), msg);
+            }
         }
     }
 

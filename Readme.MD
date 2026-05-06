@@ -11,33 +11,34 @@ Using an APRS net, you can coordinate and track all participants. Adding objects
 Start a net and let people know about it. Nets can be announced as bulletins when started.  
 Operators can then participate by checking in and out of a net by sending APRS messages to the callsign of the net.  
   
-List of valid commands sent as APRS messages to the net callsign:  
-CI - Check in to net  
-CO - Check out of net  
-I - Send net info (name, voice frequency, description)  
-S status - report your status so other participants know what you are doing  
-T callsign - set tactical callsign for net  
-F frequency - report your voice freqency that you are monitoring  
-X n - report your transmit power n in watts  
-E (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR) - report your electrical power type  
-B (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR) - report your backup electrical power type  
-Y (APPLIANCE, BASE, HANDHELD, INTERNET, MOBILE, OTHER) - report your radio style  
-M - send message to all participants in net  
-MC - send message to only net control  
-R n - replay last n messages sent to the net (n is a number)  
-L - list net participants, their callsigns, status, location, and voice freqency monitored  
-P callsign - ping callsign to test connectivity  
-O callsign - get known operational status of a station by its callsign  
-Q - send a question to all participants in net  
-A n - answer question n sent to the net  
-QL - send a list of unanswered questions  
-QR n - Report on question n and its answers 
+List of valid commands sent as APRS messages to the net callsign:
+CI - Check in to net
+CO - Check out of net
+I - Send net info (name, voice frequency, description)
+S status - report your status so other participants know what you are doing
+T callsign - set tactical callsign for net
+F frequency - report your voice freqency that you are monitoring
+X n - report your transmit power n in watts
+E (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR) - report your electrical power type
+B (BATTERY, COMMERCIAL, GENERATOR, NONE, SOLAR) - report your backup electrical power type
+Y (APPLIANCE, BASE, HANDHELD, INTERNET, MOBILE, OTHER) - report your radio style
+M - send message to all participants in net
+MC - send message to only net control
+R n - replay last n messages sent to the net (n is a number)
+L - list net participants, their callsigns, status, location, and voice freqency monitored
+P callsign - ping callsign to test connectivity
+O callsign - get known operational status of a station by its callsign
+Q - send a question to all participants in net
+A n - answer question n sent to the net
+QL - send a list of unanswered questions
+QR n - Report on question n and its answers
 INV callsign[,callsign2,...] - invite one or more callsigns to a net  
-H - display help message of all commands  
+NCI - toggle notification of all check-ins and check-outs (default OFF)
+H - display help message of all commands
   
-CI, CO, T, F, X, E, B, and Y can all be combined in a single message (ex: CI X 50 E COMM B SO)  
+CI, CO, T, F, X, E, B, NCI and Y can all be combined in a single message (ex: CI X 50 E COMM B SO NCI)
   
-You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!  
+You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!
   
 ## Build notes
 
