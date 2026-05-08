@@ -62,7 +62,7 @@ public class ObjectBeaconAccessor {
             List<Net> nets = netAccessor.getAll(user, null);
             if ((nets != null) && (!nets.isEmpty())) {
                 for (Net net : nets) {
-                    transceiverMessageAccessor.sendObject(user, net.getCallsign(), net.getName(), String.format("Net %s", net.getName()),true, net.getLat(), net.getLon());
+                    transceiverMessageAccessor.sendObject(user, net.getCallsign(), net.getCallsign(), String.format("Net %s", net.getName()),true, net.getLat(), net.getLon());
                 }
             }
         } catch (Exception e) {
