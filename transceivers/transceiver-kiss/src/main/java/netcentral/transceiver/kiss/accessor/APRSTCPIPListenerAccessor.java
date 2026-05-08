@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.constants.NetCentralToCallConstant;
 import com.kc1vmz.netcentral.aprsobject.constants.NetCentralUserDefinedPacketConstant;
+import com.kc1vmz.netcentral.aprsobject.object.APRSRaw;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralReport;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 
@@ -93,11 +94,16 @@ public class APRSTCPIPListenerAccessor {
                                                                         NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE);
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
+        APRSRaw rawPacket = new APRSRaw();
+        rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
+        rawPacket.setCallsignFrom(callsignFrom);
+        rawPacket.setData(obj.getBytes());
+
         writeLock.lock();
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
+                aprsMessageProcessor.logRawPacketToNetCentral(rawPacket.getCallsignFrom(), rawPacket.getApplicationName(), rawPacket, ZonedDateTime.now(), getDigipeaterList(), "");
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -139,11 +145,17 @@ public class APRSTCPIPListenerAccessor {
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
+        APRSRaw rawPacket = new APRSRaw();
+        rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
+        rawPacket.setCallsignFrom(callsignFrom);
+        String fullMessageText = ":"+messageText;
+        rawPacket.setData(fullMessageText.getBytes());
+
         writeLock.lock();
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
+                aprsMessageProcessor.logRawPacketToNetCentral(rawPacket.getCallsignFrom(), rawPacket.getApplicationName(), rawPacket, ZonedDateTime.now(), getDigipeaterList(), "");
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();                
             } else {
@@ -169,11 +181,17 @@ public class APRSTCPIPListenerAccessor {
         byte [] packetBytesAX = AX25PacketBuilder.buildPacket(packet, ":");
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
+        APRSRaw rawPacket = new APRSRaw();
+        rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
+        rawPacket.setCallsignFrom(callsignFrom);
+        String fullMessageText = ":"+messageText;
+        rawPacket.setData(fullMessageText.getBytes());
+
         writeLock.lock();
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
+                aprsMessageProcessor.logRawPacketToNetCentral(rawPacket.getCallsignFrom(), rawPacket.getApplicationName(), rawPacket, ZonedDateTime.now(), getDigipeaterList(), "");
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -208,17 +226,21 @@ public class APRSTCPIPListenerAccessor {
 
         aprsMessage = String.format(";%s%s%s%s/%s%s%s", String.format("%-9s", objectName), ud, time, lat, lon, "c", messageText);
 
-
         packet.setData(aprsMessage);
 
         byte [] packetBytesAX = AX25PacketBuilder.buildObjectPacket(packet);
         byte [] packetBytes = KissPacketBuilder.build(packetBytesAX, (byte) 0);
 
+        APRSRaw rawPacket = new APRSRaw();
+        rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
+        rawPacket.setCallsignFrom(objectName);
+        rawPacket.setData(aprsMessage.getBytes());
+        
         writeLock.lock();
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
+                aprsMessageProcessor.logRawPacketToNetCentral(rawPacket.getCallsignFrom(), rawPacket.getApplicationName(), rawPacket, ZonedDateTime.now(), getDigipeaterList(), "");
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {

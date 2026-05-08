@@ -269,7 +269,7 @@ public class APRSMessageProcessor {
         return null;
     }
 
-    private void logRawPacketToNetCentral(String callsignFrom, String applicationName, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
+    public void logRawPacketToNetCentral(String callsignFrom, String applicationName, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
         if ((callsignFrom == null) || (parsedPacket == null)) {
             return;
         }
