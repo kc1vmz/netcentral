@@ -148,7 +148,7 @@ public class APRSTCPIPListenerAccessor {
         APRSRaw rawPacket = new APRSRaw();
         rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
         rawPacket.setCallsignFrom(callsignFrom);
-        String fullMessageText = ":"+messageText;
+        String fullMessageText = String.format("%s%-9s:%s",":", callsignTo, messageText);
         rawPacket.setData(fullMessageText.getBytes());
 
         writeLock.lock();
@@ -184,7 +184,7 @@ public class APRSTCPIPListenerAccessor {
         APRSRaw rawPacket = new APRSRaw();
         rawPacket.setApplicationName(NetCentralToCallConstant.TOCALL_NC1); 
         rawPacket.setCallsignFrom(callsignFrom);
-        String fullMessageText = ":"+messageText;
+        String fullMessageText = String.format("%s%-9s:%s",":", callsignTo, messageText);
         rawPacket.setData(fullMessageText.getBytes());
 
         writeLock.lock();
