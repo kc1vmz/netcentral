@@ -97,7 +97,7 @@ public class APRSTCPIPListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
+                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -143,7 +143,7 @@ public class APRSTCPIPListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
+                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();                
             } else {
@@ -173,7 +173,7 @@ public class APRSTCPIPListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
+                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -218,7 +218,7 @@ public class APRSTCPIPListenerAccessor {
         try {
             if (client != null) {
                 client.write(packetBytes);
-                aprsMessageProcessor.logPacketToNetCentral(new String(packetBytes));
+                aprsMessageProcessor.logRawPacketToNetCentral(new String(packetBytes), true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {
@@ -300,11 +300,12 @@ public class APRSTCPIPListenerAccessor {
                         writeLock.lock();
                         try {
                             KISSPacket packet = client.listen();
-                            packetLoggerAccessor.savePacket(packet.getPacket());
-                            aprsMessageProcessor.processRawData(packet.getPacket());
-                            aprsMessageProcessor.processPacket(packet);
-                            statisticsAccessor.markLastReceivedTime();
-                            statisticsAccessor.incrementObjectsReceived();
+                            if (packet != null) {
+                                packetLoggerAccessor.savePacket(packet.getPacket());
+                                aprsMessageProcessor.processPacket(packet);
+                                statisticsAccessor.markLastReceivedTime();
+                                statisticsAccessor.incrementObjectsReceived();
+                            }
                         } catch (IOException | NullPointerException e) {
                             logger.error("Exception caught in KISS read loop", e);
                         } finally {
@@ -313,11 +314,12 @@ public class APRSTCPIPListenerAccessor {
                     } else {
                         try {
                             KISSPacket packet = client.listen();
-                            packetLoggerAccessor.savePacket(packet.getPacket());
-                            aprsMessageProcessor.processRawData(packet.getPacket());
-                            aprsMessageProcessor.processPacket(packet);
-                            statisticsAccessor.markLastReceivedTime();
-                            statisticsAccessor.incrementObjectsReceived();
+                            if (packet != null) {
+                                packetLoggerAccessor.savePacket(packet.getPacket());
+                                aprsMessageProcessor.processPacket(packet);
+                                statisticsAccessor.markLastReceivedTime();
+                                statisticsAccessor.incrementObjectsReceived();
+                            }
                         } catch (IOException | NullPointerException e) {
                             logger.error("Exception caught in KISS read loop", e);
                         }

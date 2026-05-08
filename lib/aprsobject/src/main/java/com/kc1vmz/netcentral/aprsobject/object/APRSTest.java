@@ -27,6 +27,7 @@ public class APRSTest implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private byte dti;
 
     public byte [] getData() {
@@ -59,5 +60,10 @@ public class APRSTest implements APRSPacketInterface {
     public void setDti(byte dti) {
         this.dti = dti;
     }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
 }
-

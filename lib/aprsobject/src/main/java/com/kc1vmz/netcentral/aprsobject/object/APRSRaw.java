@@ -30,6 +30,7 @@ public class APRSRaw implements APRSPacketInterface  {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private byte dti;
     private ZonedDateTime heardTime;
     private String prettyHeardTime;
@@ -77,5 +78,10 @@ public class APRSRaw implements APRSPacketInterface  {
     public void setPrettyHeardTime(String prettyHeardTime) {
         this.prettyHeardTime = prettyHeardTime;
     }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
 }
-

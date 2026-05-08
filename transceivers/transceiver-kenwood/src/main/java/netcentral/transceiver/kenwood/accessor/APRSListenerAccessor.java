@@ -105,7 +105,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
-                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
+                aprsMessageProcessor.logRawPacketToNetCentral(aprsMessage, true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -142,7 +142,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
-                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
+                aprsMessageProcessor.logRawPacketToNetCentral(aprsMessage, true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -188,7 +188,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
-                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
+                aprsMessageProcessor.logRawPacketToNetCentral(aprsMessage, true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementMessagesSent();
             } else {
@@ -237,7 +237,7 @@ public class APRSListenerAccessor {
                 if (resp != null) {
                     logger.info("Message cleared - " + new String (resp));
                 }
-                aprsMessageProcessor.logPacketToNetCentral(aprsMessage);
+                aprsMessageProcessor.logRawPacketToNetCentral(aprsMessage, true);
                 statisticsAccessor.markLastSentTime();
                 statisticsAccessor.incrementObjectsSent();
             } else {
@@ -316,6 +316,20 @@ public class APRSListenerAccessor {
                     if (readLockEnabled) {
                         writeLock.lock();
                         try {
+                            byte[] bytes = client.read();
+                            if ((bytes == null) || (bytes.length == 0)) {
+
+                            } else {
+                                String line = new String (bytes);
+                                packetLoggerAccessor.savePacket(line);
+
+                                APRSPacket packet = parsePacket(line);
+                                if (packet != null) {
+                                    aprsMessageProcessor.processPacket(packet);
+                                    statisticsAccessor.markLastReceivedTime();
+                                    statisticsAccessor.incrementObjectsReceived();
+                                }
+                            }
                         } finally {
                             writeLock.unlock();
                         }
@@ -327,7 +341,6 @@ public class APRSListenerAccessor {
                         } else {
                             String line = new String (bytes);
                             packetLoggerAccessor.savePacket(line);
-                            aprsMessageProcessor.processRawData(line);
 
                             APRSPacket packet = parsePacket(line);
                             if (packet != null) {

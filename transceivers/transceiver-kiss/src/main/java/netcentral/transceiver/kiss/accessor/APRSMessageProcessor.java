@@ -52,7 +52,6 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
 import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
 import com.kc1vmz.netcentral.parser.APRSParser;
-import com.kc1vmz.netcentral.parser.factory.APRSRawFactory;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 import jakarta.inject.Inject;
@@ -118,28 +117,6 @@ public class APRSMessageProcessor {
         executorService.submit(() -> processPacketThread(packet));
     }
 
-    public void processRawData(String rawData) {
-        if (executorService == null) {
-            logger.debug("Initializing thread pool for scan execution");
-            executorService = Executors.newFixedThreadPool(threadConfiguration.getCount());
-        }
-        if (loginResponse == null) {
-            try {
-                loginResponse = netControlRESTClient.login(netControlClientConfig.getUsername(), netControlClientConfig.getPassword());
-                if (loginResponse == null) {
-                    // failed login
-                    return;
-                }
-
-                registeredTransceiver = netControlRESTClient.register(loginResponse.getAccessToken(), registeredTransceiverConfig.getName(), registeredTransceiverConfig.getDescription(),
-                                                                    registeredTransceiverConfig.getType(), registeredTransceiverConfig.getPort());
-            } catch (Exception e) {
-                logger.error("Login failed to Net Control");
-            }
-        }
-        executorService.submit(() -> processRawDataThread(rawData));
-    }
-
     private boolean processPacketThread(KISSPacket packet) {
         if (packet == null) {
             logger.debug("Null packet received");
@@ -158,7 +135,10 @@ public class APRSMessageProcessor {
 
                 List<String> digipeaters = packet.getDigipeaters();
 
-                processGenericObject(parsedPacket.getCallsignFrom(), parsedPacket.getCallsignTo(), parsedPacket, heardTime, digipeaters, null);
+                if (parsedPacket.getApplicationName() == null) {
+                    parsedPacket.setApplicationName(packet.getCallsignTo());
+                }
+                processGenericObject(parsedPacket.getCallsignFrom(), parsedPacket.getApplicationName(), parsedPacket, heardTime, digipeaters, null);
             }
         } catch (Exception e) {
             logger.error("Cannot parse data: " + packet.getData(), e);
@@ -168,30 +148,12 @@ public class APRSMessageProcessor {
         return true;
     }
 
-    private boolean processRawDataThread(String rawData) {
-        if (rawData == null) {
-            logger.debug("Null rawData received");
-            return true;
-        }
-
-        try {
-            APRSObjectResource objectResource = new APRSObjectResource();
-            APRSRaw rawPacket = APRSRawFactory.parse(rawData, objectResource.getHeardTime());
-            objectResource.setInnerAPRSRaw((APRSRaw) rawPacket);
-
-            ZonedDateTime heardTime = ZonedDateTime.now();
-
-            processGenericObject("", "", rawPacket, heardTime, null, null);
-        } catch (Exception e) {
-        }
-
-        return true;
-    }
-
-    private void processGenericObject(String callsignFrom, String callsignTo, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
-        if ((callsignFrom == null) || (parsedPacket == null)) { // || (callsignTo == null) 
+    private void processGenericObject(String callsignFrom, String applicationName, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
+        if ((callsignFrom == null) || (parsedPacket == null)) {
             return;
         }
+
+        logRawPacketToNetCentral(callsignFrom, applicationName, parsedPacket, heardTime, digipeaters, iGate);
 
         if (!featureConfiguration.isListenerIgateEnabled()) {
             if (digipeaters != null) {
@@ -307,12 +269,28 @@ public class APRSMessageProcessor {
         return null;
     }
 
-    public void logPacketToNetCentral(String data) {
+    private void logRawPacketToNetCentral(String callsignFrom, String applicationName, APRSPacketInterface parsedPacket, ZonedDateTime heardTime, List<String> digipeaters, String iGate) {
+        if ((callsignFrom == null) || (parsedPacket == null)) {
+            return;
+        }
+
+        String digipeaterStr = "";
+        if (digipeaters != null) {
+            digipeaterStr = String.join(",", digipeaters);
+        }
+
+        String newRaw = String.format("%s>%s,%s:%s", callsignFrom, applicationName, digipeaterStr, new String(parsedPacket.getData()));
+        logRawPacketToNetCentral(newRaw, false);
+    }
+
+    public void logRawPacketToNetCentral(String data, boolean removeTail) {
         if (data == null) {
             return;
         }
 
-        data = data.substring(0, data.length()-2); // remove CRLF used by radio client
+        if (removeTail) {
+            data = data.substring(0, data.length()-2); // remove CRLF used by radio client
+        }
         packetLoggerAccessor.savePacket(data);
 
         if (registeredTransceiver == null) {

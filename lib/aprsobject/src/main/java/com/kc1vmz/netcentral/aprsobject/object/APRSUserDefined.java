@@ -27,6 +27,7 @@ public class APRSUserDefined implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private String userId;
     private String packetType;
     private byte dti;
@@ -72,5 +73,11 @@ public class APRSUserDefined implements APRSPacketInterface {
     }
     public void setDti(byte dti) {
         this.dti = dti;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

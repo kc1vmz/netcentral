@@ -29,6 +29,7 @@ public class APRSMaidenheadLocatorBeacon implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private byte dti;
  
     public String getGridLocator() {
@@ -72,5 +73,11 @@ public class APRSMaidenheadLocatorBeacon implements APRSPacketInterface {
     }
     public void setDti(byte dti) {
         this.dti = dti;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

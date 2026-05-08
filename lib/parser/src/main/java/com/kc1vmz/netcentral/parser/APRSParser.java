@@ -185,8 +185,8 @@ public class APRSParser {
         APRSPacketInterface ret = null;
 
         // check if this is a BEACON or ID*
-        String callsignTo = AgwHeaderParser.getCallsignTo(header);
-        if (("BEACON".equalsIgnoreCase(callsignTo)) || (("ID".equalsIgnoreCase(callsignTo)) )) {
+        String applicationName = AgwHeaderParser.getCallsignTo(header);
+        if (("BEACON".equalsIgnoreCase(applicationName)) || (("ID".equalsIgnoreCase(applicationName)) )) {
             if (data[0] != '>') {
                 // beat this beacon into submission as a status
                 byte [] newdata = new byte[data.length+1];
@@ -208,6 +208,7 @@ public class APRSParser {
             int fromEnd = encapsulatedPacket.indexOf(">");
             if (fromEnd == -1) {
                 ret = APRSUnknownFactory.parse(header, data);
+                ret.setApplicationName(applicationName);
                 logger.warn(String.format("Unknown data packet [%s]", new String(data)));
                 return ret;
             }
@@ -217,6 +218,7 @@ public class APRSParser {
             int indexEnd = encapsulatedPacket.indexOf(":");
             if (indexEnd == -1) {
                 ret = APRSUnknownFactory.parse(header, data);
+                ret.setApplicationName(applicationName);
                 logger.warn(String.format("Unknown data packet [%s]", new String(data)));
                 return ret;
             }
@@ -290,6 +292,7 @@ public class APRSParser {
                 break;
         }
 
+        ret.setApplicationName(applicationName);
         return ret;
     }
 

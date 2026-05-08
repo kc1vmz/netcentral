@@ -29,6 +29,7 @@ public class APRSStationCapabilities implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private Map<String, String> values;
     private byte dti;
 
@@ -67,5 +68,11 @@ public class APRSStationCapabilities implements APRSPacketInterface {
     }
     public void setDti(byte dti) {
         this.dti = dti;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

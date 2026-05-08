@@ -35,6 +35,7 @@ public class APRSMessage implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private boolean bulletin;
     private boolean announcement;
     private boolean groupBulletin;
@@ -194,5 +195,10 @@ public class APRSMessage implements APRSPacketInterface {
     public void setPrettyHeardTime(String prettyHeardTime) {
         this.prettyHeardTime = prettyHeardTime;
     }
-
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
 }

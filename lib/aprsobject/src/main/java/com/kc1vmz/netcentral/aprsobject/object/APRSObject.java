@@ -32,6 +32,7 @@ public class APRSObject implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private boolean alive;
     private String lat;
     private String lon;
@@ -162,6 +163,12 @@ public class APRSObject implements APRSPacketInterface {
     }
     public void setRemote(boolean remote) {
         this.remote = remote;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }
 

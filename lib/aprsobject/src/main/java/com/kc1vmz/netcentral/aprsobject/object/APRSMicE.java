@@ -28,6 +28,7 @@ public class APRSMicE implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private byte dti;
     private String lat;
     private String lon;
@@ -90,6 +91,12 @@ public class APRSMicE implements APRSPacketInterface {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }
 

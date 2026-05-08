@@ -27,6 +27,7 @@ public class APRSItem implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private boolean alive;
     private String lat;
     private String lon;
@@ -89,6 +90,12 @@ public class APRSItem implements APRSPacketInterface {
     }
     public void setComment(String comment) {
         this.comment = comment;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }
 

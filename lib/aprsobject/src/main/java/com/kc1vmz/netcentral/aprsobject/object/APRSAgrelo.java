@@ -27,6 +27,7 @@ public class APRSAgrelo implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private int bearing;
     private int quality;
     private byte dti;
@@ -72,5 +73,11 @@ public class APRSAgrelo implements APRSPacketInterface {
     }
     public void setDti(byte dti) {
         this.dti = dti;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

@@ -31,4 +31,6 @@ public interface APRSPacketInterface {
     void setCallsignFrom(String callsignFrom);
     String getCallsignTo();
     void setCallsignTo(String callsignTo);
+    String getApplicationName();
+    void setApplicationName(String applicationName);
 }

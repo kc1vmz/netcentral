@@ -34,6 +34,7 @@ public class APRSStatus implements APRSPacketInterface {
     private byte [] header;
     private String callsignFrom;
     private String callsignTo;
+    private String applicationName;
     private byte dti;
     private String prettyLdtime;
 
@@ -108,5 +109,11 @@ public class APRSStatus implements APRSPacketInterface {
     }
     public void setPrettyLdtime(String prettyLdtime) {
         this.prettyLdtime = prettyLdtime;
+    }
+    public String getApplicationName() {
+        return applicationName;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }
