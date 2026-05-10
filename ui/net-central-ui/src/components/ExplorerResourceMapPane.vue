@@ -136,7 +136,7 @@ onMounted(() => {
     var value = JSON.parse(explorerType)
     updateLocalSelectedObjectType(value.value);
   } else {
-    updateLocalSelectedObjectType('STATION');
+    updateLocalSelectedObjectType('ALL');
   }
 });
 

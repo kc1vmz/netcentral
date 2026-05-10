@@ -68,7 +68,7 @@ function populate() {
     var value = JSON.parse(explorerType)
     updateLocalSelectedObjectType(value.value);
   } else {
-    updateLocalSelectedObjectType('STATION');
+    updateLocalSelectedObjectType('ALL');
   }
   updateSelectedObject( null ) ;
 }
@@ -119,7 +119,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "GENERALRESOURCE") || (localSelectedObjectType.value == "CALLSIGN")) {
     return;
   }
-  if (newValue.value.object.type != localSelectedObjectType.value) {
+  if (((newValue.value.object.type != localSelectedObjectType.value) && (localSelectedObjectType.value != "ALL")) || (localSelectedObjectType.value=="ALL")) {
     // not the right object for the selected object type
     return;
   }
@@ -170,7 +170,7 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT")  && (localSelectedObjectType.value != "GENERALRESOURCE")) {
+  if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
   if (((newValue.value.object.type == null) && (localSelectedObjectType.value == "PRIORITYOBJECT")) || 
@@ -252,6 +252,7 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
       newValue.value.object.callsign = newValue.value.callsign;
       newValue.value.object.prettyLastHeard = "";
       newValue.value.object.status = "Heard";
+      newValue.value.object.type = "CALLSIGN";
       if (trackedStations.value == null) {
         trackedStations.value = [];
       }
@@ -275,6 +276,7 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
           trackedStation.state = newValue.value.object.state;
           trackedStation.license = newValue.value.object.license;
           trackedStation.id = newValue.value.callsign;
+          trackedStation.type = "CALLSIGN";
         }
       });
     }
@@ -292,11 +294,19 @@ watch(updateAllEvent, (newValue, oldValue) => {
 const headers = [
         { text: "Callsign", value: "callsign", sortable: true },
         { text: "Name", value: "name", sortable: true},
-        { text: "Status", value: "status", sortable: true},
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
         { text: "Radio Type", value: "radioStyle", sortable: true},
-        { text: "Transmit Power", value: "transmitPower", sortable: true},
+        { text: "TxPower", value: "transmitPower", sortable: true},
+        { text: "Last Heard", value: "prettyLastHeard", sortable: true}];
+const headersAll = [
+        { text: "Callsign", value: "callsign", sortable: true },
+        { text: "Name", value: "name", sortable: true},
+        { text: "Type", value: "type", sortable: true},
+        { text: "Lat", value: "lat", sortable: true},
+        { text: "Lon", value: "lon", sortable: true},
+        { text: "Radio Type", value: "radioStyle", sortable: true},
+        { text: "TxPower", value: "transmitPower", sortable: true},
         { text: "Last Heard", value: "prettyLastHeard", sortable: true}];
 const headersCallsign = [
         { text: "Callsign", value: "callsign", sortable: true },
@@ -349,7 +359,9 @@ watch(selectedObjectType, (newSelectedObjectType, oldSelectedObjectType) => {
 function updateObjects() {
     if ((localSelectedObjectType.value != null) && (localSelectedObjectType.value != '')) {
       let url = buildNetCentralUrl('/trackedStations');
-      if (localSelectedObjectType.value == 'UNKNOWN') {
+      if (localSelectedObjectType.value == 'ALL') {
+        url = buildNetCentralUrl('/trackedStations')
+      } else if (localSelectedObjectType.value == 'UNKNOWN') {
         url = buildNetCentralUrl('/trackedStations?type=UNKNOWN');
       } else if (localSelectedObjectType.value == 'STATION') {
         url = buildNetCentralUrl('/trackedStations?type=STATION')
@@ -415,6 +427,7 @@ function updateObjects() {
                                 objectItem.id = objectItem.callsign;
                                 objectItem.prettyLastHeard = "";
                                 objectItem.status = "Heard";
+                                objectItem.type = 'CALLSIGN';
                             });
               }
               trackedStations.value = objects;
@@ -428,7 +441,12 @@ function updateObjects() {
               trackedStations.value = objects;
             } else if (localSelectedObjectType.value == 'IS') {
               var objects = data;
-              internetServers.value = objects;
+              if (objects != null) {
+                objects.forEach(function(objectItem){
+                    objectItem.type = 'IS';
+                });
+                internetServers.value = objects;
+              }
             } else {
               trackedStations.value = data;
             }
@@ -589,6 +607,20 @@ watch(nudgeRemoveObject, (newNudgeRemoveObject, oldNudgeRemoveObject) => {
       </div>
       <div v-else>
         <EasyDataTable :headers="headersInternetServer" :items="internetServers.value" 
+        :rows-per-page="10"
+        :body-row-class-name="getBodyRowClass"
+        @click-row="showRow" buttons-pagination
+        />
+      </div>
+    </div>
+    <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'ALL'))">
+      <div v-if="((trackedStations.value == null) || (trackedStations.value.length == 0))">
+        <br>
+        <br>
+        <br><i>No resources heard.</i>
+      </div>
+      <div v-else>
+        <EasyDataTable :headers="headersAll" :items="trackedStations.value" 
         :rows-per-page="10"
         :body-row-class-name="getBodyRowClass"
         @click-row="showRow" buttons-pagination

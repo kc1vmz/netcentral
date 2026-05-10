@@ -108,7 +108,7 @@ watch(updateWeatherReportEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
-  if (localSelectedObjectType.value != "WEATHER") {
+  if ((localSelectedObjectType.value != "WEATHER") && (localSelectedObjectType.value != "ALL")) {
     return;
   }
   if (newValue.value.action == "Create") {
@@ -868,7 +868,7 @@ watch(
         })
         .catch(error => { console.error('Error getting reported objects from server:', error); })
       }
-    if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'WEATHER') && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
+    if ((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && ((localSelectedObjectType.value == 'WEATHER') || (localSelectedObjectType.value == 'ALL')) && (localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null)) {
       fetch(buildNetCentralUrl('/weatherReports/callsigns/'+localSelectedObject.ncSelectedObject.callsign+'/all'), getGetRequestOptions())
         .then(response => {
             if (response.status == 200) {
@@ -2988,19 +2988,20 @@ function findValues(key) {
 
   <!-- main page -->
     <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.id != null))">
-      <div v-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && ((localSelectedObjectType.value == 'OBJECT')))">
+      <div v-if="(localSelectedObject.ncSelectedObject.type == 'OBJECT')">
         <!-- plain old object -->
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3037,19 +3038,20 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject.type == 'SHELTER'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'SHELTER')">
         <!-- shelter -->
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3341,19 +3343,20 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject.type == 'EOC'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'EOC')">
         <!-- EOC -->
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3496,18 +3499,19 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'PRIORITYOBJECT') && (localSelectedObject.ncSelectedObject.type == 'MEDICAL'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'MEDICAL')">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3584,7 +3588,7 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'CALLSIGN'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'CALLSIGN')">
         <Tabs>
           <Tab value="Details">
               <table>
@@ -3626,6 +3630,8 @@ function findValues(key) {
               <table>
                 <tbody>
                   <tr><td><b>Callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsign }}</td></tr>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
@@ -3662,12 +3668,14 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'IS'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'IS')">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>IP Address:</b></td> <td>{{ localSelectedObject.ncSelectedObject.ipAddress }}</td></tr>
                   <tr><td><b>Login callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.loginCallsign }}</td></tr>
                   <tr><td><b>Query:</b></td> <td>{{ localSelectedObject.ncSelectedObject.query }}</td></tr>
@@ -3677,17 +3685,18 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'WEATHER'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'WEATHER')">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3772,18 +3781,19 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="((localSelectedObjectType != null) && (localSelectedObjectType.value != null) && (localSelectedObjectType.value == 'GENERALRESOURCE') && (localSelectedObject.ncSelectedObject.type == 'RESOURCE'))">
+      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'RESOURCE')">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
                   <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
                 </tbody>
@@ -3876,6 +3886,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Electrical Power:</b></td> <td>{{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}</td></tr>

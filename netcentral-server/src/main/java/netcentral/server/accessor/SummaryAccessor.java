@@ -566,8 +566,12 @@ public class SummaryAccessor {
                 logger.error("Exception caught building object type map points", e);
             }
         } else {
+            String objectTypeTemp = objectType;
             try {
-                List<TrackedStation> trackedStations = trackedStationAccessor.getAll(loggedInUser, null, null, objectType);
+                if (objectType.equalsIgnoreCase("all")) {
+                    objectTypeTemp = null;
+                }
+                List<TrackedStation> trackedStations = trackedStationAccessor.getAll(loggedInUser, null, null, objectTypeTemp);
                 if (trackedStations != null) {
                     for (TrackedStation trackedStation : trackedStations) {
                         if ((trackedStation.getLat() != null) && (trackedStation.getLon() != null)) {

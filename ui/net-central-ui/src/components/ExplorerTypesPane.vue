@@ -34,7 +34,7 @@ onMounted(async () => {
     var value = JSON.parse(explorerType)
     updateSelectedObjectType(value.value);
   } else {
-    updateSelectedObjectType('STATION');
+    updateSelectedObjectType('ALL');
   }
   updateSelectedObject( null ) ;
 });
@@ -49,6 +49,12 @@ onMounted(async () => {
       <div class="grid-item">
         <label for="objectTypeField">APRS resource type:</label>
         <select name="objectTypeField" id="objectType" v-model="selectedObjectType.value" style="display: inline;">
+          <div v-if="(selectedObjectType.value == 'ALL')">
+            <option value="ALL" selected>All types</option>
+          </div>
+          <div v-else>
+            <option value="ALL">All types</option>
+          </div>
           <div v-if="(selectedObjectType.value == 'BBS')">
             <option value="BBS" selected>Bulletin Boards</option>
           </div>
