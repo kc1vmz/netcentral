@@ -429,9 +429,12 @@ function createObjectNo() {
                         <br><i>{{mapPoint.itemObject.description}}</i>
                         <br>Type: {{ mapPoint.itemObject.resourceType }}
                       </div>
-                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object))">
+                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.callsignTo != null))">
                         <b>{{ mapPoint.itemObject.callsignTo }}</b>
                         <br><i>{{mapPoint.itemObject.comment}}</i>
+                      </div>
+                      <div v-else-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.ignoreStartTime != null))">
+                        <b>{{ mapPoint.itemObject.callsign }}</b>
                       </div>
                       <div v-else-if="(mapPoint.itemObject != null)">
                         <b>{{ mapPoint.itemObject.name }}</b>

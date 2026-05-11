@@ -31,13 +31,13 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.enums.TrackedStationType;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.IgnoreStation;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
 import netcentral.server.record.IgnoreStationRecord;
 import netcentral.server.repository.IgnoreStationRepository;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Singleton
 public class IgnoreStationAccessor {
@@ -87,22 +87,7 @@ public class IgnoreStationAccessor {
                             // only take those with the optional root
                             continue;
                         }
-                        ret.add(new IgnoreStation(rec.callsign(), rec.ignore_start_time(), TrackedStationType.values()[rec.type()]));
-                    }
-                }
-                if (ret.isEmpty()) {
-                    ret = null;
-                } else {
-                    // get lon/lat for each
-                    for (IgnoreStation item: ret) {
-                        try {
-                            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, item.getCallsign());
-                            if (trackedStation != null) {
-                                item.setLat(trackedStation.getLat());
-                                item.setLon(trackedStation.getLon());
-                            }
-                        } catch (Exception e) {
-                        }
+                        ret.add(new IgnoreStation(rec.callsign(), rec.ignore_start_time(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()), rec.lat(), rec.lon()));
                     }
                 }
                 updateCache(ret);
@@ -131,17 +116,20 @@ public class IgnoreStationAccessor {
         } catch (Exception e) {
         }
 
-        IgnoreStationRecord src = new IgnoreStationRecord(obj.getCallsign(), obj.getIgnoreStartTime(), obj.getType().ordinal());
+        try {
+            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, obj.getCallsign());
+            if (trackedStation != null) {
+                obj.setLat(trackedStation.getLat());
+                obj.setLon(trackedStation.getLon());
+            }
+        } catch (Exception e) {
+        }
+
+        IgnoreStationRecord src = new IgnoreStationRecord(obj.getCallsign(), obj.getIgnoreStartTime(), 
+                                                            TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes()),
+                                                            obj.getLat(), obj.getLon());
         IgnoreStationRecord rec = ignoreStationRepository.save(src);
         if (rec != null) {
-             try {
-                TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, obj.getCallsign());
-                if (trackedStation != null) {
-                    obj.setLat(trackedStation.getLat());
-                    obj.setLon(trackedStation.getLon());
-                }
-            } catch (Exception e) {
-            }
             forceGetAll(loggedInUser, null); // update cache; not performant, but also limited scale
             changePublisherAccessor.publishIgnoredUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, obj);
             return obj;
@@ -164,11 +152,13 @@ public class IgnoreStationAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Ignored station not found");
         }
 
+        IgnoreStationRecord rec = recOpt.get();
+
         IgnoreStation ignoreStation = new IgnoreStation();
         ignoreStation.setCallsign(callsign);
-        ignoreStation.setType(TrackedStationType.values()[recOpt.get().type()]);
+        ignoreStation.setTypes(TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()));
         changePublisherAccessor.publishIgnoredUpdate(ignoreStation.getCallsign(), ChangePublisherAccessor.DELETE, ignoreStation);
-        ignoreStationRepository.delete(recOpt.get());
+        ignoreStationRepository.delete(rec);
         forceGetAll(loggedInUser, null); // update cache; not performant, but also limited scale
 
         return null;

@@ -97,6 +97,7 @@ import netcentral.server.repository.aprs.APRSStatusRepository;
 import netcentral.server.repository.aprs.APRSUnknownRepository;
 import netcentral.server.repository.aprs.APRSWeatherReportRepository;
 import netcentral.server.utils.Stripper;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Singleton
 public class APRSObjectAccessor {
@@ -157,6 +158,8 @@ public class APRSObjectAccessor {
     private GeneralResourceObjectCommandAccessor generalResourceObjectCommandAccessor;
     @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
+    @Inject
+    private TrackedStationTypeRulesProcessor trackedStationTypeRulesProcessor;
 
     
 public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
@@ -348,22 +351,12 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         if (ignoreStationAccessor.isIgnored(loggedInUser, innerAPRSStatus.getCallsignFrom())) {
             return null;
         }
-        // TODO: rule-based system to use status to define station type
-        TrackedStationType type = TrackedStationType.UNKNOWN;
+        String status = null;
         if (innerAPRSStatus.getStatus() != null) {
-            if (innerAPRSStatus.getStatus().toUpperCase().contains("BBS".toUpperCase())) {
-                type = TrackedStationType.BBS;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("(D-Star)".toUpperCase())) {
-                type = TrackedStationType.DSTAR;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("DIGI".toUpperCase())) {
-                type = TrackedStationType.DIGIPEATER;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("MMDVM".toUpperCase())) {
-                type = TrackedStationType.MMDVM;
-            } else if (innerAPRSStatus.getStatus().toUpperCase().contains("LoRa APRS IGATE".toUpperCase())) {
-                type = TrackedStationType.IGATE;
-            }
+            status = innerAPRSStatus.getStatus();
         }
-        trackStation(loggedInUser,  innerAPRSStatus.getCallsignFrom(), null, null, type, innerAPRSStatus.getStatus());
+        List<TrackedStationType> types = trackedStationTypeRulesProcessor.determineTypesFromStatus(status);
+        trackStation(loggedInUser,  innerAPRSStatus.getCallsignFrom(), null, null, types, innerAPRSStatus.getStatus());
 
         try {
             APRSStatusRecord src = new APRSStatusRecord(id, source, heardTime, innerAPRSStatus.getCallsignFrom(), innerAPRSStatus.getTime(), 
@@ -424,15 +417,16 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
             logger.error("Exception caught saving position object", e);
         }
 
-        TrackedStationType type = TrackedStationType.UNKNOWN;
+        List<TrackedStationType> types = new ArrayList<>();
+
         if (innerAPRSPosition.isHasWeatherReport()) {
-            type = TrackedStationType.WEATHER;
+            types.add(TrackedStationType.WEATHER);
             storeWeatherReport(loggedInUser, innerAPRSPosition, source, heardTime);
         } else {
             TrackedStation temp = processObjectComment(innerAPRSPosition.getComment(), TrackedStationType.UNKNOWN);
-            type = temp.getType();
+            types = temp.getTypes();
         }
-        trackStation(loggedInUser,  innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), type, null);
+        trackStation(loggedInUser,  innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), types, null);
         return new APRSObjectResource(id, innerAPRSPosition, source, heardTime);
     }
 
@@ -578,16 +572,22 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
     }
 
     private void trackStation(User loggedInUser, String callsign, String lat, String lon, TrackedStationType type, String description) {
+        List<TrackedStationType> types = new ArrayList<>();
+        types.add(type);
+        trackStation(loggedInUser, callsign, lat, lon, types, description);
+    }
+
+    private void trackStation(User loggedInUser, String callsign, String lat, String lon, List<TrackedStationType> types, String description) {
+        TrackedStation trackedStation = null;
 
         if ((callsign.startsWith("WIDE1")) || (callsign.startsWith("WIDE2")) || (callsign.startsWith("WIDE3")) || (callsign.isEmpty()) || 
             (callsign.startsWith("WIDE4")) || (callsign.startsWith("WIDE5")) || (callsign.startsWith("WIDE6")) || (callsign.startsWith("WIDE7")) || (callsign.startsWith("TCPIP"))) {
             return;
         }
 
-        TrackedStation trackedStation = null;
         try {
             String id = UUID.randomUUID().toString();
-            trackedStation = new TrackedStation(id, type, callsign, description, callsign, lat, lon, null, null, 
+            trackedStation = new TrackedStation(id, types, callsign, description, callsign, lat, lon, null, null, 
                                     null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
             trackedStationAccessor.create(loggedInUser, trackedStation);
             // given a tracked station, register their root callsign
@@ -608,9 +608,6 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         }
         if (description != null) {
             trackedStation.setDescription(description);
-        }
-        if (type != TrackedStationType.UNKNOWN) {
-            trackedStation.setType(type);
         }
         trackedStation.setLastHeard(ZonedDateTime.now());
         try {
@@ -641,19 +638,18 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
     }
 
     private void trackStationFromObject(User loggedInUser, String callsign, String lat, String lon, String description) {
-        TrackedStationType type = TrackedStationType.OBJECT;
 
         if ((callsign.startsWith("WIDE1")) || (callsign.startsWith("WIDE2")) || (callsign.startsWith("WIDE3")) || (callsign.isEmpty()) || 
             (callsign.startsWith("WIDE4")) || (callsign.startsWith("WIDE5")) || (callsign.startsWith("WIDE6")) || (callsign.startsWith("WIDE7")) || (callsign.startsWith("TCPIP"))) {
             return;
         }
 
-        TrackedStation infoFromComment = processObjectComment(description, type);
-        type = infoFromComment.getType();
+        TrackedStation infoFromComment = processObjectComment(description, TrackedStationType.OBJECT);
+        List<TrackedStationType> types = infoFromComment.getTypes();
 
         try {
             String id = UUID.randomUUID().toString();
-            TrackedStation trackedStation = new TrackedStation(id, type, 
+            TrackedStation trackedStation = new TrackedStation(id, types, 
                             callsign, description, callsign, lat, lon, 
                             (infoFromComment != null) ? infoFromComment.getFrequencyTx() : null, 
                             (infoFromComment != null) ? infoFromComment.getFrequencyRx() : null, 
@@ -687,8 +683,8 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
             if (description != null) {
                 trackedStation.setDescription(description);
             }
-            if ((type != null) && (type != TrackedStationType.UNKNOWN)) {
-                trackedStation.setType(type);
+            if ((types != null) && (TrackedStationTypeUtils.isType(types, TrackedStationType.UNKNOWN))) {
+                trackedStation.setTypes(types);
             }
             if (infoFromComment != null) {
                 if (infoFromComment.getDescription() != null) {
@@ -723,86 +719,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
     }
 
     private TrackedStation processObjectComment(String comment, TrackedStationType type) {
-        TrackedStation ret = new TrackedStation();
-        ret.setType(type);
-        if (comment == null) {
-            return ret;
-        }
-
-        int index = 0; 
-        String remain = "";
-        while (index < comment.length()) {
-            remain = comment.substring(index);
-            if (remain.startsWith("/A")) {
-                index += "/A=xxxxxx".length();
-            } else if (remain.startsWith(" ")) {
-                index++;
-            } else if (remain.startsWith("RNG")) {
-                index += "RNGxxxx".length();
-            } else if (remain.startsWith("PHG")) {
-                index += "PHGxxxx".length();
-            } else {
-                break;
-            }
-        }
-
-        String info = remain;
-        String description = null;
-        // remain has more info
-        if (remain.contains(",")) {
-            // 70cm Voice (D-Star) 433.60000MHz +0.0000MHz, APRS for ircDDBGateway
-            String [] parts = remain.split(",");
-            if (parts.length == 2) {
-                description = parts[1].substring(1); // skip space
-                info = parts[0];
-            }
-        }
-
-        // 2m Voice 145.330 MHz -0.600MHz
-        // 440 Voice 449.575 -5.00 MHz
-        // 70cm Voice (D-Star) 438.80000MHz +0.0000MHz
-
-        String [] parts = info.split(" ");
-        boolean voice = false;
-        boolean winlink = false;
-
-        if (parts != null) {
-            for (String part : parts) {
-                if ("voice".equalsIgnoreCase(part)) {
-                    voice = true;
-                    ret.setType(TrackedStationType.REPEATER);
-                } else if ("winlink".equalsIgnoreCase(part)) {
-                    winlink = true;
-                    ret.setType(TrackedStationType.WINLINK_GATEWAY);
-                } else if ("(D-Star)".equalsIgnoreCase(part)) {
-                    ret.setType(TrackedStationType.DSTAR);  // may override voice / repeater from above
-                } 
-            }
-        }
-
-        if (info.toUpperCase().contains("MMDVM")) {
-            ret.setType(TrackedStationType.MMDVM);
-        }
-
-        if (voice) {
-            // need to parse for the frequencies and tone
-        }
-        if (winlink) {
-            // need to parse for the frequencies and tone
-        }
-        if (!voice && !winlink) {
-            // "BBS" could be embedded anywhere
-            if (info.toUpperCase().contains("BBS")) {
-                ret.setType(TrackedStationType.BBS);
-            }
-        }
-        if (description != null) {
-            ret.setDescription(description);
-        } else {
-            ret.setDescription(info);
-        }
-
-        return ret;
+        return trackedStationTypeRulesProcessor.processObjectComment(comment, type);
     }
 
     private APRSObjectResource createAPRSObject(User loggedInUser, String id, Optional<APRSObject> innerAPRSObjectOpt, String source, ZonedDateTime heardTime) {

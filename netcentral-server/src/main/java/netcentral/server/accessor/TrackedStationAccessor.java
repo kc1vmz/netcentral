@@ -46,6 +46,7 @@ import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
 import netcentral.server.record.TrackedStationRecord;
 import netcentral.server.repository.TrackedStationRepository;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Singleton
 public class TrackedStationAccessor {
@@ -62,7 +63,8 @@ public class TrackedStationAccessor {
         if (type == null) {
             recs = trackedStationRepository.findAll();
         } else {
-            recs = trackedStationRepository.findBytype(TrackedStationType.valueOf(type).ordinal());
+            String query = String.format("%%%s%%", TrackedStationTypeUtils.convertTrackedStationTypeEnumStringToString(type));
+            recs = trackedStationRepository.findBytypesLike(query);
         }
         List<TrackedStation> ret = new ArrayList<>();
 
@@ -75,7 +77,8 @@ public class TrackedStationAccessor {
                     continue;
                 }
 
-                ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationType.values()[rec.type()], rec.name(), rec.description(), rec.callsign(), rec.lat(),
+                ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()),
+                            rec.name(), rec.description(), rec.callsign(), rec.lat(),
                             rec.lon(), rec.frequency_tx(), rec.frequency_rx(), rec.tone(), rec.last_heard_time(), rec.tracking_active(),
                             TrackedStationStatus.values()[rec.status()], 
                             rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
@@ -104,7 +107,7 @@ public class TrackedStationAccessor {
             if (recs != null) {
                 for (TrackedStationRecord rec : recs) {
                     if (rec.callsign().startsWith(rootcallsign)) {
-                        ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationType.values()[rec.type()], rec.name(), rec.description(), rec.callsign(), rec.lat(),
+                        ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()), rec.name(), rec.description(), rec.callsign(), rec.lat(),
                                     rec.lon(), rec.frequency_tx(), rec.frequency_rx(), rec.tone(), rec.last_heard_time(), rec.tracking_active(),
                                     TrackedStationStatus.values()[rec.status()], 
                                     rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
@@ -128,7 +131,7 @@ public class TrackedStationAccessor {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
         }
         TrackedStationRecord rec = recOpt.get();
-        return new TrackedStation(rec.tracked_station_id(), TrackedStationType.values()[rec.type()], rec.name(), rec.description(), rec.callsign(), rec.lat(),
+        return new TrackedStation(rec.tracked_station_id(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()), rec.name(), rec.description(), rec.callsign(), rec.lat(),
                             rec.lon(), rec.frequency_tx(), rec.frequency_rx(), rec.tone(), rec.last_heard_time(), rec.tracking_active(),
                             TrackedStationStatus.values()[rec.status()], rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
                             RadioStyle.values()[rec.radio_style()], rec.transmit_power());
@@ -146,7 +149,7 @@ public class TrackedStationAccessor {
                 if (rec == null) {
                     throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
                 }
-                return new TrackedStation(rec.tracked_station_id(), TrackedStationType.values()[rec.type()], rec.name(), rec.description(), rec.callsign(), rec.lat(),
+                return new TrackedStation(rec.tracked_station_id(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()), rec.name(), rec.description(), rec.callsign(), rec.lat(),
                             rec.lon(), rec.frequency_tx(), rec.frequency_rx(), rec.tone(), rec.last_heard_time(), rec.tracking_active(),
                             TrackedStationStatus.values()[rec.status()], rec.ip_address(), ElectricalPowerType.values()[rec.electrical_power_type()], ElectricalPowerType.values()[rec.backup_electrical_power_type()],
                             RadioStyle.values()[rec.radio_style()], rec.transmit_power());
@@ -182,8 +185,10 @@ public class TrackedStationAccessor {
         String id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
         TrackedStationRecord src = new TrackedStationRecord(id, obj.getCallsign(), obj.getLat(), obj.getLon(), obj.getName(),
                                                 obj.getDescription(), obj.getFrequencyTx(), obj.getFrequencyRx(), obj.getTone(), obj.getLastHeard(),
-                                                obj.isTrackingActive(), obj.getStatus().ordinal(), obj.getIpAddress(), obj.getType().ordinal(),
-                                                obj.getElectricalPowerType().ordinal(), obj.getBackupElectricalPowerType().ordinal(), obj.getRadioStyle().ordinal(), obj.getTransmitPower());
+                                                obj.isTrackingActive(), obj.getStatus().ordinal(), obj.getIpAddress(),
+                                                obj.getElectricalPowerType().ordinal(), obj.getBackupElectricalPowerType().ordinal(), 
+                                                obj.getRadioStyle().ordinal(), obj.getTransmitPower(),
+                                                TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes()));
 
         TrackedStationRecord rec = trackedStationRepository.save(src);
         if (rec != null) {
@@ -222,11 +227,11 @@ public class TrackedStationAccessor {
                                                 obj.getName(),
                                                 obj.getDescription(), obj.getFrequencyTx(), obj.getFrequencyRx(), obj.getTone(), obj.getLastHeard(),
                                                 obj.isTrackingActive(), obj.getStatus().ordinal(), obj.getIpAddress(),
-                                                (obj.getType().ordinal() != TrackedStationType.UNKNOWN.ordinal()) ? obj.getType().ordinal() : rec.type(),
                                                 (obj.getElectricalPowerType().ordinal() != ElectricalPowerType.UNKNOWN.ordinal()) ? obj.getElectricalPowerType().ordinal() : rec.electrical_power_type(), 
                                                 (obj.getBackupElectricalPowerType().ordinal() != ElectricalPowerType.UNKNOWN.ordinal()) ? obj.getBackupElectricalPowerType().ordinal() : rec.backup_electrical_power_type(), 
                                                 (obj.getRadioStyle().ordinal() != RadioStyle.UNKNOWN.ordinal()) ? obj.getRadioStyle().ordinal() : rec.radio_style(), 
-                                                (obj.getTransmitPower() != 0) ? obj.getTransmitPower() : rec.transmit_power());
+                                                (obj.getTransmitPower() != 0) ? obj.getTransmitPower() : rec.transmit_power(),
+                                                TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes()));
         trackedStationRepository.update(updatedRec);
 
         TrackedStation trackedStationFinal = get(loggedInUser, id);
@@ -265,10 +270,13 @@ public class TrackedStationAccessor {
 
     private TrackedStation createTrackedStation(User loggedInUser, String callsign, TrackedStationType type, String name, String lat, String lon) {
         TrackedStation ret = null;
+        List<TrackedStationType> types = new ArrayList<>();
+        types.add(type);
 
         try {
-            ret = new TrackedStation(null, type, name, null, callsign, 
-                                lat, lon, null, null, null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
+            ret = new TrackedStation(null, types, name, null, callsign, 
+                                lat, lon, null, null, null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null,
+                                ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
             ret = create(loggedInUser, ret);
             return ret;
         } catch (TrackedStationExists e) {
@@ -283,10 +291,6 @@ public class TrackedStationAccessor {
         ret.setLastHeard(ZonedDateTime.now());
         ret.setLat(lat);
         ret.setLon(lon);
-
-        if (type != TrackedStationType.UNKNOWN) {
-            ret.setType(type);
-        }
 
         ret = update(loggedInUser, ret.getId(), ret);
 

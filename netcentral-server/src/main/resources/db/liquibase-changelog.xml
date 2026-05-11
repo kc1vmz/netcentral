@@ -28,4 +28,8 @@
   <include file="changelog/23-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/24-schema.xml" relativeToChangelogFile="true"/>
   <include file="changelog/25-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/26-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/27-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/28-schema.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/29-schema.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

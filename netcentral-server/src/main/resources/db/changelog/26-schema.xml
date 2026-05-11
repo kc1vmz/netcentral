@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="26" author="kc1vmz">
+    <addColumn tableName="tracked_station">
+      <column name="types" type="VARCHAR(64)" defaultValue="A">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <update tableName="tracked_station">
+        <column name="types" value="B"/>
+        <where>type = 1</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="C"/>
+        <where>type = 2</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="D"/>
+        <where>type = 3</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="E"/>
+        <where>type = 4</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="F"/>
+        <where>type = 5</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="G"/>
+        <where>type = 6</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="H"/>
+        <where>type = 7</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="I"/>
+        <where>type = 8</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="J"/>
+        <where>type = 9</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="K"/>
+        <where>type = 10</where>
+    </update>
+    <update tableName="tracked_station">
+        <column name="types" value="L"/>
+        <where>type = 11</where>
+    </update>
+    <addColumn tableName="ignore_station">
+      <column name="types" type="VARCHAR(64)" defaultValue="A">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+    <update tableName="ignore_station">
+        <column name="types" value="B"/>
+        <where>type = 1</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="C"/>
+        <where>type = 2</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="D"/>
+        <where>type = 3</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="E"/>
+        <where>type = 4</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="F"/>
+        <where>type = 5</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="G"/>
+        <where>type = 6</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="H"/>
+        <where>type = 7</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="I"/>
+        <where>type = 8</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="J"/>
+        <where>type = 9</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="K"/>
+        <where>type = 10</where>
+    </update>
+    <update tableName="ignore_station">
+        <column name="types" value="L"/>
+        <where>type = 11</where>
+    </update>
+
+  </changeSet>
+</databaseChangeLog>

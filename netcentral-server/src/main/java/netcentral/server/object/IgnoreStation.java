@@ -21,33 +21,40 @@ package netcentral.server.object;
 */
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
 
 import io.micronaut.serde.annotation.Serdeable;
 import netcentral.server.enums.TrackedStationType;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Serdeable
 public class IgnoreStation {
     private String callsign;
     private ZonedDateTime ignoreStartTime;
     private String prettyIgnoreStartTime;
-    private TrackedStationType type;
     private String lon;
     private String lat;
+    private List<TrackedStationType> types;
+    private String prettyTypes;
 
     public IgnoreStation() {
     }
-    public IgnoreStation(String callsign, ZonedDateTime ignoreStartTime, TrackedStationType type) {
+    public IgnoreStation(String callsign, ZonedDateTime ignoreStartTime, List<TrackedStationType> types, String lat, String lon) {
         this.callsign = callsign;
         this.setIgnoreStartTime(ignoreStartTime);
-        this.type = type;
+        setTypes(types);
+        this.lat = lat;
+        this.lon = lon;
     }
     public IgnoreStation(IgnoreStation ignoreStation) {
         if (ignoreStation != null) {
             this.callsign = ignoreStation.getCallsign();
             this.setIgnoreStartTime(ignoreStation.getIgnoreStartTime());
-            this.type = ignoreStation.getType();
+            setTypes(ignoreStation.getTypes());
+            this.lat = ignoreStation.getLat();
+            this.lon = ignoreStation.getLon();
         }
     }
     public String getCallsign() {
@@ -69,12 +76,6 @@ public class IgnoreStation {
     public void setPrettyIgnoreStartTime(String prettyIgnoreStartTime) {
         this.prettyIgnoreStartTime = prettyIgnoreStartTime;
     }
-    public TrackedStationType getType() {
-        return type;
-    }
-    public void setType(TrackedStationType type) {
-        this.type = type;
-    }
     public String getLon() {
         return lon;
     }
@@ -86,5 +87,18 @@ public class IgnoreStation {
     }
     public void setLat(String lat) {
         this.lat = lat;
+    }
+    public List<TrackedStationType> getTypes() {
+        return types;
+    }
+    public void setTypes(List<TrackedStationType> types) {
+        this.types = types;
+        setPrettyTypes(TrackedStationTypeUtils.getPrettyTypes(this.types));
+    }
+    public String getPrettyTypes() {
+        return prettyTypes;
+    }
+    public void setPrettyTypes(String prettyTypes) {
+        this.prettyTypes = prettyTypes;
     }
 }

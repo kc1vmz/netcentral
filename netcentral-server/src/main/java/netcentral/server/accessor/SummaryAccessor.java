@@ -55,6 +55,7 @@ import netcentral.server.object.User;
 import netcentral.server.object.report.ObjectEOCConsolidatedReport;
 import netcentral.server.object.report.ObjectGeneralResourceStatusReport;
 import netcentral.server.object.report.ObjectShelterStatusReport;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Singleton
 public class SummaryAccessor {
@@ -172,23 +173,40 @@ public class SummaryAccessor {
             if (stations != null) {
                 ret.setStationsHeard(stations.size());
                 for (TrackedStation station : stations) {
-                    if (station.getType().equals(TrackedStationType.DIGIPEATER)) {
+                    boolean other = true;
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.DIGIPEATER)) {
                         digipeatersHeard++;
-                    } else if (station.getType().equals(TrackedStationType.IGATE)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.IGATE)) {
                         iGatesHeard++;
-                    } else if (station.getType().equals(TrackedStationType.WEATHER)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.WEATHER)) {
                         weatherStationsHeard++;
-                    } else if (station.getType().equals(TrackedStationType.WINLINK_GATEWAY)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.WINLINK_GATEWAY)) {
                         winlinkGatewaysHeard++;
-                    } else if (station.getType().equals(TrackedStationType.IS)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.IS)) {
                         internetServersHeard++;
-                    } else if (station.getType().equals(TrackedStationType.REPEATER)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.REPEATER)) {
                         repeatersHeard++;
-                    } else if (station.getType().equals(TrackedStationType.BBS)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.BBS)) {
                         bbsHeard++;
-                    } else if (station.getType().equals(TrackedStationType.MMDVM)) {
+                        other = false;
+                    }
+                    if (TrackedStationTypeUtils.isType(station.getTypes(), TrackedStationType.MMDVM)) {
                         mmdvmHeard++;
-                    } else {
+                        other = false;
+                    } 
+                    if (other) {
                         othersHeard++;
                     }
 
@@ -364,7 +382,7 @@ public class SummaryAccessor {
             for (TrackedStation trackedStation : trackedStations) {
                 if ((trackedStation.getLat() != null) && (trackedStation.getLon() != null)) {
                     if ((!includeTrackedStations) || ((includeTrackedStations) && (trackedStation.isTrackingActive()))) {
-                        RenderedMapItem item = new RenderedMapItem(trackedStation.getLon(), trackedStation.getLat(), trackedStation.getCallsign(), trackedStation.getType().name(), trackedStation);
+                        RenderedMapItem item = new RenderedMapItem(trackedStation.getLon(), trackedStation.getLat(), trackedStation.getCallsign(), trackedStation.getPrettyTypes(), trackedStation);
                         if (item.isValid()) {
                             item.setInfrastructure(true);
                             items.add(item);
@@ -554,7 +572,7 @@ public class SummaryAccessor {
                         Object renderObject = object;
                         if ((object.getLat() != null) && (object.getLon() != null)) {
                             RenderedMapItem item = new RenderedMapItem(
-                                object.getLon(), object.getLat(), object.getCallsign(), object.getType().name(), renderObject);
+                                object.getLon(), object.getLat(), object.getCallsign(), object.getCallsign(), renderObject);
                             if (item.isValid()) {
                                 item.setObject(true);
                                 items.add(item);

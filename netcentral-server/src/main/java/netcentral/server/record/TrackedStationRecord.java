@@ -44,9 +44,9 @@ public record TrackedStationRecord(
                 @NonNull Boolean tracking_active,
                 @NonNull Integer status,
                 @Nullable @Size(max = 40) String ip_address,
-                @NonNull Integer type,
                 @NonNull Integer electrical_power_type,
                 @NonNull Integer backup_electrical_power_type,
                 @NonNull Integer radio_style,
-                @NonNull Integer transmit_power) {  
+                @NonNull Integer transmit_power,
+                @NonNull String types) {  
 }

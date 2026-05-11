@@ -111,6 +111,18 @@ watch(updateIgnoredEvent, (newValue, oldValue) => {
   }
 });
 
+function isObjectType(objectTypes, objectTypeSought) {
+  var found = false;
+  if (objectTypes != null) {
+    objectTypes.forEach(function(objectType){
+      if ((!found) && (objectType == objectTypeSought)) {
+        found = true;
+      }
+    });
+  }
+
+  return found;
+}
 
 watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
@@ -119,7 +131,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "GENERALRESOURCE") || (localSelectedObjectType.value == "CALLSIGN")) {
     return;
   }
-  if (((newValue.value.object.type != localSelectedObjectType.value) && (localSelectedObjectType.value != "ALL")) || (localSelectedObjectType.value=="ALL")) {
+  if (((!isObjectType(newValue.value.object.types, localSelectedObjectType.value)) && (localSelectedObjectType.value != "ALL")) || (localSelectedObjectType.value=="ALL")) {
     // not the right object for the selected object type
     return;
   }
@@ -158,7 +170,8 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
           trackedStation.radioStyle = newValue.value.object.radioStyle;
           trackedStation.transmitPower = newValue.value.object.transmitPower;
           trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
-          trackedStation.type = newValue.value.object.type;
+          trackedStation.types = newValue.value.object.types;
+          trackedStation.prettyTypes = newValue.value.object.prettyTypes;
         }
       });
     }
@@ -173,9 +186,9 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
-  if (((newValue.value.object.type == null) && (localSelectedObjectType.value == "PRIORITYOBJECT")) || 
-      ((newValue.value.object.type == null) && (localSelectedObjectType.value == "GENERALRESOURCE")) ||
-      (newValue.value.object.type != null) && (localSelectedObjectType.value == "OBJECT")) {
+  if (((newValue.value.object.types == null) && (localSelectedObjectType.value == "PRIORITYOBJECT")) || 
+      ((newValue.value.object.types == null) && (localSelectedObjectType.value == "GENERALRESOURCE")) ||
+      (newValue.value.object.types != null) && (localSelectedObjectType.value == "OBJECT")) {
         // not the right objects for the selected object type
         return;
       }
@@ -223,7 +236,8 @@ watch(updateObjectEvent, (newValue, oldValue) => {
           trackedStation.radioStyle = newValue.value.object.radioStyle;
           trackedStation.transmitPower = newValue.value.object.transmitPower;
           trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
-          trackedStation.type = newValue.value.object.type;
+          trackedStation.types = newValue.value.object.types;
+          trackedStation.prettyTypes = newValue.value.object.prettyTypes;
         }
       });
     }
@@ -252,7 +266,8 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
       newValue.value.object.callsign = newValue.value.callsign;
       newValue.value.object.prettyLastHeard = "";
       newValue.value.object.status = "Heard";
-      newValue.value.object.type = "CALLSIGN";
+      newValue.value.object.types = ["CALLSIGN"];
+      newValue.value.object.prettyTypes = "CALLSIGN";
       if (trackedStations.value == null) {
         trackedStations.value = [];
       }
@@ -276,7 +291,8 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
           trackedStation.state = newValue.value.object.state;
           trackedStation.license = newValue.value.object.license;
           trackedStation.id = newValue.value.callsign;
-          trackedStation.type = "CALLSIGN";
+          trackedStation.types = ["CALLSIGN"];
+          trackedStation.prettyTypes = "CALLSIGN";
         }
       });
     }
@@ -302,7 +318,7 @@ const headers = [
 const headersAll = [
         { text: "Callsign", value: "callsign", sortable: true },
         { text: "Name", value: "name", sortable: true},
-        { text: "Type", value: "type", sortable: true},
+        { text: "Types", value: "prettyTypes", sortable: true},
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
         { text: "Radio Type", value: "radioStyle", sortable: true},
@@ -324,7 +340,7 @@ const headersPriority = [
         { text: "Last Heard", value: "prettyLastHeard", sortable: true}];
 const headersIgnore = [
         { text: "Callsign", value: "callsign", sortable: true },
-        { text: "Type", value: "type", sortable: true},
+        { text: "Types", value: "prettyTypes", sortable: true},
         { text: "Lat", value: "lat", sortable: true},
         { text: "Lon", value: "lon", sortable: true},
         { text: "Ignored since", value: "prettyIgnoreStartTime", sortable: true}];  // reusing prettyLastHeard
@@ -427,7 +443,8 @@ function updateObjects() {
                                 objectItem.id = objectItem.callsign;
                                 objectItem.prettyLastHeard = "";
                                 objectItem.status = "Heard";
-                                objectItem.type = 'CALLSIGN';
+                                objectItem.types = ['CALLSIGN'];
+                                objectItem.prettyTypes = "CALLSIGN";
                             });
               }
               trackedStations.value = objects;
@@ -443,7 +460,8 @@ function updateObjects() {
               var objects = data;
               if (objects != null) {
                 objects.forEach(function(objectItem){
-                    objectItem.type = 'IS';
+                    objectItem.types = ['IS'];
+                    objectItem.prettyTypes = 'IS';
                 });
                 internetServers.value = objects;
               }

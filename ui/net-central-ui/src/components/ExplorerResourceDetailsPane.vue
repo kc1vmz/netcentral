@@ -142,7 +142,8 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
         localSelectedObject.ncSelectedObject.radioStyle = newValue.value.object.radioStyle;
         localSelectedObject.ncSelectedObject.transmitPower = newValue.value.object.transmitPower;
         localSelectedObject.ncSelectedObject.prettyLastHeard = newValue.value.object.prettyLastHeard;
-        localSelectedObject.ncSelectedObject.type = newValue.value.object.type;
+        localSelectedObject.ncSelectedObject.types = newValue.value.object.types;
+        localSelectedObject.ncSelectedObject.prettyTypes = newValue.value.object.prettyTypes;
     }
   }
 });
@@ -167,7 +168,8 @@ watch(updateObjectEvent, (newValue, oldValue) => {
         localSelectedObject.ncSelectedObject.radioStyle = newValue.value.object.radioStyle;
         localSelectedObject.ncSelectedObject.transmitPower = newValue.value.object.transmitPower;
         localSelectedObject.ncSelectedObject.prettyLastHeard = newValue.value.object.prettyLastHeard;
-        localSelectedObject.ncSelectedObject.type = newValue.value.object.type;
+        localSelectedObject.ncSelectedObject.types = newValue.value.object.types;
+        localSelectedObject.ncSelectedObject.prettyTypes = newValue.value.object.prettyTypes;
     }
   }
 });
@@ -251,7 +253,6 @@ const tone2Ref = reactive({value : ''});
 const state2Ref = reactive({value : ''});
 const country2Ref = reactive({value : ''});
 const license2Ref = reactive({value : ''});
-const selectedObjectType2Ref = reactive({value : ''});
 const directorNameRef = reactive({value : ''});
 const incidentCommanderNameRef = reactive({value : ''});
 const eocNameRef = reactive({value : ''});
@@ -799,6 +800,19 @@ function getIgnoredInformation() {
       }
     })
     .catch(error => { console.error('Error getting reported objects from server:', error); })
+}
+
+function isObjectType(objectTypes, objectTypeSought) {
+  var found = false;
+  if (objectTypes != null) {
+    objectTypes.forEach(function(objectType){
+      if ((!found) && (objectType == objectTypeSought)) {
+        found = true;
+      }
+    });
+  }
+
+  return found;
 }
 
 watch(
@@ -1670,7 +1684,6 @@ function editStation() {
     dialogEditStationShow.value = true;
     name2Ref.value = localSelectedObject.ncSelectedObject.name;
     description2Ref.value = localSelectedObject.ncSelectedObject.description;
-    selectedObjectType2Ref.value = localSelectedObject.ncSelectedObject.type;
     callsign2Ref.value  = localSelectedObject.ncSelectedObject.callsign;
     electricalPowerType2Ref.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.electricalPowerType);
     backupElectricalPowerType2Ref.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.backupElectricalPowerType);
@@ -1749,7 +1762,7 @@ function performEditStation() {
                         trackingActive: localSelectedObject.ncSelectedObject.trackingActive, 
                         status: localSelectedObject.ncSelectedObject.status, 
                         ipAddress: localSelectedObject.ncSelectedObject.ipAddress, 
-                        type: selectedObjectType2Ref.value 
+                        types: localSelectedObject.ncSelectedObject.types
                       };
     const requestOptions = {
       method: "PUT",
@@ -2714,77 +2727,6 @@ function findValues(key) {
                 <input style="padding: 5px;" type="text" id="descriptionField" v-model="description2Ref.value" />
               </div>
               <div>
-                <label for="objectTypeField">APRS resource type:</label>
-                <select name="objectTypeField" id="objectType" v-model="selectedObjectType2Ref.value" style="display: inline;">
-                  <div v-if="(selectedObjectType2Ref.value == 'BBS')">
-                    <option value="BBS" selected>Bulletin Board</option>
-                  </div>
-                  <div v-else>
-                    <option value="BBS">Bulletin Board</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'DSTAR')">
-                    <option value="DSTAR" selected>D-Star</option>
-                  </div>
-                  <div v-else>
-                    <option value="DSTAR">D-Star</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'DIGIPEATER')">
-                    <option value="DIGIPEATER" selected>Digipeater</option>
-                  </div>
-                  <div v-else>
-                    <option value="DIGIPEATER">Digipeater</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'IGATE')">
-                    <option value="IGATE" selected>iGate</option>
-                  </div>
-                  <div v-else>
-                    <option value="IGATE">iGate</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'IS')">
-                    <option value="IS" selected>Internet Server</option>
-                  </div>
-                  <div v-else>
-                    <option value="IS">Internet Server</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'MMDVM')">
-                    <option value="MMDVM" selected>MMDVM</option>
-                  </div>
-                  <div v-else>
-                    <option value="MMDVM">MMDVM</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'REPEATER')">
-                    <option value="REPEATER" selected>Repeater</option>
-                  </div>
-                  <div v-else>
-                    <option value="REPEATER">Repeater</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'STATION')">
-                    <option value="STATION" selected>Station</option>
-                  </div>
-                  <div v-else>
-                    <option value="STATION">Station</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'UNKNOWN')">
-                    <option value="UNKNOWN" selected>Unknown</option>
-                  </div>
-                  <div v-else>
-                    <option value="UNKNOWN">Unknown</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'WEATHER')">
-                    <option value="WEATHER" selected>Weather Station</option>
-                  </div>
-                  <div v-else>
-                    <option value="WEATHER">Weather Station</option>
-                  </div>
-                  <div v-if="(selectedObjectType2Ref.value == 'WINLINK_GATEWAY')">
-                    <option value="WINLINK_GATEWAY" selected>Winlink Gateway</option>
-                  </div>
-                  <div v-else>
-                    <option value="WINLINK_GATEWAY">Winlink Gateway</option>
-                  </div>
-                </select>
-              </div>
-              <div>
                   <label for="electricalPowerTypeField">Electrical power:</label>
                   <select name="electricalPowerTypeField" id="electricalPowerType" v-model="electricalPowerType2Ref.value" style="display: inline;">
                     <div v-if="(electricalPowerType2Ref.value == '0')">
@@ -2988,7 +2930,7 @@ function findValues(key) {
 
   <!-- main page -->
     <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.id != null))">
-      <div v-if="(localSelectedObject.ncSelectedObject.type == 'OBJECT')">
+      <div v-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT'))">
         <!-- plain old object -->
         <Tabs>
           <Tab value="Details">
@@ -2996,7 +2938,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3046,7 +2988,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3351,7 +3293,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3506,7 +3448,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3588,7 +3530,7 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'CALLSIGN')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'CALLSIGN'))">
         <Tabs>
           <Tab value="Details">
               <table>
@@ -3632,7 +3574,7 @@ function findValues(key) {
                   <tr><td><b>Callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsign }}</td></tr>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
                   <tr><td><b>Ignored since:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyIgnoreStartTime }}</td></tr>
@@ -3668,14 +3610,14 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'IS')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'IS'))">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>IP Address:</b></td> <td>{{ localSelectedObject.ncSelectedObject.ipAddress }}</td></tr>
                   <tr><td><b>Login callsign:</b></td> <td>{{ localSelectedObject.ncSelectedObject.loginCallsign }}</td></tr>
                   <tr><td><b>Query:</b></td> <td>{{ localSelectedObject.ncSelectedObject.query }}</td></tr>
@@ -3685,14 +3627,14 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'WEATHER')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'WEATHER'))">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3781,14 +3723,14 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'RESOURCE')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'RESOURCE'))">
         <Tabs>
           <Tab value="Details">
               <table>
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
@@ -3886,7 +3828,7 @@ function findValues(key) {
                 <tbody>
                   <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Type:</b></td> <td>{{ localSelectedObject.ncSelectedObject.type }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Electrical Power:</b></td> <td>{{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}</td></tr>

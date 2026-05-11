@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="29" author="kc1vmz">
+    <createTable tableName="tracked_station_type_rule">
+      <column name="tracked_station_type_rule_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="tracked_station_type_rulePK"/>
+      </column>
+      <column name="rule_target" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="rule_type" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="tracked_station_type" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(200)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="10"/><column name="value" value="BBS"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="9"/><column name="value" value="(D-STAR)"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="DIGI"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="11"/><column name="value" value="MMDVM"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="APRS IGATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="APRS_IGATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="BI-DIRECTIONAL-I-GATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="3"/><column name="value" value="PYTHON APRS WX"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="0"/><column name="value" value="UI-VIEW32"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="1"/><column name="value" value="APRSISCE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK PACKET"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="10"/><column name="value" value="BBS"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="9"/><column name="value" value="(D-STAR)"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="DIGI"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="11"/><column name="value" value="MMDVM"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="4"/><column name="value" value="REPEATER"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="4"/><column name="value" value="VOICE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK PACKET GATEWAY"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK VARA FM GATEWAY"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK VARA FM WIDE GATEWAY"/>
+    </insert>
+  </changeSet>
+</databaseChangeLog>

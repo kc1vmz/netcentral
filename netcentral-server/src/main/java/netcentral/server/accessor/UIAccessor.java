@@ -45,6 +45,7 @@ import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
 import netcentral.server.object.request.ObjectCreateRequest;
 import netcentral.server.utils.NetParticipantReport;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Singleton
 public class UIAccessor {
@@ -134,7 +135,9 @@ public class UIAccessor {
             if ((trackOnly) && (!item.isTrackingActive())) {
                 continue;
             }
-            if ((item.getType() == TrackedStationType.UNKNOWN) || (item.getType() == TrackedStationType.STATION) || (item.getType() == TrackedStationType.DSTAR)) {
+            if ((TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.UNKNOWN)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.STATION)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.DSTAR))) {
                 ret.add(item);
             }
         }
@@ -148,9 +151,13 @@ public class UIAccessor {
             if ((trackOnly) && (!item.isTrackingActive())) {
                 continue;
             }
-            if ((item.getType() == TrackedStationType.DIGIPEATER) || (item.getType() == TrackedStationType.IGATE) || (item.getType() == TrackedStationType.REPEATER) || 
-                                            (item.getType() == TrackedStationType.IS) || (item.getType() == TrackedStationType.WINLINK_GATEWAY) || 
-                                            (item.getType() == TrackedStationType.BBS) || (item.getType() == TrackedStationType.MMDVM)) {
+            if ((TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.DIGIPEATER)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.IGATE)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.REPEATER)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.IS)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.WINLINK_GATEWAY)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.BBS)) ||
+                (TrackedStationTypeUtils.isType(item.getTypes(), TrackedStationType.MMDVM))) {
                 ret.add(item);
             }
         }

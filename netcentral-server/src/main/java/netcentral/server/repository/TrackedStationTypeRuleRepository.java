@@ -2,7 +2,7 @@ package netcentral.server.repository;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,18 +20,11 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import java.time.ZonedDateTime;
-import java.util.List;
-
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.CrudRepository;
-import netcentral.server.record.TrackedStationRecord;
+import netcentral.server.record.TrackedStationTypeRuleRecord;
 
 @JdbcRepository(dialect = Dialect.MYSQL) 
-public interface TrackedStationRepository extends CrudRepository<TrackedStationRecord, String> { 
-        public List<TrackedStationRecord> findByname(String name);
-        public List<TrackedStationRecord> findBycallsign(String callsign);
-        public List<TrackedStationRecord> findBytypesLike(String types);
-        public void deleteByLast_heard_timeBefore(ZonedDateTime heard_time);
+public interface TrackedStationTypeRuleRepository extends CrudRepository<TrackedStationTypeRuleRecord, String> { 
 }

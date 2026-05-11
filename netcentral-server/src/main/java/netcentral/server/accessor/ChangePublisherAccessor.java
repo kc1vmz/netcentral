@@ -408,7 +408,7 @@ public class ChangePublisherAccessor {
         payload.setAction(action);
         TrackedStation trackedStation = new TrackedStation();
         trackedStation.setCallsign(object.getCallsign());
-        trackedStation.setType(object.getType());
+        trackedStation.setTypes(object.getTypes());
         trackedStation.setId(object.getCallsign());
         trackedStation.setLat(object.getLat());
         trackedStation.setLon(object.getLon());

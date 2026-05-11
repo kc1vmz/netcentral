@@ -21,6 +21,8 @@ package netcentral.server.object;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
 
@@ -29,6 +31,7 @@ import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
 import netcentral.server.enums.TrackedStationType;
+import netcentral.server.utils.TrackedStationTypeUtils;
 
 @Serdeable
 public class TrackedStation {
@@ -45,22 +48,24 @@ public class TrackedStation {
     private boolean trackingActive;
     private TrackedStationStatus status;
     private String ipAddress;
-    private TrackedStationType type;
     private String prettyLastHeard;
     private ElectricalPowerType electricalPowerType;
     private ElectricalPowerType backupElectricalPowerType;
     private RadioStyle radioStyle;
     private int transmitPower;
+    private List<TrackedStationType> types;
+    private String prettyTypes;
 
     public TrackedStation() {
         electricalPowerType = ElectricalPowerType.UNKNOWN;
         backupElectricalPowerType = ElectricalPowerType.UNKNOWN;
         radioStyle = RadioStyle.UNKNOWN;
         status = TrackedStationStatus.UNKNOWN;
-        type = TrackedStationType.UNKNOWN;
+        types = new ArrayList<>();
+        types.add(TrackedStationType.UNKNOWN);
     }
 
-    public TrackedStation(String id, TrackedStationType type, String name, String description, String callsign, 
+    public TrackedStation(String id, List<TrackedStationType> types, String name, String description, String callsign, 
                                 String lat, String lon,  String frequencyTx, 
                                 String frequencyRx, String tone, ZonedDateTime lastHeard, 
                                 boolean trackingActive, TrackedStationStatus status, String ipAddress,
@@ -78,7 +83,6 @@ public class TrackedStation {
         this.trackingActive = trackingActive;
         this.status = status;
         this.ipAddress = ipAddress;
-        this.type = type;
         this.electricalPowerType = electricalPowerType;
         this.backupElectricalPowerType = backupElectricalPowerType;
         this.radioStyle = radioStyle;
@@ -88,7 +92,14 @@ public class TrackedStation {
         if (backupElectricalPowerType == null) backupElectricalPowerType = ElectricalPowerType.UNKNOWN;
         if (radioStyle == null) radioStyle = RadioStyle.UNKNOWN;
         if (status == null) status = TrackedStationStatus.UNKNOWN;
-        if (type == null) type = TrackedStationType.UNKNOWN;
+
+        this.types = new ArrayList<>();
+
+        if ((types == null) || (types.isEmpty())) {
+            this.types.add(TrackedStationType.UNKNOWN);
+        } else {
+            this.types.addAll(types);
+        }
     }
     
     public String getId() {
@@ -164,12 +175,6 @@ public class TrackedStation {
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }
-    public TrackedStationType getType() {
-        return type;
-    }
-    public void setType(TrackedStationType type) {
-        this.type = type;
-    }
     public String getDescription() {
         return description;
     }
@@ -213,5 +218,22 @@ public class TrackedStation {
 
     public void setBackupElectricalPowerType(ElectricalPowerType backupElectricalPowerType) {
         this.backupElectricalPowerType = backupElectricalPowerType;
+    }
+
+    public List<TrackedStationType> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<TrackedStationType> types) {
+        this.types = types;
+        setPrettyTypes(TrackedStationTypeUtils.getPrettyTypes(this.types));
+    }
+
+    public String getPrettyTypes() {
+        return (TrackedStationTypeUtils.getPrettyTypes(this.types));
+    }
+
+    public void setPrettyTypes(String prettyTypes) {
+        this.prettyTypes = prettyTypes;
     }
 }

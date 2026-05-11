@@ -2,7 +2,7 @@ package netcentral.server.record;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,21 +20,17 @@ package netcentral.server.record;
     http://www.kc1vmz.com
 */
 
-import java.time.ZonedDateTime;
-
 import io.micronaut.core.annotation.NonNull;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
  
-@MappedEntity("ignore_station")
-public record IgnoreStationRecord(@Id @NonNull @NotBlank @Size(max = 20) String callsign,
-                                @NonNull @NotBlank ZonedDateTime ignore_start_time,
-                                @NonNull String types,
-                                @Nullable @Size(max = 20) String lat,
-                                @Nullable @Size(max = 20) String lon
-                            ) {  
+@MappedEntity("tracked_station_type_rule")
+public record TrackedStationTypeRuleRecord(
+                @Id @NonNull @NotBlank @Size(max = 36) String tracked_station_type_rule_id,
+                @NonNull Integer rule_target,
+                @NonNull Integer rule_type,
+                @NonNull Integer tracked_station_type,
+                @NonNull @NotBlank @Size(max = 200) String value) {  
 }
-
