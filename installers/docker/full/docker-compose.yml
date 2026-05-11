@@ -1,6 +1,6 @@
 services:
   netcentral-full:
-    image: netcentral-full:1.0.18
+    image: netcentral-full:1.0.19
     ports:
       - "8880:80"
       - "9880:8880"
