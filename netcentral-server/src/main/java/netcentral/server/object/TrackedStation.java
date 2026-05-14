@@ -230,7 +230,8 @@ public class TrackedStation {
     }
 
     public String getPrettyTypes() {
-        return (TrackedStationTypeUtils.getPrettyTypes(this.types));
+        this.prettyTypes = TrackedStationTypeUtils.getPrettyTypes(this.types);
+        return this.prettyTypes;
     }
 
     public void setPrettyTypes(String prettyTypes) {

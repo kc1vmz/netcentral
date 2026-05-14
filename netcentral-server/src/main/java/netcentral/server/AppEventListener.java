@@ -1,5 +1,8 @@
 package netcentral.server;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -120,11 +123,19 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     }
 
     void startNetSchedulerThread() {
-        new Thread(() -> {
+        new Thread(null, () -> {
             statisticsAccessor.setLastHeartBeatName2("Scheduled Net Thread");
             boolean run = true;
+            LocalDateTime lastTime = LocalDateTime.now();
             while (run) {
                 try {
+                    LocalDateTime nowTime = LocalDateTime.now();
+                    if (!nowTime.getDayOfWeek().equals(lastTime.getDayOfWeek())) {
+                        // we have changed days - reset counters
+                        statisticsAccessor.resetCounters();
+                    }
+                    lastTime = nowTime;
+
                     statisticsAccessor.markLastHeartBeatTime2();
                     netSchedulerAccessor.startAndStopNets();
                     run = netSchedulerAccessor.stayRunning();
@@ -138,7 +149,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                     logger.error("Exception caught in scheduled net loop", e);
                 }
             }
-        }).start();
+        }, "NetSchedulerThread").start();
     }
 
     void startObjectBeaconThread() {

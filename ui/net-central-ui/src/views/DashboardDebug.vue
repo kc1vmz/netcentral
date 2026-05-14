@@ -148,8 +148,8 @@ function calculateDuration(seconds) {
             <br>
             <div>{{ summary.value.scheduledNets }} Scheduled Nets</div>
             <br>
-            <div>{{ ncStats.value.netsStarted }} Nets started</div>
-            <div>{{ ncStats.value.netsClosed}} Nets secured</div>
+            <div>{{ ncStats.value.netsStarted }} Nets started today</div>
+            <div>{{ ncStats.value.netsClosed}} Nets secured today</div>
             <br>
             <div>{{ summary.value.closedNets }} Completed Nets</div>
             <div>{{ summary.value.closedNetParticipants }} Completed net participants</div>
@@ -190,8 +190,8 @@ function calculateDuration(seconds) {
             <div>{{summary.value.users}} Users</div>
             <div>{{ summary.value.loggedInUsers }} Users currently logged in</div>
             <br>
-            <div>{{ ncStats.value.userLogins }} User logins</div>
-            <div>{{ ncStats.value.userLogouts }} User logouts</div>
+            <div>{{ ncStats.value.userLogins}} User logins today</div>
+            <div>{{ ncStats.value.userLogouts}} User logouts today</div>
           </div>
         </div>
       </div>
@@ -206,13 +206,13 @@ function calculateDuration(seconds) {
             <div>{{ summary.value.registeredTransceiversReceive }} Enabled for receive</div>
             <div>{{ summary.value.registeredTransceiversTransmit }} Enabled for transmit</div>
             <br>
-            <div>{{ ncStats.value.objectsReceived }} Packets received</div>
-            <div>{{ ncStats.value.objectsSent }} Packets sent</div>
-            <div>{{ ncStats.value.messagesSent }} Messages sent</div>
-            <div>{{ ncStats.value.reportsSent }} Reports sent</div>
-            <div>{{ ncStats.value.acksRequested }} Acks requested</div>
-            <div>{{ ncStats.value.acksSent }} Acks sent</div>
-            <div>{{ ncStats.value.rejsSent }} Rejs sent</div>
+            <div>{{ ncStats.value.objectsReceived }} Packets received today</div>
+            <div>{{ ncStats.value.objectsSent }} Packets sent today</div>
+            <div>{{ ncStats.value.messagesSent }} Messages sent today</div>
+            <div>{{ ncStats.value.reportsSent }} Reports sent today</div>
+            <div>{{ ncStats.value.acksRequested }} Acks requested today</div>
+            <div>{{ ncStats.value.acksSent }} Acks sent today</div>
+            <div>{{ ncStats.value.rejsSent }} Rejs sent today</div>
             <div>{{ ncStats.value.outstandingObjects }} Objects awaiting processing</div>
             <div>{{ ncStats.value.lastReceivedSecondsSince }} Seconds since receiving message</div>
             <div>{{ ncStats.value.lastSentSecondsSince }} Seconds since sending message</div>

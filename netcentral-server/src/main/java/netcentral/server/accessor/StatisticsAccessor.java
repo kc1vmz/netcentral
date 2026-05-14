@@ -36,6 +36,27 @@ public class StatisticsAccessor {
     private final Lock writeLock = readWriteLock.writeLock();
     private final Lock readLock = readWriteLock.readLock();
 
+    public void resetCounters() {
+        writeLock.lock();
+        try {
+            if (statistics == null) {
+                statistics = new NetCentralServerStatistics();
+            }
+            statistics.setAcksRequested(0);
+            statistics.setAcksSent(0);
+            statistics.setMessagesSent(0);
+            statistics.setNetsClosed(0);
+            statistics.setNetsStarted(0);
+            statistics.setObjectsReceived(0);
+            statistics.setObjectsSent(0);
+            statistics.setRejsSent(0);
+            statistics.setReportsSent(0);
+            statistics.setUserLogins(0);
+            statistics.setUserLogouts(0);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     public NetCentralServerStatistics get() {
         NetCentralServerStatistics statisticsRet = null;
@@ -101,6 +122,7 @@ public class StatisticsAccessor {
             writeLock.unlock();
         }
     }
+
     public void incrementObjectsReceived() {
         writeLock.lock();
         try {

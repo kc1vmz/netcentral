@@ -580,6 +580,10 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
     private void trackStation(User loggedInUser, String callsign, String lat, String lon, List<TrackedStationType> types, String description) {
         TrackedStation trackedStation = null;
 
+        if (callsign == null) {
+            return ;
+        }
+
         if ((callsign.startsWith("WIDE1")) || (callsign.startsWith("WIDE2")) || (callsign.startsWith("WIDE3")) || (callsign.isEmpty()) || 
             (callsign.startsWith("WIDE4")) || (callsign.startsWith("WIDE5")) || (callsign.startsWith("WIDE6")) || (callsign.startsWith("WIDE7")) || (callsign.startsWith("TCPIP"))) {
             return;

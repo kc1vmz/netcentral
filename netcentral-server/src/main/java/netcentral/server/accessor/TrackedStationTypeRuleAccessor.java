@@ -35,13 +35,10 @@ import jakarta.inject.Singleton;
 import netcentral.server.enums.TrackedStationType;
 import netcentral.server.enums.TrackedStationTypeRuleTarget;
 import netcentral.server.enums.TrackedStationTypeRuleType;
-import netcentral.server.object.Net;
 import netcentral.server.object.TrackedStationTypeRule;
 import netcentral.server.object.User;
-import netcentral.server.record.NetRecord;
 import netcentral.server.record.TrackedStationTypeRuleRecord;
 import netcentral.server.repository.TrackedStationTypeRuleRepository;
-import netcentral.server.utils.LatLonConverter;
 
 @Singleton
 public class TrackedStationTypeRuleAccessor {

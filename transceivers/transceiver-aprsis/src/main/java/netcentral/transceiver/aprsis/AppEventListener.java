@@ -58,7 +58,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     void startListenerThread() {
         statisticsAccessor.setLastHeartBeatName1("APRS-IS Server Listener");
-        new Thread(() -> {
+        new Thread(null, () -> {
             try {
                 statisticsAccessor.markLastHeartBeatTime1();
                 registeredTransceiverAccessor.registerTransceiver();
@@ -66,7 +66,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
             } catch (InterruptedException e) {
                 logger.error("Exception caught in listener thread", e);;
             }
-        }).start();
+        }, "ListenerThread").start();
         new Thread(() -> {
             statisticsAccessor.setLastHeartBeatName2("Send requests");
             sendQueueAccessor.sendMessages();
