@@ -5,7 +5,7 @@ CO - Check out of net
 I - Send net info (name, voice frequency, description)
 S status - report your status so other participants know what you are doing
 T callsign - set tactical callsign for net
-F frequency - report your voice freqency that you are monitoring
+F frequency - report your voice frequency that you are monitoring
 X n - report your transmit power n in watts
 E n - report your electrical power type
 B n - report your backup electrical power type

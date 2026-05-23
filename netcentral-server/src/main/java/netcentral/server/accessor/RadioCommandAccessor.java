@@ -33,6 +33,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import netcentral.server.config.NetCentralServerConfig;
 import netcentral.server.enums.ElectricalPowerType;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.ExpectedParticipant;
@@ -97,6 +98,8 @@ public class RadioCommandAccessor {
     private NetExpectedParticipantAccessor netExpectedParticipantAccessor;
     @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
+    @Inject
+    private NetCentralServerConfig netCentralServerConfig;
 
     public void processMessage(User loggedInUser, APRSMessage message, String transceiverSourceId) {
         try {
@@ -833,30 +836,49 @@ public class RadioCommandAccessor {
 
     private void processHelp(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
         List<String> helpMessages = new ArrayList<>();
-        helpMessages.add("Net Central supports the following commands");
-        helpMessages.add(String.format("%s - %s", COMMAND_CHECK_IN, "Check in"));
-        helpMessages.add(String.format("%s - %s", COMMAND_CHECK_OUT, "Check out"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_TRANSMIT_POWER, "Report transmit power X in watts"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_ELECTRICAL_POWER, "Report electrical (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_BACKUP_ELECTRICAL_POWER, "Report bkup electr (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_RADIO_STYLE, "Report radio (APPLIANCE,BASE,HANDHELD,INTERNET,MOBILE,OTHER)"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_TACTICAL_CALLSIGN, "Set tactical call sign"));
-        helpMessages.add(String.format("%s - %s", COMMAND_INFO, "Send net info"));
-        helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE, "Send message to all net participants"));
-        helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE_NET_CONTROL, "Send message to only net control"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_REPLAY_NET_MESSAGES, "Resend last X messages sent to net to you"));
-        helpMessages.add(String.format("%s - %s", COMMAND_LIST_PARTICIPANTS, "List net participants"));
-        helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_PING_PARTICIPANT, "Ping net participant"));
-        helpMessages.add(String.format("%s - %s", COMMAND_HELP, "Help"));
-        helpMessages.add(String.format("%s - %s", COMMAND_STATUS, "Report your status for others to see"));
-        helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_OPERATIONAL_STATUS, "Check operational status of callsign"));
-        helpMessages.add(String.format("%s - %s", COMMAND_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
-        helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
-        helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
-        helpMessages.add(String.format("%s X - %s", COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
-        helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
-        helpMessages.add(String.format("%s - %s", COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE, "Toggle notification of check-ins and check-outs"));
+        if (netCentralServerConfig.getVerboseHelp()) {
+            // send each command as a message
+            helpMessages.add("Net Central supports the following commands (verbose)");
+            helpMessages.add(String.format("%s - %s", COMMAND_CHECK_IN, "Check in"));
+            helpMessages.add(String.format("%s - %s", COMMAND_CHECK_OUT, "Check out"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_TRANSMIT_POWER, "Report transmit power X in watts"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_ELECTRICAL_POWER, "Report electrical (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_BACKUP_ELECTRICAL_POWER, "Report bkup electr (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_RADIO_STYLE, "Report radio (APPLIANCE,BASE,HANDHELD,INTERNET,MOBILE,OTHER)"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_TACTICAL_CALLSIGN, "Set tactical call sign"));
+            helpMessages.add(String.format("%s - %s", COMMAND_INFO, "Send net info"));
+            helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE, "Send message to all net participants"));
+            helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE_NET_CONTROL, "Send message to only net control"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_REPLAY_NET_MESSAGES, "Resend last X messages sent to net to you"));
+            helpMessages.add(String.format("%s - %s", COMMAND_LIST_PARTICIPANTS, "List net participants"));
+            helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_PING_PARTICIPANT, "Ping net participant"));
+            helpMessages.add(String.format("%s - %s", COMMAND_HELP, "Help"));
+            helpMessages.add(String.format("%s - %s", COMMAND_STATUS, "Report your status for others to see"));
+            helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_OPERATIONAL_STATUS, "Check operational status of callsign"));
+            helpMessages.add(String.format("%s - %s", COMMAND_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
+            helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
+            helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
+            helpMessages.add(String.format("%s X - %s", COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
+            helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
+            helpMessages.add(String.format("%s - %s", COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE, "Toggle notification of check-ins and check-outs"));
+        } else {
+            // send just the commands not the descriptions
+            helpMessages.add("Net Central supports the following commands");
+            helpMessages.add(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+                                                        COMMAND_CHECK_IN, COMMAND_CHECK_OUT,
+                                                        COMMAND_TRANSMIT_POWER, COMMAND_ELECTRICAL_POWER,
+                                                        COMMAND_BACKUP_ELECTRICAL_POWER, COMMAND_RADIO_STYLE,
+                                                        COMMAND_TACTICAL_CALLSIGN, COMMAND_INFO,
+                                                        COMMAND_NET_MESSAGE, COMMAND_NET_MESSAGE_NET_CONTROL,
+                                                        COMMAND_REPLAY_NET_MESSAGES, COMMAND_LIST_PARTICIPANTS,
+                                                        COMMAND_PING_PARTICIPANT, COMMAND_HELP,
+                                                        COMMAND_STATUS, COMMAND_OPERATIONAL_STATUS,
+                                                        COMMAND_VOICE_FREQUENCY, COMMAND_NET_QUESTION,
+                                                        COMMAND_NET_ANSWER, COMMAND_NET_QUESTION_LIST,
+                                                        COMMAND_NET_QUESTION_REPORT, COMMAND_NET_INVITE,
+                                                        COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE));
+        }
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
 
@@ -947,6 +969,8 @@ public class RadioCommandAccessor {
                     transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), netMessage.getMessage());
                 }
             }
+        } else {
+            transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), netMessage.getCallsignFrom(), "Message sent to Net Central console");
         }
 
         federatedObjectReporterAccessor.announce(loggedInUser, net, netMessage, isNetCentral);

@@ -71,6 +71,8 @@ public class NetCentralServerConfig {
     private Integer netReportMinutes;
     @Value("${netcentral.log.rawpackets}")
     private Boolean logRawPackets;
+    @Value("${netcentral.help.verbose}")
+    private Boolean verboseHelp;
 
     public String getTempDir() {
         return tempDir;
@@ -209,5 +211,11 @@ public class NetCentralServerConfig {
     }
     public void setFederatedInterrogate(Boolean federatedInterrogate) {
         this.federatedInterrogate = federatedInterrogate;
+    }
+    public Boolean getVerboseHelp() {
+        return verboseHelp;
+    }
+    public void setVerboseHelp(Boolean verboseHelp) {
+        this.verboseHelp = verboseHelp;
     }
 }
