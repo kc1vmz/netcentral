@@ -27,6 +27,8 @@ public class TransceiverObject extends TransceiverRequest {
     private boolean alive;
     private String lat;
     private String lon;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public TransceiverObject() {
         super();
@@ -60,5 +62,17 @@ public class TransceiverObject extends TransceiverRequest {
     }
     public void setLon(String lon) {
         this.lon = lon;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

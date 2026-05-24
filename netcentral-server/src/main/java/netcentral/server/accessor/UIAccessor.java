@@ -202,7 +202,8 @@ public class UIAccessor {
         // given an object, create it on APRS and in our database
         if ((messageRequest.lat() != null) && (messageRequest.lon() != null)) {
             transceiverCommunicationAccessor.sendObject(loggedInUser, messageRequest.callsign(), messageRequest.callsign(), 
-                                       messageRequest.description(), true, messageRequest.lat() , messageRequest.lon());
+                                       messageRequest.description(), true, messageRequest.lat(), messageRequest.lon(),
+                                       messageRequest.symbolTableId(), messageRequest.symbolTableCode());
         }
 
         aprsObjectAccessor.upObject(loggedInUser, messageRequest);
@@ -212,7 +213,8 @@ public class UIAccessor {
         // given an object, create it on APRS and in our database
         if ((messageRequest.lat() != null) && (messageRequest.lon() != null)) {
             transceiverCommunicationAccessor.sendObject(loggedInUser, messageRequest.callsign(), messageRequest.callsign(), 
-                                       messageRequest.description(), false, messageRequest.lat() , messageRequest.lon());
+                                       messageRequest.description(), false, messageRequest.lat() , messageRequest.lon(),
+                                       messageRequest.symbolTableId(), messageRequest.symbolTableCode());
         }
 
         aprsObjectAccessor.downObject(loggedInUser, messageRequest);

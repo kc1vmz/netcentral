@@ -259,7 +259,7 @@ public class TransceiverCommunicationAccessor {
         }
     }
 
-    public void sendObject(User loggedInUser, String callsignFrom, String objectName, String message, boolean alive, String lat, String lon) {
+    public void sendObject(User loggedInUser, String callsignFrom, String objectName, String message, boolean alive, String lat, String lon, String symbolTableId, String symbolTableCode) {
         // send to all transceivers
         List<RegisteredTransceiver> transceivers = registeredTransceiverAccessor.getAll(loggedInUser);
         if ((transceivers != null) && (!transceivers.isEmpty())) {
@@ -273,6 +273,8 @@ public class TransceiverCommunicationAccessor {
                     obj.setAlive(alive);
                     obj.setLat(lat);
                     obj.setLon(lon);
+                    obj.setSymbolTableId(symbolTableId);
+                    obj.setSymbolTableCode(symbolTableCode);
                     transceiverRESTClient.sendObject(transceiver.getFqdName(), transceiver.getPort(), obj, transceiver.getId());
                 }
             }

@@ -40,7 +40,9 @@ public record APRSObjectRecord(@Id @NonNull @NotBlank @Size(max = 36) String apr
                                     @Nullable @Size(max = 20) String lon,
                                     @Nullable @Size(max = 10) String time,
                                     @Nullable @Size(max = 200) String comment,
-                                    @NonNull @NotBlank int type
+                                    @NonNull @NotBlank int type,
+                                    @NonNull @NotBlank @Size(max = 1) String symbol_table_id,
+                                    @NonNull @NotBlank @Size(max = 1) String symbol_table_code
                                     ) {  
 }
 

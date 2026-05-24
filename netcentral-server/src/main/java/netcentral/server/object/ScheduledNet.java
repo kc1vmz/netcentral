@@ -50,13 +50,15 @@ public class ScheduledNet {
     private String checkinMessage;
     private boolean open;
     private boolean participantInviteAllowed;
+    private String symbolTableId;
+    private String symbolTableCode;
     
     public ScheduledNet() {
     }
 
     public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, String lat, String lon,
                                 boolean announce, String creatorName, int dayStart, int timeStart, int duration, boolean checkinReminder, String checkinMessage,
-                            boolean open, boolean participantInviteAllowed ) {
+                                boolean open, boolean participantInviteAllowed, String symbolTableId, String symbolTableCode) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -75,12 +77,14 @@ public class ScheduledNet {
         this.checkinMessage = checkinMessage;
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
 
     public ScheduledNet(String callsign, String name, String description, ScheduledNetType type, String voiceFrequency, 
                                 String lat, String lon, boolean announce, String creatorName, int dayStart, int timeStart, 
                                 int duration, ZonedDateTime lastStartTime, ZonedDateTime nextStartTime, boolean checkinReminder, String checkinMessage,
-                                boolean open, boolean participantInviteAllowed) {
+                                boolean open, boolean participantInviteAllowed, String symbolTableId, String symbolTableCode) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -99,6 +103,8 @@ public class ScheduledNet {
         this.checkinMessage = checkinMessage;
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
 
     public ScheduledNet(ScheduledNet scheduledNet) {
@@ -121,6 +127,8 @@ public class ScheduledNet {
             this.checkinMessage = scheduledNet.getCheckinMessage();
             this.open = scheduledNet.isOpen();
             this.participantInviteAllowed = scheduledNet.isParticipantInviteAllowed();
+            this.symbolTableId = scheduledNet.getSymbolTableId();
+            this.symbolTableCode = scheduledNet.getSymbolTableCode();
         }
     }
 
@@ -315,5 +323,17 @@ public class ScheduledNet {
     }
     public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
         this.participantInviteAllowed = participantInviteAllowed;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

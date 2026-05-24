@@ -251,7 +251,7 @@ public class GeneralResourceObjectCommandAccessor {
                 if ((aprsObject.getLat() != null) && (aprsObject.getLon() != null)) {
                     transceiverMessageAccessor.sendObject(loggedInUser, aprsObject.getCallsignTo(), aprsObject.getCallsignTo(),
                                                             aprsObject.getComment(), aprsObject.isAlive(),
-                                                            aprsObject.getLat(), aprsObject.getLon());
+                                                            aprsObject.getLat(), aprsObject.getLon(), aprsObject.getSymbolTableId(), aprsObject.getSymbolTableCode());
                 }
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_STATUS)) {
                 // send net status

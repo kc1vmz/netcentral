@@ -41,11 +41,13 @@ public class CompletedNet {
     private String checkinMessage;
     private boolean open;
     private boolean participantInviteAllowed;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public CompletedNet() {
     }
     public CompletedNet(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, ZonedDateTime endTime, String completedNetId,
-                                String creatorName, String checkinMessage, boolean open, boolean participantInviteAllowed) {
+                                String creatorName, String checkinMessage, boolean open, boolean participantInviteAllowed, String symbolTableId, String symbolTableCode) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -57,6 +59,8 @@ public class CompletedNet {
         this.checkinMessage = checkinMessage;
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
     public CompletedNet(CompletedNet net) {
         if (net != null) {
@@ -71,6 +75,8 @@ public class CompletedNet {
             this.checkinMessage = net.getCheckinMessage();
             this.open = net.isOpen();
             this.participantInviteAllowed = net.isParticipantInviteAllowed();
+            this.symbolTableId = net.getSymbolTableId();
+            this.symbolTableCode = net.getSymbolTableCode();
         }
     }
 
@@ -153,5 +159,17 @@ public class CompletedNet {
     }
     public void setParticipantInviteAllowed(boolean participantInviteAllowed) {
         this.participantInviteAllowed = participantInviteAllowed;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

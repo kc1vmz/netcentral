@@ -206,6 +206,10 @@ watch(updateObjectEvent, (newValue, oldValue) => {
         newValue.value.object.name = newValue.value.object.callsignTo;
         newValue.value.object.callsign = newValue.value.object.callsignTo;
         newValue.value.object.prettyLastHeard = newValue.value.object.prettyLdtime;
+        if ((newValue.value.object.prettyTypes == null) || (newValue.value.object.prettyTypes.length == 0)) {
+          newValue.value.object.types = ['OBJECT'];
+          newValue.value.object.prettyTypes = "OBJECT";
+        }
         if (newValue.value.object.alive) {
           newValue.value.object.status = "Alive";
         } else {
@@ -432,6 +436,10 @@ function updateObjects() {
                                   objectItem.status = "Alive";
                                 } else {
                                   objectItem.status = "Dead";
+                                }
+                                if ((objectItem.prettyTypes == null) || (objectItem.prettyTypes.length == 0)) {
+                                  objectItem.types = ['OBJECT'];
+                                  objectItem.prettyTypes = "OBJECT";
                                 }
                             });
               }

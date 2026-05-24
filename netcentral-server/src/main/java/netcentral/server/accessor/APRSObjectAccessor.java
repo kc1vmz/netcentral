@@ -61,6 +61,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.ObjectSymbolTableConstants;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
 import netcentral.server.enums.TrackedStationType;
@@ -743,14 +744,17 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                 APRSObjectRecord first = foundRecList.get(0);
                 APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSObject.isAlive(), innerAPRSObject.getLat(),
                                                                         innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(),
-                                                                        (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type());
+                                                                        (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type(),
+                                                                        innerAPRSObject.getSymbolTableId(), innerAPRSObject.getSymbolTableCode());
                 rec = aprsObjectRepository.update(updated);
                 changePublisherAccessor.publishObjectUpdate(first.callsign_to(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
             } else {
                 APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
                                                             innerAPRSObject.getLat(), innerAPRSObject.getLon(), innerAPRSObject.getTime(), innerAPRSObject.getComment(), 
-                                                            (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal());
+                                                            (innerAPRSObject.getType() == null) ? ObjectType.STANDARD.ordinal() : innerAPRSObject.getType().ordinal(),
+                                                            innerAPRSObject.getSymbolTableId(), innerAPRSObject.getSymbolTableCode());
                 rec = aprsObjectRepository.save(src);
+                innerAPRSObject.setId(id);
                 changePublisherAccessor.publishObjectUpdate(innerAPRSObject.getCallsignTo(), ChangePublisherAccessor.CREATE, innerAPRSObject);
             }
 
@@ -884,7 +888,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
 
     private void updateObjectFromMessage(User loggedInUser, APRSObject obj, String source, ZonedDateTime heardTime) {
             APRSObjectRecord updated = new APRSObjectRecord(obj.getId(), source, obj.getCallsignFrom(), obj.getCallsignTo(), heardTime, obj.isAlive(), obj.getLat(),
-                                                        obj.getLon(), "", obj.getComment(), obj.getType().ordinal());
+                                                        obj.getLon(), "", obj.getComment(), obj.getType().ordinal(), obj.getSymbolTableId(), obj.getSymbolTableCode());
             aprsObjectRepository.update(updated);
             // need an update message
             changePublisherAccessor.publishObjectUpdate(obj.getCallsignTo(), ChangePublisherAccessor.UPDATE, obj);
@@ -905,7 +909,9 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                 updateObjectFromMessage(loggedInUser, obj, source, heardTime);
                 // create a remote net
                 String completedNetId = UUID.randomUUID().toString();
-                Net remoteNet = new Net(callsignFrom, report.getName(), report.getDescription(), null, heardTime, completedNetId, null, null, false, "NETCENTRAL", false, null, false, false, true);
+                Net remoteNet = new Net(callsignFrom, report.getName(), report.getDescription(), null, heardTime, completedNetId, null, null, false, 
+                                                "NETCENTRAL", false, null, false, false, true,
+                                                ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_ID, ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_CODE);
                 netAccessor.create(loggedInUser, remoteNet);
 
                 return;
@@ -1180,17 +1186,20 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
             if (found) {
                 // objects get overwritten, not created new
                 APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), source, first.callsign_from(), first.callsign_to(), heardTime, innerAPRSItem.isAlive(), innerAPRSItem.getLat(),
-                                                                        innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), first.type());
+                                                                        innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), first.type(),
+                                                                        innerAPRSItem.getSymbolTableId(), innerAPRSItem.getSymbolTableCode());
                 rec = aprsObjectRepository.update(updated);
             } else {
                 // create new for this from/to pair
                 APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSItem.getCallsignFrom(), innerAPRSItem.getCallsignTo(), heardTime, innerAPRSItem.isAlive(),
-                                                            innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal());
+                                                            innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal(),
+                                                            innerAPRSItem.getSymbolTableId(), innerAPRSItem.getSymbolTableCode());
                 rec = aprsObjectRepository.save(src);
             }
         } else {
             APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSItem.getCallsignFrom(), innerAPRSItem.getCallsignTo(), heardTime, innerAPRSItem.isAlive(),
-                                                        innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal());
+                                                        innerAPRSItem.getLat(), innerAPRSItem.getLon(), "", innerAPRSItem.getComment(), ObjectType.ITEM.ordinal(), 
+                                                        innerAPRSItem.getSymbolTableId(), innerAPRSItem.getSymbolTableCode());
             rec = aprsObjectRepository.save(src);
         }
 
@@ -1407,7 +1416,8 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         if ((object.getLat() == null) || (object.getLon() == null) || object.isRemote()) {
             return;
         }
-        transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignTo(), object.getCallsignTo(), object.getComment(), false, object.getLat(), object.getLon());
+        transceiverCommunicationAccessor.sendObject(loggedInUser, object.getCallsignTo(), object.getCallsignTo(), object.getComment(), 
+                                                    false, object.getLat(), object.getLon(), object.getSymbolTableId(), object.getSymbolTableCode());
     }
 
     public List<APRSObject> getObjects(User loggedInUser, boolean priorityOnly, boolean generalOnly) {
@@ -1427,18 +1437,18 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                                 (ObjectType.values()[rec.type()] == ObjectType.MEDICAL)) {  //|| (ObjectType.values()[rec.type()] == ObjectType.NET) - remove nets
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                            ObjectType.values()[rec.type()], remote));
+                                            ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code()));
                         }
                     } else if (generalOnly) {
                         if ((ObjectType.values()[rec.type()] == ObjectType.RESOURCE)) { 
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                            ObjectType.values()[rec.type()], remote));
+                                            ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code()));
                         }
                     } else {
                         ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                            ObjectType.values()[rec.type()], remote));
+                                            ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code()));
                     }
                 }
             }
@@ -1467,29 +1477,29 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                                     (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()], false));
+                                                ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
                             } else if (ObjectType.values()[rec.type()] == ObjectType.RESOURCE) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()], false));
+                                                ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
                             }
                         } else if (priorityOnly) {
                             if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
                                     (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()], false));
+                                                ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
                             }
                         } else if (generalOnly){
                             if (ObjectType.values()[rec.type()] == ObjectType.RESOURCE) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()], false));
+                                                ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
                             }
                         } else {
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                                ObjectType.values()[rec.type()], false));
+                                                ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
                         }
                     }
                 }
@@ -1512,7 +1522,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                 }
                 ret = new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                ObjectType.values()[rec.type()], remote);
+                                ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code());
             }
         } catch (Exception e) {
         }
@@ -1532,7 +1542,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                 }
                 ret = new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                ObjectType.values()[rec.type()], remote);
+                                ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code());
             }
         } catch (Exception e) {
         }
@@ -1584,6 +1594,8 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         obj.setType(ObjectType.values()[messageRequest.type()]);
         obj.setLdtime(now);
         obj.setCallsignTo(messageRequest.callsign());
+        obj.setSymbolTableId(messageRequest.symbolTableId());
+        obj.setSymbolTableCode(messageRequest.symbolTableCode());
         String id = UUID.randomUUID().toString();
 
         Optional<APRSObject> innerAPRSObjectOpt = Optional.of(obj);
@@ -1714,7 +1726,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                     }
                     ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                         rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
-                                        ObjectType.values()[rec.type()], remote));
+                                        ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code()));
                 }
             }
         } catch (Exception e) {

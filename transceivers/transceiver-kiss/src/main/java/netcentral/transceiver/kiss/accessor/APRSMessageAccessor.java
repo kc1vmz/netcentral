@@ -40,16 +40,16 @@ public class APRSMessageAccessor {
     @Inject
     private TNCConfiguration tncConfiguration;
 
-    public void sendObject(String objectName, String message, boolean alive, String lat, String lon) {
+    public void sendObject(String objectName, String message, boolean alive, String lat, String lon, String symbolTableId, String symbolTableCode) {
         if (tncConfiguration.isSerial()) {
             APRSSerialListenerAccessor la = applicationContext.getBean(APRSSerialListenerAccessor.class);
             if (la != null) {
-                la.sendObject(objectName, message, alive, lat, lon);
+                la.sendObject(objectName, message, alive, lat, lon, symbolTableId, symbolTableCode);
             }
         } else {
             APRSTCPIPListenerAccessor la = applicationContext.getBean(APRSTCPIPListenerAccessor.class);
             if (la != null) {
-                la.sendObject(objectName, message, alive, lat, lon);
+                la.sendObject(objectName, message, alive, lat, lon, symbolTableId, symbolTableCode);
             }
         }
     }

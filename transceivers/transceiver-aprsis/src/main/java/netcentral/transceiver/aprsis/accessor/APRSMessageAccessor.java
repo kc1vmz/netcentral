@@ -37,10 +37,10 @@ public class APRSMessageAccessor {
     @Inject
     private StatisticsAccessor statisticsAccessor;
 
-    public void sendObject(String objectName, String message, boolean alive, String lat, String lon) {
+    public void sendObject(String objectName, String message, boolean alive, String lat, String lon, String symbolTableId, String symbolTableCode) {
         APRSListenerAccessor la = applicationContext.getBean(APRSListenerAccessor.class);
         if (la != null) {
-            la.sendObject(objectName, message, alive, lat, lon);
+            la.sendObject(objectName, message, alive, lat, lon, symbolTableId, symbolTableCode);
         }
     }
 

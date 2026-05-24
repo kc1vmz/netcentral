@@ -29,6 +29,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSItem;
 import com.kc1vmz.netcentral.aprsobject.utils.CompressedDataFormatUtils;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
+import com.kc1vmz.netcentral.parser.util.StringUtils;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 public class APRSItemFactory {
@@ -70,7 +71,7 @@ public class APRSItemFactory {
         ret.setCallsignTo(callsign);  // might not be the same as the header callsign
         ret.setCallsignFrom(callsignFrom);  // might not be the same as the header callsign
         fixedStart++; // skip up/down
-        if (data[fixedStart] == '/') {
+        if ((data[fixedStart] == '/') || (data[fixedStart] == '\\')) {
             // compressed data format
             byte [] compressedData = Arrays.copyOfRange(data, fixedStart, fixedStart+13); // expecting /YYYYXXXX$csT
             String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
@@ -80,11 +81,13 @@ public class APRSItemFactory {
 
             byte [] comment = Arrays.copyOfRange(data, fixedStart+13, data.length);
             ret.setComment(new String(comment));
+            ret.setSymbolTableId(StringUtils.stringify(data[fixedStart]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[fixedStart+9]));
         } else {
             // regular format
             byte [] lat = Arrays.copyOfRange(data, fixedStart, fixedStart+8);  // take 8 characters
             ret.setLat(new String(lat));
-            //byte symTableId = data[messageIndex+8];
+            ret.setSymbolTableId(StringUtils.stringify(data[fixedStart+8]));
             byte [] lon = Arrays.copyOfRange(data, fixedStart+9, fixedStart+18);  // take 9 characters after the separator
 
             int messageStart = fixedStart+19;
@@ -93,6 +96,9 @@ public class APRSItemFactory {
                 String prependZero = "0"+new String(lon);
                 lon = prependZero.getBytes();
                 messageStart--;
+                ret.setSymbolTableCode(StringUtils.stringify(data[fixedStart+17]));
+            } else {
+                ret.setSymbolTableCode(StringUtils.stringify(data[fixedStart+18]));
             }
             ret.setLon(new String(lon));
 
@@ -102,5 +108,4 @@ public class APRSItemFactory {
 
         return ret;
     }
-
 }

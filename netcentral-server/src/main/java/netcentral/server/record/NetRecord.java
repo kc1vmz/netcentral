@@ -45,6 +45,8 @@ public record NetRecord(
                 @Nullable @Size(max = 50) String checkin_message,
                 @NonNull @NotBlank Boolean open, 
                 @NonNull @NotBlank Boolean participant_invite_allowed,
-                @NonNull @NotBlank Boolean remote
+                @NonNull @NotBlank Boolean remote,
+                @NonNull @NotBlank @Size(max = 1) String symbol_table_id,
+                @NonNull @NotBlank @Size(max = 1) String symbol_table_code
                 ) {  
 }

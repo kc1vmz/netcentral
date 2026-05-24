@@ -382,7 +382,8 @@ public class UIController {
 
         Net net = new Net(messageRequest.callsign(), messageRequest.name(), messageRequest.description(), messageRequest.voiceFrequency(), 
                                 null, null, messageRequest.lat(), messageRequest.lon(), announce,
-                                getUserName(loggedInUser), remind, messageRequest.checkinMessage(), messageRequest.open(), messageRequest.participantInviteAllowed(), false);
+                                getUserName(loggedInUser), remind, messageRequest.checkinMessage(), messageRequest.open(), 
+                                messageRequest.participantInviteAllowed(), false, messageRequest.symbolTableId(), messageRequest.symbolTableCode());
         netAccessor.create(loggedInUser, net);
         return HttpResponse.seeOther(UriBuilder.of("/").path("/nets").build());
     } 
@@ -944,7 +945,8 @@ public class UIController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
         APRSObject object = aprsObjectAccessor.getObject(loggedInUser, id);
 
-        ObjectCreateRequest messageRequest = new ObjectCreateRequest(object.getType().ordinal(), object.getCallsignTo(), object.getComment(), object.getLat(), object.getLon());
+        ObjectCreateRequest messageRequest = new ObjectCreateRequest(object.getType().ordinal(), object.getCallsignTo(), object.getComment(), object.getLat(), object.getLon(),
+                                                            object.getSymbolTableId(), object.getSymbolTableCode());
         uiAccessor.downObject(loggedInUser, messageRequest);
         aprsObjectAccessor.deleteObject(loggedInUser, id);
 

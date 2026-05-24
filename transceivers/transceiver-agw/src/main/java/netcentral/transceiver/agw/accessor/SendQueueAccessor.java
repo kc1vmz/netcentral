@@ -129,7 +129,7 @@ public class SendQueueAccessor {
             }
         } else if (objRequest instanceof TransceiverObject) {
             TransceiverObject obj = (TransceiverObject) objRequest;
-            aprsMessageAccessor.sendObject(obj.getName(), obj.getMessage(), obj.isAlive(), obj.getLat(), obj.getLon());
+            aprsMessageAccessor.sendObject(obj.getName(), obj.getMessage(), obj.isAlive(), obj.getLat(), obj.getLon(), obj.getSymbolTableId(), obj.getSymbolTableCode());
         } else if (objRequest instanceof TransceiverQuery) {
             TransceiverQuery obj = (TransceiverQuery) objRequest;
             aprsMessageAccessor.sendQuery(obj.getCallsignFrom(), obj.getCallsignTo(), obj.getQueryType());

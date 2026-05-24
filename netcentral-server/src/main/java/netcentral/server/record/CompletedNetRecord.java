@@ -41,5 +41,8 @@ public record CompletedNetRecord(
                 @NonNull @NotBlank @Size(max = 100) String creator_name,
                 @Nullable @Size(max = 50) String checkin_message,
                 @NonNull @NotBlank Boolean open, 
-                @NonNull @NotBlank Boolean participant_invite_allowed) {  
+                @NonNull @NotBlank Boolean participant_invite_allowed,
+                @NonNull @NotBlank @Size(max = 1) String symbol_table_id,
+                @NonNull @NotBlank @Size(max = 1) String symbol_table_code
+                ) {  
 }

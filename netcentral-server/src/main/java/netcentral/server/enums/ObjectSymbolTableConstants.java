@@ -1,8 +1,8 @@
-package netcentral.server.object.request;
+package netcentral.server.enums;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,12 +20,7 @@ package netcentral.server.object.request;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.serde.annotation.Serdeable;
-import jakarta.validation.constraints.NotBlank;
-
-@Serdeable
-public record NetCreateRequest(@NotBlank String callsign, @NotBlank String name, String description, String voiceFrequency, 
-                                    String lat, String lon, String announce, String checkinReminder, String checkinMessage, 
-                                    boolean open,  boolean participantInviteAllowed, String expectedCallsigns, String creatorName,
-                                    String symbolTableId, String symbolTableCode) {
+public class ObjectSymbolTableConstants {
+    public static final String DEFAULT_SYMBOL_TABLE_ID = "/";
+    public static final String DEFAULT_SYMBOL_TABLE_CODE = "c";
 }

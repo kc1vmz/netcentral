@@ -204,7 +204,7 @@ public class APRSSerialListenerAccessor {
         }
     }
 
-    public void sendObject(String objectName, String messageText, boolean alive, String lat, String lon) {
+    public void sendObject(String objectName, String messageText, boolean alive, String lat, String lon, String symbolTableId, String symbolTableCode) {
         logger.info(String.format("Sending object %s: %s", objectName,  messageText));
         KISSPacket packet = new KISSPacket();
         packet.setCallsignFrom(objectName);
@@ -223,7 +223,7 @@ public class APRSSerialListenerAccessor {
         // time[7]lat[8]sym[/]lon[9]sym[>]meta[7]comment[36]
         String time = APRSTime.convertZonedDateTimeToDDHHMM(ZonedDateTime.now());
 
-        aprsMessage = String.format(";%s%s%s%s/%s%s%s", String.format("%-9s", objectName), ud, time, lat, lon, "c", messageText);
+        aprsMessage = String.format(";%s%s%s%s%s%s%s%s", String.format("%-9s", objectName), ud, time, lat, symbolTableId, lon, symbolTableCode, messageText);
 
 
         packet.setData(aprsMessage);

@@ -28,6 +28,8 @@ public class ObjectCreateRequestExternal {
     private String lat;
     private String lon;
     private boolean up;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public String getType() {
         return type;
@@ -70,6 +72,18 @@ public class ObjectCreateRequestExternal {
     }
     public void setVoiceFrequency(String voiceFrequency) {
         this.voiceFrequency = voiceFrequency;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }
 

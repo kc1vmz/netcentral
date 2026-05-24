@@ -62,7 +62,9 @@ public class ObjectBeaconAccessor {
             List<Net> nets = netAccessor.getAll(user, null);
             if ((nets != null) && (!nets.isEmpty())) {
                 for (Net net : nets) {
-                    transceiverMessageAccessor.sendObject(user, net.getCallsign(), net.getCallsign(), String.format("Net %s", net.getName()),true, net.getLat(), net.getLon());
+                    transceiverMessageAccessor.sendObject(user, net.getCallsign(), net.getCallsign(), 
+                                    String.format("Net %s", net.getName()),true, net.getLat(), net.getLon(),
+                                    net.getSymbolTableId(), net.getSymbolTableCode());
                 }
             }
         } catch (Exception e) {
@@ -79,7 +81,8 @@ public class ObjectBeaconAccessor {
             try {
                 transceiverMessageAccessor.sendObject(user, netCentralObject.getCallsignTo(), netCentralObject.getCallsignTo(),
                                                             netCentralObject.getComment(), netCentralObject.isAlive(),
-                                                            netCentralObject.getLat(), netCentralObject.getLon());
+                                                            netCentralObject.getLat(), netCentralObject.getLon(),
+                                                            netCentralObject.getSymbolTableId(), netCentralObject.getSymbolTableCode());
                 if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
                     beaconData(user, netCentralObject);
                 }

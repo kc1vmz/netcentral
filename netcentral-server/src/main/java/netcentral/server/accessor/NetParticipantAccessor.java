@@ -33,6 +33,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.ObjectSymbolTableConstants;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.UserRole;
 import netcentral.server.object.Net;
@@ -292,7 +293,8 @@ public class NetParticipantAccessor {
         List<NetParticipantRecord> participantRecs = netParticipantRepository.findByparticipant_callsign(participant.getCallsign());
         if ((participantRecs != null) && (!participantRecs.isEmpty())) {
             for (NetParticipantRecord rec: participantRecs) {
-                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false, null, true, true, false));
+                ret.add(new Net(rec.net_callsign(),null, null, null, null, null, null, null, false, null, false, null, true, true, false,
+                ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_ID, ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_CODE));
             }
         }
         return ret;

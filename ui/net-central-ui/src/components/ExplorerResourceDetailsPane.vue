@@ -2940,6 +2940,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -2990,6 +2991,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3295,6 +3297,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3450,6 +3453,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3636,6 +3640,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3732,6 +3737,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3830,6 +3836,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Electrical Power:</b></td> <td>{{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}</td></tr>
                   <tr><td><b>Radio style:</b></td> <td>{{ localSelectedObject.ncSelectedObject.radioStyle }}</td></tr>

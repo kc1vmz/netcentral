@@ -134,12 +134,14 @@ public class APRSObjectController {
         // given an object, create it on APRS and in our database
         if ((messageRequest.getLat() != null) && (messageRequest.getLon() != null)) {
             transceiverCommunicationAccessor.sendObject(loggedInUser, messageRequest.getCallsign(), messageRequest.getCallsign(), 
-                                       message, messageRequest.isUp(), 
-                                       messageRequest.getLat(), 
-                                       messageRequest.getLon());
+                                        message, messageRequest.isUp(), 
+                                        messageRequest.getLat(), messageRequest.getLon(),
+                                        messageRequest.getSymbolTableId(), messageRequest.getSymbolTableCode());
         }
 
-        ObjectCreateRequest obj = new ObjectCreateRequest(Integer.parseInt(messageRequest.getType()), messageRequest.getCallsign(), messageRequest.getDescription(), messageRequest.getLat(), messageRequest.getLon());
+        ObjectCreateRequest obj = new ObjectCreateRequest(Integer.parseInt(messageRequest.getType()), messageRequest.getCallsign(), messageRequest.getDescription(), 
+                                                    messageRequest.getLat(), messageRequest.getLon(),
+                                                    messageRequest.getSymbolTableId(), messageRequest.getSymbolTableCode());
         if (messageRequest.isUp()) {
             aprsObjectAccessor.upObject(loggedInUser, obj);
             return new ObjectCreateResponseExternal("Alive", messageRequest.getType());

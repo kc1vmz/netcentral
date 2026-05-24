@@ -49,6 +49,8 @@ public class ScheduledNetCreateRequestExternal {
     private boolean open;
     private boolean participantInviteAllowed; 
     private String expectedCallsigns;
+    private String symbolTableId;
+    private String symbolTableCode;
    
     public ScheduledNetCreateRequestExternal() {
     }
@@ -72,11 +74,13 @@ public class ScheduledNetCreateRequestExternal {
         this.open = req.open();
         this.participantInviteAllowed = req.participantInviteAllowed();
         this.expectedCallsigns = req.expectedCallsigns();
+        this.symbolTableId = req.symbolTableId();
+        this.symbolTableCode = req.symbolTableCode();
     }
 
     public ScheduledNetCreateRequestExternal(String callsign, String name, String description, Integer type, String voiceFrequency, String lat, String lon, 
                                                     String announce, int dayStart, String timeStartStr, int duration, String creatorName, String checkinReminder, String checkinMessage,
-                                                    boolean open, boolean participantInviteAllowed, String expectedCallsigns) {
+                                                    boolean open, boolean participantInviteAllowed, String expectedCallsigns, String symbolTableId, String symbolTableCode) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -94,6 +98,8 @@ public class ScheduledNetCreateRequestExternal {
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
         this.expectedCallsigns = expectedCallsigns;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
 
     public String getCallsign() {
@@ -178,15 +184,16 @@ public class ScheduledNetCreateRequestExternal {
                                                 (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                                 getCreatorName(), 
                                                 getDayStart(), 0, getDuration(), lastStartTime, nextStartTime,
-                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(),isOpen(), isParticipantInviteAllowed()
-                                            );
+                                                (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(),
+                                                isOpen(), isParticipantInviteAllowed(), getSymbolTableId(), getSymbolTableCode());
         } else {
             ret = new ScheduledNet(getCallsign(), getName(), getDescription(),  ScheduledNetType.values()[getType()], getVoiceFrequency(), 
                                     getLat(), getLon(), 
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
                                     getDayStart(), convertTimeStartStringToInt(getTimeStartStr(), ScheduledNetType.values()[getType()]), getDuration(),
-                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(), isOpen(), isParticipantInviteAllowed());
+                                    (getCheckinReminder().equalsIgnoreCase("true")) ? true : false, getCheckinMessage(), isOpen(), 
+                                    isParticipantInviteAllowed(), getSymbolTableId(), getSymbolTableCode());
         }
         ret.setNextStartTime(ret.calculateNextStartTime());
 
@@ -263,5 +270,17 @@ public class ScheduledNetCreateRequestExternal {
     }
     public void setExpectedCallsigns(String expectedCallsigns) {
         this.expectedCallsigns = expectedCallsigns;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

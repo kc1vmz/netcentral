@@ -49,6 +49,7 @@ import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterWork
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.ObjectSymbolTableConstants;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.object.Net;
 import netcentral.server.object.NetMessage;
@@ -391,7 +392,8 @@ public class FederatedObjectMessageIngestionAccessor {
             if (net == null) {
                 // not in db yet, create placeholder
                 net = new Net(innerAPRSUserDefined.getCallsignFrom(), " ", " ", "", report.getStartTime(),
-                                        UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
+                                        UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true,
+                                        ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_ID, ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_CODE);
                 netAccessor.create(loggedInUser, net);
 
                 updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);
@@ -419,7 +421,7 @@ public class FederatedObjectMessageIngestionAccessor {
                 // objects get overwritten, not created new
                 APRSObjectRecord first = foundRecList.get(0);
                 APRSObjectRecord updated = new APRSObjectRecord(first.aprs_object_id(), first.source(), first.callsign_from(), first.callsign_to(), first.heard_time(), first.alive(), first.lat(),
-                                                                        first.lon(), first.time(), first.comment(), type.ordinal());
+                                                                        first.lon(), first.time(), first.comment(), type.ordinal(), first.symbol_table_id(), first.symbol_table_code());
                 aprsObjectRepository.update(updated);
             }
         } catch (Exception e) {
@@ -456,7 +458,8 @@ public class FederatedObjectMessageIngestionAccessor {
             }
 
             net = new Net(innerAPRSUserDefined.getCallsignFrom(), report.getName(), report.getDescription(), "", heardTime,
-                                    UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true);
+                                    UUID.randomUUID().toString(), null, null, false, "Remote", false, null, false, false, true,
+                                    ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_ID, ObjectSymbolTableConstants.DEFAULT_SYMBOL_TABLE_CODE);
             netAccessor.create(loggedInUser, net);
 
             updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), ObjectType.NET);

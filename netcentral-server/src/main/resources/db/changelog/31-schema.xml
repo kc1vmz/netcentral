@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="31" author="kc1vmz">
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="WX3IN1"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="WX3IN1"/>
+    </insert>
+
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="WX3IN1"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" valueComputed="(UUID())"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="WX3IN1"/>
+    </insert>
+  </changeSet>
+</databaseChangeLog>

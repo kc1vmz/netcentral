@@ -45,11 +45,14 @@ public class Net {
     private boolean open;
     private boolean participantInviteAllowed;
     private boolean remote;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public Net() {
     }
     public Net(String callsign, String name, String description, String voiceFrequency, ZonedDateTime startTime, String completedNetId, 
-                        String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage, boolean open, boolean participantInviteAllowed, boolean remote) {
+                        String lat, String lon, boolean announce, String creatorName, boolean checkinReminder, String checkinMessage, 
+                        boolean open, boolean participantInviteAllowed, boolean remote, String symbolTableId, String symbolTableCode) {
         this.callsign = callsign;
         this.name = name;
         this.description = description;
@@ -65,6 +68,8 @@ public class Net {
         this.open = open;
         this.participantInviteAllowed = participantInviteAllowed;
         this.remote = remote;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
     public Net(Net net) {
         if (net != null) {
@@ -84,6 +89,8 @@ public class Net {
             this.open = net.isOpen();
             this.participantInviteAllowed = net.isParticipantInviteAllowed();
             this.remote = net.isRemote();
+            this.symbolTableId = net.getSymbolTableId();
+            this.symbolTableCode = net.getSymbolTableCode();
         }
     }
 
@@ -189,5 +196,17 @@ public class Net {
     }
     public void setRemote(boolean remote) {
         this.remote = remote;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

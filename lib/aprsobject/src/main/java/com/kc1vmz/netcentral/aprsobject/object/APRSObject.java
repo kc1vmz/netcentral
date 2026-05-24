@@ -43,10 +43,13 @@ public class APRSObject implements APRSPacketInterface {
     private String prettyLdtime;
     private ObjectType type;
     private boolean remote;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public APRSObject(){
     }
-    public APRSObject(String id, String callsignFrom, String callsignTo, boolean alive, String lat, String lon, String time, ZonedDateTime ldtime, String comment, ObjectType type, boolean remote) {
+    public APRSObject(String id, String callsignFrom, String callsignTo, boolean alive, String lat, String lon, String time, ZonedDateTime ldtime, 
+                            String comment, ObjectType type, boolean remote, String symbolTableId, String symbolTableCode) {
         this.id = id;
         this.callsignFrom = callsignFrom;
         this.callsignTo = callsignTo;
@@ -59,6 +62,8 @@ public class APRSObject implements APRSPacketInterface {
         this.prettyLdtime = PrettyZonedDateTimeFormatter.format(ldtime);
         this.type = type;
         this.remote = remote;
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
     @Override
     public byte [] getData() {
@@ -169,6 +174,18 @@ public class APRSObject implements APRSPacketInterface {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }
 

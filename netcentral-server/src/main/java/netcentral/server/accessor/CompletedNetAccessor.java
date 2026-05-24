@@ -70,7 +70,7 @@ public class CompletedNetAccessor {
                     continue;
                 }
                 ret.add(new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message(),
-                                    rec.open(), rec.participant_invite_allowed()));
+                                    rec.open(), rec.participant_invite_allowed(), rec.symbol_table_id(), rec.symbol_table_code()));
             }
         }
 
@@ -95,7 +95,7 @@ public class CompletedNetAccessor {
         }
         CompletedNetRecord rec = recOpt.get();
         return new CompletedNet(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.end_time(), rec.completed_net_id(), rec.creator_name(), rec.checkin_message(),
-                                    rec.open(), rec.participant_invite_allowed());
+                                    rec.open(), rec.participant_invite_allowed(), rec.symbol_table_id(), rec.symbol_table_code());
     }
 
 
@@ -116,7 +116,8 @@ public class CompletedNetAccessor {
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             obj.getStartTime(), ZonedDateTime.now(),
                                             obj.getCreatorName(), obj.getCheckinMessage(),
-                                            obj.isOpen(), obj.isParticipantInviteAllowed());
+                                            obj.isOpen(), obj.isParticipantInviteAllowed(),
+                                            obj.getSymbolTableId(), obj.getSymbolTableCode());
         CompletedNetRecord rec = completedNetRepository.save(src);
 
         try {

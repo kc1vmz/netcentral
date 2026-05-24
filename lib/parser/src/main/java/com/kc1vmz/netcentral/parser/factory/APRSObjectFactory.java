@@ -31,6 +31,7 @@ import com.kc1vmz.netcentral.parser.exception.APRSTimeConversionException;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
+import com.kc1vmz.netcentral.parser.util.StringUtils;
 import com.kc1vmz.netcentral.parser.util.Stripper;
 
 public class APRSObjectFactory {
@@ -71,7 +72,7 @@ public class APRSObjectFactory {
             logger.error("Exception caught", e);
         }
 
-        if (data[18] == '/') {
+        if ((data[18] == '/') || (data[18] == '\\')) {
             // compressed data format
             byte [] compressedData = Arrays.copyOfRange(data, 18, 31);
             String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
@@ -81,19 +82,23 @@ public class APRSObjectFactory {
 
             byte [] comment = Arrays.copyOfRange(data, 31, data.length);
             ret.setComment(new String(comment));
+            ret.setSymbolTableId(StringUtils.stringify(data[18]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[27]));
         } else {
             // regular format
             byte [] lat = Arrays.copyOfRange(data, 18, 26);
             ret.setLat(new String(lat));
-            //byte symTableId = data[messageIndex+8];
-            byte [] lon = Arrays.copyOfRange(data, 28, 37);
 
-            int messageStart = 38;
+            byte [] lon = Arrays.copyOfRange(data, 27, 36);
+            int messageStart = 37;
             if ((lon[8] != 'E') && (lon[8] != 'W')) {
-                lon = Arrays.copyOfRange(data, 28, 36);
+                lon = Arrays.copyOfRange(data, 27, 35);
                 messageStart--;
             }
             ret.setLon(new String(lon));
+
+            ret.setSymbolTableId(StringUtils.stringify(data[26]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[36]));
 
             byte [] comment = Arrays.copyOfRange(data, messageStart, data.length);
             ret.setComment(new String(comment));

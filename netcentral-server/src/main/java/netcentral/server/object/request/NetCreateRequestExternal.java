@@ -43,7 +43,8 @@ public class NetCreateRequestExternal {
     private boolean participantInviteAllowed; 
     private String expectedCallsigns;
     private String creatorName;
-   
+    private String symbolTableId;
+    private String symbolTableCode;
     
     public NetCreateRequestExternal() {
     }
@@ -130,7 +131,8 @@ public class NetCreateRequestExternal {
                                     (getAnnounce().equalsIgnoreCase("true")) ? true : false,
                                     getCreatorName(),  
                                     (getCheckinReminder().equalsIgnoreCase("true")) ? true : false,
-                                    getCheckinMessage(), isOpen(), isParticipantInviteAllowed(), false);
+                                    getCheckinMessage(), isOpen(), isParticipantInviteAllowed(), false,
+                                    getSymbolTableId(), getSymbolTableCode());
         return ret;
     }
 
@@ -189,5 +191,17 @@ public class NetCreateRequestExternal {
     }
     public void setCreatorName(String creatorName) {
         this.creatorName = creatorName;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

@@ -281,7 +281,8 @@ public class PriorityObjectCommandAccessor {
                 if ((priorityObject.getLat() != null) && (priorityObject.getLon() != null)) {
                     transceiverMessageAccessor.sendObject(loggedInUser, priorityObject.getCallsignTo(), priorityObject.getCallsignTo(),
                                                             priorityObject.getComment(), priorityObject.isAlive(),
-                                                            priorityObject.getLat(), priorityObject.getLon());
+                                                            priorityObject.getLat(), priorityObject.getLon(),
+                                                            priorityObject.getSymbolTableId(), priorityObject.getSymbolTableCode());
                 }
             } else if (queryType.equalsIgnoreCase(APRSQueryType.APRS_STATUS)) {
                 // send status

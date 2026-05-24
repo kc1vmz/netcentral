@@ -43,6 +43,8 @@ const netExpectedCallsignsRef = reactive({ value : '' });
 const netOpenRef = reactive({value : 'true'});
 const netParticipantInviteAllowedRef = reactive({value : true});
 const netDescriptionRef = reactive({ value : '' });
+const netSymbolTableIdRef = reactive({ value : '' });
+const netSymbolTableCodeRef = reactive({ value : '' });
 const netCreatedByRef = reactive({ value : '' });
 const netLatitudeRef = reactive({ value : '' });
 const netLongitudeRef = reactive({ value : '' });
@@ -135,6 +137,8 @@ function createNet() {
     netNameRef.value = '';
     netActiveRef.value = 'true';
     netDescriptionRef.value = '';
+    netSymbolTableIdRef.value = '/';
+    netSymbolTableCodeRef.value = 'c';
     netCheckinMessageRef.value = '';
     netExpectedCallsignsRef.value = '';
     netOpenRef.value = 'true';
@@ -184,7 +188,8 @@ function performCreateNetActive() {
     var bodyObject = { callsign : netCallsignRef.value, name : netNameRef.value, description: netDescriptionRef.value, 
                         voiceFrequency : netVoiceFrequencyRef.value, lat : netLatitudeRef.value, lon : netLongitudeRef.value, 
                         announce : announce , creatorName : localLoggedInUserRef.value.emailAddress, checkinReminder : checkinReminder, checkinMessage: netCheckinMessageRef.value,
-                        open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value };
+                        open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value,
+                        symbolTableId : netSymbolTableIdRef.value, symbolTableCode : netSymbolTableCodeRef.value };
     // active net
     const requestOptions = {
       method: "POST",
@@ -233,7 +238,8 @@ function performCreateNetScheduled() {
                         dayStart: null,
                         timeStartStr: null, 
                         duration: netDurationRef.value, checkinReminder : checkinReminder,
-                        checkinMessage: netCheckinMessageRef.value, open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value };
+                        checkinMessage: netCheckinMessageRef.value, open: open, participantInviteAllowed: inviteAllowed, expectedCallsigns: netExpectedCallsignsRef.value,
+                        symbolTableId : netSymbolTableIdRef.value, symbolTableCode : netSymbolTableCodeRef.value };
 
     if (netTypeRef.value == '1') {
       bodyObject.timeStartStr = "x:"+todayTimePickerRef.value.hours+":"+todayTimePickerRef.value.minutes;
@@ -304,6 +310,14 @@ function performCreateNet() {
               <div>
                 <label for="descriptionField">Description:</label>
                 <input type="text" id="descriptionField" v-model="netDescriptionRef.value" maxlength="50" />
+              </div>
+              <div>
+                <label for="symbolTableIdField">Symbol Table ID:</label>
+                <input type="text" id="symbolTableIdField" v-model="netSymbolTableIdRef.value" maxlength="1" />
+              </div>
+              <div>
+                <label for="symbolTableCodeField">Symbol Table Code:</label>
+                <input type="text" id="symbolTableCodeField" v-model="netSymbolTableCodeRef.value" maxlength="1" />
               </div>
               <div>
                 <label for="checkinMessageField">Check-in message:</label>

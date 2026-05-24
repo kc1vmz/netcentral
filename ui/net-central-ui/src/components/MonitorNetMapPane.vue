@@ -67,6 +67,8 @@ const fetchUrl = ref({ value : buildNetCentralUrl('/summaries/netMapPoints/')});
 var callsign = ref('');
 const description = reactive({ value : null });
 const voiceFrequency = reactive({ value : null });
+const symbolTableIdRef = reactive({ value : null });
+const symbolTableCodeRef = reactive({ value : null });
 const type = reactive({ value : null });
 const dialogCreateObjectShow = reactive({ value : false });
 const dialogCreateObject = ref(null);
@@ -230,6 +232,8 @@ function onMapClickAdd(e) {
     callsign.value = '';
     description.value = '';
     voiceFrequency.value = '';
+    symbolTableIdRef.value = '/';
+    symbolTableCodeRef.value = 'c';
     dialogCreateObjectShow.value = true;
     latlng.value = e.latlng;
     errorMessage.value = '';
@@ -303,7 +307,9 @@ function createObjectYes() {
     voiceFrequency : voiceFrequency.value,
     lat : convertDecimalToDDMMSSx(latlng.value.lat, "NS"),
     lon : convertDecimalToDDDMMSSx(latlng.value.lng, "EW"),
-    up : true
+    up : true,
+    symbolTableId : symbolTableIdRef.value,
+    symbolTableCode : symbolTableCodeRef.value
   };
   var requestOptions = {
     method: "POST",
@@ -358,41 +364,49 @@ function createObjectNo() {
                 <label for="voiceFrequencyField">Voice Frequency:</label>
                 <input type="text" id="voiceFrequencyField" v-model="voiceFrequency.value" />
               </div>
-                <div>
-                    <label for="objectTypeField">Object type:</label>
-                    <select name="objectTypeField" id="type" v-model="type.value" style="display: inline;">
-                      <div v-if="(type.value == '2')">
-                        <option value="2" selected>Standard</option>
-                      </div>
-                      <div v-else>
-                        <option value="2">Standard</option>
-                      </div>
-                      <div v-if="(type.value == '3')">
-                        <option value="3" selected>Shelter</option>
-                      </div>
-                      <div v-else>
-                        <option value="3">Shelter</option>
-                      </div>
-                      <div v-if="(type.value == '4')">
-                        <option value="4" selected>Medical</option>
-                      </div>
-                      <div v-else>
-                        <option value="4">Medical</option>
-                      </div>
-                      <div v-if="(type.value == '5')">
-                        <option value="5" selected>Emergency Operations Center (EOC)</option>
-                      </div>
-                      <div v-else>
-                        <option value="5">Emergency Operations Center (EOC)</option>
-                      </div>
-                      <div v-if="(type.value == '7')">
-                        <option value="7" selected>General Resource</option>
-                      </div>
-                      <div v-else>
-                        <option value="7">General Resource</option>
-                      </div>
-                    </select>
-                </div>
+              <div>
+                  <label for="objectTypeField">Object type:</label>
+                  <select name="objectTypeField" id="type" v-model="type.value" style="display: inline;">
+                    <div v-if="(type.value == '2')">
+                      <option value="2" selected>Standard</option>
+                    </div>
+                    <div v-else>
+                      <option value="2">Standard</option>
+                    </div>
+                    <div v-if="(type.value == '3')">
+                      <option value="3" selected>Shelter</option>
+                    </div>
+                    <div v-else>
+                      <option value="3">Shelter</option>
+                    </div>
+                    <div v-if="(type.value == '4')">
+                      <option value="4" selected>Medical</option>
+                    </div>
+                    <div v-else>
+                      <option value="4">Medical</option>
+                    </div>
+                    <div v-if="(type.value == '5')">
+                      <option value="5" selected>Emergency Operations Center (EOC)</option>
+                    </div>
+                    <div v-else>
+                      <option value="5">Emergency Operations Center (EOC)</option>
+                    </div>
+                    <div v-if="(type.value == '7')">
+                      <option value="7" selected>General Resource</option>
+                    </div>
+                    <div v-else>
+                      <option value="7">General Resource</option>
+                    </div>
+                  </select>
+              </div>
+              <div>
+                <label for="symbolTableIdField">Symbol Table ID:</label>
+                <input type="text" id="symbolTableIdField" v-model="symbolTableIdRef.value" maxlength="1" />
+              </div>
+              <div>
+                <label for="symbolTableCodeField">Symbol Table Code:</label>
+                <input type="text" id="symbolTableCodeField" v-model="symbolTableCodeRef.value" maxlength="1" />
+              </div>
               <div>
                 <b>{{ errorMessage.value }}</b>
               </div>

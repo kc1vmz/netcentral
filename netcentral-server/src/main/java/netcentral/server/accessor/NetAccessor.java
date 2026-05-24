@@ -92,8 +92,10 @@ public class NetAccessor {
                     // only take those with the optional root
                     continue;
                 }
-                ret.add(new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), 
-                                    rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote()));
+                ret.add(new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), 
+                                    rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(), 
+                                    rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote(),
+                                    rec.symbol_table_id(), rec.symbol_table_code()));
             }
         }
 
@@ -111,7 +113,7 @@ public class NetAccessor {
         }
         NetRecord rec = recOpt.get();
         return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(),
-                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote());
+                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote(), rec.symbol_table_id(), rec.symbol_table_code());
     }
 
     public Net getByCallsign(User loggedInUser, String callsign) {
@@ -126,7 +128,7 @@ public class NetAccessor {
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
             }
             return new Net(rec.callsign(), rec.name(), rec.description(), rec.vfreq(), rec.start_time(), rec.completed_net_id(), rec.lat(), rec.lon(), rec.announce(), rec.creator_name(), rec.checkin_reminder(),
-                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote());
+                                rec.checkin_message(), rec.open(), rec.participant_invite_allowed(), rec.remote(), rec.symbol_table_id(), rec.symbol_table_code());
         } catch (Exception e) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Net not found");
         }
@@ -164,7 +166,8 @@ public class NetAccessor {
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             ZonedDateTime.now(), completed_net_id, lat, lon, obj.isAnnounce(),
                                             creatorName, obj.isCheckinReminder(), obj.getCheckinMessage(),
-                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote());
+                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote(),
+                                            obj.getSymbolTableId(), obj.getSymbolTableCode());
         NetRecord rec = netRepository.save(src);
         if (rec != null) {
             obj.setCompletedNetId(completed_net_id);
@@ -183,14 +186,17 @@ public class NetAccessor {
                     if (announcement.isEmpty()) {
                         announcement = String.format("APRS Net %s started", obj.getCallsign());
                     }
-                    transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), objectMessage, true, obj.getLat(), obj.getLon());
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), objectMessage, true, 
+                                            obj.getLat(), obj.getLon(),
+                                            obj.getSymbolTableId(), obj.getSymbolTableCode());
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, obj.getCallsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), announcement);
 
                     federatedObjectReporterAccessor.announce(loggedInUser, obj);
                 }
 
                 // also put the object into our ecosystem
-                ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), obj.getCallsign(), obj.getDescription(), obj.getLat(), obj.getLon());
+                ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), obj.getCallsign(), 
+                                            obj.getDescription(), obj.getLat(), obj.getLon(),obj.getSymbolTableId(), obj.getSymbolTableCode());
                 upObject(loggedInUser, objectCreateRequest);
 
                 if (!obj.isRemote()) {
@@ -259,7 +265,7 @@ public class NetAccessor {
         NetRecord updatedRec = new NetRecord(rec.callsign(), (obj.getVoiceFrequency() != null) ? obj.getVoiceFrequency() : "", obj.getName(), 
                                             (obj.getDescription() != null) ? obj.getDescription() : "",  
                                             obj.getStartTime(), obj.getCompletedNetId(), obj.getLat(), obj.getLon(), obj.isAnnounce(), rec.creator_name(), obj.isCheckinReminder(), obj.getCheckinMessage(),
-                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote());
+                                            obj.isOpen(), obj.isParticipantInviteAllowed(), obj.isRemote(), obj.getSymbolTableId(), obj.getSymbolTableCode());
 
         netRepository.update(updatedRec);
         obj = get(loggedInUser, id);
@@ -267,7 +273,9 @@ public class NetAccessor {
         // announce changes in object
         if (obj != null) {
             if ((obj.isAnnounce()) && (obj.getLat() != null) && (obj.getLon() != null) && (!obj.isRemote())) {
-                transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), String.format("Net %s", obj.getName()), true, obj.getLat(), obj.getLon());
+                transceiverCommunicationAccessor.sendObject(loggedInUser, obj.getCallsign(), obj.getCallsign(), 
+                                                    String.format("Net %s", obj.getName()), true, obj.getLat(), obj.getLon(),
+                                                    obj.getSymbolTableId(), obj.getSymbolTableCode());
             }
         }
 
@@ -333,7 +341,7 @@ public class NetAccessor {
             if (!net.isRemote()) {
                 if ((rec.announce()) && (rec.lat() != null) && (rec.lon() != null)) {
                     // announce the object and send the bulletin
-                    transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("Net %s", rec.name()), false, rec.lat(), rec.lon());
+                    transceiverCommunicationAccessor.sendObject(loggedInUser, rec.callsign(), rec.callsign(), String.format("Net %s", rec.name()), false, rec.lat(), rec.lon(), rec.symbol_table_id(), rec.symbol_table_code());
                     transceiverCommunicationAccessor.sendBulletin(loggedInUser, rec.callsign(), netCentralServerConfigAccessor.getBulletinAnnounce(), String.format("APRS Net %s ended", rec.callsign()));
                 }
 
@@ -343,7 +351,7 @@ public class NetAccessor {
             }
 
             // also remove the object from our ecosystem
-            ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon());
+            ObjectCreateRequest objectCreateRequest = new ObjectCreateRequest(ObjectType.NET.ordinal(), rec.callsign(), rec.description(), rec.lat(), rec.lon(), rec.symbol_table_id(), rec.symbol_table_code());
             deleteObject(loggedInUser, objectCreateRequest);
 
             changePublisherAccessor.publishNetUpdate(rec.completed_net_id(), ChangePublisherAccessor.DELETE, net);
