@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,13 +22,67 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.core.annotation.NonNull;
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import java.util.List;
+import java.util.Optional;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.ParticipantRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface ParticipantRepository extends CrudRepository<ParticipantRecord, String> { 
-    ParticipantRecord find(@NonNull String callsign);
+@Singleton
+public class ParticipantRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.ParticipantRepository participantRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.ParticipantRepository participantRepositoryH2;
+
+    public ParticipantRecord save(ParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return participantRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return participantRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public ParticipantRecord update(ParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return participantRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return participantRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            participantRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            participantRepositoryH2.deleteAll();
+        }
+    }
+    public List<ParticipantRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return participantRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return participantRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(ParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            participantRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            participantRepositoryH2.delete(record);
+        }
+    }
+    public Optional<ParticipantRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return participantRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return participantRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

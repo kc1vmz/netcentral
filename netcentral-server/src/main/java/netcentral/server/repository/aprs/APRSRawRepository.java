@@ -1,5 +1,8 @@
 package netcentral.server.repository.aprs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +23,41 @@ package netcentral.server.repository.aprs;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSRawRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSRawRepository extends CrudRepository<APRSRawRecord, String> { 
+@Singleton
+public class APRSRawRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSRawRepository aprsRawRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSRawRepository aprsRawRepositoryH2;
+
+    public APRSRawRecord save(APRSRawRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsRawRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsRawRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsRawRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsRawRepositoryH2.deleteAll();
+        }
+    }
+    public List<APRSRawRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsRawRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsRawRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
 }

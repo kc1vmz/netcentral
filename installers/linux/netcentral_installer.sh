@@ -22,11 +22,14 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_DB_NAME=netcentral
   NC_DB_USER=netcentral
   NC_DB_PASS=netcentral
+  NC_DB_HOST=localhost
+  NC_DB_PORT=3306
   NC_SVC_USER=serviceAccount
   NC_SVC_PASS=serviceAccountPassword
   NC_DEVMODE=N
   NC_BUILD_SRC=N
   NC_TEMP_DIR=~/netcentral/tmp
+  NC_DB_FILE=~/netcentral/db/netcentral./db
   NC_TR_APRSIS=Y
   NC_TR_KENWOOD=N
   NC_TR_KENWOOD_PORT=/dev/rfcomm0
@@ -40,6 +43,7 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_TR_APRSIS_QUERY=r/42.222/-71.57/500
   NC_VERSION=1.0.20
   NC_DB_CREATE=Y
+  NC_DB_H2=N
   NC_JAVA_INSTALL=Y
   NC_INSTALL_SERVICES=Y
   NC_START_SERVICES=N
@@ -51,8 +55,21 @@ if [ "$NC_OS" = "Linux" ]; then
   read -e -i $NC_BUILD_SRC -p "Do you want to build from source (y/N)?: " NC_BUILD_SRC
   read -e -i $NC_JAVA_INSTALL -p "Do you want Java 21 installed (Y/n)?: " NC_JAVA_INSTALL
   read -e -i $NC_DEVMODE -p "Do you want developer tools (y/N)?: " NC_DEVMODE
-  read -e -i $NC_DB_CREATE -p "Do you want to deploy MariaDB locally (Y/n)?: " NC_DB_CREATE
-  read -e -i $NC_DB_NAME -p "Net Central database name?: " NC_DB_NAME
+  read -e -i $NC_DB_H2 -p "Do you want to use a local low-performance database (y/N)?: " NC_DB_H2
+
+  if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+    read -e -i $NC_DB_FILE -p "Where should Net Central database file be located?: " NC_DB_FILE
+  else
+    read -e -i $NC_DB_CREATE -p "Do you want to deploy MariaDB locally (Y/n)?: " NC_DB_CREATE
+
+    if [[ "$NC_DB_CREATE" =~ ^[Nn]$ ]]; then
+      read -e -i $NC_DB_HOST -p "Net Central database host address?: " NC_DB_HOST
+    fi
+
+    read -e -i $NC_DB_PORT -p "Net Central database port number?: " NC_DB_PORT
+    read -e -i $NC_DB_NAME -p "Net Central database name?: " NC_DB_NAME
+  fi
+
   read -e -i $NC_DB_USER -p "Net Central database username?: " NC_DB_USER
   read -e -s -p "Net Central database password?: " NC_DB_PASS
   read -e -i $NC_SVC_USER -p "Net Central service account username?: " NC_SVC_USER
@@ -71,9 +88,18 @@ if [ "$NC_OS" = "Linux" ]; then
   NETCENTRAL_SERVER_TEMP_DIR=$NC_TEMP_DIR
   NETCENTRAL_SERVER_USERNAME=$NC_SVC_USER
   NETCENTRAL_SERVER_PASSWORD=$NC_SVC_PASS
-  NETCENTRAL_SERVER_MYSQL_USERNAME=$NC_DB_USER
-  NETCENTRAL_SERVER_MYSQL_PASSWORD=$NC_DB_PASS
-  NETCENTRAL_SERVER_MYSQL_DBNAME=$NC_DB_NAME
+
+  if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+    NETCENTRAL_SERVER_SQLITE_FILE=$NC_DB_FILE
+    NETCENTRAL_SERVER_SQLITE_USERNAME=$NC_DB_USER
+    NETCENTRAL_SERVER_SQLITE_PASSWORD=$NC_DB_PASS
+  else
+    NETCENTRAL_SERVER_MYSQL_DBNAME=$NC_DB_NAME
+    NETCENTRAL_SERVER_MYSQL_USERNAME=$NC_DB_USER
+    NETCENTRAL_SERVER_MYSQL_PASSWORD=$NC_DB_PASS
+    NETCENTRAL_SERVER_MYSQL_PORT=$NC_DB_PORT
+    NETCENTRAL_SERVER_MYSQL_HOST=$NC_DB_HOST
+  fi
 
   sudo cp /etc/environment /etc/environment.pre_net_central_install
 
@@ -84,9 +110,18 @@ if [ "$NC_OS" = "Linux" ]; then
     echo "NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
     echo "NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/environment >  /dev/null
     echo "NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
-    echo "NETCENTRAL_SERVER_MYSQL_USERNAME=$NETCENTRAL_SERVER_MYSQL_USERNAME" | sudo tee -a /etc/environment >  /dev/null
-    echo "NETCENTRAL_SERVER_MYSQL_PASSWORD=$NETCENTRAL_SERVER_MYSQL_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
-    echo "NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
+
+    if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+      echo "NETCENTRAL_SERVER_SQLITE_FILE=$NETCENTRAL_SERVER_SQLITE_FILE" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_SQLITE_USERNAME=$NETCENTRAL_SERVER_SQLITE_USERNAME" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_SQLITE_PASSWORD=$NETCENTRAL_SERVER_SQLITE_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
+    else
+      echo "NETCENTRAL_SERVER_MYSQL_USERNAME=$NETCENTRAL_SERVER_MYSQL_USERNAME" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_MYSQL_PASSWORD=$NETCENTRAL_SERVER_MYSQL_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_MYSQL_PORT=$NETCENTRAL_SERVER_MYSQL_PORT" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_SERVER_MYSQL_HOST=$NETCENTRAL_SERVER_MYSQL_HOST" | sudo tee -a /etc/environment >  /dev/null
+    fi
   fi
 
     read -e -i $NC_TR_APRSIS -p "Connect to APRS-IS (Y/n)?: " NC_TR_APRSIS
@@ -256,7 +291,23 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
-          echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+
+          if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=h2' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_FILE='$NETCENTRAL_SERVER_SQLITE_FILE | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_USERNAME='$NETCENTRAL_SERVER_SQLITE_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_PASSWORD='$NETCENTRAL_SERVER_SQLITE_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          else
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=mysql' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_USERNAME='$NETCENTRAL_SERVER_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_PASSWORD='$NETCENTRAL_SERVER_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_DBNAME='$NETCENTRAL_SERVER_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_PORT='$NETCENTRAL_SERVER_MYSQL_PORT | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_HOST='$NETCENTRAL_SERVER_MYSQL_HOST | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          fi
+
+          echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
 
@@ -481,9 +532,23 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
-          echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
-          echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+
+          if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=h2' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_FILE='$NETCENTRAL_SERVER_SQLITE_FILE | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_USERNAME='$NETCENTRAL_SERVER_SQLITE_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_SQLITE_PASSWORD='$NETCENTRAL_SERVER_SQLITE_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          else
+            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=mysql' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_USERNAME='$NETCENTRAL_SERVER_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_PASSWORD='$NETCENTRAL_SERVER_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_DBNAME='$NETCENTRAL_SERVER_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_PORT='$NETCENTRAL_SERVER_MYSQL_PORT | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'Environment=NETCENTRAL_SERVER_MYSQL_HOST='$NETCENTRAL_SERVER_MYSQL_HOST | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          fi
+
           echo 'Environment=NETCENTRAL_APRS_CALLSIGN='$NETCENTRAL_APRS_CALLSIGN | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+          echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
 
@@ -607,13 +672,13 @@ if [ "$NC_OS" = "Linux" ]; then
     echo Be sure to run the following commands against the MariaSB/MySQL server you are using:
     NC_SQL_INIT="create schema $NC_DB_NAME;create user '$NC_DB_USER'@'localhost' IDENTIFIED BY '$NC_DB_PASS'; grant all privileges on $NC_DB_NAME.* to '$NC_DB_USER'@'localhost';flush privileges;"
     echo $NC_SQL_INIT
-    echo Also add environment variable values for NETCENTRAL_SERVER_MYSQL_HOST and NETCENTRAL_SERVER_MYSQL_PORT and add to /etc/environment file.
   fi
 
   if [[ "$NC_INSTALL_SERVICES" =~ ^[Yy]$ ]]; then
     echo Net Central services running as background services.
   else
     echo You can run each jar with java -jar command in the $NC_INSTALL_DIR directory, and start the UI running with "npm run dev" from the $NC_INSTALL_DIR/ui directory
+    echo For starting the Net Central server, you must add  -Dmicronaut.environments=[mysql|h2] and choose between using a MySQL database and an H2/Sqlite database.
   fi
 
   # cleanup environment
@@ -621,6 +686,8 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_DB_NAME=
   NC_DB_USER=
   NC_DB_PASS=
+  NC_DB_HOST=
+  NC_DB_PORT=
   NC_SVC_USER=
   NC_SVC_PASS=
   NC_DEVMODE=
@@ -631,6 +698,8 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_NODE_LOCATION=
   NC_VERSION=
   NC_DB_CREATE=
+  NC_DB_H2=
+  NC_DB_FILE=
   NC_JAVA_INSTALL=
   NC_INSTALL_SERVICES=
   NC_START_SERVICES=

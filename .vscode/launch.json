@@ -6,35 +6,28 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Application",
+            "name": "Transceiver-KISS",
             "request": "launch",
             "mainClass": "netcentral.transceiver.kiss.Application",
             "projectName": "transceiver-kiss"
         },
         {
             "type": "java",
-            "name": "Application",
-            "request": "launch",
-            "mainClass": "netcentral.transceiver.direwolf.Application",
-            "projectName": "transceiver-direwolf"
-        },
-        {
-            "type": "java",
-            "name": "Application",
+            "name": "Transceiver-Kenwood",
             "request": "launch",
             "mainClass": "netcentral.transceiver.kenwood.Application",
             "projectName": "transceiver-kenwood"
         },
         {
             "type": "java",
-            "name": "Application",
+            "name": "Transceiver-APRSIS",
             "request": "launch",
             "mainClass": "netcentral.transceiver.aprsis.Application",
             "projectName": "transceiver-aprsis"
         },
         {
             "type": "java",
-            "name": "Application",
+            "name": "Transceiver-Test",
             "request": "launch",
             "mainClass": "netcentral.transceiver.test.Application",
             "projectName": "transceiver-test"
@@ -47,31 +40,19 @@
         },
         {
             "type": "java",
-            "name": "Application",
+            "name": "Net Central Server (MySQL)",
             "request": "launch",
             "mainClass": "netcentral.server.Application",
-            "projectName": "netcentral-server"
+            "projectName": "netcentral-server",
+            "vmArgs": ["-Dmicronaut.environments=mysql"]
         },
         {
             "type": "java",
-            "name": "Application(1)",
+            "name": "Net Central Server (H2)",
             "request": "launch",
-            "mainClass": "transceiver.aprsis.Application",
-            "projectName": "transceiver-aprsis"
-        },
-        {
-            "type": "java",
-            "name": "Application(2)",
-            "request": "launch",
-            "mainClass": "transceiver.direwolf.Application",
-            "projectName": "transceiver-direwolf"
-        },
-        {
-            "type": "java",
-            "name": "Application(3)",
-            "request": "launch",
-            "mainClass": "transceiver.kenwood.Application",
-            "projectName": "transceiver-kenwood"
+            "mainClass": "netcentral.server.Application",
+            "projectName": "netcentral-server",
+            "vmArgs": ["-Dmicronaut.environments=h2"]
         }
     ]
 }

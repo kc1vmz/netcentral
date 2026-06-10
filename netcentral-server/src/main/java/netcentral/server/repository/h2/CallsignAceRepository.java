@@ -1,0 +1,37 @@
+package netcentral.server.repository.h2;
+
+/*
+    Net Central
+    Copyright (c) 2026 John Rokicki KC1VMZ
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    
+    http://www.kc1vmz.com
+*/
+
+import java.util.List;
+
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.data.jdbc.annotation.JdbcRepository;
+import io.micronaut.data.model.query.builder.sql.Dialect;
+import io.micronaut.data.repository.CrudRepository;
+import io.micronaut.transaction.annotation.Transactional;
+import netcentral.server.record.CallsignAceRecord;
+
+@JdbcRepository(dialect = Dialect.H2) 
+@Transactional(readOnly = false)
+public interface CallsignAceRepository extends CrudRepository<CallsignAceRecord, String> { 
+    public List<CallsignAceRecord> findBycallsign_target(String callsign_target);
+    CallsignAceRecord find(@NonNull String callsign_target, @NonNull String callsign_checked);
+}

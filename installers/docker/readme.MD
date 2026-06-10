@@ -7,12 +7,15 @@ Net Central can be run in a containerized environment, such as Docker Desktop.
 For the "full" version, you can run a single container containing all of the software, including the database.  This is the simplest version to use, but it will be constrained by database size.
 For the "split" version, each microservice is contained in its own container. The MySQL / MariaDB database is not provided, but if you are using containers, you are smarter than the average bear. Deploy it in a manner that maximizes disk usage, such as a container with external storage or on a non-containerized host.
 
-Either version can be configured to use an external MySQL / MariaDB database.
+Either version can be configured to use an external MySQL / MariaDB database, or use a local low-performance embedded database (SQLite).
 
 You can either build the images by downloading the Net Central source code, or by downloading a batch file to build the images from build artifacts downloaded from Github. 
 
 Currently only APRS-IS server connectivity is supported in a containerized environment.
 
+## Net Central Server database variants
+
+Net Central Server has two variants, netcentral-server and netcentral-server-h2.  The h2 variant does not require MySQL but performs much slower.  Only use this if the number of APRS resources you intend to hear is quite small. Be sure to adjust your APRS-IS filter to limit the scope of resources you hear.
 
 ## Building the images yourself
 
@@ -44,7 +47,7 @@ This will build the images and make them available to run.
 
 ## Configuring for an external database
 
-If you are using the "full" version, this is optional.  The container will still continue to install and run a local database instance, but it will use your remote parameters to read and write to an external database.
+If you are using the "full" "non-h2" version, this is optional.  The container will still continue to install and run a local database instance, but it will use your remote parameters to read and write to an external database.
 
 If you are using the "split" version, this is mandatory.  A MariaDB/MySQL container is not provided. 
 
@@ -240,3 +243,13 @@ Net Central's required environment variables are forced by "/netcentral/src/conf
 In the server container, Net Central server is started as a service
 In the transceiver container, Net Central APRS-IS transceiver service is started as a service
 In the UI container, Node.JS UI is started manually and detached
+
+
+#### Net Central h2 variant
+
+The h2 variant uses a local SQLite database instead of MySQL/MariaDB.  Performance will be slower but acceptable for small numbers of resources being heard.
+
+The h2 variant images will not install or rely upon MariaDB.  But a database file stored on the image will be created and could grow over time.
+
+For best results, place the database file on an exported file share on the host to ensure data is not lost and growth will not impact the running container.
+

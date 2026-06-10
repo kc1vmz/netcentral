@@ -59,7 +59,7 @@ public class CompletedParticipantAccessor {
         List<CompletedParticipantRecord> recs = completedParticipantRepository.findAll();
         List<CompletedParticipant> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (CompletedParticipantRecord rec : recs) {
                 if ((root != null) && (!rec.callsign().startsWith(root))) {
                     // only take those with the optional root

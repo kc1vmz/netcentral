@@ -1,6 +1,7 @@
 package netcentral.server.repository.report;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -23,13 +24,63 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.report.ShelterWorkerReportRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface ShelterWorkerReportRepository extends CrudRepository<ShelterWorkerReportRecord, String> { 
-    public List<ShelterWorkerReportRecord> findBycallsign(String callsign);
-    public void deleteByReported_date(ZonedDateTime reported_date);
+@Singleton
+public class ShelterWorkerReportRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.report.ShelterWorkerReportRepository shelterWorkerReportRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.report.ShelterWorkerReportRepository shelterWorkerReportRepositoryH2;
+
+    public ShelterWorkerReportRecord save(ShelterWorkerReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterWorkerReportRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterWorkerReportRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterWorkerReportRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterWorkerReportRepositoryH2.deleteAll();
+        }
+    }
+    public List<ShelterWorkerReportRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterWorkerReportRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterWorkerReportRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public List<ShelterWorkerReportRecord> findBycallsign(String callsign){
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterWorkerReportRepositoryMySQL.findBycallsign(callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterWorkerReportRepositoryH2.findBycallsign(callsign);
+        }
+        return new ArrayList<>();
+    }
+    public void deleteByReported_date(ZonedDateTime heard_time) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterWorkerReportRepositoryMySQL.deleteByReported_date(heard_time);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterWorkerReportRepositoryH2.deleteByReported_date(heard_time);
+        }
+    }
+    public void delete(ShelterWorkerReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterWorkerReportRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterWorkerReportRepositoryH2.delete(record);
+        }
+    }
 }

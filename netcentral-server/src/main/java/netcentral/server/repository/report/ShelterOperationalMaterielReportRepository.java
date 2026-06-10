@@ -1,6 +1,7 @@
 package netcentral.server.repository.report;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -23,13 +24,63 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.report.ShelterOperationalMaterielReportRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface ShelterOperationalMaterielReportRepository extends CrudRepository<ShelterOperationalMaterielReportRecord, String> { 
-    public List<ShelterOperationalMaterielReportRecord> findBycallsign(String callsign);
-    public void deleteByReported_date(ZonedDateTime reported_date);
+@Singleton
+public class ShelterOperationalMaterielReportRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.report.ShelterOperationalMaterielReportRepository shelterOperationalMaterielReportRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.report.ShelterOperationalMaterielReportRepository shelterOperationalMaterielReportRepositoryH2;
+
+    public ShelterOperationalMaterielReportRecord save(ShelterOperationalMaterielReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterOperationalMaterielReportRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterOperationalMaterielReportRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterOperationalMaterielReportRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterOperationalMaterielReportRepositoryH2.deleteAll();
+        }
+    }
+    public List<ShelterOperationalMaterielReportRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterOperationalMaterielReportRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterOperationalMaterielReportRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public List<ShelterOperationalMaterielReportRecord> findBycallsign(String callsign){
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return shelterOperationalMaterielReportRepositoryMySQL.findBycallsign(callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return shelterOperationalMaterielReportRepositoryH2.findBycallsign(callsign);
+        }
+        return new ArrayList<>();
+    }
+    public void deleteByReported_date(ZonedDateTime heard_time) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterOperationalMaterielReportRepositoryMySQL.deleteByReported_date(heard_time);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterOperationalMaterielReportRepositoryH2.deleteByReported_date(heard_time);
+        }
+    }
+    public void delete(ShelterOperationalMaterielReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            shelterOperationalMaterielReportRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            shelterOperationalMaterielReportRepositoryH2.delete(record);
+        }
+    }
 }

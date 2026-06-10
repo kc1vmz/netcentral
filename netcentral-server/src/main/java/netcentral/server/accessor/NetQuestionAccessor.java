@@ -65,7 +65,7 @@ public class NetQuestionAccessor {
         List<NetQuestionRecord> recs = netQuestionRepository.findBycompleted_net_id(completedNetId);
         List<NetQuestion> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (NetQuestionRecord rec : recs) {
                 ret.add(new NetQuestion(rec.net_question_id(), rec.completed_net_id(), rec.number(), rec.asked_time(), rec.active(), 
                                     rec.reminder_minutes(), rec.question_text(), rec.next_reminder_time()));
@@ -87,7 +87,7 @@ public class NetQuestionAccessor {
         try {
             List<NetQuestionRecord> recs = netQuestionRepository.findBycompleted_net_id(completedNetId);
 
-            if (!recs.isEmpty()) {
+            if ((recs != null) && (!recs.isEmpty())) {
                 for (NetQuestionRecord rec : recs) {
                     if (rec.number() == questionNumber) {
                         ret = new NetQuestion(rec.net_question_id(), rec.completed_net_id(), rec.number(), rec.asked_time(), rec.active(), 

@@ -20,11 +20,33 @@ package netcentral.server.repository.aprs;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.AGWRawRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface AGWRawRepository extends CrudRepository<AGWRawRecord, String> { 
+@Singleton
+public class AGWRawRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.AGWRawRepository agwRawRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.AGWRawRepository agwRawRepositoryH2;
+
+    public AGWRawRecord save(AGWRawRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return agwRawRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return agwRawRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            agwRawRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            agwRawRepositoryH2.deleteAll();
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -21,13 +23,74 @@ package netcentral.server.repository;
 */
 
 import java.util.List;
+import java.util.Optional;
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.NetMessageRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface NetMessageRepository extends CrudRepository<NetMessageRecord, String> { 
-        public List<NetMessageRecord> findBycompleted_net_id(String completed_net_id);
+@Singleton
+public class NetMessageRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.NetMessageRepository netMessageRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.NetMessageRepository netMessageRepositoryH2;
+
+    public NetMessageRecord save(NetMessageRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netMessageRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netMessageRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public NetMessageRecord update(NetMessageRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netMessageRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netMessageRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netMessageRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            netMessageRepositoryH2.deleteAll();
+        }
+    }
+    public List<NetMessageRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netMessageRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netMessageRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(NetMessageRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netMessageRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            netMessageRepositoryH2.delete(record);
+        }
+    }
+    public List<NetMessageRecord> findBycompleted_net_id(String completed_net_id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netMessageRepositoryMySQL.findBycompleted_net_id(completed_net_id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netMessageRepositoryH2.findBycompleted_net_id(completed_net_id);
+        }
+        return new ArrayList<>();
+    }
+    public Optional<NetMessageRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netMessageRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netMessageRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

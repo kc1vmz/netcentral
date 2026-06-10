@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +22,66 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import java.util.List;
+import java.util.Optional;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.CallsignAckCounterRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface CallsignAckCounterRepository extends CrudRepository<CallsignAckCounterRecord, String> { 
+@Singleton
+public class CallsignAckCounterRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.CallsignAckCounterRepository callsignAckCounterRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.CallsignAckCounterRepository callsignAckCounterRepositoryH2;
+
+    public CallsignAckCounterRecord save(CallsignAckCounterRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return callsignAckCounterRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return callsignAckCounterRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public CallsignAckCounterRecord update(CallsignAckCounterRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return callsignAckCounterRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return callsignAckCounterRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            callsignAckCounterRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            callsignAckCounterRepositoryH2.deleteAll();
+        }
+    }
+    public List<CallsignAckCounterRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return callsignAckCounterRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return callsignAckCounterRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(CallsignAckCounterRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            callsignAckCounterRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            callsignAckCounterRepositoryH2.delete(record);
+        }
+    }
+    public Optional<CallsignAckCounterRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return callsignAckCounterRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return callsignAckCounterRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

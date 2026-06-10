@@ -57,7 +57,7 @@ public class CallsignAccessor {
         List<CallsignRecord> recs = callsignRepository.findAll();
         List<Callsign> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (CallsignRecord rec : recs) {
                 if ((root != null) && (!rec.callsign().startsWith(root))) {
                     // only take those with the optional root

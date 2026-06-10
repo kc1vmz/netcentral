@@ -234,7 +234,8 @@ Run Net Central Server and UI
 To run Net Central server from a command prompt / terminal, do the following:
   From the Net Central source code directory, change directory to ./netcentral-server/target
   Run "ls netcentral-server*.jar" or  "dir netcentral-server*.jar" to find the jar filename
-  Run "java -jar filename.jar" using the file name (with version) from last step
+  Run "java -jar filename.jar -Dmicronaut.environments=[mysql|h2]" using the file name (with version) from last step.
+  Modify the run command above to choose between mysql or h2.  mysql will use an external MySql database; h2 will use an embedded Sqlite database.
 
 To run Net Central APRS-IS transceiver from a command prompt / terminal, do the following:
   From the Net Central source code directory, change directory to ./transceivers/transceiver-aprsis/target

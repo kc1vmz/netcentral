@@ -1,5 +1,9 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +24,56 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.ActivityRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface ActivityRepository extends CrudRepository<ActivityRecord, String> { 
+@Singleton
+public class ActivityRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.ActivityRepository activityRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.ActivityRepository activityRepositoryH2;
+
+    public ActivityRecord save(ActivityRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return activityRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return activityRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            activityRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            activityRepositoryH2.deleteAll();
+        }
+    }
+    public List<ActivityRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return activityRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return activityRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(ActivityRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            activityRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            activityRepositoryH2.delete(record);
+        }
+    }
+    public Optional<ActivityRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return activityRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return activityRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

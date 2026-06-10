@@ -28,6 +28,11 @@ if [ "$NC_OS" = "Linux" ]; then
   sudo sed -i '/NETCENTRAL_SERVER_MYSQL_USERNAME/d' /etc/environment
   sudo sed -i '/NETCENTRAL_SERVER_MYSQL_PASSWORD/d' /etc/environment
   sudo sed -i '/NETCENTRAL_SERVER_MYSQL_DBNAME/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_SERVER_MYSQL_HOST/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_SERVER_MYSQL_PORT/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_SERVER_SQLITE_FILE/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_SERVER_SQLITE_USERNAME/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_SERVER_SQLITE_PASSWORD/d' /etc/environment
   sudo sed -i '/NETCENTRAL_TRANS_APRSIS_PASSCODE/d' /etc/environment
   sudo sed -i '/NETCENTRAL_TRANS_APRSIS_CALLSIGN/d' /etc/environment
   sudo sed -i '/NETCENTRAL_TRANS_APRSIS_QUERY/d' /etc/environment

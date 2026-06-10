@@ -21,17 +21,68 @@ package netcentral.server.repository.aprs;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSMessageRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSMessageRepository extends CrudRepository<APRSMessageRecord, String> { 
-    public List<APRSMessageRecord> findBycallsign_from(String callsign_from);
-    public List<APRSMessageRecord> findBycallsign_to(String callsign_to);
-    public List<APRSMessageRecord> findBycompleted_net_id(String completed_net_id);
-    public void deleteByHeard_timeBefore(ZonedDateTime heard_time);
+@Singleton
+public class APRSMessageRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSMessageRepository aprsMessageRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSMessageRepository aprsMessageRepositoryH2;
+
+    public APRSMessageRecord save(APRSMessageRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsMessageRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsMessageRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsMessageRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsMessageRepositoryH2.deleteAll();
+        }
+    }
+    public List<APRSMessageRecord> findBycallsign_from(String callsign_from) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsMessageRepositoryMySQL.findBycallsign_from(callsign_from);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsMessageRepositoryH2.findBycallsign_from(callsign_from);
+        }
+        return new ArrayList<>();
+    }
+    public List<APRSMessageRecord> findBycallsign_to(String callsign_to) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsMessageRepositoryMySQL.findBycallsign_to(callsign_to);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsMessageRepositoryH2.findBycallsign_to(callsign_to);
+        }
+        return new ArrayList<>();
+    }
+    public List<APRSMessageRecord> findBycompleted_net_id(String completed_net_id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsMessageRepositoryMySQL.findBycompleted_net_id(completed_net_id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsMessageRepositoryH2.findBycompleted_net_id(completed_net_id);
+        }
+        return new ArrayList<>();
+    }
+    public void deleteByHeard_timeBefore(ZonedDateTime heard_time) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsMessageRepositoryMySQL.deleteByHeard_timeBefore(heard_time);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsMessageRepositoryH2.deleteByHeard_timeBefore(heard_time);
+        }
+    }
 }
+

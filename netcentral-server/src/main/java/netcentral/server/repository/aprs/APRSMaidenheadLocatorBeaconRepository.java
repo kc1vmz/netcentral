@@ -20,11 +20,34 @@ package netcentral.server.repository.aprs;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSMaidenheadLocatorBeaconRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSMaidenheadLocatorBeaconRepository extends CrudRepository<APRSMaidenheadLocatorBeaconRecord, String> { 
+@Singleton
+public class APRSMaidenheadLocatorBeaconRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSMaidenheadLocatorBeaconRepository aprsMaidenheadLocatorBeaconRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSMaidenheadLocatorBeaconRepository aprsMaidenheadLocatorBeaconRepositoryH2;
+
+    public APRSMaidenheadLocatorBeaconRecord save(APRSMaidenheadLocatorBeaconRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsMaidenheadLocatorBeaconRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsMaidenheadLocatorBeaconRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsMaidenheadLocatorBeaconRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsMaidenheadLocatorBeaconRepositoryH2.deleteAll();
+        }
+    }
 }

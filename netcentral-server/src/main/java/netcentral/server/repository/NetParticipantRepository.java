@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -21,17 +23,90 @@ package netcentral.server.repository;
 */
 
 import java.util.List;
+import java.util.Optional;
 
-import io.micronaut.core.annotation.NonNull;
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.NetParticipantRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface NetParticipantRepository extends CrudRepository<NetParticipantRecord, String> { 
-    public List<NetParticipantRecord> findBynet_callsign(String net_callsign);
-    public List<NetParticipantRecord> findByparticipant_callsign(String participant_callsign);
+@Singleton
+public class NetParticipantRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.NetParticipantRepository netParticipantRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.NetParticipantRepository netParticipantRepositoryH2;
 
-    NetParticipantRecord find(@NonNull String net_callsign, @NonNull String participant_callsign);
+    public NetParticipantRecord save(NetParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public NetParticipantRecord update(NetParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netParticipantRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            netParticipantRepositoryH2.deleteAll();
+        }
+    }
+    public List<NetParticipantRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(NetParticipantRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netParticipantRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            netParticipantRepositoryH2.delete(record);
+        }
+    }
+    public List<NetParticipantRecord> findBynet_callsign(String net_callsign) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.findBynet_callsign(net_callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.findBynet_callsign(net_callsign);
+        }
+        return new ArrayList<>();
+    }
+    public List<NetParticipantRecord> findByparticipant_callsign(String participant_callsign) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.findByparticipant_callsign(participant_callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.findByparticipant_callsign(participant_callsign);
+        }
+        return new ArrayList<>();
+    }
+    public Optional<NetParticipantRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
+    public NetParticipantRecord find(String net_callsign, String participant_callsign) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netParticipantRepositoryMySQL.find(net_callsign, participant_callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netParticipantRepositoryH2.find(net_callsign, participant_callsign);
+        }
+        return null;
+    }
 }

@@ -146,14 +146,16 @@ public class NetExpectedParticipantAccessor {
             List<ExpectedParticipantRecord> recsTemp = netExpectedParticipantRepository.findBycallsign(participant.getCallsign());
             recs = recsTemp;
 
-            for (ExpectedParticipantRecord rec : recs) {
-                if ( ((netCompletedId == null) && (rec.completed_net_id() == null) && (netCallsign.equals(rec.net_callsign()))) ||
-                     ((netCompletedId != null) && (rec.completed_net_id().equals(netCompletedId) && (netCallsign.equals(rec.net_callsign()))))) {
-                    // we have our record between running and scheduled
+            if (recs != null) {
+                for (ExpectedParticipantRecord rec : recs) {
+                    if ( ((netCompletedId == null) && (rec.completed_net_id() == null) && (netCallsign.equals(rec.net_callsign()))) ||
+                        ((netCompletedId != null) && (rec.completed_net_id().equals(netCompletedId) && (netCallsign.equals(rec.net_callsign()))))) {
+                        // we have our record between running and scheduled
 
-                    changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, ChangePublisherAccessor.DELETE, participant);
-                    netExpectedParticipantRepository.delete(rec);
-                    break;
+                        changePublisherAccessor.publishNetExpectedParticipantUpdate(netCallsign, ChangePublisherAccessor.DELETE, participant);
+                        netExpectedParticipantRepository.delete(rec);
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {

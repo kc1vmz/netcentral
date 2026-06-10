@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +22,68 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.ScheduledNetRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface ScheduledNetRepository extends CrudRepository<ScheduledNetRecord, String> { 
+@Singleton
+public class ScheduledNetRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.ScheduledNetRepository scheduledNetRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.ScheduledNetRepository scheduledNetRepositoryH2;
+
+    public ScheduledNetRecord save(ScheduledNetRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return scheduledNetRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return scheduledNetRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public ScheduledNetRecord update(ScheduledNetRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return scheduledNetRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return scheduledNetRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            scheduledNetRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            scheduledNetRepositoryH2.deleteAll();
+        }
+    }
+    public List<ScheduledNetRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return scheduledNetRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return scheduledNetRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(ScheduledNetRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            scheduledNetRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+           scheduledNetRepositoryH2.delete(record);
+        }
+    }
+    public Optional<ScheduledNetRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return scheduledNetRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return scheduledNetRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

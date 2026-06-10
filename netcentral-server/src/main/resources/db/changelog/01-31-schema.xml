@@ -1,0 +1,1299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="01" author="kc1vmz">
+
+    <createTable tableName="user">
+      <column name="user_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="userPK"/>
+      </column>
+      <column name="username" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="password" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="first_name" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="last_name" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="role" type="TINYINT" defaultValue="4">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="callsign">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="callsign_pk"/>
+      </column>
+      <column name="name" type="VARCHAR(75)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="country" type="VARCHAR(30)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="state" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="license" type="VARCHAR(30)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="net">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_callsign_pk"/>
+      </column>
+      <column name="vfreq" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(30)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="announce" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="creator_name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="checkin_reminder" type="TINYINT" defaultValue="0">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="checkin_message" type="VARCHAR(50)" defaultValue="">
+          <constraints nullable="true" unique="false" />
+      </column>
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="remote" type="TINYINT" defaultValue="0">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_id" type="VARCHAR(1)" defaultValue="\">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_code" type="VARCHAR(1)" defaultValue="c">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="participant">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="participant_callsign_pk"/>
+      </column>
+      <column name="vfreq" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="status" type="VARCHAR(30)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+
+    <createTable tableName="net_participant">
+      <column name="net_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_participant_pk"/>
+      </column>
+      <column name="net_callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="participant_callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tactical_callsign" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="notify_on_check_in_check_out" type="TINYINT" defaultValue="0">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_position">
+      <column name="aprs_position_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_positionPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="time" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="power" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="height" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="gain" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="range" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="strength" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="directivity" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="comment" type="VARCHAR(200)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_agrelo">
+      <column name="aprs_agrelo_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_agreloPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="bearing" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="quality" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_maidenhead_locator_beacon">
+      <column name="aprs_maidenhead_locator_beacon_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_maidenhead_locator_beaconPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="comment" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="grid_locator" type="VARCHAR(15)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+
+   <createTable tableName="aprs_unknown">
+      <column name="aprs_unknown_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_unknownPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_to" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="data" type="VARCHAR(64)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+
+    <createTable tableName="aprs_weather_report">
+      <column name="aprs_weather_report_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_weather_reportPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="time" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="wind_direction" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="wind_speed" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="gust" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="temperature" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="rainfall_last_1hr" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="rainfall_last_24hr" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="rainfall_since_midnight" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="raw_rain_counter" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="humidity" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="barometric_pressure" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="luminosity" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="snowfall_last_24hr" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+   <createTable tableName="aprs_message">
+      <column name="aprs_message_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_messagePK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_to" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="message" type="VARCHAR(250)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="message_number" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="must_ack" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="bulletin" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="announcement" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="group_bulletin" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="nws_bulletin" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="nws_level" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="query" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="query_type" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_query">
+      <column name="aprs_query_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_queryPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="query_type" type="VARCHAR(15)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="radius" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_raw">
+      <column name="aprs_raw_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_rawPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="data" type="VARCHAR(512)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="agw_raw">
+      <column name="agw_raw_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="agw_rawPK"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="header" type="VARCHAR(128)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="data" type="VARCHAR(512)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="completed_net">
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="completed_netPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="vfreq" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(30)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="creator_name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="checkin_message" type="VARCHAR(50)" defaultValue="">
+          <constraints nullable="true" unique="false" />
+      </column>
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_id" type="VARCHAR(1)" defaultValue="\">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_code" type="VARCHAR(1)" defaultValue="c">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="completed_participant">
+      <column name="completed_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="completed_participantPK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="electrical_power_type" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="radio_style" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="transmit_power" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tactical_callsign" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="tracked_station">
+      <column name="tracked_station_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="tracked_stationPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(30)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(250)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="frequency_tx" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="frequency_rx" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="tone" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="last_heard_time" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="tracking_active" type="TINYINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="TINYINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ip_address" type="VARCHAR(40)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="electrical_power_type" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="backup_electrical_power_type" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="radio_style" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="transmit_power" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="types" type="VARCHAR(64)" defaultValue="A">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="registered_transceiver">
+      <column name="registered_transceiver_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="registered_transceiverPK"/>
+      </column>
+      <column name="name" type="VARCHAR(30)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="description" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="fqd_name" type="VARCHAR(200)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="type" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="port" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="enabled_receive" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="enabled_transmit" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="net_message">
+      <column name="net_message_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_messagePK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="message" type="VARCHAR(63)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="received_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="recipient" type="VARCHAR(20)" defaultValue="Net">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+    <createTable tableName="aprs_object">
+      <column name="aprs_object_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_objectPK"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_to" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="alive" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="time" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="comment" type="VARCHAR(200)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="type" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="symbol_table_id" type="VARCHAR(1)" defaultValue="\">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_code" type="VARCHAR(1)" defaultValue="c">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="activity">
+      <column name="activity_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="activityPK"/>
+      </column>
+      <column name="time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="text" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(36)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="aprs_status">
+      <column name="aprs_status_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_statusPK"/>
+      </column>
+      <column name="source" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="heard_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="time" type="VARCHAR(10)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="ldtime" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(250)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="anomaly">
+      <column name="anomaly_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="anomalyPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="packet_text" type="VARCHAR(150)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="callsign_ack_counter">
+      <column name="callsign_ack_counter_id" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="callsign_ack_counter_pk"/>
+      </column>
+      <column name="callsign_from" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="callsign_to" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="counter" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="report_shelter_worker">
+      <column name="report_shelter_worker_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_shelter_workerPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="shift" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="health" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="mental" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="spiritual" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="caseworker" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="feeding" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="other" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="report_shelter_population">
+      <column name="report_shelter_population_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_shelter_populationPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p03" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p47" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p812" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p1318" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p1965" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="p66" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="report_shelter_operational_food">
+      <column name="report_shelter_operational_food_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_shelter_operational_foodPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="timeframe" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="breakfast" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="lunch" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="dinner" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="snack" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="report_shelter_operational_materiel">
+      <column name="report_shelter_operational_materiel_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_shelter_operational_materielPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="timeframe" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="cots" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="blankets" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="comfort" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="cleanup" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="signage" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="other" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="scheduled_net">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="scheduled_netpk"/>
+      </column>
+      <column name="vfreq" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(30)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(50)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="announce" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="creator_name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="type" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="day_start" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="time_start" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="duration" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="last_start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="next_start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="checkin_reminder" type="TINYINT" defaultValue="0">
+        <constraints nullable="false" unique="false" />
+      </column>
+      <column name="checkin_message" type="VARCHAR(50)" defaultValue="">
+          <constraints nullable="true" unique="false" />
+      </column>
+      <column name="open" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="participant_invite_allowed" type="TINYINT" defaultValue="1">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_id" type="VARCHAR(1)" defaultValue="\">
+          <constraints nullable="false" unique="false" />
+      </column>
+      <column name="symbol_table_code" type="VARCHAR(1)" defaultValue="c">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="report_eoc_mobilization">
+      <column name="report_eoc_mobilization_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_eoc_mobilizationPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="status" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="level" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="eoc_name" type="VARCHAR(30)" defaultValue=" ">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </createTable>
+
+    <createTable tableName="report_eoc_contact">
+      <column name="report_eoc_contact_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_eoc_contactPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="director_name" type="VARCHAR(25)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="incident_commander_name" type="VARCHAR(25)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="report_shelter_status">
+      <column name="report_shelter_status_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="report_shelter_statusPK"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="state" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="status" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="message" type="VARCHAR(40)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="reported_date" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="callsign_ace">
+      <column name="callsign_ace_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="callsign_acePK"/>
+      </column>
+      <column name="callsign_target" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_checked_type" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign_checked" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="allowed" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="proximity" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="ignore_station">
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="ignore_station_pk"/>
+      </column>
+      <column name="ignore_start_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="lat" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="lon" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="net_question">
+      <column name="net_question_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_questionPK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="number" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="asked_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="active" type="TINYINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reminder_minutes" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="question_text" type="VARCHAR(50)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="next_reminder_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="net_question_answer">
+      <column name="net_question_answer_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_question_answerPK"/>
+      </column>
+      <column name="net_question_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="answered_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="answer_text" type="VARCHAR(50)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="net_expected_participant">
+      <column name="net_expected_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="net_expected_participantPK"/>
+      </column>
+      <column name="net_callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="completed_expected_participant">
+      <column name="completed_expected_participant_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="completed_expected_participantPK"/>
+      </column>
+      <column name="completed_net_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="internet_server">
+      <column name="internet_server_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="internet_serverPK"/>
+      </column>
+      <column name="login_callsign" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="description" type="VARCHAR(250)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="ip_address" type="VARCHAR(50)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="query" type="VARCHAR(100)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="aprs_object_resource_kv">
+      <column name="aprs_object_resource_kv_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_object_resource_kvPK"/>
+      </column>
+      <column name="aprs_object_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="key" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(40)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="broadcast" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="aprs_object_resource_history_kv">
+      <column name="aprs_object_resource_kv_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="aprs_object_resource_history_kvPK"/>
+      </column>
+      <column name="aprs_object_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="key" type="VARCHAR(20)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(40)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="broadcast" type="TINYINT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="created_time" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="config_settings">
+      <column name="config_set" type="INT">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="config_settingsPK"/>
+      </column>
+      <column name="object_beacon_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="object_cleanup_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="report_cleanup_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="scheduled_net_check_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="net_participant_reminder_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="net_report_minutes" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="bulletin_announce" type="VARCHAR(20)">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_latitude_min" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_longitude_min" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_latitude_max" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="map_default_longitude_max" type="INT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_push_udp" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_push_message" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="federated_interrogate" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+      <column name="log_raw_packets" type="TINYINT">
+        <constraints nullable="true" unique="false"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="tracked_station_type_rule">
+      <column name="tracked_station_type_rule_id" type="VARCHAR(36)">
+        <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="tracked_station_type_rulePK"/>
+      </column>
+      <column name="rule_target" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="rule_type" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="tracked_station_type" type="INT">
+        <constraints nullable="false" unique="false"/>
+      </column>
+      <column name="value" type="VARCHAR(200)">
+        <constraints nullable="false" unique="false"/>
+      </column>
+    </createTable>
+
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="85325048-3a07-42d3-be86-f19f990f8967"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="10"/><column name="value" value="BBS"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="0fbd7b8a-5a59-4c31-bd70-6282a8bdf9c6"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="9"/><column name="value" value="(D-STAR)"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="654eb1ac-efe6-40a0-94b4-55340aa1a32a"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="DIGI"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="a0925476-59a5-4c06-a853-e18efde5cd0a"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="11"/><column name="value" value="MMDVM"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="31e126b7-aaaa-4a9a-9b0d-a7f581725452"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="APRS IGATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="36b4f952-93a7-4be2-b406-d5353c1e1324"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="APRS_IGATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="bfbf3d7e-fc4c-4887-ad37-e146c38bb867"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="BI-DIRECTIONAL-I-GATE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="6ad70fc3-8b8d-415c-ab99-78281096c67e"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="3"/><column name="value" value="PYTHON APRS WX"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="1f993476-328e-46b2-a67d-2060477c222a"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="0"/><column name="value" value="UI-VIEW32"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="6eda0a3f-0f20-4013-9fbd-255323c44079"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="1"/><column name="value" value="APRSISCE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="42c16a5a-78be-4e30-9784-095fce69ec80"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK PACKET"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="8349f880-d1da-4b95-8f57-e6424fb4fde0"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="10"/><column name="value" value="BBS"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="6824c07a-ed0e-4064-824a-9544124023b2"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="9"/><column name="value" value="(D-STAR)"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="cc1562f4-8d33-4bfc-9378-02c3dd9b0820"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="DIGI"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="69775067-d666-414f-b90b-3e705f00c00b"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="11"/><column name="value" value="MMDVM"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="6e0e7078-95c9-488a-89a2-0ca2654ba64d"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="4"/><column name="value" value="REPEATER"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="6374882f-cf5f-40d1-b1ad-a09d7b4a9cae"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="4"/><column name="value" value="VOICE"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="a56b0219-53fe-4ef0-b68e-b722ea0ec9a1"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK PACKET GATEWAY"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="2ffe77b9-53e6-4354-acd6-36d2a4c320ff"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK VARA FM GATEWAY"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="175d3806-c9a9-42e2-a418-7fba42f09fad"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="8"/><column name="value" value="WINLINK VARA FM WIDE GATEWAY"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="71184c9f-9c19-49cd-ac73-8e7eee1f9145"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="WX3IN1"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="06cbb0b9-f30e-430c-83f5-144777bd9f0b"/><column name="rule_target" valueNumeric="1"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="WX3IN1"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="98fb9c1c-fa9b-4a81-a884-333be12834cf"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="5"/><column name="value" value="WX3IN1"/>
+    </insert>
+    <insert tableName="tracked_station_type_rule">
+        <column name="tracked_station_type_rule_id" value="4ed88ddc-61f0-4c23-8615-200417950f04"/><column name="rule_target" valueNumeric="2"/><column name="rule_type" valueNumeric="1"/>
+        <column name="tracked_station_type" valueNumeric="6"/><column name="value" value="WX3IN1"/>
+    </insert>
+
+  </changeSet>
+</databaseChangeLog>

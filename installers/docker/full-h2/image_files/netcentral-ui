@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+name="NetCentral User Interface"
+description="NetCentral UI - APRS Nets and more!"
+retry="60"
+pidfile="/run/netcentral-ui/$RC_SVCNAME.pid"
+# command="cd /netcentral/src/ui;npm run dev </dev/null &>/dev/null &"
+
+workingdir="/netcentral/src/ui"
+
+# The command to execute (uses 'npm run dev')
+command="/usr/bin/npm"
+command_args="run dev"
+
+depend() {
+    need net
+    need netcentral-server
+}

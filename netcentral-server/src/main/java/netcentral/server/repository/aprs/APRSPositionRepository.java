@@ -22,12 +22,40 @@ package netcentral.server.repository.aprs;
 
 import java.time.ZonedDateTime;
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSPositionRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSPositionRepository extends CrudRepository<APRSPositionRecord, String> { 
-    public void deleteByHeard_timeBefore(ZonedDateTime heard_time);
+@Singleton
+public class APRSPositionRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSPositionRepository aprsPositionRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSPositionRepository aprsPositionRepositoryH2;
+
+    public APRSPositionRecord save(APRSPositionRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsPositionRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsPositionRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsPositionRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsPositionRepositoryH2.deleteAll();
+        }
+    }
+    public void deleteByHeard_timeBefore(ZonedDateTime heard_time) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsPositionRepositoryMySQL.deleteByHeard_timeBefore(heard_time);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsPositionRepositoryH2.deleteByHeard_timeBefore(heard_time);
+        }
+    }
 }

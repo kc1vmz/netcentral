@@ -122,7 +122,7 @@ public class UserAccessor {
 
         if ((userFull.getRole().equals(UserRole.ADMIN)) || (userFull.getRole().equals(UserRole.SYSADMIN)) || (userFull.getRole().equals(UserRole.SYSTEM))) {
             List<UserRecord> recs = userRepository.findAll();
-            if (!recs.isEmpty()) {
+            if ((recs != null) && (!recs.isEmpty())) {
                 for (UserRecord rec : recs) {
                     ret.add(new User(rec.user_id(), rec.username(), null, UserRole.values()[rec.role()], rec.callsign(), rec.firstName(), rec.lastName()));
                 }

@@ -62,7 +62,7 @@ public class NetQuestionAnswerAccessor {
         List<NetQuestionAnswerRecord> recs = netQuestionAnswerRepository.findBynet_question_id(netQuestionId);
         List<NetQuestionAnswer> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (NetQuestionAnswerRecord rec : recs) {
                 ret.add(new NetQuestionAnswer(rec.net_question_answer_id(), rec.net_question_id(), rec.completed_net_id(), rec.callsign(), rec.answered_time(), rec.answer_text()));
             }

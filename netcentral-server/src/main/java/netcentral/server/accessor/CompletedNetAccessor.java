@@ -63,7 +63,7 @@ public class CompletedNetAccessor {
         List<CompletedNetRecord> recs = completedNetRepository.findAll();
         List<CompletedNet> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (CompletedNetRecord rec : recs) {
                 if ((root != null) && (!rec.callsign().startsWith(root))) {
                     // only take those with the optional root

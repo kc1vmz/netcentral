@@ -53,7 +53,7 @@ public class InternetServerAccessor {
 
         List<InternetServer> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (InternetServerRecord rec : recs) {
                 // (String id, String ipAddress, String name, String description, String loginCallsign, String query)
                 ret.add(new InternetServer(rec.internet_server_id(), rec.ip_address(), rec.name(), rec.description(), rec.login_callsign(), rec.query()));

@@ -1,6 +1,6 @@
 package netcentral.server.repository;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /*
     Net Central
@@ -22,12 +22,74 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import java.util.List;
+import java.util.Optional;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.InternetServerRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface InternetServerRepository extends CrudRepository<InternetServerRecord, String> { 
-        public List<InternetServerRecord> findByip_address(String nip_addressame);
+@Singleton
+public class InternetServerRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.InternetServerRepository internetServerRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.InternetServerRepository internetServerRepositoryH2;
+
+    public InternetServerRecord save(InternetServerRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return internetServerRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return internetServerRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public InternetServerRecord update(InternetServerRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return internetServerRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return internetServerRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            internetServerRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            internetServerRepositoryH2.deleteAll();
+        }
+    }
+    public List<InternetServerRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return internetServerRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return internetServerRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(InternetServerRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            internetServerRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            internetServerRepositoryH2.delete(record);
+        }
+    }
+    public Optional<InternetServerRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return internetServerRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return internetServerRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
+    public List<InternetServerRecord> findByip_address(String ipAddress) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return internetServerRepositoryMySQL.findByip_address(ipAddress);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return internetServerRepositoryH2.findByip_address(ipAddress);
+        }
+        return new ArrayList<>();
+    }   
 }

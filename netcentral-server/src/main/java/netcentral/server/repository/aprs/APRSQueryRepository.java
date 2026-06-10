@@ -20,11 +20,33 @@ package netcentral.server.repository.aprs;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSQueryRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSQueryRepository extends CrudRepository<APRSQueryRecord, String> { 
+@Singleton
+public class APRSQueryRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSQueryRepository aprsQueryRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSQueryRepository aprsQueryRepositoryH2;
+
+    public APRSQueryRecord save(APRSQueryRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsQueryRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsQueryRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsQueryRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsQueryRepositoryH2.deleteAll();
+        }
+    }
 }

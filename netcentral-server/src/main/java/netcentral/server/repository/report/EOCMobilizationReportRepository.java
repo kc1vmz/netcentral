@@ -1,6 +1,7 @@
 package netcentral.server.repository.report;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -23,13 +24,63 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.report.EOCMobilizationReportRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface EOCMobilizationReportRepository extends CrudRepository<EOCMobilizationReportRecord, String> { 
-    public List<EOCMobilizationReportRecord> findBycallsign(String callsign);
-    public void deleteByReported_date(ZonedDateTime reported_date);
+@Singleton
+public class EOCMobilizationReportRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.report.EOCMobilizationReportRepository eocMobilizationReportRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.report.EOCMobilizationReportRepository eocMobilizationReportRepositoryH2;
+
+    public EOCMobilizationReportRecord save(EOCMobilizationReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return eocMobilizationReportRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return eocMobilizationReportRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            eocMobilizationReportRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            eocMobilizationReportRepositoryH2.deleteAll();
+        }
+    }
+    public List<EOCMobilizationReportRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return eocMobilizationReportRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return eocMobilizationReportRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public List<EOCMobilizationReportRecord> findBycallsign(String callsign){
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return eocMobilizationReportRepositoryMySQL.findBycallsign(callsign);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return eocMobilizationReportRepositoryH2.findBycallsign(callsign);
+        }
+        return new ArrayList<>();
+    }
+    public void deleteByReported_date(ZonedDateTime heard_time) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            eocMobilizationReportRepositoryMySQL.deleteByReported_date(heard_time);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            eocMobilizationReportRepositoryH2.deleteByReported_date(heard_time);
+        }
+    }
+    public void delete(EOCMobilizationReportRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            eocMobilizationReportRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            eocMobilizationReportRepositoryH2.delete(record);
+        }
+    }
 }

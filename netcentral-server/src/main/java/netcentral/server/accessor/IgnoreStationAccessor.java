@@ -81,7 +81,7 @@ public class IgnoreStationAccessor {
             try {
                 List<IgnoreStationRecord> recs = ignoreStationRepository.findAll();
 
-                if (!recs.isEmpty()) {
+                if ((recs != null) && (!recs.isEmpty())) {
                     for (IgnoreStationRecord rec : recs) {
                         if ((root != null) && (!rec.callsign().startsWith(root))) {
                             // only take those with the optional root

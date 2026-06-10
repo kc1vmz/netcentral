@@ -1,5 +1,9 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +24,56 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.AnomalyRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface AnomalyRepository extends CrudRepository<AnomalyRecord, String> { 
+@Singleton
+public class AnomalyRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.AnomalyRepository anomalyRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.AnomalyRepository anomalyRepositoryH2;
+
+    public AnomalyRecord save(AnomalyRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return anomalyRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return anomalyRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            anomalyRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            anomalyRepositoryH2.deleteAll();
+        }
+    }
+    public List<AnomalyRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return anomalyRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return anomalyRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(AnomalyRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            anomalyRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            anomalyRepositoryH2.delete(record);
+        }
+    }
+    public Optional<AnomalyRecord> findById(String id) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return anomalyRepositoryMySQL.findById(id);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return anomalyRepositoryH2.findById(id);
+        }
+        return Optional.empty();
+    }
 }

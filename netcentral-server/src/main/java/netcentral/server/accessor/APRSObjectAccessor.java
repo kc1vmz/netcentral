@@ -604,20 +604,29 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
             return;
         }
 
-        trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
-        if (lat != null) {
-            trackedStation.setLat(lat);
-        }
-        if (lon != null) {
-            trackedStation.setLon(lon);
-        }
-        if (description != null) {
-            trackedStation.setDescription(description);
-        }
-        trackedStation.setLastHeard(ZonedDateTime.now());
         try {
-            trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
         } catch (Exception e) {
+            trackedStation = null;
+        }
+
+        if (trackedStation != null) {
+            // not sure how it exists above but not here but it has been seen - perhaps timeout on db read for H2 database
+
+            if (lat != null) {
+                trackedStation.setLat(lat);
+            }
+            if (lon != null) {
+                trackedStation.setLon(lon);
+            }
+            if (description != null) {
+                trackedStation.setDescription(description);
+            }
+            trackedStation.setLastHeard(ZonedDateTime.now());
+            try {
+                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -1407,7 +1416,9 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
             }
         }
         Optional<APRSObjectRecord> recOpt = aprsObjectRepository.findById(id);
-        aprsObjectRepository.delete(recOpt.get());
+        if (recOpt.isPresent()) {
+            aprsObjectRepository.delete(recOpt.get());
+        }
         changePublisherAccessor.publishObjectUpdate(recOpt.get().callsign_to(), ChangePublisherAccessor.DELETE, object);
         return null;
     }
@@ -1425,7 +1436,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         APRSObjectRecord badrec = null;
         try {
             List<APRSObjectRecord> recList = aprsObjectRepository.findAll();
-            if (!recList.isEmpty()) {
+            if ((recList != null) && (!recList.isEmpty())) {
                 for (APRSObjectRecord rec : recList) {
                     boolean remote = true;
                     if (rec.source().equals("NETCENTRAL")) {
@@ -1465,7 +1476,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         List<APRSObject> ret = new ArrayList<>();
         try {
             List<APRSObjectRecord> recList = aprsObjectRepository.findAll();
-            if (!recList.isEmpty()) {
+            if ((recList != null) && (!recList.isEmpty())) {
                 for (APRSObjectRecord rec : recList) {
                     if (aliveOnly && (!rec.alive())) {
                         // skip dead objects 
@@ -1718,7 +1729,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         List<APRSObject> ret = new ArrayList<>();
         try {
             List<APRSObjectRecord> recList = aprsObjectRepository.findBycallsign_from(trackedStation.getCallsign());
-            if (!recList.isEmpty()) {
+            if ((recList != null) && (!recList.isEmpty())) {
                 for (APRSObjectRecord rec : recList) {
                     boolean remote = true;
                     if (rec.source().equals("NETCENTRAL")) {

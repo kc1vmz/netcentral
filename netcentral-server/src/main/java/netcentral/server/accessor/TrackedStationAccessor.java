@@ -68,7 +68,7 @@ public class TrackedStationAccessor {
         }
         List<TrackedStation> ret = new ArrayList<>();
 
-        if (!recs.isEmpty()) {
+        if ((recs != null) && (!recs.isEmpty())) {
             for (TrackedStationRecord rec : recs) {
                 if ((callsign != null) && (rec.callsign() != null) && (!callsign.startsWith(rec.callsign()))) {
                     continue;
@@ -104,7 +104,7 @@ public class TrackedStationAccessor {
         
         try {
             List<TrackedStationRecord> recs = trackedStationRepository.findAll();
-            if (recs != null) {
+            if ((recs != null) && (recs != null)) {
                 for (TrackedStationRecord rec : recs) {
                     if (rec.callsign().startsWith(rootcallsign)) {
                         ret.add(new TrackedStation(rec.tracked_station_id(), TrackedStationTypeUtils.convertTrackedStationTypeStringToList(rec.types()), rec.name(), rec.description(), rec.callsign(), rec.lat(),

@@ -1,5 +1,7 @@
 package netcentral.server.repository;
 
+import java.util.ArrayList;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +22,66 @@ package netcentral.server.repository;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import java.util.List;
+import java.util.Optional;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.NetCentralServerConfigRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface NetCentralServerConfigRepository extends CrudRepository<NetCentralServerConfigRecord, Integer> { 
+@Singleton
+public class NetCentralServerConfigRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.NetCentralServerConfigRepository netCentralServerConfigRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.NetCentralServerConfigRepository netCentralServerConfigRepositoryH2;
+
+    public NetCentralServerConfigRecord save(NetCentralServerConfigRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netCentralServerConfigRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netCentralServerConfigRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public NetCentralServerConfigRecord update(NetCentralServerConfigRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netCentralServerConfigRepositoryMySQL.update(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netCentralServerConfigRepositoryH2.update(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netCentralServerConfigRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            netCentralServerConfigRepositoryH2.deleteAll();
+        }
+    }
+    public List<NetCentralServerConfigRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netCentralServerConfigRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netCentralServerConfigRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
+    public void delete(NetCentralServerConfigRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            netCentralServerConfigRepositoryMySQL.delete(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+           netCentralServerConfigRepositoryH2.delete(record);
+        }
+    }
+    public Optional<NetCentralServerConfigRecord> findById(Integer config_set) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return netCentralServerConfigRepositoryMySQL.findById(config_set);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return netCentralServerConfigRepositoryH2.findById(config_set);
+        }
+        return Optional.empty();
+    }
 }

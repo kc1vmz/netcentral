@@ -1,5 +1,8 @@
 package netcentral.server.repository.aprs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -20,11 +23,41 @@ package netcentral.server.repository.aprs;
     http://www.kc1vmz.com
 */
 
-import io.micronaut.data.jdbc.annotation.JdbcRepository;
-import io.micronaut.data.model.query.builder.sql.Dialect;
-import io.micronaut.data.repository.CrudRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import netcentral.server.config.DatabaseConfiguration;
 import netcentral.server.record.aprs.APRSUnknownRecord;
 
-@JdbcRepository(dialect = Dialect.MYSQL) 
-public interface APRSUnknownRepository extends CrudRepository<APRSUnknownRecord, String> { 
+@Singleton
+public class APRSUnknownRepository {
+    @Inject
+    private DatabaseConfiguration databaseConfiguration;
+    @Inject
+    private netcentral.server.repository.mysql.aprs.APRSUnknownRepository aprsUnknownRepositoryMySQL;
+    @Inject
+    private netcentral.server.repository.h2.aprs.APRSUnknownRepository aprsUnknownRepositoryH2;
+
+    public APRSUnknownRecord save(APRSUnknownRecord record) {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsUnknownRepositoryMySQL.save(record);
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsUnknownRepositoryH2.save(record);
+        }
+        return null;
+    }
+    public void deleteAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            aprsUnknownRepositoryMySQL.deleteAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            aprsUnknownRepositoryH2.deleteAll();
+        }
+    }
+    public List<APRSUnknownRecord> findAll() {
+        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+            return aprsUnknownRepositoryMySQL.findAll();
+        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+            return aprsUnknownRepositoryH2.findAll();
+        }
+        return new ArrayList<>();
+    }
 }
