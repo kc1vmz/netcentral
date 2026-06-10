@@ -1,6 +1,6 @@
 services:
   netcentral-full:
-    image: netcentral-full-h2:1.0.20
+    image: netcentral-full-h2:1.0.21
     ports:
       - "8880:80"
       - "9880:8880"

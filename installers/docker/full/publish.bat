@@ -1,2 +1,4 @@
-docker tag netcentral-full:1.0.20 kc1vmz/netcentral-full:1.0.20
-docker push kc1vmz/netcentral-full:1.0.20
+SET NETCENTRAL_VERSION=1.0.21
+docker tag netcentral-full:%NETCENTRAL_VERSION% kc1vmz/netcentral-full:%NETCENTRAL_VERSION%
+docker push kc1vmz/netcentral-full:%NETCENTRAL_VERSION%
+SET NETCENTRAL_VERSION=

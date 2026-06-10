@@ -1,1 +1,1 @@
-docker build --no-cache -t netcentral-full:1.0.20 -f Dockerfile ../../..
+docker build --no-cache -t netcentral-full:1.0.21 -f Dockerfile ../../..

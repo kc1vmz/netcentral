@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>transceiver.aprsis</groupId>
   <artifactId>transceiver-aprsis</artifactId>
-  <version>1.0.20</version>
+  <version>1.0.21</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -22,6 +22,7 @@
     <micronaut.aot.packageName>transceiver.aprsis.aot.generated</micronaut.aot.packageName>
     <micronaut.runtime>netty</micronaut.runtime>
     <exec.mainClass>netcentral.transceiver.aprsis.Application</exec.mainClass>
+    <netcentral.version>1.0.21</netcentral.version>
   </properties>
 
   <dependencies>
@@ -208,12 +209,12 @@
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>netcentral-common</artifactId>
-      <version>1.0.20</version>
+      <version>${netcentral.version}</version>
     </dependency>
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>aprsobject</artifactId>
-      <version>1.0.20</version>
+      <version>${netcentral.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/net.ab0oo.aprs/javAPRSlib -->
     <dependency>
@@ -224,7 +225,7 @@
     <dependency>
       <groupId>com.kc1vmz.netcentral</groupId>
       <artifactId>parser</artifactId>
-      <version>1.0.20</version>
+      <version>${netcentral.version}</version>
     </dependency>
   </dependencies>
   <build>

@@ -1,6 +1,8 @@
-docker build --no-cache -t netcentral-server:1.0.20 -f Dockerfile-server ../../..
-docker build --no-cache -t netcentral-server-h2:1.0.20 -f Dockerfile-server-h2 ../../..
-docker build --no-cache -t netcentral-ui:1.0.20 -f Dockerfile-ui ../../..
-docker build --no-cache -t netcentral-transceiver-aprsis:1.0.20 -f Dockerfile-aprsis ../../..
-docker build --no-cache -t netcentral-transceiver-kenwood:1.0.20 -f Dockerfile-kenwood ../../..
-docker build --no-cache -t netcentral-transceiver-kiss:1.0.20 -f Dockerfile-kiss ../../..
+SET NETCENTRAL_VERSION=1.0.21
+docker build --no-cache -t netcentral-server:%NETCENTRAL_VERSION% -f Dockerfile-server ../../..
+docker build --no-cache -t netcentral-server-h2:%NETCENTRAL_VERSION% -f Dockerfile-server-h2 ../../..
+docker build --no-cache -t netcentral-ui:%NETCENTRAL_VERSION% -f Dockerfile-ui ../../..
+docker build --no-cache -t netcentral-transceiver-aprsis:%NETCENTRAL_VERSION% -f Dockerfile-aprsis ../../..
+docker build --no-cache -t netcentral-transceiver-kenwood:%NETCENTRAL_VERSION% -f Dockerfile-kenwood ../../..
+docker build --no-cache -t netcentral-transceiver-kiss:%NETCENTRAL_VERSION% -f Dockerfile-kiss ../../..
+SET NETCENTRAL_VERSION=
