@@ -30,6 +30,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
+import com.kc1vmz.netcentral.common.constants.APRSConstants;
+import com.kc1vmz.netcentral.common.constants.NetCentralRadioCommands;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,32 +51,6 @@ import netcentral.server.utils.Stripper;
 @Singleton
 public class RadioCommandAccessor {
     private static final Logger logger = LogManager.getLogger(RadioCommandAccessor.class);
-    private static final String COMMAND_CHECK_IN = "CI";
-    private static final String COMMAND_CHECK_OUT = "CO";
-    private static final String COMMAND_TACTICAL_CALLSIGN = "T";
-    private static final String COMMAND_NET_MESSAGE = "M";
-    private static final String COMMAND_NET_MESSAGE_NET_CONTROL = "MC";
-    private static final String COMMAND_REPLAY_NET_MESSAGES = "R";
-    private static final String COMMAND_LIST_PARTICIPANTS = "L";
-    private static final String COMMAND_PING_PARTICIPANT = "P";
-    private static final String COMMAND_INFO = "I";
-    private static final String COMMAND_HELP = "H";
-    private static final String COMMAND_STATUS = "S";
-    private static final String COMMAND_OPERATIONAL_STATUS = "O";
-    private static final String COMMAND_VOICE_FREQUENCY = "F";
-    private static final String COMMAND_ACK = "ack";
-    private static final String COMMAND_REJ = "rej";
-    private static final String COMMAND_TRANSMIT_POWER = "X";
-    private static final String COMMAND_ELECTRICAL_POWER = "E";
-    private static final String COMMAND_BACKUP_ELECTRICAL_POWER = "B";
-    private static final String COMMAND_RADIO_STYLE = "Y";
-    private static final String COMMAND_NET_QUESTION = "Q";
-    private static final String COMMAND_NET_QUESTION_LIST = "QL";
-    private static final String COMMAND_NET_QUESTION_REPORT = "QR";
-    private static final String COMMAND_NET_ANSWER = "A";
-    private static final String COMMAND_NET_INVITE = "INV";
-    private static final String COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE = "NCI";
-
 
     @Inject
     private NetAccessor netAccessor;
@@ -187,7 +163,7 @@ public class RadioCommandAccessor {
         int index = 0;
         while (index < words.length) {
             String command = words[index];
-            if (COMMAND_CHECK_IN.equalsIgnoreCase(command)) {
+            if (NetCentralRadioCommands.COMMAND_NET_CHECK_IN.equalsIgnoreCase(command)) {
                 if (msg.getMessageNumber() != null) {
                     ackMessage(loggedInUser, msg, transceiverSourceId);
                     ackOrRejPerformed = true;
@@ -195,7 +171,7 @@ public class RadioCommandAccessor {
                 processCheckIn(loggedInUser, msg, net, transceiverSourceId);
                 isParticipant = true;
                 index++;
-            } else if (COMMAND_CHECK_OUT.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_CHECK_OUT.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -206,7 +182,7 @@ public class RadioCommandAccessor {
                 processCheckOut(loggedInUser, msg, net, transceiverSourceId);
                 isParticipant = false;
                 index++;
-            } else if (COMMAND_NET_MESSAGE.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_MESSAGE.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -217,7 +193,7 @@ public class RadioCommandAccessor {
                 processNetMessage(loggedInUser, msg, net, transceiverSourceId, false);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_QUESTION.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_QUESTION.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -228,7 +204,7 @@ public class RadioCommandAccessor {
                 processNetQuestion(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_ANSWER.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_ANSWER.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -239,7 +215,7 @@ public class RadioCommandAccessor {
                 processNetQuestionAnswer(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_QUESTION_REPORT.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_QUESTION_REPORT.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -250,7 +226,7 @@ public class RadioCommandAccessor {
                 processNetQuestionReport(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_QUESTION_LIST.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_QUESTION_LIST.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -261,7 +237,7 @@ public class RadioCommandAccessor {
                 processNetQuestionList(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_MESSAGE_NET_CONTROL.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_MESSAGE_NET_CONTROL.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -272,7 +248,7 @@ public class RadioCommandAccessor {
                 processNetMessage(loggedInUser, msg, net, transceiverSourceId, true);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_REPLAY_NET_MESSAGES.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_REPLAY_MESSAGES.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -283,7 +259,7 @@ public class RadioCommandAccessor {
                 processReplayMessages(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_LIST_PARTICIPANTS.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_LIST_PARTICIPANTS.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -294,7 +270,7 @@ public class RadioCommandAccessor {
                 processListParticipants(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_HELP.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_HELP.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -305,7 +281,7 @@ public class RadioCommandAccessor {
                 processHelp(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_NET_INVITE.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_INVITE.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -316,7 +292,7 @@ public class RadioCommandAccessor {
                 processInvite(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_STATUS.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_STATUS.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -327,7 +303,7 @@ public class RadioCommandAccessor {
                 processStatus(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_OPERATIONAL_STATUS.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_OPERATIONAL_STATUS.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -338,7 +314,7 @@ public class RadioCommandAccessor {
                 processOperationalStatus(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_VOICE_FREQUENCY.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_VOICE_FREQUENCY.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -354,7 +330,7 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (COMMAND_TRANSMIT_POWER.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_TRANSMIT_POWER.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -370,7 +346,7 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (COMMAND_ELECTRICAL_POWER.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_ELECTRICAL_POWER.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -386,7 +362,7 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (COMMAND_BACKUP_ELECTRICAL_POWER.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_BACKUP_ELECTRICAL_POWER.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -402,7 +378,7 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (COMMAND_RADIO_STYLE.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_RADIO_STYLE.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -418,7 +394,7 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -428,7 +404,7 @@ public class RadioCommandAccessor {
                 }
                 processCheckInOutNotificationToggle(loggedInUser, msg, net, transceiverSourceId);
                 index++;
-            } else if (COMMAND_PING_PARTICIPANT.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_PING_PARTICIPANT.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -439,7 +415,7 @@ public class RadioCommandAccessor {
                 processPingParticipant(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_INFO.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_INFO.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -450,7 +426,7 @@ public class RadioCommandAccessor {
                 processInfo(loggedInUser, msg, net, transceiverSourceId);
                 // cannot have multiple
                 break;
-            } else if (COMMAND_TACTICAL_CALLSIGN.equalsIgnoreCase(command)) {
+            } else if (NetCentralRadioCommands.COMMAND_NET_TACTICAL_CALLSIGN.equalsIgnoreCase(command)) {
                 if (!ackOrRejPerformed) {
                     ackOrRej(loggedInUser, msg, transceiverSourceId, isParticipant);
                     ackOrRejPerformed = true;
@@ -466,10 +442,10 @@ public class RadioCommandAccessor {
                     processBadCommand(loggedInUser, msg, net, transceiverSourceId);
                     break;
                 }
-            } else if (command.startsWith(COMMAND_ACK)) {
+            } else if (command.startsWith(APRSConstants.ACK)) {
                 // do nothing - response to us
                 break;
-            } else if (command.startsWith(COMMAND_REJ)) {
+            } else if (command.startsWith(APRSConstants.REJ)) {
                 // do nothing - response to us
                 break;
             } else {
@@ -487,6 +463,9 @@ public class RadioCommandAccessor {
     }
 
     private void processNetQuestionReport(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        if (message.getMessage().length() <= 3) {
+            return;
+        }
         String questionNumberStr = Stripper.stripWhitespace(message.getMessage().substring(3)); // go past "QR "
 
         int questionNumber = -1;
@@ -710,6 +689,10 @@ public class RadioCommandAccessor {
 
     private void processPingParticipant(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
         String messageString = message.getMessage();
+        if (messageString.length() <= 2) {
+            logger.warn("No PING recipient listed");
+            return;
+        }
         String callsign = messageString.substring(2); // go past "p "
         transceiverMessageAccessor.sendMessage(loggedInUser, transceiverSourceId, net.getCallsign(), callsign, "You were pinged by "+message.getCallsignFrom() );
     }
@@ -748,6 +731,9 @@ public class RadioCommandAccessor {
 
     private void processOperationalStatus(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
         String messageString = message.getMessage();
+        if (messageString.length() <= 2) {
+            return;
+        }
         String callsign = messageString.substring(2); // go past "o "
         TrackedStation trackedStation = null;
 
@@ -776,6 +762,9 @@ public class RadioCommandAccessor {
         List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
 
         String messageString = msg.getMessage();
+        if (messageString.length() <= 4) {
+            return;
+        }
         String callsignList = messageString.substring(4); // go past "INV "
         String [] callsigns = callsignList.split("[\\s,]+");
         if (callsigns != null) {
@@ -828,6 +817,9 @@ public class RadioCommandAccessor {
             return;
         }
         String messageString = message.getMessage();
+        if (messageString.length() <= 2) {
+            return;
+        }
         String status = messageString.substring(2); // go past "s "
         participant.setStatus(status);
         participantAccessor.update(loggedInUser, participant.getCallsign(), participant);
@@ -839,45 +831,45 @@ public class RadioCommandAccessor {
         if (netCentralServerConfig.getVerboseHelp()) {
             // send each command as a message
             helpMessages.add("Net Central supports the following commands (verbose)");
-            helpMessages.add(String.format("%s - %s", COMMAND_CHECK_IN, "Check in"));
-            helpMessages.add(String.format("%s - %s", COMMAND_CHECK_OUT, "Check out"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_TRANSMIT_POWER, "Report transmit power X in watts"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_ELECTRICAL_POWER, "Report electrical (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_BACKUP_ELECTRICAL_POWER, "Report bkup electr (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_RADIO_STYLE, "Report radio (APPLIANCE,BASE,HANDHELD,INTERNET,MOBILE,OTHER)"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_TACTICAL_CALLSIGN, "Set tactical call sign"));
-            helpMessages.add(String.format("%s - %s", COMMAND_INFO, "Send net info"));
-            helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE, "Send message to all net participants"));
-            helpMessages.add(String.format("%s - %s", COMMAND_NET_MESSAGE_NET_CONTROL, "Send message to only net control"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_REPLAY_NET_MESSAGES, "Resend last X messages sent to net to you"));
-            helpMessages.add(String.format("%s - %s", COMMAND_LIST_PARTICIPANTS, "List net participants"));
-            helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_PING_PARTICIPANT, "Ping net participant"));
-            helpMessages.add(String.format("%s - %s", COMMAND_HELP, "Help"));
-            helpMessages.add(String.format("%s - %s", COMMAND_STATUS, "Report your status for others to see"));
-            helpMessages.add(String.format("%s CALLSIGN - %s", COMMAND_OPERATIONAL_STATUS, "Check operational status of callsign"));
-            helpMessages.add(String.format("%s - %s", COMMAND_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
-            helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION, "Send a question to all net participants"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_NET_ANSWER, "Send an answer to question X"));
-            helpMessages.add(String.format("%s - %s", COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
-            helpMessages.add(String.format("%s X - %s", COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
-            helpMessages.add(String.format("%s callsign... - %s", COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
-            helpMessages.add(String.format("%s - %s", COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE, "Toggle notification of check-ins and check-outs"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_CHECK_IN, "Check in"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_CHECK_OUT, "Check out"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_TRANSMIT_POWER, "Report transmit power X in watts"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_ELECTRICAL_POWER, "Report electrical (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_BACKUP_ELECTRICAL_POWER, "Report bkup electr (BATTERY,COMMERCIAL,GENERATOR,NONE,SOLAR)"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_RADIO_STYLE, "Report radio (APPLIANCE,BASE,HANDHELD,INTERNET,MOBILE,OTHER)"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_TACTICAL_CALLSIGN, "Set tactical call sign"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_INFO, "Send net info"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_MESSAGE, "Send message to all net participants"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_MESSAGE_NET_CONTROL, "Send message to only net control"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_REPLAY_MESSAGES, "Resend last X messages sent to net to you"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_LIST_PARTICIPANTS, "List net participants"));
+            helpMessages.add(String.format("%s CALLSIGN - %s", NetCentralRadioCommands.COMMAND_NET_PING_PARTICIPANT, "Ping net participant"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_HELP, "Help"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_STATUS, "Report your status for others to see"));
+            helpMessages.add(String.format("%s CALLSIGN - %s", NetCentralRadioCommands.COMMAND_NET_OPERATIONAL_STATUS, "Check operational status of callsign"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_VOICE_FREQUENCY, "Report your voice frequency for others to see"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_QUESTION, "Send a question to all net participants"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_ANSWER, "Send an answer to question X"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_QUESTION_LIST, "Send a list of unanswered questions"));
+            helpMessages.add(String.format("%s X - %s", NetCentralRadioCommands.COMMAND_NET_QUESTION_REPORT, "Report on question X and its answers"));
+            helpMessages.add(String.format("%s callsign... - %s", NetCentralRadioCommands.COMMAND_NET_INVITE, "Invite one or more callsigns to a net"));
+            helpMessages.add(String.format("%s - %s", NetCentralRadioCommands.COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE, "Toggle notification of check-ins and check-outs"));
         } else {
             // send just the commands not the descriptions
             helpMessages.add("Net Central supports the following commands");
             helpMessages.add(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
-                                                        COMMAND_CHECK_IN, COMMAND_CHECK_OUT,
-                                                        COMMAND_TRANSMIT_POWER, COMMAND_ELECTRICAL_POWER,
-                                                        COMMAND_BACKUP_ELECTRICAL_POWER, COMMAND_RADIO_STYLE,
-                                                        COMMAND_TACTICAL_CALLSIGN, COMMAND_INFO,
-                                                        COMMAND_NET_MESSAGE, COMMAND_NET_MESSAGE_NET_CONTROL,
-                                                        COMMAND_REPLAY_NET_MESSAGES, COMMAND_LIST_PARTICIPANTS,
-                                                        COMMAND_PING_PARTICIPANT, COMMAND_HELP,
-                                                        COMMAND_STATUS, COMMAND_OPERATIONAL_STATUS,
-                                                        COMMAND_VOICE_FREQUENCY, COMMAND_NET_QUESTION,
-                                                        COMMAND_NET_ANSWER, COMMAND_NET_QUESTION_LIST,
-                                                        COMMAND_NET_QUESTION_REPORT, COMMAND_NET_INVITE,
-                                                        COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE));
+                                                        NetCentralRadioCommands.COMMAND_NET_CHECK_IN, NetCentralRadioCommands.COMMAND_NET_CHECK_OUT,
+                                                        NetCentralRadioCommands.COMMAND_NET_TRANSMIT_POWER, NetCentralRadioCommands.COMMAND_NET_ELECTRICAL_POWER,
+                                                        NetCentralRadioCommands.COMMAND_NET_BACKUP_ELECTRICAL_POWER, NetCentralRadioCommands.COMMAND_NET_RADIO_STYLE,
+                                                        NetCentralRadioCommands.COMMAND_NET_TACTICAL_CALLSIGN, NetCentralRadioCommands.COMMAND_NET_INFO,
+                                                        NetCentralRadioCommands.COMMAND_NET_MESSAGE, NetCentralRadioCommands.COMMAND_NET_MESSAGE_NET_CONTROL,
+                                                        NetCentralRadioCommands.COMMAND_NET_REPLAY_MESSAGES, NetCentralRadioCommands.COMMAND_NET_LIST_PARTICIPANTS,
+                                                        NetCentralRadioCommands.COMMAND_NET_PING_PARTICIPANT, NetCentralRadioCommands.COMMAND_NET_HELP,
+                                                        NetCentralRadioCommands.COMMAND_NET_STATUS, NetCentralRadioCommands.COMMAND_NET_OPERATIONAL_STATUS,
+                                                        NetCentralRadioCommands.COMMAND_NET_VOICE_FREQUENCY, NetCentralRadioCommands.COMMAND_NET_QUESTION,
+                                                        NetCentralRadioCommands.COMMAND_NET_ANSWER, NetCentralRadioCommands.COMMAND_NET_QUESTION_LIST,
+                                                        NetCentralRadioCommands.COMMAND_NET_QUESTION_REPORT, NetCentralRadioCommands.COMMAND_NET_INVITE,
+                                                        NetCentralRadioCommands.COMMAND_NET_CHECKIN_NOTIFICATION_TOGGLE));
         }
         transceiverMessageAccessor.sendMessages(loggedInUser, transceiverSourceId, net.getCallsign(), message.getCallsignFrom(), helpMessages);
     }
@@ -922,7 +914,8 @@ public class RadioCommandAccessor {
         if (netMessages != null) {
             List<String> replayMessages = new ArrayList<>();
             for (NetMessage netMessage : netMessages) {
-                if ((!netMessage.getMessage().startsWith("ack")) && (!netMessage.getMessage().startsWith("rej")) && (!netMessage.getRecipient().equals(NetMessage.RECIPIENT_NET_CONTROL))) {
+                if ((!netMessage.getMessage().startsWith(APRSConstants.ACK)) && (!netMessage.getMessage().startsWith(APRSConstants.REJ)) &&
+                    (!netMessage.getRecipient().equals(NetMessage.RECIPIENT_NET_CONTROL))) {
                     // not ack's / rej's and from the net, not to the net control
                     replayMessages.add(netMessage.getMessage());
                 }
@@ -940,6 +933,10 @@ public class RadioCommandAccessor {
     }
 
     private void processNetMessage(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId, boolean isNetCentral) {
+        if (message.getMessage().length() <= 2) {
+            return;
+        }
+
         String operatorMessage = message.getMessage().substring(2); // go past "m "
 
         // persist the net message
@@ -977,6 +974,10 @@ public class RadioCommandAccessor {
     }
 
     private void processNetQuestion(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        if (message.getMessage().length() <= 2) {
+            return;
+        }
+
         String operatorMessage = message.getMessage().substring(2); // go past "q "
 
         // persist the net message
@@ -1001,6 +1002,10 @@ public class RadioCommandAccessor {
     }
 
     private void processNetQuestionAnswer(User loggedInUser, APRSMessage message, Net net, String transceiverSourceId) {
+        if (message.getMessage().length() <= 2) {
+            return;
+        }
+
         String operatorMessage = Stripper.stripWhitespace(message.getMessage().substring(2)); // go past "a "
 
         int index = operatorMessage.indexOf(' ');
@@ -1170,11 +1175,12 @@ public class RadioCommandAccessor {
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementAcksSent();
-        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "ack"+msg.getMessageNumber());
+        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.ACK+msg.getMessageNumber());
     }
+
     private void rejMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementRejsSent();
-        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "rej"+msg.getMessageNumber());
+        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.REJ+msg.getMessageNumber());
     }
 }

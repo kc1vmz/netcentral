@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
 
@@ -53,6 +55,25 @@ public class APRSNetCentralEOCMobilizationReport extends APRSNetCentralReport {
         String data = String.format("%d%d%s%s", status, level,  PrettyZonedDateTimeFormatter.formatAPRSReport(lastReportedTime), 
                                         (eocName.length() > 30) ? eocName.substring(0, 30) : eocName);
         this.setReportData(data);
+        List<String> readableData = new ArrayList<>();
+        readableData.add(String.format("Name: %s", eocName));
+        String statusVal = "UNKNOWN";
+        switch (status) {
+            case STATUS_TYPE_NORMAL:
+                statusVal = "UNKNOWN";
+                break;
+            case STATUS_TYPE_DRILL:
+                statusVal = "DRILL";
+                break;
+            case STATUS_TYPE_PARTIAL:
+                statusVal = "PARTIAL";
+                break;
+            case STATUS_TYPE_FULL:
+                statusVal = "FULL";
+                break;
+        }
+        readableData.add(String.format("Status: %s", statusVal));
+        this.setReportDataReadable(readableData);
         this.setEocName(eocName);
 
         this.lastReportedTime = lastReportedTime;

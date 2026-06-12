@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class APRSNetCentralShelterStatusReport extends APRSNetCentralReport {
     private ZonedDateTime dateReported; 
@@ -48,6 +50,30 @@ public class APRSNetCentralShelterStatusReport extends APRSNetCentralReport {
         }
         String data = String.format("%d%d%s", state, status, message);
         this.setReportData(data);
+
+        String statusVal = "UNKNOWN";
+        String stateVal = "UNKNOWN";
+        switch (status) {
+            case 1:
+                statusVal = "Stand-by";
+                break;
+            case 2:
+                statusVal = "Active";
+                break;
+        }
+        switch (state) {
+            case 1:
+                stateVal = "Closed";
+                break;
+            case 2:
+                stateVal = "Open";
+                break;
+        }
+        List<String> readableData = new ArrayList<>();
+        readableData.add(String.format("Shelter status - %s (%s)", statusVal, stateVal));
+        readableData.add(message);
+        this.setReportDataReadable(readableData);
+
         this.dateReported = dateReported;
         this.message = message;
         setState(state);

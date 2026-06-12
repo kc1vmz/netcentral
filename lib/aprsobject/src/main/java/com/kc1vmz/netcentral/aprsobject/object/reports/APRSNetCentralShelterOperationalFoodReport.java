@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralReport {
     public final static int REPORT_INFOTYPE_UNKNOWN = 0;
@@ -51,6 +53,10 @@ public class APRSNetCentralShelterOperationalFoodReport extends APRSNetCentralRe
         String data = String.format("%d%06d%06d%06d%06d%4d%02d%02d", infoType, breakfast, lunch, dinner, snack, 
                                         date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         this.setReportData(data);
+        List<String> readableData = new ArrayList<>();
+        readableData.add("Latest food report");
+        readableData.add(String.format("B (%d) L (%d) D (%d) S (%d)", breakfast, lunch, dinner, snack));
+        this.setReportDataReadable(readableData);
 
         this.date = date;
         this.dateReported = dateReported;

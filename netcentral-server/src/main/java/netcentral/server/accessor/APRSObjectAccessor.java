@@ -52,8 +52,16 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCContactReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralEOCMobilizationReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralNetAnnounceReport;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterCensusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalFoodReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterOperationalMaterielReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterStatusReport;
+import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralShelterWorkerReport;
+import com.kc1vmz.netcentral.common.constants.APRSConstants;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
 
 import io.micronaut.http.HttpStatus;
@@ -61,6 +69,10 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.ElectricalPowerType;
+import netcentral.server.enums.ObjectEOCStatus;
+import netcentral.server.enums.ObjectShelterReportingTimeframe;
+import netcentral.server.enums.ObjectShelterState;
+import netcentral.server.enums.ObjectShelterStatus;
 import netcentral.server.enums.ObjectSymbolTableConstants;
 import netcentral.server.enums.RadioStyle;
 import netcentral.server.enums.TrackedStationStatus;
@@ -161,9 +173,10 @@ public class APRSObjectAccessor {
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
     @Inject
     private TrackedStationTypeRulesProcessor trackedStationTypeRulesProcessor;
+    @Inject
+    private ReportAccessor reportAccessor;
 
-    
-public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
+    public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
 
         statisticsAccessor.incrementObjectsReceived();
         statisticsAccessor.markLastReceivedTime();
@@ -774,6 +787,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         }
 
         if (source.equals("NETCENTRAL")) {
+            createInitialReports(loggedInUser, innerAPRSObject);
             // this is a locally created object - send out the creation report
             federatedObjectReporterAccessor.announce(loggedInUser, innerAPRSObject);
         } else {
@@ -784,6 +798,69 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
         return new APRSObjectResource(id, innerAPRSObject, source, heardTime);
     }
 
+    private void createInitialReports(User loggedInUser, APRSObject innerAPRSObject) {
+        if ((innerAPRSObject == null) || (innerAPRSObject.isRemote())) {
+            return;
+        }
+
+        if (innerAPRSObject.getType().equals(ObjectType.EOC)) {
+            createInitialReportsEOC(loggedInUser, innerAPRSObject);
+        } else if (innerAPRSObject.getType().equals(ObjectType.MEDICAL)) {
+            createInitialReportsMedical(loggedInUser, innerAPRSObject);
+        } else if (innerAPRSObject.getType().equals(ObjectType.SHELTER)) {
+            createInitialReportsShelter(loggedInUser, innerAPRSObject);
+        }
+    }
+
+    private void createInitialReportsShelter(User loggedInUser, APRSObject innerAPRSObject) {
+        APRSNetCentralShelterCensusReport censusReport = new APRSNetCentralShelterCensusReport(innerAPRSObject.getCallsignTo(),
+                                                                0, 0, 0, 0, 0, 0, ZonedDateTime.now());
+        reportAccessor.addShelterCensusReport(loggedInUser, censusReport);
+        APRSNetCentralShelterStatusReport statusReport = new APRSNetCentralShelterStatusReport(innerAPRSObject.getCallsignTo(), 
+                                                                ObjectShelterStatus.UNKNOWN.ordinal(), ObjectShelterState.UNKNOWN.ordinal(),
+                                                                "Created", ZonedDateTime.now());
+        reportAccessor.addShelterStatusReport(loggedInUser, statusReport);
+
+        APRSNetCentralShelterWorkerReport workerReport = new APRSNetCentralShelterWorkerReport(innerAPRSObject.getCallsignTo(),
+                                                            1, 0, 0, 0, 0, 0, 0, ZonedDateTime.now());
+        reportAccessor.addShelterWorkerReport(loggedInUser, workerReport);
+        workerReport.setShift(2);
+        reportAccessor.addShelterWorkerReport(loggedInUser, workerReport);
+        workerReport.setShift(3);
+        reportAccessor.addShelterWorkerReport(loggedInUser, workerReport);
+
+        APRSNetCentralShelterOperationalFoodReport foodReport = new APRSNetCentralShelterOperationalFoodReport(innerAPRSObject.getCallsignTo(), 
+                                                    ObjectShelterReportingTimeframe.ON_HAND.ordinal(), 0, 0, 0, 0,
+                                                    ZonedDateTime.now(), ZonedDateTime.now());
+        reportAccessor.addShelterOperationalFoodReport(loggedInUser, foodReport);
+        foodReport.setInfoType(ObjectShelterReportingTimeframe.REQUIRED.ordinal());
+        reportAccessor.addShelterOperationalFoodReport(loggedInUser, foodReport);
+        foodReport.setInfoType(ObjectShelterReportingTimeframe.USED.ordinal());
+        reportAccessor.addShelterOperationalFoodReport(loggedInUser, foodReport);
+
+        APRSNetCentralShelterOperationalMaterielReport materielReport = new APRSNetCentralShelterOperationalMaterielReport(innerAPRSObject.getCallsignTo(), 
+                                                    ObjectShelterReportingTimeframe.ON_HAND.ordinal(), 0, 0, 0, 0, 0, 0,
+                                                    ZonedDateTime.now(), ZonedDateTime.now());
+        reportAccessor.addShelterOperationalMaterielReport(loggedInUser, materielReport);
+        materielReport.setInfoType(ObjectShelterReportingTimeframe.REQUIRED.ordinal());
+        reportAccessor.addShelterOperationalMaterielReport(loggedInUser, materielReport);
+        materielReport.setInfoType(ObjectShelterReportingTimeframe.USED.ordinal());
+        reportAccessor.addShelterOperationalMaterielReport(loggedInUser, materielReport);
+    }
+
+    private void createInitialReportsMedical(User loggedInUser, APRSObject innerAPRSObject) {
+        // currently none
+    }
+
+    private void createInitialReportsEOC(User loggedInUser, APRSObject innerAPRSObject) {
+        APRSNetCentralEOCMobilizationReport mobilizationReport = new APRSNetCentralEOCMobilizationReport(innerAPRSObject.getCallsignTo(),
+                                                            "", ObjectEOCStatus.UNKNOWN.ordinal(), 0, ZonedDateTime.now());
+        reportAccessor.addEOCMobilizationReport(loggedInUser, mobilizationReport);
+
+        APRSNetCentralEOCContactReport contactReport = new APRSNetCentralEOCContactReport(innerAPRSObject.getCallsignTo(), 
+                                                    "", "", ZonedDateTime.now());
+        reportAccessor.addEOCContactReport(loggedInUser, contactReport);
+    }
 
     private APRSObjectResource createAPRSMicE(User loggedInUser, String id, Optional<APRSMicE> innerAPRSMicEOpt, String source, ZonedDateTime heardTime) {
         APRSMicE innerAPRSMicE = innerAPRSMicEOpt.get();
@@ -840,7 +917,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
                                                     innerAPRSMessage.getNWSLevel(), innerAPRSMessage.isQuery(), innerAPRSMessage.getQueryType());
 
         APRSMessageRecord rec;
-        if ((innerAPRSMessage.getMessage() != null) && ((innerAPRSMessage.getMessage().startsWith("ack")) || (innerAPRSMessage.getMessage().startsWith("rej")))) {
+        if ((innerAPRSMessage.getMessage() != null) && ((innerAPRSMessage.getMessage().startsWith(APRSConstants.ACK)) || (innerAPRSMessage.getMessage().startsWith(APRSConstants.REJ)))) {
             // dont save it but process what is here
             rec = src;
         } else if ((completedNetId != null) || (innerAPRSMessage.isNWSBulletin())) {
@@ -1017,7 +1094,7 @@ public APRSObjectResource create(User loggedInUser, APRSObjectResource obj) {
 
     private void processWLNKMessage(User loggedInUser, APRSMessage innerAPRSMessage, String source) {
         String response = innerAPRSMessage.getMessage();
-        if ((response.startsWith("ack")) || (response.startsWith("rej"))) {
+        if ((response.startsWith(APRSConstants.ACK)) || (response.startsWith(APRSConstants.REJ))) {
             return;
         }
         try {

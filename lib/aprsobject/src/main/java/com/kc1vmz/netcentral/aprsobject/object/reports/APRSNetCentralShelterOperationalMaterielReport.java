@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentralReport {
     public final static int REPORT_INFOTYPE_UNKNOWN = 0;
@@ -53,6 +55,11 @@ public class APRSNetCentralShelterOperationalMaterielReport extends APRSNetCentr
         String data = String.format("%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", infoType, cots, blankets, comfort, cleanup, signage, other, 
                                         date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         this.setReportData(data);
+        List<String> readableData = new ArrayList<>();
+        readableData.add("Latest materiel report");
+        readableData.add(String.format("Cots (%d) Blankets (%d) Other (%d)", cots, blankets, other));
+        readableData.add(String.format("Comfort (%d) Cleanup (%d) Signage (%d)", comfort, cleanup, signage));
+        this.setReportDataReadable(readableData);
 
         this.infoType = infoType;
         this.cots = cots;

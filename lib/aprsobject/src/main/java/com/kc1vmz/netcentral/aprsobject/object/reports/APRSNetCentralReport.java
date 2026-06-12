@@ -1,5 +1,8 @@
 package com.kc1vmz.netcentral.aprsobject.object.reports;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
     Net Central
     Copyright (c) 2025, 2026 John Rokicki KC1VMZ
@@ -25,10 +28,11 @@ public class APRSNetCentralReport {
     private String reportType;
     private String reportData;
     private String objectName;
+    private List<String> reportDataReadable;
 
     public APRSNetCentralReport(){
+        reportDataReadable = new ArrayList<>();
     }
-
     public String getReportObjectType() {
         return reportObjectType;
     }
@@ -66,4 +70,12 @@ public class APRSNetCentralReport {
     public String getFullReportData() {
         return String.format("%s%s%s", reportObjectType, reportType, reportData);
     }
+    public List<String> getReportDataReadable() {
+        return reportDataReadable;
+    }
+
+    public void setReportDataReadable(List<String> reportDataReadable) {
+        this.reportDataReadable = reportDataReadable;
+    }
+
 }

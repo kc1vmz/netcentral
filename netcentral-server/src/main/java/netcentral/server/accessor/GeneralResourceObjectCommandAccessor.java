@@ -31,7 +31,9 @@ import com.kc1vmz.netcentral.aprsobject.constants.APRSQueryType;
 import com.kc1vmz.netcentral.aprsobject.object.APRSMessage;
 import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
 import com.kc1vmz.netcentral.aprsobject.object.reports.APRSNetCentralObjectAnnounceReport;
+import com.kc1vmz.netcentral.common.constants.APRSConstants;
 import com.kc1vmz.netcentral.common.constants.NetCentralQueryType;
+import com.kc1vmz.netcentral.common.constants.NetCentralRadioCommands;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -41,7 +43,6 @@ import netcentral.server.object.User;
 @Singleton
 public class GeneralResourceObjectCommandAccessor {
     private static final Logger logger = LogManager.getLogger(GeneralResourceObjectCommandAccessor.class);
-    private static final String REPORT_COMMAND = "REPORT";
 
     @Inject
     private TransceiverCommunicationAccessor transceiverMessageAccessor;
@@ -67,11 +68,11 @@ public class GeneralResourceObjectCommandAccessor {
             return;
         }
 
-        if (message.startsWith("ack")) {
+        if (message.startsWith(APRSConstants.ACK)) {
             return;
         }
 
-        if (generalResourceObject.getCallsignTo().equalsIgnoreCase(innerAPRSMessage.getCallsignTo())) {
+        if (generalResourceObject.getCallsignTo().equalsIgnoreCase(innerAPRSMessage.getCallsignFrom())) {
             // the message is from inside the house
             return;
         }
@@ -124,7 +125,7 @@ public class GeneralResourceObjectCommandAccessor {
         if (message == null) {
             return;
         }
-        if (REPORT_COMMAND.equalsIgnoreCase(message)) {
+        if (message.toUpperCase().startsWith(NetCentralRadioCommands.COMMAND_REPORT)) {
             sendKVPairs(loggedInUser, generalResourceObject, innerAPRSMessage, transceiverSourceId, message);
             return;
         }
@@ -185,7 +186,7 @@ public class GeneralResourceObjectCommandAccessor {
         logger.info("Acknowledging message");
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementAcksSent();
-        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), "ack"+msg.getMessageNumber());
+        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.ACK+msg.getMessageNumber());
     }
 
     private void sendKVPairs(User loggedInUser, APRSObject generalResourceObject, APRSMessage innerAPRSMessage, String transceiverSourceId, String message) {

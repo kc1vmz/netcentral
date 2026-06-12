@@ -49,6 +49,7 @@ import com.kc1vmz.netcentral.aprsobject.object.APRSThirdPartyTraffic;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUnknown;
 import com.kc1vmz.netcentral.aprsobject.object.APRSUserDefined;
 import com.kc1vmz.netcentral.aprsobject.object.APRSWeatherReport;
+import com.kc1vmz.netcentral.common.constants.APRSConstants;
 import com.kc1vmz.netcentral.common.exception.LoginFailureException;
 import com.kc1vmz.netcentral.common.object.InternetServer;
 import com.kc1vmz.netcentral.common.object.NetCentralServerUser;
@@ -307,7 +308,7 @@ public class APRSMessageProcessor {
                 statisticsAccessor.incrementAcksRequested();
                 // it was sent to us - we need to ack it
                 String message = Stripper.stripWhitespace(parsedPacket.getMessageNumber());
-                aprsMessageAccessor.sendAckMessage(parsedPacket.getCallsignTo(), parsedPacket.getCallsignFrom(), "ack"+message);
+                aprsMessageAccessor.sendAckMessage(parsedPacket.getCallsignTo(), parsedPacket.getCallsignFrom(), APRSConstants.ACK+message);
             }
         }
     }

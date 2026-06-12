@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class APRSNetCentralShelterCensusReport extends APRSNetCentralReport {
     private ZonedDateTime dateReported; 
@@ -42,6 +44,12 @@ public class APRSNetCentralShelterCensusReport extends APRSNetCentralReport {
         String data = String.format("%06d%06d%06d%06d%06d%06d%4d%02d%02d", p03, p47, p812, p1318, p1965, p66, 
                                         dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
         this.setReportData(data);
+        List<String> readableData = new ArrayList<>();
+        readableData.add("Latest population census");
+        readableData.add(String.format("0-3 (%d) 4-7 (%d) 8-12 (%d)",  p03, p47, p812));
+        readableData.add(String.format("13-18 (%d) 19-65 (%d) 66- (%d)", p1318, p1965, p66));
+        this.setReportDataReadable(readableData);
+
         this.p03 = p03;
         this.p47 = p47;
         this.p812 = p812;

@@ -210,9 +210,9 @@ public class FederatedObjectReporterAccessor {
         }
     }
 
-    private void sendMessage(User loggedInUser, String transceiverSourceId, String callsignTo, String callsignFrom, String message) {
+    private void sendMessage(User loggedInUser, String transceiverSourceId, String callsignFrom, String callsignTo, String message) {
         try {
-            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, callsignTo, callsignFrom, message);
+            transceiverCommunicationAccessor.sendMessageNoAck(loggedInUser, transceiverSourceId, callsignFrom, callsignTo, message);
         } catch (Exception e) {
             logger.error("Exception caught", e);
         }

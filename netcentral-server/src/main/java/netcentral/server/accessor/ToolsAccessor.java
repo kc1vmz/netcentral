@@ -25,6 +25,8 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kc1vmz.netcentral.common.constants.APRSConstants;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.WinlinkSessionState;
@@ -220,9 +222,9 @@ public class ToolsAccessor {
         if (ret.contains("\n")) {
             ret = ret.replace("\n", "");
         }
-        if (ret.startsWith("ack")) {
+        if (ret.startsWith(APRSConstants.ACK)) {
             ret = "a c k"+ret.substring(3);
-        } else if (ret.startsWith("rej")) {
+        } else if (ret.startsWith(APRSConstants.REJ)) {
             ret = "r e j"+ret.substring(3);
         }
 

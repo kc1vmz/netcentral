@@ -2930,58 +2930,7 @@ function findValues(key) {
 
   <!-- main page -->
     <div v-if="((localSelectedObject != null) && (localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.id != null))">
-      <div v-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT'))">
-        <!-- plain old object -->
-        <Tabs>
-          <Tab value="Details">
-              <table>
-                <tbody>
-                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
-                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
-                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
-                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
-                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
-                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
-                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
-                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
-                </tbody>
-              </table>
-          </Tab>
-          <Tab value="APRS Status">
-            <div v-if="((statusReports != null) && (statusReports.value != null))">
-              <b>APRS Status information:</b>
-              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
-              :rows-per-page="10" buttons-pagination
-              />
-            </div>
-            <div v-else>
-              <br>
-              <br> No APRS Status found.
-            </div>
-          </Tab>
-          <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
-            <div class="grid-container-actions">
-              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
-                <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
-              </div>
-              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
-                Ignoring this station / object and do not accept new updates from APRS.
-              </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                <button class="boxButton" v-on:click.native="remove">Remove</button>
-              </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                Remove the station from Net Central.  It may be added if heard again via APRS.
-              </div>
-            </div>
-          </Tab>
-        </Tabs>
-      </div>
-
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'SHELTER')">
+      <div v-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT')) && (localSelectedObject.ncSelectedObject.type == 'SHELTER')">
         <!-- shelter -->
         <Tabs>
           <Tab value="Details">
@@ -2991,7 +2940,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Symbol2:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3287,7 +3236,7 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'EOC')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT')) && (localSelectedObject.ncSelectedObject.type == 'EOC')">
         <!-- EOC -->
         <Tabs>
           <Tab value="Details">
@@ -3297,7 +3246,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Symbol3:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3444,7 +3393,7 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(localSelectedObject.ncSelectedObject.type == 'MEDICAL')">
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT')) && (localSelectedObject.ncSelectedObject.type == 'MEDICAL')">
         <Tabs>
           <Tab value="Details">
               <table>
@@ -3453,7 +3402,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Symbol4:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3528,6 +3477,156 @@ function findValues(key) {
               </div>
               <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
                 Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+      </div>
+ 
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT')) && (localSelectedObject.ncSelectedObject.type == 'RESOURCE')">
+        <Tabs>
+          <Tab value="Details">
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol6:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
+                </tbody>
+              </table>
+              <br>
+              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This medical center is managed by another Net Central server.</div>
+          </Tab>
+          <Tab value="APRS Status">
+            <div v-if="((statusReports != null) && (statusReports.value != null))">
+              <b>APRS Status information:</b>
+              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS Status found.
+            </div>
+          </Tab>
+          <Tab value="Data">
+            <div v-if="((kvPairs != null) && (kvPairs.value != null))">
+              <b>General Resource Data:</b>
+              <EasyDataTable :headers="headersKVPairs" :items="kvPairs.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No general resource found.
+            </div>
+          </Tab>
+          <Tab value="Access">
+            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
+              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
+                <b>Only the following callsigns have the ability to send report updates:</b>
+                <div class="grid-container-access-control">
+                  <div>
+                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
+                      :body-row-class-name="getAceRowClass"
+                      @click-row="clickAce" buttons-pagination
+                    />
+                  </div>
+                  <div>
+                    <!-- buttons -->
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+                    </div>
+                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
+                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <br>
+                <br> Access open to all.
+                <br>
+                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
+              </div>
+            </div>
+            <div v-else>
+              <br>
+              <br> This object is managed by another Net Central server.  It cannot be changed here.
+              <br>
+            </div>
+          </Tab>
+          <Tab value="Actions" v-if="(accesstokenRef.value != null)">
+            <div class="grid-container-actions">
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                <button class="boxButton" v-on:click.native="updateData">Update data</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                Update data associated with the general resource object.
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
+                <button class="boxButton" v-on:click.native="remove">Remove</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
+                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+      </div>
+
+      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'OBJECT'))">
+        <!-- plain old object -->
+        <Tabs>
+          <Tab value="Details">
+              <table>
+                <tbody>
+                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
+                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
+                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
+                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
+                  <tr><td><b>Symbol1:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
+                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
+                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
+                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
+                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
+                </tbody>
+              </table>
+          </Tab>
+          <Tab value="APRS Status">
+            <div v-if="((statusReports != null) && (statusReports.value != null))">
+              <b>APRS Status information:</b>
+              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
+              :rows-per-page="10" buttons-pagination
+              />
+            </div>
+            <div v-else>
+              <br>
+              <br> No APRS Status found.
+            </div>
+          </Tab>
+          <Tab value="Actions" v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))">
+            <div class="grid-container-actions">
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
+                <button class="boxButton" v-on:click.native="startIgnoring">Ignore</button>
+              </div>
+              <div v-if="accesstokenRef.value != null && !ignored.value" class="grid-item">
+                Ignoring this station / object and do not accept new updates from APRS.
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                <button class="boxButton" v-on:click.native="remove">Remove</button>
+              </div>
+              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
+                Remove the station from Net Central.  It may be added if heard again via APRS.
               </div>
             </div>
           </Tab>
@@ -3640,7 +3739,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Symbol5:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
                   <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
@@ -3728,105 +3827,6 @@ function findValues(key) {
         </Tabs>
       </div>
 
-      <div v-else-if="(isObjectType(localSelectedObject.ncSelectedObject.types, 'RESOURCE'))">
-        <Tabs>
-          <Tab value="Details">
-              <table>
-                <tbody>
-                  <tr><td><b>Name:</b></td> <td>{{ localSelectedObject.ncSelectedObject.name }}</td></tr>
-                  <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
-                  <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
-                  <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
-                  <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
-                  <tr><td><b>Comment:</b></td> <td>{{  localSelectedObject.ncSelectedObject.comment }}</td></tr>
-                  <tr><td><b>Last heard:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyLastHeard }}</td></tr>
-                  <tr><td><b>Heard from:</b></td> <td>{{ localSelectedObject.ncSelectedObject.callsignFrom }}</td></tr>
-                  <tr v-if="ignored.value"><td><b>Ignored?</b></td> <td>{{ ignored.value }}</td></tr>
-                  <tr v-if="ignored.value"><td><b>Ignored since:</b></td> <td>{{ ignoredSinceTime.value }}</td></tr>
-                </tbody>
-              </table>
-              <br>
-              <div v-if="(localSelectedObject.ncSelectedObject.remote)">This medical center is managed by another Net Central server.</div>
-          </Tab>
-          <Tab value="APRS Status">
-            <div v-if="((statusReports != null) && (statusReports.value != null))">
-              <b>APRS Status information:</b>
-              <EasyDataTable :headers="headersStatus" :items="statusReports.value" 
-              :rows-per-page="10" buttons-pagination
-              />
-            </div>
-            <div v-else>
-              <br>
-              <br> No APRS Status found.
-            </div>
-          </Tab>
-          <Tab value="Data">
-            <div v-if="((kvPairs != null) && (kvPairs.value != null))">
-              <b>General Resource Data:</b>
-              <EasyDataTable :headers="headersKVPairs" :items="kvPairs.value" 
-              :rows-per-page="10" buttons-pagination
-              />
-            </div>
-            <div v-else>
-              <br>
-              <br> No general resource found.
-            </div>
-          </Tab>
-          <Tab value="Access">
-            <div v-if="(!localSelectedObject.ncSelectedObject.remote)">
-              <div v-if="((accessControlList != null) && (accessControlList.value != null) && (accessControlList.value.length != 0))">
-                <b>Only the following callsigns have the ability to send report updates:</b>
-                <div class="grid-container-access-control">
-                  <div>
-                    <EasyDataTable :headers="headersAccessControl" :items="accessControlList.value" :rows-per-page="10"
-                      :body-row-class-name="getAceRowClass"
-                      @click-row="clickAce" buttons-pagination
-                    />
-                  </div>
-                  <div>
-                    <!-- buttons -->
-                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                      <button class="boxButton" v-on:click.native="aceAdd">Add</button>
-                    </div>
-                    <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && (selectedAce != null) && (selectedAce.value != null))" class="grid-item">
-                      <button class="boxButton" v-on:click.native="aceRemove">Remove</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <br>
-                <br> Access open to all.
-                <br>
-                <button class="boxButton" v-on:click.native="aceAdd">Add</button>
-              </div>
-            </div>
-            <div v-else>
-              <br>
-              <br> This object is managed by another Net Central server.  It cannot be changed here.
-              <br>
-            </div>
-          </Tab>
-          <Tab value="Actions" v-if="(accesstokenRef.value != null)">
-            <div class="grid-container-actions">
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                <button class="boxButton" v-on:click.native="updateData">Update data</button>
-              </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null))" class="grid-item">
-                Update data associated with the general resource object.
-              </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
-                <button class="boxButton" v-on:click.native="remove">Remove</button>
-              </div>
-              <div v-if="((accesstokenRef.value != null) && (localSelectedObject.ncSelectedObject != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN')))" class="grid-item">
-                Remove the priority object from Net Central.  It will no longer provide or receive information via APRS.
-              </div>
-            </div>
-          </Tab>
-        </Tabs>
-      </div>
-
       <div v-else>
         <Tabs>
           <Tab value="Details">
@@ -3836,7 +3836,7 @@ function findValues(key) {
                   <tr><td><b>Description:</b></td> <td>{{ localSelectedObject.ncSelectedObject.description }}</td></tr>
                   <tr><td><b>Types:</b></td> <td>{{ localSelectedObject.ncSelectedObject.prettyTypes }}</td></tr>
                   <tr><td><b>Status:</b></td> <td>{{ localSelectedObject.ncSelectedObject.status }}</td></tr>
-                  <tr><td><b>Symbol:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
+                  <tr><td><b>Symbol7:</b></td> <td>{{ localSelectedObject.ncSelectedObject.symbolTableId }}{{ localSelectedObject.ncSelectedObject.symbolTableCode }}</td></tr>
                   <tr><td><b>Location:</b></td> <td>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}</td></tr>
                   <tr><td><b>Electrical Power:</b></td> <td>{{ localSelectedObject.ncSelectedObject.electricalPowerType }} / {{ localSelectedObject.ncSelectedObject.backupElectricalPowerType }}</td></tr>
                   <tr><td><b>Radio style:</b></td> <td>{{ localSelectedObject.ncSelectedObject.radioStyle }}</td></tr>

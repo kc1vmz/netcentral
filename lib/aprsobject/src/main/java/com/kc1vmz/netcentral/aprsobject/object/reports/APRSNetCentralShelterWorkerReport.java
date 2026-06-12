@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class APRSNetCentralShelterWorkerReport extends APRSNetCentralReport {
     private int shift;
@@ -45,6 +47,14 @@ public class APRSNetCentralShelterWorkerReport extends APRSNetCentralReport {
         }
         String data = String.format("%d%06d%06d%06d%06d%06d%06d%04d%02d%02d", shift, health, mental, spiritual, caseworker, feeding, other, dateReported.getYear(), dateReported.getMonthValue(), dateReported.getDayOfMonth());
         this.setReportData(data);
+        int total = health +mental +spiritual + caseworker + feeding + other;
+
+        List<String> readableData = new ArrayList<>();
+        readableData.add(String.format("Latest worker report - %d total on shift %d", total, shift));
+        readableData.add(String.format("Health (%d) Mental (%d) Spiritual (%d)", health, mental, spiritual));
+        readableData.add(String.format("Caseworker (%d) Feeding (%d) Other (%d)", caseworker, feeding, other));
+        this.setReportDataReadable(readableData);
+
         this.dateReported = dateReported;
         this.shift = shift;
         this.health = health;

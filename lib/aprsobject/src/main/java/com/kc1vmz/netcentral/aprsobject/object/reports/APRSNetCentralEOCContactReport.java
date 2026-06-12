@@ -21,6 +21,8 @@ package com.kc1vmz.netcentral.aprsobject.object.reports;
 */
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.kc1vmz.netcentral.aprsobject.utils.PrettyZonedDateTimeFormatter;
 
@@ -42,6 +44,10 @@ public class APRSNetCentralEOCContactReport extends APRSNetCentralReport {
                                             (directorName.length() > 25) ? directorName.substring(0, 25) : directorName, 
                                             (incidentCommanderName.length() > 25) ? incidentCommanderName.substring(0, 25) : incidentCommanderName);
         this.setReportData(data);
+        List<String> readableData = new ArrayList<>();
+        readableData.add(String.format("IC: %s", incidentCommanderName));
+        readableData.add(String.format("Dir: %s", directorName));
+        this.setReportDataReadable(readableData);
         this.setDirectorName(directorName);
         this.setIncidentCommanderName(incidentCommanderName);
         this.setLastReportedTime(lastReportedTime);
