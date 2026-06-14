@@ -198,9 +198,9 @@ Each service can be found in its /target subdirectory after the build has comple
 ### Running Net Central Server
 
 To run the JAR file, specify:  
-    java -jar netcentral-server-1.0.22.jar -Dmicronaut.environments=mysql
+    java -Dmicronaut.environments=mysql -jar netcentral-server-1.0.22.jar
 or
-    java -jar netcentral-server-1.0.22.jar -Dmicronaut.environments=h2
+    java -Dmicronaut.environments=h2 -jar netcentral-server-1.0.22.jar
 
 You must choose between mysql (an external MySQL database running locally or remotely) or h2 (an Sqlite embedded database).
 

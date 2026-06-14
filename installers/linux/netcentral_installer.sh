@@ -112,7 +112,7 @@ if [ "$NC_OS" = "Linux" ]; then
     NETCENTRAL_SERVER_MYSQL_PASSWORD=$NC_DB_PASS
     NETCENTRAL_SERVER_MYSQL_PORT=$NC_DB_PORT
     NETCENTRAL_SERVER_MYSQL_HOST=$NC_DB_HOST
-    NETCENTRAL_OSMPC_MYSQL_DBNAME=$NC_OSMPC_DB_DBNAME
+    NETCENTRAL_OSMPC_MYSQL_DBNAME=$NC_OSMPC_DB_NAME
     NETCENTRAL_OSMPC_MYSQL_USERNAME=$NC_OSMPC_DB_USER
     NETCENTRAL_OSMPC_MYSQL_PASSWORD=$NC_OSMPC_DB_PASS
     NETCENTRAL_OSMPC_MYSQL_PORT=$NC_OSMPC_DB_PORT
@@ -231,9 +231,12 @@ if [ "$NC_OS" = "Linux" ]; then
         sudo systemctl start mariadb
         sudo systemctl enable --now mariadb
 
-        echo Creating database and initial database user
+        echo Creating database and initial database users
         NC_SQL_INIT="create schema $NC_DB_NAME;create user '$NC_DB_USER'@'localhost' IDENTIFIED BY '$NC_DB_PASS'; grant all privileges on $NC_DB_NAME.* to '$NC_DB_USER'@'localhost';flush privileges;"
         echo $NC_SQL_INIT | sudo mysql -u root
+
+        NC_OSMPC_SQL_INIT="create schema $NC_OSMPC_DB_NAME;create user '$NC_OSMPC_DB_USER'@'localhost' IDENTIFIED BY '$NC_OSMPC_DB_PASS'; grant all privileges on $NC_OSMPC_DB_NAME.* to '$NC_OSMPC_DB_USER'@'localhost';flush privileges;"
+        echo $NC_OSMPC_SQL_INIT | sudo mysql -u root
       fi
 
       echo Installing NPM
@@ -324,12 +327,12 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
 
           if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
-            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=h2' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'ExecStart=java -Dmicronaut.environments=h2 -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_FILE='$NETCENTRAL_SERVER_SQLITE_FILE | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_USERNAME='$NETCENTRAL_SERVER_SQLITE_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_PASSWORD='$NETCENTRAL_SERVER_SQLITE_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           else
-            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=mysql' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'ExecStart=java -Dmicronaut.environments=mysql -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_USERNAME='$NETCENTRAL_SERVER_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_PASSWORD='$NETCENTRAL_SERVER_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_DBNAME='$NETCENTRAL_SERVER_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
@@ -452,9 +455,9 @@ if [ "$NC_OS" = "Linux" ]; then
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
           if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
-            sudo systemctl enable osm-proxy-cacne
+            sudo systemctl enable osm-proxy-cache
           else
-            sudo systemctl disable osm-proxy-cacne
+            sudo systemctl disable osm-proxy-cache
           fi
 
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
@@ -472,7 +475,7 @@ if [ "$NC_OS" = "Linux" ]; then
             sudo systemctl start netcentral-server
 
             if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
-              sudo systemctl start osm-proxy-cacne
+              sudo systemctl start osm-proxy-cache
             fi
 
             sleep 10
@@ -517,9 +520,12 @@ if [ "$NC_OS" = "Linux" ]; then
       echo Installing MySQL / MariaDB
       sudo apt install mariadb-server -y
 
-      echo Creating database and initial database user
+      echo Creating database and initial database users
       NC_SQL_INIT="create schema $NC_DB_NAME;create user '$NC_DB_USER'@'localhost' IDENTIFIED BY '$NC_DB_PASS'; grant all privileges on $NC_DB_NAME.* to '$NC_DB_USER'@'localhost';flush privileges;"
       echo $NC_SQL_INIT | sudo mysql -u root
+
+      NC_OSMPC_SQL_INIT="create schema $NC_OSMPC_DB_NAME;create user '$NC_OSMPC_DB_USER'@'localhost' IDENTIFIED BY '$NC_OSMPC_DB_PASS'; grant all privileges on $NC_OSMPC_DB_NAME.* to '$NC_OSMPC_DB_USER'@'localhost';flush privileges;"
+      echo $NC_OSMPC_SQL_INIT | sudo mysql -u root
     fi
 
     echo Installing NPM
@@ -610,12 +616,12 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
 
           if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
-            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=h2' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'ExecStart=java -Dmicronaut.environments=h2 -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_FILE='$NETCENTRAL_SERVER_SQLITE_FILE | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_USERNAME='$NETCENTRAL_SERVER_SQLITE_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_SQLITE_PASSWORD='$NETCENTRAL_SERVER_SQLITE_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           else
-            echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar -Dmicronaut.environments=mysql' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+            echo 'ExecStart=java -Dmicronaut.environments=mysql -jar '$NC_INSTALL_DIR'/netcentral-server-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_USERNAME='$NETCENTRAL_SERVER_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_PASSWORD='$NETCENTRAL_SERVER_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
             echo 'Environment=NETCENTRAL_SERVER_MYSQL_DBNAME='$NETCENTRAL_SERVER_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
@@ -736,9 +742,9 @@ if [ "$NC_OS" = "Linux" ]; then
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
           if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
-            sudo systemctl enable osm-proxy-cacne
+            sudo systemctl enable osm-proxy-cache
           else
-            sudo systemctl disable osm-proxy-cacne
+            sudo systemctl disable osm-proxy-cache
           fi
 
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
@@ -755,7 +761,7 @@ if [ "$NC_OS" = "Linux" ]; then
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
             if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
-              sudo systemctl start osm-proxy-cacne
+              sudo systemctl start osm-proxy-cache
             fi
             sleep 10
             if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
@@ -791,7 +797,7 @@ if [ "$NC_OS" = "Linux" ]; then
     echo Net Central services running as background services.
   else
     echo You can run each jar with java -jar command in the $NC_INSTALL_DIR directory, and start the UI running with "npm run dev" from the $NC_INSTALL_DIR/ui directory
-    echo For starting the Net Central server, you must add  -Dmicronaut.environments=[mysql|h2] and choose between using a MySQL database and an H2/SQLite database.
+    echo For starting the Net Central server, before the -jar you must add -Dmicronaut.environments=[mysql|h2] and choose between using a MySQL database and an H2/SQLite database.
     echo The Net Central OSM Proxy Cache will not be run when using an H2/SQLite database.
   fi
 
