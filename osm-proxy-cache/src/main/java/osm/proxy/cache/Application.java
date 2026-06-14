@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
     info = @Info(
             title = "osm-proxy-cache",
-            version = "1.0.21"
+            version = "1.0.22"
     )
 )
 

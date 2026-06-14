@@ -22,7 +22,7 @@ RUN mkdir -p /netcentral/bin
 ADD installers/docker/split/image_files/osm-proxy-cache_processes.sh /netcentral/bin/osm-proxy-cache_processes.sh
 RUN ["dos2unix", "/netcentral/bin/osm-proxy-cache_processes.sh"]
 
-ADD osm-proxy-cache/target/osm-proxy-cache-1.0.21.jar /netcentral/bin/osm-proxy-cache.jar
+ADD osm-proxy-cache/target/osm-proxy-cache-1.0.22.jar /netcentral/bin/osm-proxy-cache.jar
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 ADD installers/docker/split/image_files/config_env.sh /netcentral/bin/config_env.sh

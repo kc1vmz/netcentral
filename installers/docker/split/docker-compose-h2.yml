@@ -1,6 +1,6 @@
 services:
   netcentral-server:
-    image: netcentral-server-h2:1.0.21
+    image: netcentral-server-h2:1.0.22
     ports:
       - "8881:8881"
       - "9880:8880"
@@ -14,7 +14,7 @@ services:
       - NETCENTRAL_SERVER_SQLITE_PASSWORD=netcentral
       - NETCENTRAL_SERVER_TEMP_DIR=/netcentral/tmp
   netcentral-transceiver-aprsis:
-    image: netcentral-transceiver-aprsis:1.0.21
+    image: netcentral-transceiver-aprsis:1.0.22
     environment:
       - NETCENTRAL_SERVER_USERNAME=serviceAccount
       - NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
@@ -26,7 +26,7 @@ services:
       - NETCENTRAL_TRANS_APRSIS_HOST=netcentral-transceiver-aprsis
       - NETCENTRAL_SERVER_TEMP_DIR=/netcentral/tmp
   netcentral-ui:
-    image: netcentral-ui:1.0.21
+    image: netcentral-ui:1.0.22
     ports:
       - "8880:80"
     environment:
