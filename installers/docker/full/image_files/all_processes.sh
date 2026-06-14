@@ -9,11 +9,13 @@ sleep 10
 # configure database and environment variables
 echo Configuring database
 /netcentral/src/nc_mysql_init.sh
+/netcentral/src/nc_osmpc_mysql_init.sh
 echo Configuring environment variables for services
 /netcentral/src/config_env.sh
 # start Net Central server
 echo Starting Net Central server
 rc-service netcentral-server start
+rc-service osm-proxy-cache start
 sleep 10
 # start APRS-IS
 echo Starting Net Central APRS-IS transceiver

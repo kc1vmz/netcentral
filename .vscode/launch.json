@@ -53,6 +53,13 @@
             "mainClass": "netcentral.server.Application",
             "projectName": "netcentral-server",
             "vmArgs": ["-Dmicronaut.environments=h2"]
+        },
+        {
+            "type": "java",
+            "name": "OSM-Proxy-Cache",
+            "request": "launch",
+            "mainClass": "osm.proxy.cache.Application",
+            "projectName": "osm-proxy-cache"
         }
     ]
 }

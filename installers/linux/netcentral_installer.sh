@@ -24,11 +24,17 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_DB_PASS=netcentral
   NC_DB_HOST=localhost
   NC_DB_PORT=3306
+  NC_OSMPC_DB_NAME=netcentral_osmproxycache
+  NC_OSMPC_DB_USER=netcentral_osmproxycache
+  NC_OSMPC_DB_PASS=netcentral_osmproxycache
+  NC_OSMPC_DB_HOST=localhost
+  NC_OSMPC_DB_PORT=3306
   NC_SVC_USER=serviceAccount
   NC_SVC_PASS=serviceAccountPassword
   NC_DEVMODE=N
   NC_BUILD_SRC=N
   NC_TEMP_DIR=~/netcentral/tmp
+  NC_OSMPC_TEMP_DIR=~/netcentral/tmp
   NC_DB_FILE=~/netcentral/db/netcentral./db
   NC_TR_APRSIS=Y
   NC_TR_KENWOOD=N
@@ -52,6 +58,7 @@ if [ "$NC_OS" = "Linux" ]; then
   read -e -i $NC_VERSION -p "What version of Net Central?: " NC_VERSION
   read -e -i $NC_INSTALL_DIR -p "Where should Net Central be installed?: " NC_INSTALL_DIR
   read -e -i $NC_TEMP_DIR -p "Where should Net Central temp space be located?: " NC_TEMP_DIR
+  read -e -i $NC_OSMPC_TEMP_DIR -p "Where should Net Central OSM Proxy Cache temp space be located?: " NC_OSMPC_TEMP_DIR
   read -e -i $NC_BUILD_SRC -p "Do you want to build from source (y/N)?: " NC_BUILD_SRC
   read -e -i $NC_JAVA_INSTALL -p "Do you want Java 21 installed (Y/n)?: " NC_JAVA_INSTALL
   read -e -i $NC_DEVMODE -p "Do you want developer tools (y/N)?: " NC_DEVMODE
@@ -64,14 +71,19 @@ if [ "$NC_OS" = "Linux" ]; then
 
     if [[ "$NC_DB_CREATE" =~ ^[Nn]$ ]]; then
       read -e -i $NC_DB_HOST -p "Net Central database host address?: " NC_DB_HOST
+      read -e -i $NC_OSMPC_DB_HOST -p "Net Central OSM proxy cache database host address?: " NC_OSMPC_DB_HOST
     fi
 
     read -e -i $NC_DB_PORT -p "Net Central database port number?: " NC_DB_PORT
     read -e -i $NC_DB_NAME -p "Net Central database name?: " NC_DB_NAME
+    read -e -i $NC_OSMPC_DB_PORT -p "Net Central OSM proxy cache database port number?: " NC_OSMPC_DB_PORT
+    read -e -i $NC_OSMPC_DB_NAME -p "Net Central OSM proxy cache database name?: " NC_OSMPC_DB_NAME
   fi
 
   read -e -i $NC_DB_USER -p "Net Central database username?: " NC_DB_USER
   read -e -s -p "Net Central database password?: " NC_DB_PASS
+  read -e -i $NC_OSMPC_DB_USER -p "Net Central OSM proxy cache database username?: " NC_OSMPC_DB_USER
+  read -e -s -p "Net Central OSM proxy cache database password?: " NC_OSMPC_DB_PASS
   read -e -i $NC_SVC_USER -p "Net Central service account username?: " NC_SVC_USER
   read -e -s -p "Net Central service account password?: " NC_SVC_PASS
   read -n 10 -p "What is your callsign?: " NC_CALLSIGN
@@ -86,6 +98,7 @@ if [ "$NC_OS" = "Linux" ]; then
 
   NETCENTRAL_APRS_CALLSIGN=$NC_CALLSIGN
   NETCENTRAL_SERVER_TEMP_DIR=$NC_TEMP_DIR
+  NETCENTRAL_OSMPC_TEMP_DIR=$NC_OSMPC_TEMP_DIR
   NETCENTRAL_SERVER_USERNAME=$NC_SVC_USER
   NETCENTRAL_SERVER_PASSWORD=$NC_SVC_PASS
 
@@ -99,6 +112,11 @@ if [ "$NC_OS" = "Linux" ]; then
     NETCENTRAL_SERVER_MYSQL_PASSWORD=$NC_DB_PASS
     NETCENTRAL_SERVER_MYSQL_PORT=$NC_DB_PORT
     NETCENTRAL_SERVER_MYSQL_HOST=$NC_DB_HOST
+    NETCENTRAL_OSMPC_MYSQL_DBNAME=$NC_OSMPC_DB_DBNAME
+    NETCENTRAL_OSMPC_MYSQL_USERNAME=$NC_OSMPC_DB_USER
+    NETCENTRAL_OSMPC_MYSQL_PASSWORD=$NC_OSMPC_DB_PASS
+    NETCENTRAL_OSMPC_MYSQL_PORT=$NC_OSMPC_DB_PORT
+    NETCENTRAL_OSMPC_MYSQL_HOST=$NC_OSMPC_DB_HOST
   fi
 
   sudo cp /etc/environment /etc/environment.pre_net_central_install
@@ -108,6 +126,7 @@ if [ "$NC_OS" = "Linux" ]; then
   if [[ "$NC_INSTALL_SERVICES" =~ ^[Nn]$ ]]; then
     echo "NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
     echo "NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
+    echo "NETCENTRAL_OSMPC_TEMP_DIR=$NETCENTRAL_OSMPC_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
     echo "NETCENTRAL_SERVER_USERNAME=$NETCENTRAL_SERVER_USERNAME" | sudo tee -a /etc/environment >  /dev/null
     echo "NETCENTRAL_SERVER_PASSWORD=$NETCENTRAL_SERVER_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
 
@@ -121,6 +140,12 @@ if [ "$NC_OS" = "Linux" ]; then
       echo "NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
       echo "NETCENTRAL_SERVER_MYSQL_PORT=$NETCENTRAL_SERVER_MYSQL_PORT" | sudo tee -a /etc/environment >  /dev/null
       echo "NETCENTRAL_SERVER_MYSQL_HOST=$NETCENTRAL_SERVER_MYSQL_HOST" | sudo tee -a /etc/environment >  /dev/null
+
+      echo "NETCENTRAL_OSMPC_MYSQL_USERNAME=$NETCENTRAL_OSMPC_MYSQL_USERNAME" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_OSMPC_MYSQL_PASSWORD=$NETCENTRAL_OSMPC_MYSQL_PASSWORD" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_OSMPC_MYSQL_DBNAME=$NETCENTRAL_OSMPC_MYSQL_DBNAME" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_OSMPC_MYSQL_PORT=$NETCENTRAL_OSMPC_MYSQL_PORT" | sudo tee -a /etc/environment >  /dev/null
+      echo "NETCENTRAL_OSMPC_MYSQL_HOST=$NETCENTRAL_OSMPC_MYSQL_HOST" | sudo tee -a /etc/environment >  /dev/null
     fi
   fi
 
@@ -231,6 +256,10 @@ if [ "$NC_OS" = "Linux" ]; then
       mkdir $NC_TEMP_DIR/reports
       mkdir $NC_TEMP_DIR/src
 
+      sudo mkdir $NC_OSMPC_TEMP_DIR
+      sudo chown $USER $NC_OSMPC_TEMP_DIR
+      mkdir $NC_OSMPC_TEMP_DIR/logs
+
       if [[ "$NC_BUILD_SRC" =~ ^[Yy]$ ]]; then
         echo Installing Maven client
         sudo yum install maven -y
@@ -254,7 +283,7 @@ if [ "$NC_OS" = "Linux" ]; then
         cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-$NC_VERSION.jar .
         cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-$NC_VERSION.jar .
         cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-$NC_VERSION.jar .
-
+        cp ./netcentral-$NC_VERSION/osm-proxy-cache/target/osm-proxy-cache-$NC_VERSION.jar .
         popd
       else
         echo Retrieving Net Central binaries
@@ -264,6 +293,7 @@ if [ "$NC_OS" = "Linux" ]; then
 
         NC_SRC_URL_ROOT=https://github.com/kc1vmz/netcentral/releases/download/v$NC_VERSION
         wget -q -O netcentral-server-$NC_VERSION.jar $NC_SRC_URL_ROOT/netcentral-server-$NC_VERSION.jar
+        wget -q -O osm-proxy-cache-$NC_VERSION.jar $NC_SRC_URL_ROOT/osm-proxy-cache-$NC_VERSION.jar
         wget -q -O netcentral-ui.zip $NC_SRC_URL_ROOT/netcentral-ui-$NC_VERSION.zip
         wget -q -O transceiver-aprsis-$NC_VERSION.jar $NC_SRC_URL_ROOT/transceiver-aprsis-$NC_VERSION.jar
         wget -q -O transceiver-kenwood-$NC_VERSION.jar $NC_SRC_URL_ROOT/transceiver-kenwood-$NC_VERSION.jar
@@ -271,6 +301,7 @@ if [ "$NC_OS" = "Linux" ]; then
         NC_SRC_URL_ROOT=
 
         chmod +x netcentral-server-$NC_VERSION.jar
+        chmod +x osm-proxy-cache-$NC_VERSION.jar
         chmod +x transceiver-aprsis-$NC_VERSION.jar
         chmod +x transceiver-kenwood-$NC_VERSION.jar
         chmod +x transceiver-kiss-$NC_VERSION.jar
@@ -310,6 +341,28 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+
+          echo '[Unit]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Description=Net Central OSM Proxy Cache' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo '[Service]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Type=simple' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Restart=always' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/osm-proxy-cache-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+
+          if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_USERNAME='$NETCENTRAL_OSMPC_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_PASSWORD='$NETCENTRAL_OSMPC_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_DBNAME='$NETCENTRAL_OSMPC_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_PORT='$NETCENTRAL_OSMPC_MYSQL_PORT | sudo tee -a /etc/systemd/system/nosm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_HOST='$NETCENTRAL_OSMPC_MYSQL_HOST | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          fi
+
+          echo '[Install]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
 
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
@@ -388,11 +441,22 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'ExecStart='$NC_INSTALL_DIR'/ui/node_modules/.bin/vite' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
+
+          if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+            echo 'Environment=VITE_APP_MAP_SERVER_URL=https://tile.openstreetmap.org/%s/%s/%s.png' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
+          fi
+
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
 
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
+          if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+            sudo systemctl enable osm-proxy-cacne
+          else
+            sudo systemctl disable osm-proxy-cacne
+          fi
+
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             sudo systemctl enable netcentral-transceiver-aprsis
           fi
@@ -406,6 +470,11 @@ if [ "$NC_OS" = "Linux" ]; then
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
+
+            if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+              sudo systemctl start osm-proxy-cacne
+            fi
+
             sleep 10
             if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
               sudo systemctl start netcentral-transceiver-aprsis
@@ -472,6 +541,10 @@ if [ "$NC_OS" = "Linux" ]; then
     mkdir $NC_TEMP_DIR/reports
     mkdir $NC_TEMP_DIR/src
 
+    sudo mkdir $NC_OSMPC_TEMP_DIR
+    sudo chown $USER $NC_OSMPC_TEMP_DIR
+    mkdir $NC_OSMPC_TEMP_DIR/logs
+
     if [[ "$NC_BUILD_SRC" =~ ^[Yy]$ ]]; then
       echo Installing Maven client
       sudo apt install maven -y
@@ -495,6 +568,7 @@ if [ "$NC_OS" = "Linux" ]; then
       cp ./netcentral-$NC_VERSION/transceivers/transceiver-aprsis/target/transceiver-aprsis-$NC_VERSION.jar .
       cp ./netcentral-$NC_VERSION/transceivers/transceiver-kiss/target/transceiver-kiss-$NC_VERSION.jar .
       cp ./netcentral-$NC_VERSION/netcentral-server/target/netcentral-server-$NC_VERSION.jar .
+      cp ./netcentral-$NC_VERSION/osm-proxy-cache/target/osm-proxy-cache-$NC_VERSION.jar .
 
       popd
     else
@@ -505,6 +579,7 @@ if [ "$NC_OS" = "Linux" ]; then
 
       NC_SRC_URL_ROOT=https://github.com/kc1vmz/netcentral/releases/download/v$NC_VERSION
       wget -q -O netcentral-server-$NC_VERSION.jar $NC_SRC_URL_ROOT/netcentral-server-$NC_VERSION.jar
+      wget -q -O osm-proxy-cache-$NC_VERSION.jar $NC_SRC_URL_ROOT/osm-proxy-cache-$NC_VERSION.jar
       wget -q -O netcentral-ui.zip $NC_SRC_URL_ROOT/netcentral-ui-$NC_VERSION.zip
       wget -q -O transceiver-aprsis-$NC_VERSION.jar $NC_SRC_URL_ROOT/transceiver-aprsis-$NC_VERSION.jar
       wget -q -O transceiver-kenwood-$NC_VERSION.jar $NC_SRC_URL_ROOT/transceiver-kenwood-$NC_VERSION.jar
@@ -512,6 +587,7 @@ if [ "$NC_OS" = "Linux" ]; then
       NC_SRC_URL_ROOT=
 
       chmod +x netcentral-server-$NC_VERSION.jar
+      chmod +x osm-proxy-cache-$NC_VERSION.jar
       chmod +x transceiver-aprsis-$NC_VERSION.jar
       chmod +x transceiver-kenwood-$NC_VERSION.jar
       chmod +x transceiver-kiss-$NC_VERSION.jar
@@ -551,6 +627,28 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Environment=NETCENTRAL_SERVER_TEMP_DIR='$NETCENTRAL_SERVER_TEMP_DIR | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-server.service >  /dev/null
+
+          echo '[Unit]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Description=Net Central OSM Proxy Cache' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo '[Service]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'User='$LOGNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'WorkingDirectory='$NC_INSTALL_DIR | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Type=simple' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'Restart=always' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'SuccessExitStatus=143' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'ExecStart=java -jar '$NC_INSTALL_DIR'/osm-proxy-cache-'$NC_VERSION'.jar' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+
+          if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_USERNAME='$NETCENTRAL_OSMPC_MYSQL_USERNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_PASSWORD='$NETCENTRAL_OSMPC_MYSQL_PASSWORD | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_DBNAME='$NETCENTRAL_OSMPC_MYSQL_DBNAME | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_PORT='$NETCENTRAL_OSMPC_MYSQL_PORT | sudo tee -a /etc/systemd/system/nosm-proxy-cache.service >  /dev/null
+            echo 'Environment=NETCENTRAL_OSMPC_MYSQL_HOST='$NETCENTRAL_OSMPC_MYSQL_HOST | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          fi
+
+          echo '[Install]' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
+          echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/osm-proxy-cache.service >  /dev/null
 
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             echo '[Unit]' | sudo tee -a /etc/systemd/system/netcentral-transceiver-aprsis.service >  /dev/null
@@ -629,11 +727,20 @@ if [ "$NC_OS" = "Linux" ]; then
           echo 'Restart=always' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'RemainAfterExit=yes' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'ExecStart='$NC_INSTALL_DIR'/ui/node_modules/.bin/vite' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
+          if [[ "$NC_DB_H2" =~ ^[Yy]$ ]]; then
+            echo 'Environment=VITE_APP_MAP_SERVER_URL=https://tile.openstreetmap.org/%s/%s/%s.png' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
+          fi
           echo '[Install]' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
           echo 'WantedBy=multi-user.target' | sudo tee -a /etc/systemd/system/netcentral-ui.service >  /dev/null
 
           sudo systemctl daemon-reload
           sudo systemctl enable netcentral-server
+          if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+            sudo systemctl enable osm-proxy-cacne
+          else
+            sudo systemctl disable osm-proxy-cacne
+          fi
+
           if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
             sudo systemctl enable netcentral-transceiver-aprsis
           fi
@@ -647,6 +754,9 @@ if [ "$NC_OS" = "Linux" ]; then
 
           if [[ "$NC_START_SERVICES" =~ ^[Yy]$ ]]; then
             sudo systemctl start netcentral-server
+            if [[ "$NC_DB_H2" =~ ^[Nn]$ ]]; then
+              sudo systemctl start osm-proxy-cacne
+            fi
             sleep 10
             if [[ "$NC_TR_APRSIS" =~ ^[Yy]$ ]]; then
               sudo systemctl start netcentral-transceiver-aprsis
@@ -669,16 +779,20 @@ if [ "$NC_OS" = "Linux" ]; then
   fi
 
   if [[ "$NC_DB_CREATE" =~ ^[Nn]$ ]]; then
-    echo Be sure to run the following commands against the MariaSB/MySQL server you are using:
+    echo Be sure to run the following commands against the MariaSB/MySQL server you are using for the Net Central Server:
     NC_SQL_INIT="create schema $NC_DB_NAME;create user '$NC_DB_USER'@'localhost' IDENTIFIED BY '$NC_DB_PASS'; grant all privileges on $NC_DB_NAME.* to '$NC_DB_USER'@'localhost';flush privileges;"
     echo $NC_SQL_INIT
+    echo Be sure to run the following commands against the MariaSB/MySQL server you are using for the Net Central OSM Proxy Cache:
+    NC_OSMPC_SQL_INIT="create schema $NC_OSMPC_DB_NAME;create user '$NC_OSMPC_DB_USER'@'localhost' IDENTIFIED BY '$NC_OSMPC_DB_PASS'; grant all privileges on $NC_OSMPC_DB_NAME.* to '$NC_OSMPC_DB_USER'@'localhost';flush privileges;"
+    echo $NC_OSMPC_SQL_INIT
   fi
 
   if [[ "$NC_INSTALL_SERVICES" =~ ^[Yy]$ ]]; then
     echo Net Central services running as background services.
   else
     echo You can run each jar with java -jar command in the $NC_INSTALL_DIR directory, and start the UI running with "npm run dev" from the $NC_INSTALL_DIR/ui directory
-    echo For starting the Net Central server, you must add  -Dmicronaut.environments=[mysql|h2] and choose between using a MySQL database and an H2/Sqlite database.
+    echo For starting the Net Central server, you must add  -Dmicronaut.environments=[mysql|h2] and choose between using a MySQL database and an H2/SQLite database.
+    echo The Net Central OSM Proxy Cache will not be run when using an H2/SQLite database.
   fi
 
   # cleanup environment
@@ -688,10 +802,17 @@ if [ "$NC_OS" = "Linux" ]; then
   NC_DB_PASS=
   NC_DB_HOST=
   NC_DB_PORT=
+
+  NC_OSMPC_DB_NAME=
+  NC_OSMPC_DB_USER=
+  NC_OSMPC_DB_PASS=
+  NC_OSMPC_DB_HOST=
+  NC_OSMPC_DB_PORT=
   NC_SVC_USER=
   NC_SVC_PASS=
   NC_DEVMODE=
   NC_TEMP_DIR=
+  NC_OSMPC_TEMP_DIR=
   NC_TR_APRSIS=
   NC_TR_APRSIS_QUERY=
   NC_TR_APRSIS_PASSCODE=

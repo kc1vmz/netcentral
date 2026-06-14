@@ -1,3 +1,5 @@
+package osm.proxy.cache.repository;
+
 /*
     Net Central
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -18,12 +20,11 @@
     http://www.kc1vmz.com
 */
 
-export function getMapServerUrl() {
-  var ret = import.meta.env.VITE_APP_MAP_SERVER_URL;
-  var defaultMapServerUrl = "http://localhost:8889/api/v1/tiles/{z}/{x}/{y}";
-  
-  if ((ret == undefined) || (ret == null) || (ret == '')) {
-    ret = defaultMapServerUrl;
-  }
-  return ret;
+import osm.proxy.cache.record.TileRecord;
+import io.micronaut.data.jdbc.annotation.JdbcRepository;
+import io.micronaut.data.model.query.builder.sql.Dialect;
+import io.micronaut.data.repository.CrudRepository;
+
+@JdbcRepository(dialect = Dialect.MYSQL) 
+public interface TileRepository extends CrudRepository<TileRecord, String> { 
 }

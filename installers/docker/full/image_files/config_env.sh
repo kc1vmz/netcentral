@@ -14,6 +14,10 @@ echo "export NETCENTRAL_SERVER_MYSQL_HOST=$NETCENTRAL_SERVER_MYSQL_HOST" | sudo 
 echo "export NETCENTRAL_SERVER_MYSQL_PORT=$NETCENTRAL_SERVER_MYSQL_PORT" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export NETCENTRAL_SERVER_MYSQL_DBNAME=$NETCENTRAL_SERVER_MYSQL_DBNAME" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 
+echo "export NETCENTRAL_OSMPC_MYSQL_HOST=$NETCENTRAL_OSMPC_MYSQL_HOST" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
+echo "export NETCENTRAL_OSMPC_MYSQL_PORT=$NETCENTRAL_OSMPC_MYSQL_PORT" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
+echo "export NETCENTRAL_OSMPC_MYSQL_DBNAME=$NETCENTRAL_OSMPC_MYSQL_DBNAME" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
+
 echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
 echo "export VITE_APP_UPDATE_URL=$VITE_APP_UPDATE_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null
 echo "export VITE_APP_MAP_SERVER_URL=$VITE_APP_MAP_SERVER_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null

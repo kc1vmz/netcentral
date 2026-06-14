@@ -73,14 +73,24 @@ Once MySQL is installed and running, you need to create the schema/database and 
 The easiest way to execute this SQL against a MySQL server on Linux is to run the following command: sudo mysql -u root -p
 Note: there is no password by default
 
-The following SQL should be executed against the MySQL server:
+There are two separate databases used in Net Central - one for the server and one for the osm-proxy-cache (OpenStreetMap proxy/cache)
+
+The following SQL should be executed against the MySQL server for the NetCentral Server:
 
   create schema netcentral;
   create user 'netcentral'@'localhost' IDENTIFIED BY 'netcentral';
   grant all privileges on netcentral.* to 'netcentral'@'localhost';
   flush privileges;
 
-If you wish to change the default databasename / username / password from netcentral / netcentral, the syntax is as follows:
+The following SQL should be executed against the MySQL server for the NetCentral osm-proxy-cache:
+
+  create schema netcentral_osmproxy;
+  create user 'netcentral_osmproxy'@'localhost' IDENTIFIED BY 'netcentral_osmproxy';
+  grant all privileges on netcentral_osmproxy.* to 'netcentral_osmproxy'@'localhost';
+  flush privileges;
+
+
+If you wish to change the default databasename / username / password from defaults, the syntax is as follows:
 
   create schema databasename;
   create user 'your_username'@'localhost' IDENTIFIED BY 'your_password';
@@ -109,6 +119,7 @@ Click on that release to see the list of components and artifacts you can downlo
 The necessary downloads are:
 netcentral-documents-*.zip
 netcentral-server-*.jar
+osm-proxy-cache-*.jar
 netcentral-ui-*.zip
 transceiver-aprsis-*.jar
 
@@ -180,6 +191,7 @@ At a minimum, the following environment variables need to be set:
   NETCENTRAL_TRANS_APRSIS_PASSCODE=YourAPRSISpasscode
   NETCENTRAL_TRANS_APRSIS_CALLSIGN=YourCallsign
   NETCENTRAL_SERVER_TEMP_DIR=TempLocationForLogsAndReports
+  NETCENTRAL_OSMPC_TEMP_DIR=TempLocationForOSMProxyCacheLogs
 
 The following values should be used in future steps for initializing Net Central:
   NETCENTRAL_SERVER_USERNAME=serviceAccountName
@@ -188,15 +200,36 @@ The following values should be used in future steps for initializing Net Central
   NETCENTRAL_TRANS_APRSIS_QUERY=r/42.222/-71.57/500
   This can represent an APRS-IS server query for your location. See https://www.aprs-is.net/javAPRSFilter.aspx for more details.
 
-If you change the default netcentral/netcentral/netcentral database name/username/password when initializing MySQL, you must also set these environment variables:
+If you change the default netcentral/netcentral/netcentral database name/username/password when initializing MySQL for Net Central Server, you must also set these environment variables:
   NETCENTRAL_SERVER_MYSQL_USERNAME=your_username
   NETCENTRAL_SERVER_MYSQL_PASSWORD=your_password
   NETCENTRAL_SERVER_MYSQL_DBNAME=databasename
+  NETCENTRAL_SERVER_MYSQL_PORT=port_number
+
+If you change the default netcentral/netcentral/netcentral database name/username/password when initializing MySQL for Net Central Server, you must also set these environment variables:
+  NETCENTRAL_OSMPC_MYSQL_USERNAME=your_username
+  NETCENTRAL_OSMPC_MYSQL_PASSWORD=your_password
+  NETCENTRAL_OSMPC_MYSQL_DBNAME=databasename
+  NETCENTRAL_OSMPC_MYSQL_PORT=port_number
 
 Make sure that you create the following directories based on your value of TempLocationForLogsAndReports above
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%\logs
   mkdir %NETCENTRAL_SERVER_TEMP_DIR%\reports
+
+Make sure that you create the following directories based on your value of TempLocationForOSMProxyCacheLogs above
+
+  mkdir %NETCENTRAL_OSMPC_TEMP_DIR%
+  mkdir %NETCENTRAL_OSMPC_TEMP_DIR%\logs
+
+To change the mode which the OSM proxy cache operates, make the following changes
+
+  SET NETCENTRAL_OSMPC_CONFIG=proxycache 
+    operates as both a proxy and a cache and is the default
+  SET NETCENTRAL_OSMPC_CONFIG=cache
+    operates as only a cache and will not look up map information from an OSM server
+  SET NETCENTRAL_OSMPC_CONFIG=proxy 
+    operates as only a proxy and will not cache map information locally
 
 Make sure the environment variables are in the proper format for the operating system being used (forward vs back slashes).
 
@@ -235,7 +268,12 @@ To run Net Central server from a command prompt / terminal, do the following:
   From the Net Central source code directory, change directory to ./netcentral-server/target
   Run "ls netcentral-server*.jar" or  "dir netcentral-server*.jar" to find the jar filename
   Run "java -jar filename.jar -Dmicronaut.environments=[mysql|h2]" using the file name (with version) from last step.
-  Modify the run command above to choose between mysql or h2.  mysql will use an external MySql database; h2 will use an embedded Sqlite database.
+  Modify the run command above to choose between mysql or h2.  mysql will use an external MySQL database; h2 will use an embedded SQLite database.
+
+To run Net Central osm-proxy-cache from a command prompt / terminal, do the following:
+  From the Net Central source code directory, change directory to ./osm-proxy-cache/target
+  Run "ls osm-proxy-cache*.jar" or  "dir osm-proxy-cache*.jar" to find the jar filename
+  Run "java -jar filename.jar" using the file name (with version) from last step.
 
 To run Net Central APRS-IS transceiver from a command prompt / terminal, do the following:
   From the Net Central source code directory, change directory to ./transceivers/transceiver-aprsis/target
@@ -296,16 +334,14 @@ Net Central should now be up and running!
 
 Verify that you are seeing new APRS objects using the Dashboard or Explorer pages in the UI.
 
-
-
 Addendum - Environment variables
 
 Mandatory
 NETCENTRAL_SERVER_TMP_DIR
+NETCENTRAL_OSMPC_TEMP_DIR 
 NETCENTRAL_SERVER_USERNAME
 NETCENTRAL_SERVER_PASSWORD
 NETCENTRAL_APRS_CALLSIGN
-
 
 Optional
 NETCENTRAL_SERVER_HTTP_PORT     default 8880
@@ -323,6 +359,14 @@ VITE_APP_UPDATE_PORT              default 8881
 VITE_APP_API_HOST                 default not specified (defaults to Node.JS address)
 VITE_APP_MAP_SERVER_URL           https://tile.openstreetmap.org/{z}/{x}/{y}.png
 
+NETCENTRAL_OSMPC_HTTP_PORT      default 8889
+NETCENTRAL_OSMPC_HTTPS_PORT     default 4449
+NETCENTRAL_OSMPC_CONFIG         default proxycache (default) | cache | proxy
+NETCENTRAL_OSMPC_MYSQL_HOST     default localhost
+NETCENTRAL_OSMPC_MYSQL_PORT     default 3306
+NETCENTRAL_OSMPC_MYSQL_DBNAME   default netcentral_osmproxy
+NETCENTRAL_OSMPC_MYSQL_USERNAME default netcentral_osmproxy
+NETCENTRAL_OSMPC_MYSQL_PASSWORD default netcentral_osmproxy
 
 
 All transceivers

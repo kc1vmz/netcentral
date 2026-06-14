@@ -43,21 +43,33 @@ if [ "$NC_OS" = "Linux" ]; then
   sudo sed -i '/NETCENTRAL_TRANS_KISS_TNC_INIT1/d' /etc/environment
   sudo sed -i '/NETCENTRAL_TRANS_KISS_TNC_INIT2/d' /etc/environment
   sudo sed -i '/NETCENTRAL_INSTALL_DIR/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_HTTP_PORT/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_HTTPS_PORT/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_CONFIG/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_MYSQL_HOST/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_MYSQL_PORT/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_MYSQL_DBNAME/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_MYSQL_USERNAME/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_MYSQL_PASSWORD/d' /etc/environment
+  sudo sed -i '/NETCENTRAL_OSMPC_TEMP_DIR/d' /etc/environment
 
   echo Removing services
   sudo systemctl stop netcentral-ui
+  sudo systemctl stop osm-proxy-cache
   sudo systemctl stop netcentral-transceiver-aprsis
   sudo systemctl stop netcentral-transceiver-kenwood
   sudo systemctl stop netcentral-transceiver-kiss
   sudo systemctl stop netcentral-server
 
   sudo systemctl disable netcentral-server
+  sudo systemctl disable osm-proxy-cache
   sudo systemctl disable netcentral-transceiver-aprsis
   sudo systemctl disable netcentral-transceiver-kenwood
   sudo systemctl disable netcentral-transceiver-kiss
   sudo systemctl disable netcentral-ui
 
   sudo rm /etc/systemd/system/netcentral-server.service
+  sudo rm /etc/systemd/system/osm-proxy-cache.service
   sudo rm /etc/systemd/system/netcentral-transceiver-aprsis.service
   sudo rm /etc/systemd/system/netcentral-transceiver-kenwood.service
   sudo rm /etc/systemd/system/netcentral-transceiver-kiss.service
@@ -69,6 +81,7 @@ if [ "$NC_OS" = "Linux" ]; then
     echo Deleting Net Central server and transceiver files
     sudo rm transceiver*.jar
     sudo rm netcentral-server*.jar
+    sudo rm osm-proxy-cache*.jar
     echo Not deleting ${NETCENTRAL_INSTALL_DIR} - delete independently.
   else
     echo Net Central installation directory unknown- delete independently.
@@ -82,6 +95,14 @@ if [ "$NC_OS" = "Linux" ]; then
     echo Not deleting ${NETCENTRAL_SERVER_TEMP_DIR} - delete independently.
   else
     echo Net Central temporary directory unknown - delete independently.
+  fi
+
+  if [ -n "${NETCENTRAL_OSMPC_TEMP_DIR+x}" ]; then
+    echo Deleting Net Central temporary sub-directories
+    sudo rm ${NETCENTRAL_OSMPC_TEMP_DIR}/logs
+    echo Not deleting ${NETCENTRAL_OSMPC_TEMP_DIR} - delete independently.
+  else
+    echo Net Central OSM Proxy Cache temporary directory unknown - delete independently.
   fi
 
   echo Not uninstalling MariaDB - uninstall independently.

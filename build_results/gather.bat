@@ -5,6 +5,7 @@ echo Gathering files for upload to Github
 
 copy ..\installers\docker\target\netcentral-docker-image-build-scripts*.zip target
 copy ..\netcentral-server\target\netcentral-server*.jar target
+copy ..\osm-proxy-cache\target\osm-proxy-cache*.jar target
 copy ..\transceivers\transceiver-agw\target\transceiver-agw*.jar target
 copy ..\transceivers\transceiver-aprsis\target\transceiver-aprsis*.jar target
 copy ..\transceivers\transceiver-kenwood\target\transceiver-kenwood*.jar target

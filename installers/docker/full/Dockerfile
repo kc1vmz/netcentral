@@ -35,15 +35,20 @@ RUN mkdir -p /netcentral/src/ui
 ADD installers/docker/full/image_files/all_processes.sh /netcentral/src/all_processes.sh
 ADD installers/docker/full/image_files/nc_mysql_init.sh /netcentral/src/nc_mysql_init.sh
 ADD installers/docker/full/image_files/nc_mysql_init_done.sh /netcentral/src/nc_mysql_init_done.sh
+ADD installers/docker/full/image_files/nc_osmpc_mysql_init.sh /netcentral/src/nc_osmpc_mysql_init.sh
+ADD installers/docker/full/image_files/nc_osmpc_mysql_init_done.sh /netcentral/src/nc_osmpc_mysql_init_done.sh
 RUN ["dos2unix", "/netcentral/src/all_processes.sh"]
 RUN ["dos2unix", "/netcentral/src/nc_mysql_init.sh"]
 RUN ["dos2unix", "/netcentral/src/nc_mysql_init_done.sh"]
+RUN ["dos2unix", "/netcentral/src/nc_osmpc_mysql_init.sh"]
+RUN ["dos2unix", "/netcentral/src/nc_osmpc_mysql_init_done.sh"]
 
 ADD installers/docker/full/image_files/nc_setcap.sh /netcentral/src/nc_setcap.sh
 RUN ["dos2unix", "/netcentral/src/nc_setcap.sh"]
 RUN ["/netcentral/src/nc_setcap.sh"]
 
 ADD netcentral-server/target/netcentral-server-1.0.21.jar /netcentral/src/netcentral-server.jar
+ADD osm-proxy-cache/target/osm-proxy-cache-1.0.21.jar /netcentral/src/osm-proxy-cache.jar
 ADD transceivers/transceiver-agw/target/transceiver-agw-1.0.21.jar /netcentral/src/transceiver-agw.jar
 ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.21.jar /netcentral/src/transceiver-aprsis.jar
 ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.21.jar /netcentral/src/transceiver-kenwood.jar
@@ -64,6 +69,12 @@ ADD installers/docker/full/image_files/netcentral-server /etc/init.d/netcentral-
 RUN ["dos2unix", "/etc/init.d/netcentral-server"]
 RUN chmod +x /etc/init.d/netcentral-server
 RUN rc-update add netcentral-server default
+
+# make sure netcentral osm-proxy-cache auto-starts
+ADD installers/docker/full/image_files/osm-proxy-cache /etc/init.d/osm-proxy-cache
+RUN ["dos2unix", "/etc/init.d/osm-proxy-cache"]
+RUN chmod +x /etc/init.d/osm-proxy-cache
+RUN rc-update add osm-proxy-cache default
 
 # make sure netcentral-transceiver-aprsis auto-starts
 ADD installers/docker/full/image_files/netcentral-transceiver-aprsis /etc/init.d/netcentral-transceiver-aprsis

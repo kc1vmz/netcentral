@@ -1,3 +1,5 @@
+package osm.proxy.cache.record;
+
 /*
     Net Central
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -18,12 +20,14 @@
     http://www.kc1vmz.com
 */
 
-export function getMapServerUrl() {
-  var ret = import.meta.env.VITE_APP_MAP_SERVER_URL;
-  var defaultMapServerUrl = "http://localhost:8889/api/v1/tiles/{z}/{x}/{y}";
-  
-  if ((ret == undefined) || (ret == null) || (ret == '')) {
-    ret = defaultMapServerUrl;
-  }
-  return ret;
+import java.time.ZonedDateTime;
+
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.data.annotation.Id;
+import io.micronaut.data.annotation.MappedEntity;
+import jakarta.persistence.Lob;
+import jakarta.validation.constraints.NotBlank;
+
+@MappedEntity("tile")
+public record TileRecord(@Id @NonNull @NotBlank String tile_key, @NonNull @NotBlank Integer x, @NonNull @NotBlank Integer y, @NonNull @NotBlank Integer z, @Lob @NonNull @NotBlank byte[] data, @NonNull @NotBlank ZonedDateTime fetch_time) {  
 }

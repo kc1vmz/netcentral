@@ -1,10 +1,16 @@
 @echo off
 echo Welcome to the Net Central installer for Microsoft Windows
+echo Currently not complete - exiting.
+goto exit
 
 SET NC_INSTALL_DIR=%USERPROFILE%\netcentral
 SET NC_DB_NAME=netcentral
 SET NC_DB_USER=netcentral
 SET NC_DB_PASS=netcentral
+SET NC_OSMPC_DB_NAME=netcentral_osmproxycache
+SET NC_OSMPC_DB_USER=netcentral_osmproxycache
+SET NC_OSMPC_DB_PASS=netcentral_osmproxycache
+
 SET NC_SVC_USER=serviceAccount
 SET NC_SVC_PASS=serviceAccountPassword
 SET NC_DEVMODE=N
@@ -24,6 +30,9 @@ SET /P "NC_TEMP_DIR=Where should Net Central temp space be located? (Default: %N
 SET /P "NC_DB_NAME=Net Central database name? (Default: %NC_DB_NAME%): "
 SET /P "NC_DB_USER=Net Central database username? (Default: %NC_DB_USER%): "
 SET /P "NC_DB_PASS=Net Central database password?: "
+SET /P "NC_OSMPC_DB_NAME=Net Central OSM Proxy Cache database name? (Default: %NC_OSMPC_DB_NAME%): "
+SET /P "NC_OSMPC_DB_USER=Net Central OSM Proxy Cache database username? (Default: %NC_OSMPC_DB_USER%): "
+SET /P "NC_OSMPC_DB_PASS=Net Central OSM Proxy Cache database password?: "
 SET /P "NC_SVC_USER=Net Central service account username? (Default: %NC_SVC_USER%): "
 SET /P "NC_SVC_PASS=Net Central service account password?: "
 SET /P "NC_CALLSIGN=What is your callsign?: "
@@ -32,11 +41,15 @@ SET NC_SRC_URL=https://github.com/kc1vmz/netcentral/archive/refs/tags/v%NC_VERSI
 
 SET NETCENTRAL_APRS_CALLSIGN=%NC_CALLSIGN%
 SET NETCENTRAL_SERVER_TEMP_DIR=%NC_TEMP_DIR%
+SET NETCENTRAL_OSMPC_TEMP_DIR=%NC_TEMP_DIR%
 SET NETCENTRAL_SERVER_USERNAME=%NC_SVC_USER%
 SET NETCENTRAL_SERVER_PASSWORD=%NC_SVC_PASS%
 SET NETCENTRAL_SERVER_MYSQL_USERNAME=%NC_DB_USER%
 SET NETCENTRAL_SERVER_MYSQL_PASSWORD=%NC_DB_PASS%
 SET NETCENTRAL_SERVER_MYSQL_DBNAME=%NC_DB_NAME%
+SET NETCENTRAL_OSMPC_MYSQL_USERNAME=%NC_OSMPC_DB_USER%
+SET NETCENTRAL_OSMPC_MYSQL_PASSWORD=%NC_OSMPC_DB_PASS%
+SET NETCENTRAL_OSMPC_MYSQL_DBNAME=%NC_OSMPC_DB_NAME%
 
 rem  echo "NETCENTRAL_APRS_CALLSIGN=$NETCENTRAL_APRS_CALLSIGN" | sudo tee -a /etc/environment >  /dev/null
 rem  echo "NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee -a /etc/environment >  /dev/null
@@ -76,6 +89,7 @@ mkdir %NC_TEMP_DIR%\src
 
 SET NC_SRC_URL_ROOT=https://github.com/kc1vmz/netcentral/releases/download/v%NC_VERSION%
 wget -q -O netcentral-server-%NC_VERSION%.jar %NC_SRC_URL_ROOT%\netcentral-server-%NC_VERSION%.jar
+wget -q -O osm-proxy-cache-%NC_VERSION%.jar %NC_SRC_URL_ROOT%\osm-proxy-cache-%NC_VERSION%.jar
 wget -q -O netcentral-ui.zip %NC_SRC_URL_ROOT%\netcentral-ui-%NC_VERSION%.zip
 wget -q -O transceiver-aprsis-%NC_VERSION%.jar %NC_SRC_URL_ROOT%\transceiver-aprsis-%NC_VERSION%.jar
 wget -q -O transceiver-kenwood-%NC_VERSION%.jar %NC_SRC_URL_ROOT%\transceiver-kenwood-%NC_VERSION%.jar
@@ -97,6 +111,9 @@ SET NC_INSTALL_DIR=
 SET NC_DB_NAME=
 SET NC_DB_USER=
 SET NC_DB_PASS=
+SET NC_OSMPC_DB_NAME=
+SET NC_OSMPC_DB_USER=
+SET NC_OSMPC_DB_PASS=
 SET NC_SVC_USER=
 SET NC_SVC_PASS=
 SET NC_DEVMODE=
@@ -108,3 +125,5 @@ SET NC_VERSION=
 SET NC_DB_CREATE=
 SET NC_JAVA_INSTALL=
 SET NC_INSTALL_SERVICES=
+
+:exit

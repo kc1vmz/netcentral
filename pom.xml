@@ -28,6 +28,7 @@
 	<modules>
 		<module>lib</module>
 		<module>netcentral-server</module>
+		<module>osm-proxy-cache</module>
 		<module>transceivers</module> 
 		<module>ui/net-central-ui</module> 
 		<module>installers/docker</module> 

@@ -5,6 +5,7 @@ pause
 echo Creating temporary directory structure
 mkdir tmp
 mkdir tmp\netcentral-server\target
+mkdir tmp\osm-proxy-cache\target
 mkdir tmp\transceivers\transceiver-aprsis\target
 mkdir tmp\transceivers\transceiver-agw\target
 mkdir tmp\transceivers\transceiver-kenwood\target
@@ -17,6 +18,7 @@ echo  Fetching files from github
 set NC_SRC_URL_ROOT=https://github.com/kc1vmz/netcentral/releases/download/v%1
 
 curl -L -o tmp\netcentral-server\target\netcentral-server-%1.jar %NC_SRC_URL_ROOT%/netcentral-server-%1.jar
+curl -L -o tmp\osm-proxy-cache\target\osm-proxy-cache-%1.jar %NC_SRC_URL_ROOT%/osm-proxy-cache-%1.jar
 curl -L -o tmp\ui\net-central-ui\target\netcentral-ui-%1.zip %NC_SRC_URL_ROOT%/netcentral-ui-%1.zip
 curl -L -o tmp\transceivers\transceiver-agw\target\transceiver-agw-%1.jar %NC_SRC_URL_ROOT%/transceiver-agw-%1.jar
 curl -L -o tmp\transceivers\transceiver-aprsis\target\transceiver-aprsis-%1.jar %NC_SRC_URL_ROOT%/transceiver-aprsis-%1.jar

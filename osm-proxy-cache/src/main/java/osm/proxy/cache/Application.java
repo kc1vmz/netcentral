@@ -1,3 +1,5 @@
+package osm.proxy.cache;
+
 /*
     Net Central
     Copyright (c) 2026 John Rokicki KC1VMZ
@@ -18,12 +20,24 @@
     http://www.kc1vmz.com
 */
 
-export function getMapServerUrl() {
-  var ret = import.meta.env.VITE_APP_MAP_SERVER_URL;
-  var defaultMapServerUrl = "http://localhost:8889/api/v1/tiles/{z}/{x}/{y}";
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import io.micronaut.runtime.Micronaut;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+
+@OpenAPIDefinition(
+    info = @Info(
+            title = "osm-proxy-cache",
+            version = "1.0.21"
+    )
+)
+
+public class Application {
+    public static void main(String[] args) {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
   
-  if ((ret == undefined) || (ret == null) || (ret == '')) {
-    ret = defaultMapServerUrl;
-  }
-  return ret;
+        Micronaut.build(args).banner(false).start();
+    }
 }

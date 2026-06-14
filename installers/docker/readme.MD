@@ -54,10 +54,12 @@ If you are using the "split" version, this is mandatory.  A MariaDB/MySQL contai
 Environment variables must be set for Net Central to use the external database:
 - NETCENTRAL_SERVER_MYSQL_HOST
 - NETCENTRAL_SERVER_MYSQL_PORT
+- NETCENTRAL_OSMPC_MYSQL_HOST
+- NETCENTRAL_OSMPC_MYSQL_PORT
 
 Once you have your MariaDB / MySQL instance running, it must be updated with a Net Central user and schema.
 
-The following commands must be performed:
+The following commands must be performed for the Net Central Server:
 
 SET GLOBAL max_connections = 128;
 create schema netcentral;
@@ -70,6 +72,20 @@ This assumes you are using the default values for username, password and schema 
 - NETCENTRAL_SERVER_MYSQL_DBNAME
 - NETCENTRAL_SERVER_MYSQL_USERNAME
 - NETCENTRAL_SERVER_MYSQL_PASSWORD
+
+The following commands must be performed for the Net Central OSM Proxy Cache:
+
+SET GLOBAL max_connections = 128;
+create schema netcentral_osmproxycache;
+create user netcentral_osmproxycache@'localhost' IDENTIFIED BY 'netcentral_osmproxycache';
+grant all privileges on netcentral_osmproxycache.* to 'netcentral_osmproxycache'@'localhost';
+flush privileges;
+
+This assumes you are using the default values for username, password and schema name.  If you choose to change them, environment variables must also be changed when running your containers.
+
+- NETCENTRAL_OSMPC_MYSQL_DBNAME
+- NETCENTRAL_OSMPC_MYSQL_USERNAME
+- NETCENTRAL_OSMPC_MYSQL_PASSWORD
 
 From the above commands, this is the syntax for properly replacing the values:
 
@@ -206,7 +222,7 @@ Certain helper files are placed on the image and ensured to be in Unix format.
 setcap is run to allow Node.JS to run on port 80.
 Net Central built binaries for the server, transceivers and UI are placed on the image.
 MariaDB is set to start on startup, but will be manually started later.
-Net Central server and APRS-IS transceiver are set up as services with rc-service. They will be manually started later.
+Net Central server, osm-proxy-cache and APRS-IS transceiver are set up as services with rc-service. They will be manually started later.
 Net Central UI (using Node.JS) is set up as a service, but that doesn't yet work. It will be manually started later.
 Net Central UI zip file is expanded and prepared with an "npm install".
 The command "/netcentral/src/all_processes.sh & sleep infinity" is issued to start the software when the container starts and never stop.
@@ -217,6 +233,7 @@ Starts the MariaDB database
 Initializes the database with required users, schemas and privileges.
 Net Central's required environment variables are forced by "/netcentral/src/config_env.sh" into the proper /etc/conf.d directories, as rc-service does not inherit them from the container.
 Net Central server is started as a service
+Net Central osm-proxy-cache is started as a service
 Net Central APRS-IS transceiver service is started as a service
 Node.JS UI is started manually and detached
 
@@ -231,7 +248,7 @@ Net Central directory structure is then placed on the image.
 Certain helper files are placed on the image and ensured to be in Unix format.
 In the UI image, setcap is run to allow Node.JS to run on port 80.
 Selected Net Central built binaries are placed on the image, depending on the container.
-Net Central server and APRS-IS transceiver are set up as services with rc-service in their imeages. They will be manually started later.
+Net Central server, osm-proxy-cache and APRS-IS transceiver are set up as services with rc-service in their imeages. They will be manually started later.
 
 In the UI image, Net Central UI (using Node.JS) is set up as a service, but that doesn't yet work. It will be manually started later.
 Net Central UI zip file is expanded and prepared with an "npm install".
@@ -241,6 +258,7 @@ Upon starting the container, the following steps are performed:
 When "/netcentral/src/*_processes.sh" runs, it does the following:
 Net Central's required environment variables are forced by "/netcentral/src/config_env.sh" into the proper /etc/conf.d directories, as rc-service does not inherit them from the container.
 In the server container, Net Central server is started as a service
+In the osm-proxy-cache container, Net Central osm-proxy-cache is started as a service
 In the transceiver container, Net Central APRS-IS transceiver service is started as a service
 In the UI container, Node.JS UI is started manually and detached
 
@@ -253,3 +271,4 @@ The h2 variant images will not install or rely upon MariaDB.  But a database fil
 
 For best results, place the database file on an exported file share on the host to ensure data is not lost and growth will not impact the running container.
 
+The osm-proxy-cache cannot be used in an h2 environment.
