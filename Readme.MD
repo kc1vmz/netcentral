@@ -198,19 +198,19 @@ Each service can be found in its /target subdirectory after the build has comple
 ### Running Net Central Server
 
 To run the JAR file, specify:  
-    java -Dmicronaut.environments=mysql -jar netcentral-server-1.0.22.jar
+    java -Dmicronaut.environments=mysql -jar netcentral-server-1.0.23.jar
 or
-    java -Dmicronaut.environments=h2 -jar netcentral-server-1.0.22.jar
+    java -Dmicronaut.environments=h2 -jar netcentral-server-1.0.23.jar
 
 You must choose between mysql (an external MySQL database running locally or remotely) or h2 (an Sqlite embedded database).
 
 ### Running Net Central Transceiver Modules
 
-transceiver-agw-1.0.22.jar  
-transceiver-aprsis-1.0.22.jar  
-transceiver-kenwood-1.0.22.jar  
-transceiver-kiss-1.0.22.jar  
-transceiver-test-1.0.22.jar  
+transceiver-agw-1.0.23.jar  
+transceiver-aprsis-1.0.23.jar  
+transceiver-kenwood-1.0.23.jar  
+transceiver-kiss-1.0.23.jar  
+transceiver-test-1.0.23.jar  
 
 To run the JAR file, specify:  
     java -jar jar-file-name

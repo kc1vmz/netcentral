@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>osm.proxy.cache</groupId>
   <artifactId>osm-proxy-cache</artifactId>
-  <version>1.0.22</version>
+  <version>1.0.23</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -25,7 +25,7 @@
 		<release.version>17</release.version>
 		<maven.compiler.target>17</maven.compiler.target>
 		<maven.compiler.source>17</maven.compiler.source>
-    <netcentral.version>1.0.22</netcentral.version>
+    <netcentral.version>1.0.23</netcentral.version>
   </properties>
 
   <dependencies>

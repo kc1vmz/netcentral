@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>transceiver.agw</groupId>
   <artifactId>transceiver-agw</artifactId>
-  <version>1.0.22</version>
+  <version>1.0.23</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -22,7 +22,7 @@
     <micronaut.aot.packageName>transceiver.agw.aot.generated</micronaut.aot.packageName>
     <micronaut.runtime>netty</micronaut.runtime>
     <exec.mainClass>netcentral.transceiver.agw.Application</exec.mainClass>
-    <netcentral.version>1.0.22</netcentral.version>
+    <netcentral.version>1.0.23</netcentral.version>
   </properties>
 
   <dependencies>
