@@ -23,6 +23,7 @@ services:
       - NETCENTRAL_OSMPC_MYSQL_PORT=3306
       - NETCENTRAL_OSMPC_MYSQL_DBNAME=netcentral_osmproxycache
       - NETCENTRAL_OSMPC_MYSQL_USERNAME=netcentral_osmproxycache
+      - NETCENTRAL_OSMPC_MYSQL_PASSWORD=netcentral_osmproxycache
       - NETCENTRAL_OSMPC_TEMP_DIR=/netcentral/tmp
   netcentral-transceiver-aprsis:
     image: netcentral-transceiver-aprsis:1.0.22
@@ -46,7 +47,7 @@ services:
       - NETCENTRAL_SERVER_UPDATE_HTTP_PORT=8881
       - VITE_APP_API_PORT=9880
       - VITE_APP_API_HOST=localhost
-      - VITE_APP_MAP_SERVER_URL="http://localhost:8889/api/v1/tiles/{z}/{x}/{y}
+      - VITE_APP_MAP_SERVER_URL=http://localhost:8889/api/v1/tiles/{z}/{x}/{y}
       - NETCENTRAL_SERVER_USERNAME=serviceAccount
       - NETCENTRAL_SERVER_PASSWORD=serviceAccountPassword
       - NETCENTRAL_APRS_CALLSIGN=YOUR_CALLSIGN_HERE

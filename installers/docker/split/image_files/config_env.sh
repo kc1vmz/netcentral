@@ -21,6 +21,8 @@ echo "export NETCENTRAL_SERVER_SQLITE_PASSWORD=$NETCENTRAL_SERVER_SQLITE_PASSWOR
 echo "export NETCENTRAL_OSMPC_MYSQL_HOST=$NETCENTRAL_OSMPC_MYSQL_HOST" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
 echo "export NETCENTRAL_OSMPC_MYSQL_PORT=$NETCENTRAL_OSMPC_MYSQL_PORT" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
 echo "export NETCENTRAL_OSMPC_MYSQL_DBNAME=$NETCENTRAL_OSMPC_MYSQL_DBNAME" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
+echo "export NETCENTRAL_OSMPC_MYSQL_USERNAME=$NETCENTRAL_OSMPC_MYSQL_USERNAME" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
+echo "export NETCENTRAL_OSMPC_MYSQL_PASSWORD=$NETCENTRAL_OSMPC_MYSQL_PASSWORD" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
 echo "export NETCENTRAL_OSMPC_TEMP_DIR=$NETCENTRAL_OSMPC_TEMP_DIR" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
 
 echo "export VITE_APP_API_URL=$VITE_APP_API_URL" | sudo tee -a /etc/conf.d/netcentral-ui >  /dev/null

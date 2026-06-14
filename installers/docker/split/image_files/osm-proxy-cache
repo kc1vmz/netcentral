@@ -4,7 +4,7 @@ description="NetCentral OSM map tile proxy and cache"
 retry="60"
 pidfile="/run/osm-proxy-cache/$RC_SVCNAME.pid"
 command="/opt/java/openjdk/bin/java"
-command_args="-jar /netcentral/src/osm-proxy-cache.jar </dev/null &>/dev/null &"
+command_args="-jar /netcentral/bin/osm-proxy-cache.jar </dev/null &>/dev/null &"
 
 depend() {
     need net

@@ -29,7 +29,7 @@ ADD installers/docker/split/image_files/config_env.sh /netcentral/bin/config_env
 RUN ["dos2unix", "/netcentral/bin/config_env.sh"]
 RUN chmod +x /netcentral/bin/config_env.sh
 
-# make sure netcentral-server auto-starts
+# make sure OSM proxy cache auto-starts
 ADD installers/docker/split/image_files/osm-proxy-cache /etc/init.d/osm-proxy-cache
 RUN ["dos2unix", "/etc/init.d/osm-proxy-cache"]
 RUN chmod +x /etc/init.d/osm-proxy-cache
