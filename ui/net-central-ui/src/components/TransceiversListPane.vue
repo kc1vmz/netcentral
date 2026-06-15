@@ -114,6 +114,11 @@ const headers = [
 </script>
 
 <template>
+    <br>
+    <div>
+      Net Central uses individual tranceiver modules to communicate via APRS.  They are listed here and their properties and behaviors can be modified by selecting one in the list. 
+    </div>
+    <br>
     <!-- main page -->
     <EasyDataTable :headers="headers" :items="registeredTransceiversRef.value" 
       :body-row-class-name="getBodyRowClass"

@@ -100,17 +100,6 @@ function updateSettings() {
 }
 
 function updateRefs() {
-    objectBeaconMinutesRef.value = settingsRef.value.objectBeaconMinutes;
-    objectCleanupMinutesRef.value = settingsRef.value.objectCleanupMinutes;
-    reportCleanupMinutesRef.value = settingsRef.value.reportCleanupMinutes;
-    scheduledNetCheckMinutesRef.value = settingsRef.value.scheduledNetCheckMinutes;
-    netParticipantReminderMinutesRef.value = settingsRef.value.netParticipantReminderMinutes;
-    netReportMinutesRef.value = settingsRef.value.netReportMinutes;
-    bulletinAnnounceRef.value = settingsRef.value.bulletinAnnounce;
-    mapDefaultLatitudeMinRef.value = settingsRef.value.mapDefaultLatitudeMin;
-    mapDefaultLongitudeMinRef.value = settingsRef.value.mapDefaultLongitudeMin;
-    mapDefaultLatitudeMaxRef.value = settingsRef.value.mapDefaultLatitudeMax;
-    mapDefaultLongitudeMaxRef.value = settingsRef.value.mapDefaultLongitudeMax;
     federatedRef.value = (settingsRef.value.federated) ? "true" : "false";
     federatedPushUdpRef.value = (settingsRef.value.federatedPushUdp) ? "true" : "false";
     federatedPushMessageRef.value = (settingsRef.value.federatedPushMessage) ? "true" : "false";
@@ -128,18 +117,11 @@ function update() {
 
 <template>
   <div v-if="(settingsRef.value != null)">
+    <br>
     <div>
-      <br>
-      <b>Announcements</b>      
+      Net Central can be configured for share information with other Net Central instances in a federated way.  Those settings can be changed here.
     </div>
-    <div class="field-group">
-      <label for="bulletinAnnounce">Announcement bulletin:</label>
-      <input type="text" id="bulletinAnnounce" v-model="bulletinAnnounceRef.value"/>
-    </div>
-    <div>
-      <br>
-      <b>Federated support</b>      
-    </div>
+    <br>
     <div class="field-group">
         <label for="federated">Enabled?</label>
         <select name="federated" id="federated" v-model="federatedRef.value" >
@@ -167,54 +149,6 @@ function update() {
           <option value="true" selected>Yes</option>
           <option value="false">No</option>
         </select>
-    </div>
-    <div>
-      <br>
-      <b>Activity Timers</b>      
-    </div>
-    <div class="field-group">
-      <label for="objectBeaconMinutes">Object beacon (minutes):</label>
-      <input type="number" id="objectBeaconMinutes" v-model="objectBeaconMinutesRef.value" min="10"/>
-    </div>
-    <div class="field-group">
-      <label for="objectCleanupMinutes">Object cleanup (minutes):</label>
-      <input type="number" id="objectCleanupMinutes" v-model="objectCleanupMinutesRef.value" min="10"/>
-    </div>
-    <div class="field-group">
-      <label for="reportCleanupMinutes">Report beacon (minutes):</label>
-      <input type="number" id="reportCleanupMinutes" v-model="reportCleanupMinutesRef.value" min="10"/>
-    </div>
-    <div class="field-group">
-      <label for="scheduledNetCheckMinutes">Scheduled net check (minutes):</label>
-      <input type="number" id="scheduledNetCheckMinutes" v-model="scheduledNetCheckMinutesRef.value" min="10"/>
-    </div>
-    <div class="field-group">
-      <label for="netParticipantReminderMinutes">Net participant reminder (minutes):</label>
-      <input type="number" id="netParticipantReminderMinutes" v-model="netParticipantReminderMinutesRef.value" min="10"/>
-    </div>
-    <div class="field-group">
-      <label for="netReportMinutes">Net report (minutes):</label>
-      <input type="number" id="netReportMinutes" v-model="netReportMinutesRef.value" min="10"/>
-    </div>
-    <div>
-      <br>
-      <b>Map defaults</b>      
-    </div>
-    <div class="field-group">
-      <label for="mapDefaultLatitudeMin">Latitude (min):</label>
-      <input type="number" id="mapDefaultLatitudeMin" v-model="mapDefaultLatitudeMinRef.value"/>
-    </div>
-    <div class="field-group">
-      <label for="mapDefaultLongitudeMin">Longitude (min):</label>
-      <input type="number" id="mapDefaultLongitudeMin" v-model="mapDefaultLongitudeMinRef.value"/>
-    </div>
-    <div class="field-group">
-      <label for="mapDefaultLatitudeMax">Latitude (max):</label>
-      <input type="number" id="mapDefaultLatitudeMax" v-model="mapDefaultLatitudeMaxRef.value"/>
-    </div>
-    <div class="field-group">
-      <label for="mapDefaultLongitudeMax">Longitude (max)</label>
-      <input type="number" id="mapDefaultLongitudeMax" v-model="mapDefaultLongitudeMaxRef.value"/>
     </div>
     <div>
       <br>

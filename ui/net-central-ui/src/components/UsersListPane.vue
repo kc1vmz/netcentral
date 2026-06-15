@@ -113,6 +113,11 @@ const headers = [
 </script>
 
 <template>
+    <br>
+    <div>
+      Net Central server maintains a set of users and their privileges. They are listed here and their properties and behaviors can be modified by selecting one in the list. 
+    </div>
+    <br>
     <EasyDataTable :headers="headers" :items="usersRef.value" 
     :rows-per-page="10"
     @click-row="showRow"

@@ -22,132 +22,57 @@
   <div>
       <PageHeaderPane title="Setup" description="Configuration settings for Net Central."/>
       <div>
-        <splitpanes class="default-theme" horizontal style="height: 100vh; width: 100%" @resized="storePaneSize1">
-          <pane style="width: 100%" :size="paneSizes1">
+        <br>
+        <Tabs>
+          <Tab value="Announcements">
             <div class="content">
-              <div class="pagesubheader">Transceiver Configuration</div>
-              <splitpanes vertical  @resized="storePaneSize2">
-                <pane min-size="40" max-size="60" :size="paneSizes2">
-                  <div class="content">
-                    <TransceiversListPane/> 
-                  </div>
-                </pane>
-                <pane min-size="40" max-size="60" :size="100-paneSizes2">
-                  <div class="content">
-                    <TransceiverDetailsPane/> 
-                  </div>
-                </pane>
-              </splitpanes>
+              <SettingsAnnouncementsPane/> 
             </div>
-          </pane>
-          <pane style="width: 100%" :size="paneSizes4">
+          </Tab>
+          <Tab value="Federation">
             <div class="content">
-              <div class="pagesubheader">Users</div>
-              <splitpanes vertical @resized="storePaneSize3">
-                <pane min-size="40" max-size="60" :size="paneSizes3">
-                  <div class="content">
-                    <UsersListPane/> 
-                  </div>
-                </pane>
-                <pane min-size="40" max-size="60" :size="100-paneSizes3" >
-                  <div class="content">
-                    <UserDetailsPane/> 
-                  </div>
-                </pane>
-              </splitpanes>
+              <SettingsFederationPane/> 
             </div>
-          </pane>
-          <pane style="width: 100%" :size="paneSizes5">
+          </Tab>
+          <Tab value="Map">
             <div class="content">
-              <div class="pagesubheader">Settings</div>
-                <div class="content">
-                  <SettingsPane/> 
-                </div>
+              <SettingsMapPane/> 
             </div>
-          </pane>
-        </splitpanes>
+          </Tab>
+          <Tab value="Transceivers">
+            <div class="content">
+              <TransceiversListPane/> 
+              <TransceiverDetailsPane/> 
+            </div>
+          </Tab>
+          <Tab value="Users">
+            <div class="content">
+              <UsersListPane/> 
+              <UserDetailsPane/> 
+            </div>
+          </Tab>
+          <Tab value="Timers">
+            <div class="content">
+              <SettingsTimersPane/> 
+            </div>
+          </Tab>
+        </Tabs>
       </div>
     </div>
 </template>
 
 <script setup>
-import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
 import TransceiversListPane from '@/components/TransceiversListPane.vue'
 import TransceiverDetailsPane from '@/components/TransceiverDetailsPane.vue'
 import UsersListPane from '@/components/UsersListPane.vue'
 import UserDetailsPane from '@/components/UserDetailsPane.vue'
 import PageHeaderPane from '@/components/PageHeaderPane.vue'
-import SettingsPane from '@/components/SettingsPane.vue'
-import { ref, onMounted } from 'vue'
-import { getToken, redirect } from "@/LoginInformation.js";
-import { useRouter } from 'vue-router';
-
-const paneSizes1 = ref(33)
-const paneSizes2 = ref(50)
-const paneSizes3 = ref(50)
-const paneSizes4 = ref(33)
-const paneSizes5 = ref(34)
-var router = useRouter();
-
-onMounted(() => {
-  redirect(getToken(), "Setup", router);
-  const storedSizesSetup1 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-1')
-  if (storedSizesSetup1) {
-    paneSizes1.value = JSON.parse(storedSizesSetup1)
-  } else {
-    paneSizes1.value = 33;
-  }
-  const storedSizesSetup2 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-2')
-  if (storedSizesSetup2) {
-    paneSizes2.value = JSON.parse(storedSizesSetup2)
-  } else {
-    paneSizes2.value = 50;
-  }
-  const storedSizesSetup3 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-3')
-  if (storedSizesSetup3) {
-    paneSizes3.value = JSON.parse(storedSizesSetup3)
-  } else {
-    paneSizes3.value = 50;
-  }
-  const storedSizesSetup4 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-4')
-  if (storedSizesSetup4) {
-    paneSizes4.value = JSON.parse(storedSizesSetup4)
-  } else {
-    paneSizes4.value = 33;
-  }
-  const storedSizesSetup5 = localStorage.getItem('NetCentral-splitpanes-sizes-setup-5')
-  if (storedSizesSetup5) {
-    paneSizes5.value = JSON.parse(storedSizesSetup5)
-  } else {
-    paneSizes5.value = 34;
-  }
-})
-
-const storePaneSize1 = ({ prevPane }) => {
-  if (prevPane.index == 0) {
-    var total = paneSizes1.value + paneSizes4.value;
-    paneSizes1.value = prevPane.size;
-    paneSizes4.value = total - prevPane.size;
-    localStorage.setItem('NetCentral-splitpanes-sizes-setup-1', JSON.stringify(paneSizes1.value))
-    localStorage.setItem('NetCentral-splitpanes-sizes-setup-4', JSON.stringify(paneSizes4.value))
-  } else {
-    var total = paneSizes4.value + paneSizes5.value;
-    paneSizes4.value = prevPane.size;
-    paneSizes5.value = total - prevPane.size;
-    localStorage.setItem('NetCentral-splitpanes-sizes-setup-4', JSON.stringify(paneSizes4.value))
-    localStorage.setItem('NetCentral-splitpanes-sizes-setup-5', JSON.stringify(paneSizes5.value))
-  }
-
-}
-const storePaneSize2 = ({ prevPane }) => {
-  paneSizes2.value = prevPane.size;
-  localStorage.setItem('NetCentral-splitpanes-sizes-setup-2', JSON.stringify(paneSizes2.value))
-}
-const storePaneSize3 = ({ prevPane }) => {
-  paneSizes3.value = prevPane.size;
-  localStorage.setItem('NetCentral-splitpanes-sizes-setup-3', JSON.stringify(paneSizes3.value))
-}
+import SettingsFederationPane from '@/components/SettingsFederationPane.vue'
+import SettingsMapPane from '@/components/SettingsMapPane.vue'
+import SettingsAnnouncementsPane from '@/components/SettingsAnnouncementsPane.vue'
+import SettingsTimersPane from '@/components/SettingsTimersPane.vue'
+import { Tabs, Tab } from 'super-vue3-tabs';
 
 </script>
 
