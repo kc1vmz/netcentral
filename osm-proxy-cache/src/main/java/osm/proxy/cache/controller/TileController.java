@@ -31,6 +31,7 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import osm.proxy.cache.accessor.TileAccessor;
+import osm.proxy.cache.objects.Mode;
 import osm.proxy.cache.objects.Statistics;
 
 @Controller("/api/v1/tiles") 
@@ -47,14 +48,18 @@ public class TileController {
         return fileContent;
     }
 
-    @Put("/mode/{mode}")
-    public String updateMode(HttpRequest<?> request,  @PathVariable String mode) {
-        return tileAccessor.updateMode(mode);
+    @Put("/modes/{mode}")
+    public Mode updateMode(HttpRequest<?> request,  @PathVariable String mode) {
+        Mode ret = new Mode();
+        ret.setMode(tileAccessor.updateMode(mode));
+        return ret;
     }
 
-    @Get("/mode")
-    public String getMode(HttpRequest<?> request) {
-        return tileAccessor.getMode();
+    @Get("/modes")
+    public Mode getMode(HttpRequest<?> request) {
+        Mode ret = new Mode();
+        ret.setMode(tileAccessor.getMode());
+        return ret;
     }
 
     @Get("/statistics")

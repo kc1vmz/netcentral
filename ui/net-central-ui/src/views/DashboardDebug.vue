@@ -24,6 +24,7 @@ import { reactive, onMounted, watch } from 'vue'
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, registerPageShow, getUser, redirect } from "@/LoginInformation.js";
 import { useRouter } from 'vue-router';
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
+import { buildNetCentralOSMPCUrl } from "@/netCentralOSMPCServerConfig.js";
 import { useSocketIO } from "@/composables/socket";
 import { updateDashboardEvent } from "@/UpdateEvents";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
@@ -44,6 +45,7 @@ function updateDashboard() {
 
 const summary = reactive({ value : {}});
 const ncStats = reactive({ value : {}});
+const osmpcStats = reactive({ value : {}});
 
 const runDuration = reactive({ value : 0});
 const hb1Duration = reactive({ value : 0});
@@ -71,6 +73,7 @@ watch(updateDashboardEvent, (updateDashboardEventNew, updateDashboardEventOld) =
 function getData() {
     getDashboardSummary();
     getNetCentralStatistics();
+    getOSMPCStatistics();
 }
 
 function getDashboardSummary() {
@@ -111,6 +114,21 @@ function getNetCentralStatistics() {
           hb7Duration.value = calculateDuration(ncStats.value.lastHeartBeatSecondsSince7);
       })
       .catch(error => { console.error('Error getting dashboard summary from server:', error); })
+}
+
+function getOSMPCStatistics() {
+    var requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json"
+        },
+      body: null
+    };
+    fetch(buildNetCentralOSMPCUrl('/tiles/statistics'), requestOptions)
+      .then(response => response.json())
+      .then(data => {
+          osmpcStats.value = data;
+      })
+      .catch(error => { console.error('Error getting dashboard summary from OSMPC server:', error); })
 }
 
 function calculateDuration(seconds) {
@@ -237,6 +255,22 @@ function calculateDuration(seconds) {
           </div>
         </div>
       </div>
+
+      <div class="grid-item">
+          <div class="grid-container">
+          <div class="grid-item">
+            <i class="fa-solid fa-map fa-8x" style="color:#2559a7"></i>
+          </div>
+          <div class="grid-item">
+            <div class="pagesubheader">OSM Proxy Cache</div>
+            <div>{{ osmpcStats.value.tileCount }} map tiles cached</div>
+            <div>{{ osmpcStats.value.requests }} map tile requests</div>
+            <div>{{ osmpcStats.value.cacheHits }} map tile cache hits</div>
+            <div>{{ osmpcStats.value.cacheMisses }} map tile cache misses</div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <br>
     <a href="./Dashboard">Click here for standard dashboard.</a>

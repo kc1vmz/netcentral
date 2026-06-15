@@ -20,10 +20,28 @@
 
 export function getMapServerUrl() {
   var ret = import.meta.env.VITE_APP_MAP_SERVER_URL;
-  var defaultMapServerUrl = "http://localhost:8889/api/v1/tiles/{z}/{x}/{y}";
-  
+    
   if ((ret == undefined) || (ret == null) || (ret == '')) {
-    ret = defaultMapServerUrl;
+    var osmpcPort = import.meta.env.VITE_APP_OSMPC_HTTP_PORT;
+    if ((osmpcPort == undefined) || (osmpcPort == null) || (osmpcPort == '')) {
+      ret = "http://localhost:8889/api/v1/tiles/{z}/{x}/{y}";
+    } else {
+      ret = "http://localhost:"+osmpcPort+"/api/v1/tiles/{z}/{x}/{y}";
+    }
+  }
+  return ret;
+}
+
+export function getOSMPCServerUrl() {
+  var ret = import.meta.env.VITE_APP_OSMPC_SERVER_URL;
+    
+  if ((ret == undefined) || (ret == null) || (ret == '')) {
+    var osmpcPort = import.meta.env.VITE_APP_OSMPC_HTTP_PORT;
+    if ((osmpcPort == undefined) || (osmpcPort == null) || (osmpcPort == '')) {
+      ret = "http://localhost:8889";
+    } else {
+      ret = "http://localhost:"+osmpcPort";
+    }
   }
   return ret;
 }

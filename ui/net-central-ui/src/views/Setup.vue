@@ -39,6 +39,11 @@
               <SettingsMapPane/> 
             </div>
           </Tab>
+          <Tab value="Map Cache">
+            <div class="content">
+              <SettingsMapCachePane/> 
+            </div>
+          </Tab>
           <Tab value="Transceivers">
             <div class="content">
               <TransceiversListPane/> 
@@ -72,6 +77,7 @@ import SettingsFederationPane from '@/components/SettingsFederationPane.vue'
 import SettingsMapPane from '@/components/SettingsMapPane.vue'
 import SettingsAnnouncementsPane from '@/components/SettingsAnnouncementsPane.vue'
 import SettingsTimersPane from '@/components/SettingsTimersPane.vue'
+import SettingsMapCachePane from '@/components/SettingsMapCachePane.vue'
 import { Tabs, Tab } from 'super-vue3-tabs';
 
 </script>
