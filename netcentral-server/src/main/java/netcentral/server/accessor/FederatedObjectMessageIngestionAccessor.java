@@ -205,6 +205,8 @@ public class FederatedObjectMessageIngestionAccessor {
             type = ObjectType.SHELTER;
         } else if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_GENERAL)) {
             type = ObjectType.RESOURCE;
+        } else if (report.getType().equals(APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_NETMGR)) {
+            type = ObjectType.NETMGR;
         }
         if (type != ObjectType.STANDARD) {
             updateFederatedObjectType(innerAPRSUserDefined.getCallsignFrom(), type);

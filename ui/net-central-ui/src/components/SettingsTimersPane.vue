@@ -45,7 +45,11 @@ var federatedRef = reactive({value : null});
 var federatedPushUdpRef = reactive({value : null});
 var federatedPushMessageRef = reactive({value : null});
 var federatedInterrogateRef = reactive({value : null});
-  
+var aprsNetManagerEnabledRef = reactive({value : null});
+var aprsNetManagerCallsignRef = reactive({value : null});
+var aprsNetManagerLonRef = reactive({value : null});
+var aprsNetManagerLatRef = reactive({value : null});
+
 
 function getSettings() {
   var requestOptions = {
@@ -77,11 +81,15 @@ function updateSettings() {
       mapDefaultLongitudeMin: mapDefaultLongitudeMinRef.value,
       mapDefaultLatitudeMax: mapDefaultLatitudeMaxRef.value,
       mapDefaultLongitudeMax: mapDefaultLongitudeMaxRef.value,
-      federated: (federatedRef.value == 'true') ? true : false,
-      federatedPushUdp: (federatedPushUdpRef.value == 'true') ? true : false,
-      federatedPushMessage: (federatedPushMessageRef.value == 'true') ? true : false,
-      federatedInterrogate: (federatedInterrogateRef.value == 'true') ? true : false,
-      configSet: settingsRef.value.configSet 
+      federated: federatedRef.value,
+      federatedPushUdp: federatedPushUdpRef.value,
+      federatedPushMessage: federatedPushMessageRef.value,
+      federatedInterrogate: federatedInterrogateRef.value,
+      configSet: settingsRef.value.configSet,
+      netMgrEnabled: aprsNetManagerEnabledRef.value,
+      netMgrCallsign: aprsNetManagerCallsignRef.value,
+      netMgrLon: aprsNetManagerLonRef.value,
+      netMgrLat: aprsNetManagerLatRef.value
     };
     var requestOptions = {
       method: "PUT",
@@ -100,12 +108,25 @@ function updateSettings() {
 }
 
 function updateRefs() {
+    bulletinAnnounceRef.value = settingsRef.value.bulletinAnnounce;
+    federatedRef.value = settingsRef.value.federated;
+    federatedPushUdpRef.value = settingsRef.value.federatedPushUdp;
+    federatedPushMessageRef.value = settingsRef.value.federatedPushMessage;
+    federatedInterrogateRef.value = settingsRef.value.federatedInterrogate;
+    mapDefaultLatitudeMinRef.value = settingsRef.value.mapDefaultLatitudeMin;
+    mapDefaultLongitudeMinRef.value = settingsRef.value.mapDefaultLongitudeMin;
+    mapDefaultLatitudeMaxRef.value = settingsRef.value.mapDefaultLatitudeMax;
+    mapDefaultLongitudeMaxRef.value = settingsRef.value.mapDefaultLongitudeMax;
     objectBeaconMinutesRef.value = settingsRef.value.objectBeaconMinutes;
     objectCleanupMinutesRef.value = settingsRef.value.objectCleanupMinutes;
     reportCleanupMinutesRef.value = settingsRef.value.reportCleanupMinutes;
     scheduledNetCheckMinutesRef.value = settingsRef.value.scheduledNetCheckMinutes;
     netParticipantReminderMinutesRef.value = settingsRef.value.netParticipantReminderMinutes;
     netReportMinutesRef.value = settingsRef.value.netReportMinutes;
+    aprsNetManagerEnabledRef.value = settingsRef.value.netMgrEnabled;
+    aprsNetManagerCallsignRef.value = settingsRef.value.netMgrCallsign;
+    aprsNetManagerLonRef.value = settingsRef.value.netMgrLon;
+    aprsNetManagerLatRef.value = settingsRef.value.netMgrLat;
 }
 
 function refresh() {

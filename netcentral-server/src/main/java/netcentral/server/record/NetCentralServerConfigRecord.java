@@ -48,6 +48,10 @@ public record NetCentralServerConfigRecord(
                 @Nullable Boolean federated_push_udp,
                 @Nullable Boolean federated_push_message,
                 @Nullable Boolean federated_interrogate,
-                @Nullable Boolean log_raw_packets
+                @Nullable Boolean log_raw_packets,
+                @NonNull @NotBlank Boolean net_mgr_enabled,
+                @Nullable String net_mgr_callsign,
+                @Nullable String net_mgr_lon,
+                @Nullable String net_mgr_lat
                 ) {  
 }

@@ -83,7 +83,7 @@ public class ObjectBeaconAccessor {
                                                             netCentralObject.getComment(), netCentralObject.isAlive(),
                                                             netCentralObject.getLat(), netCentralObject.getLon(),
                                                             netCentralObject.getSymbolTableId(), netCentralObject.getSymbolTableCode());
-                if (netCentralObject.getType().equals(ObjectType.RESOURCE)) {
+                if ((netCentralObject.getType().equals(ObjectType.RESOURCE))){
                     beaconData(user, netCentralObject);
                 }
             } catch (Exception e) {

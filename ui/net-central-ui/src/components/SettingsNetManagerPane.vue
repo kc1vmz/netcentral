@@ -81,12 +81,12 @@ function updateSettings() {
       mapDefaultLongitudeMin: mapDefaultLongitudeMinRef.value,
       mapDefaultLatitudeMax: mapDefaultLatitudeMaxRef.value,
       mapDefaultLongitudeMax: mapDefaultLongitudeMaxRef.value,
-      federated: (federatedRef.value == 'true') ? true : false,
-      federatedPushUdp: (federatedPushUdpRef.value == 'true') ? true : false,
-      federatedPushMessage: (federatedPushMessageRef.value == 'true') ? true : false,
-      federatedInterrogate: (federatedInterrogateRef.value == 'true') ? true : false,
+      federated: federatedRef.value,
+      federatedPushUdp: federatedPushUdpRef.value,
+      federatedPushMessage: federatedPushMessageRef.value,
+      federatedInterrogate: federatedInterrogateRef.value,
       configSet: settingsRef.value.configSet,
-      netMgrEnabled: aprsNetManagerEnabledRef.value,
+      netMgrEnabled: (aprsNetManagerEnabledRef.value == 'true') ? true : false,
       netMgrCallsign: aprsNetManagerCallsignRef.value,
       netMgrLon: aprsNetManagerLonRef.value,
       netMgrLat: aprsNetManagerLatRef.value
@@ -109,10 +109,10 @@ function updateSettings() {
 
 function updateRefs() {
     bulletinAnnounceRef.value = settingsRef.value.bulletinAnnounce;
-    federatedRef.value = (settingsRef.value.federated) ? "true" : "false";
-    federatedPushUdpRef.value = (settingsRef.value.federatedPushUdp) ? "true" : "false";
-    federatedPushMessageRef.value = (settingsRef.value.federatedPushMessage) ? "true" : "false";
-    federatedInterrogateRef.value = (settingsRef.value.federatedInterrogate) ? "true" : "false";
+    federatedRef.value = settingsRef.value.federated;
+    federatedPushUdpRef.value = settingsRef.value.federatedPushUdp;
+    federatedPushMessageRef.value = settingsRef.value.federatedPushMessage;
+    federatedInterrogateRef.value = settingsRef.value.federatedInterrogate;
     mapDefaultLatitudeMinRef.value = settingsRef.value.mapDefaultLatitudeMin;
     mapDefaultLongitudeMinRef.value = settingsRef.value.mapDefaultLongitudeMin;
     mapDefaultLatitudeMaxRef.value = settingsRef.value.mapDefaultLatitudeMax;
@@ -123,7 +123,7 @@ function updateRefs() {
     scheduledNetCheckMinutesRef.value = settingsRef.value.scheduledNetCheckMinutes;
     netParticipantReminderMinutesRef.value = settingsRef.value.netParticipantReminderMinutes;
     netReportMinutesRef.value = settingsRef.value.netReportMinutes;
-    aprsNetManagerEnabledRef.value = settingsRef.value.netMgrEnabled;
+    aprsNetManagerEnabledRef.value = (settingsRef.value.netMgrEnabled) ? "true" : "false";
     aprsNetManagerCallsignRef.value = settingsRef.value.netMgrCallsign;
     aprsNetManagerLonRef.value = settingsRef.value.netMgrLon;
     aprsNetManagerLatRef.value = settingsRef.value.netMgrLat;
@@ -142,60 +142,33 @@ function update() {
   <div v-if="(settingsRef.value != null)">
     <br>
     <div>
-      Net Central can be configured for share information with other Net Central instances in a federated way.  Those settings can be changed here.
+      Net Central can have its nets remotely administered via APRS.  You can configure those parameters here.
     </div>
     <br>
     <div class="field-group">
-        <label for="federated">Enabled?</label>
-        <select name="federated" id="federated" v-model="federatedRef.value" >
-          <div v-if="(federatedRef.value == 'true')">
-            <option value="true" selected>Yes</option>
-            <option value="false">No</option>
-          </div>
-          <div v-else>
-            <option value="true">Yes</option>
-            <option value="false" selected>No</option>
-          </div>
-        </select>
+      <label for="aprsNetManagerEnabled">Enabled?</label>
+      <select name="aprsNetManagerEnabled" id="aprsNetManagerEnabled" v-model="aprsNetManagerEnabledRef.value" >
+        <div v-if="(aprsNetManagerEnabledRef.value == 'true')">
+          <option value="true" selected>Yes</option>
+          <option value="false">No</option>
+        </div>
+        <div v-else>
+          <option value="true">Yes</option>
+          <option value="false" selected>No</option>
+        </div>
+      </select>
     </div>
-    <div v-if="(federatedRef.value == 'true')" class="field-group">
-        <label for="federatedPushMessage">Send messages?</label>
-        <select name="federatedPushMessage" id="federatedPushMessage" v-model="federatedPushMessageRef.value" >
-          <div v-if="(federatedPushMessageRef.value == 'true')">
-            <option value="true" selected>Yes</option>
-            <option value="false">No</option>
-          </div>
-          <div v-else>
-            <option value="true">Yes</option>
-            <option value="false" selected>No</option>
-          </div>
-        </select>
+    <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
+      <label for="aprsNetManagerCallsign">Net Manager Callsign:</label>
+      <input type="text" id="aprsNetManagerCallsign" v-model="aprsNetManagerCallsignRef.value" maxlength="20" />
     </div>
-    <div v-if="(federatedRef.value == 'true')" class="field-group">
-        <label for="federatedPushUdp">Send user-defined packets?</label>
-        <select name="federatedPushUdp" id="federatedPushUdp" v-model="federatedPushUdpRef.value" >
-          <div v-if="(federatedPushUdpRef.value == 'true')">
-            <option value="true" selected>Yes</option>
-            <option value="false">No</option>
-          </div>
-          <div v-else>
-            <option value="true">Yes</option>
-            <option value="false" selected>No</option>
-          </div>
-        </select>
+    <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
+      <label for="aprsNetManagerLon">Longitude:</label>
+      <input type="text" id="aprsNetManagerLon" v-model="aprsNetManagerLonRef.value" maxlength="20" />
     </div>
-    <div v-if="(federatedRef.value == 'true')" class="field-group">
-        <label for="federatedInterrogate">Interrogate objects?</label>
-        <select name="federatedInterrogate" id="federatedInterrogate" v-model="federatedInterrogateRef.value" >
-          <div v-if="(federatedInterrogateRef.value == 'true')">
-            <option value="true" selected>Yes</option>
-            <option value="false">No</option>
-          </div>
-          <div v-else>
-            <option value="true">Yes</option>
-            <option value="false" selected>No</option>
-          </div>
-        </select>
+    <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
+      <label for="aprsNetManagerLat">Latitude:</label>
+      <input type="text" id="aprsNetManagerLat" v-model="aprsNetManagerLatRef.value" maxlength="20" />
     </div>
     <div>
       <br>

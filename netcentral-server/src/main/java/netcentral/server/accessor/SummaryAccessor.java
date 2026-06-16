@@ -409,6 +409,8 @@ public class SummaryAccessor {
                         renderObject = getEOCInformation(loggedInUser, object);
                     } else if (object.getType().equals(ObjectType.MEDICAL)) {
                         renderObject = getMedicalInformation(loggedInUser, object);
+                    } else if (object.getType().equals(ObjectType.NETMGR)) {
+                        renderObject = getNetManagerInformation(loggedInUser, object);
                     }
                     RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignTo(), renderObject);
                     if (item.isValid()) {
@@ -436,6 +438,8 @@ public class SummaryAccessor {
                         renderObject = getEOCInformation(loggedInUser, object);
                     } else if (object.getType().equals(ObjectType.MEDICAL)) {
                         renderObject = getMedicalInformation(loggedInUser, object);
+                    } else if (object.getType().equals(ObjectType.NETMGR)) {
+                        renderObject = getNetManagerInformation(loggedInUser, object);
                     }
                     RenderedMapItem item = new RenderedMapItem(object.getLon(), object.getLat(), object.getComment(), object.getCallsignTo(), renderObject);
                     if (item.isValid()) {
@@ -502,6 +506,8 @@ public class SummaryAccessor {
                             renderObject = getMedicalInformation(loggedInUser, object);
                         } else if (object.getType().equals(ObjectType.RESOURCE)) {
                             renderObject = getGeneralResourceInformation(loggedInUser, object);
+                        } else if (object.getType().equals(ObjectType.NETMGR)) {
+                            renderObject = getNetManagerInformation(loggedInUser, object);
                         }
                         if ((object.getLat() != null) && (object.getLon() != null)) {
                             RenderedMapItem item = new RenderedMapItem(
@@ -528,6 +534,8 @@ public class SummaryAccessor {
                             renderObject = getEOCInformation(loggedInUser, object);
                         } else if (object.getType().equals(ObjectType.MEDICAL)) {
                             renderObject = getMedicalInformation(loggedInUser, object);
+                        } else if (object.getType().equals(ObjectType.NETMGR)) {
+                            renderObject = getNetManagerInformation(loggedInUser, object);
                         }
                         if ((object.getLat() != null) && (object.getLon() != null)) {
                             RenderedMapItem item = new RenderedMapItem(
@@ -642,6 +650,10 @@ public class SummaryAccessor {
 
 
     public Object getMedicalInformation(User loggedInUser, APRSObject object) {
+        return object;
+    }
+
+    public Object getNetManagerInformation(User loggedInUser, APRSObject object) {
         return object;
     }
 

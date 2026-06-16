@@ -48,7 +48,6 @@ public class NetCentralRadioCommands {
     public static final String COMMAND_NETMGR_LIST = "L";
     public static final String COMMAND_NETMGR_CREATE = "C";
     public static final String COMMAND_NETMGR_CREATE_PRIVATE = "CP";
-    public static final String COMMAND_NETMGR_INVITE = "I";
     public static final String COMMAND_NETMGR_SECURE = "S";
     public static final String COMMAND_NETMGR_HELP = "H";
 

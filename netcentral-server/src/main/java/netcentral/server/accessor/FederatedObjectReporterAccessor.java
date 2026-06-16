@@ -70,6 +70,8 @@ public class FederatedObjectReporterAccessor {
                     reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_SHELTER;
                 } else if (object.getType().equals(ObjectType.RESOURCE)) {
                     reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_GENERAL;
+                } else if (object.getType().equals(ObjectType.NETMGR)) {
+                    reportObjectType = APRSNetCentralObjectAnnounceReport.OBJECT_TYPE_NETMGR;
                 }
 
                 if (reportObjectType != null) {

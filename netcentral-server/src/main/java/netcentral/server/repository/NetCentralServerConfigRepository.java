@@ -47,10 +47,14 @@ public class NetCentralServerConfigRepository {
         return null;
     }
     public NetCentralServerConfigRecord update(NetCentralServerConfigRecord record) {
-        if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
-            return netCentralServerConfigRepositoryMySQL.update(record);
-        } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
-            return netCentralServerConfigRepositoryH2.update(record);
+        try {
+            if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_MYSQL)) {
+                return netCentralServerConfigRepositoryMySQL.update(record);
+            } else if (databaseConfiguration.getDialect().equals(DatabaseConfiguration.DIALECT_H2)) {
+                return netCentralServerConfigRepositoryH2.update(record);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

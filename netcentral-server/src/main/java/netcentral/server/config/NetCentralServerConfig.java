@@ -73,7 +73,16 @@ public class NetCentralServerConfig {
     private Boolean logRawPackets;
     @Value("${netcentral.help.verbose}")
     private Boolean verboseHelp;
+    @Value("${netcentral.aprsnetmgr.enabled}")
+    private Boolean aprsNetManagerEnabled;
+    @Value("${netcentral.aprsnetmgr.callsign}")
+    private String aprsNetManagerCallsign;
+    @Value("${netcentral.aprsnetmgr.lon}")
+    private String aprsNetManagerLon;
+    @Value("${netcentral.aprsnetmgr.lat}")
+    private String aprsNetManagerLat;
 
+    
     public String getTempDir() {
         return tempDir;
     }
@@ -217,5 +226,29 @@ public class NetCentralServerConfig {
     }
     public void setVerboseHelp(Boolean verboseHelp) {
         this.verboseHelp = verboseHelp;
+    }
+    public Boolean getAprsNetManagerEnabled() {
+        return aprsNetManagerEnabled;
+    }
+    public void setAprsNetManagerEnabled(Boolean aprsNetManagerEnabled) {
+        this.aprsNetManagerEnabled = aprsNetManagerEnabled;
+    }
+    public String getAprsNetManagerCallsign() {
+        return aprsNetManagerCallsign;
+    }
+    public void setAprsNetManagerCallsign(String aprsNetManagerCallsign) {
+        this.aprsNetManagerCallsign = aprsNetManagerCallsign;
+    }
+    public String getAprsNetManagerLon() {
+        return aprsNetManagerLon;
+    }
+    public void setAprsNetManagerLon(String aprsNetManagerLon) {
+        this.aprsNetManagerLon = aprsNetManagerLon;
+    }
+    public String getAprsNetManagerLat() {
+        return aprsNetManagerLat;
+    }
+    public void setAprsNetManagerLat(String aprsNetManagerLat) {
+        this.aprsNetManagerLat = aprsNetManagerLat;
     }
 }

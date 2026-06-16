@@ -40,7 +40,7 @@ export function getOSMPCServerUrl() {
     if ((osmpcPort == undefined) || (osmpcPort == null) || (osmpcPort == '')) {
       ret = "http://localhost:8889";
     } else {
-      ret = "http://localhost:"+osmpcPort";
+      ret = "http://localhost:"+osmpcPort;
     }
   }
   return ret;

@@ -20,11 +20,17 @@ public class NetCentralServerConfiguration {
     private boolean federatedInterrogate;
     private boolean logRawPackets;
 
+    private boolean netMgrEnabled;
+    private String netMgrCallsign;
+    private String netMgrLon;
+    private String netMgrLat;
+
     public NetCentralServerConfiguration() {
     }
     public NetCentralServerConfiguration(int configSet, int objectBeaconMinutes, int objectCleanupMinutes, int reportCleanupMinutes, int scheduledNetCheckMinutes, int netParticipantReminderMinutes,
                                                 int netReportMinutes, String bulletinAnnounce, int mapDefaultLatitudeMin, int mapDefaultLongitudeMin, int mapDefaultLatitudeMax, int mapDefaultLongitudeMax,
-                                                boolean federated, boolean federatedPushUdp, boolean federatedPushMessage, boolean federatedInterrogate, boolean logRawPackets) {
+                                                boolean federated, boolean federatedPushUdp, boolean federatedPushMessage, boolean federatedInterrogate, boolean logRawPackets, boolean netMgrEnabled,
+                                                String netMgrCallsign, String netMgrLon, String netMgrLat) {
         this.configSet = configSet;
         this.objectBeaconMinutes = objectBeaconMinutes;
         this.objectCleanupMinutes = objectCleanupMinutes;
@@ -42,6 +48,10 @@ public class NetCentralServerConfiguration {
         this.federatedPushMessage = federatedPushMessage;
         this.federatedInterrogate = federatedInterrogate;
         this.logRawPackets = logRawPackets;
+        this.netMgrEnabled = netMgrEnabled;
+        this.netMgrCallsign = netMgrCallsign;
+        this.netMgrLon = netMgrLon;
+        this.netMgrLat = netMgrLat;
     }
     public int getConfigSet() {
         return configSet;
@@ -145,6 +155,28 @@ public class NetCentralServerConfiguration {
     public void setLogRawPackets(boolean logRawPackets) {
         this.logRawPackets = logRawPackets;
     }
-
-
+    public boolean isNetMgrEnabled() {
+        return netMgrEnabled;
+    }
+    public void setNetMgrEnabled(boolean netMgrEnabled) {
+        this.netMgrEnabled = netMgrEnabled;
+    }
+    public String getNetMgrCallsign() {
+        return netMgrCallsign;
+    }
+    public void setNetMgrCallsign(String netMgrCallsign) {
+        this.netMgrCallsign = netMgrCallsign;
+    }
+    public String getNetMgrLon() {
+        return netMgrLon;
+    }
+    public void setNetMgrLon(String netMgrLon) {
+        this.netMgrLon = netMgrLon;
+    }
+    public String getNetMgrLat() {
+        return netMgrLat;
+    }
+    public void setNetMgrLat(String netMgrLat) {
+        this.netMgrLat = netMgrLat;
+    }
 }

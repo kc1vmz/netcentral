@@ -6,6 +6,7 @@ public class APRSNetCentralReportConstants {
     public static final String REPORT_OBJECT_TYPE_MEDICAL = "MC";
     public static final String REPORT_OBJECT_TYPE_NET = "NE";
     public static final String REPORT_OBJECT_TYPE_GENERAL_RESOURCE_OBJECT = "GR";
+    public static final String REPORT_OBJECT_TYPE_NETMGR_OBJECT = "NM";
 
     public static final String REPORT_TYPE_POPULATION_CENSUS = "PC";
     public static final String REPORT_TYPE_CONTACT = "CO";
@@ -26,4 +27,5 @@ public class APRSNetCentralReportConstants {
 
     public static final String REPORT_TYPE_PRIORITY_OBJECT_ANNOUNCE = "PA";
     public static final String REPORT_TYPE_GENERAL_RESOURCE_OBJECT_ANNOUNCE = "GA";
+    public static final String REPORT_TYPE_NETMGR_OBJECT_ANNOUNCE = "NA";
 }

@@ -21,5 +21,5 @@ package com.kc1vmz.netcentral.aprsobject.enums;
 */
 
 public enum ObjectType {
-    UNKNOWN, ITEM, STANDARD, SHELTER, MEDICAL, EOC, NET, RESOURCE;
+    UNKNOWN, ITEM, STANDARD, SHELTER, MEDICAL, EOC, NET, RESOURCE, NETMGR;
 }

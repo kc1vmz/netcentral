@@ -183,7 +183,6 @@ public class GeneralResourceObjectCommandAccessor {
     }
 
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
-        logger.info("Acknowledging message");
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementAcksSent();
         transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.ACK+msg.getMessageNumber());

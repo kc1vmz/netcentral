@@ -23,4 +23,7 @@ package netcentral.server.enums;
 public class ObjectSymbolTableConstants {
     public static final String DEFAULT_SYMBOL_TABLE_ID = "/";
     public static final String DEFAULT_SYMBOL_TABLE_CODE = "c";
+
+    public static final String DEFAULT_NETMGR_SYMBOL_TABLE_ID = "/";
+    public static final String DEFAULT_NETMGR_SYMBOL_TABLE_CODE = "c";
 }

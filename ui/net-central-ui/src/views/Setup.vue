@@ -44,6 +44,11 @@
               <SettingsMapCachePane/> 
             </div>
           </Tab>
+          <Tab value="Net Manager">
+            <div class="content">
+              <SettingsNetManagerPane/> 
+            </div>
+          </Tab>
           <Tab value="Transceivers">
             <div class="content">
               <TransceiversListPane/> 
@@ -78,7 +83,23 @@ import SettingsMapPane from '@/components/SettingsMapPane.vue'
 import SettingsAnnouncementsPane from '@/components/SettingsAnnouncementsPane.vue'
 import SettingsTimersPane from '@/components/SettingsTimersPane.vue'
 import SettingsMapCachePane from '@/components/SettingsMapCachePane.vue'
+import SettingsNetManagerPane from '@/components/SettingsNetManagerPane.vue'
+
 import { Tabs, Tab } from 'super-vue3-tabs';
+import { reactive, onMounted } from 'vue';
+import { getToken, getUser, redirect } from "@/LoginInformation.js";
+import { useRouter } from 'vue-router';
+
+const accesstokenRef = reactive({value : null});
+const localLoggedInUserRef = reactive({value : null});
+
+var router = useRouter();
+
+onMounted(() => {
+  redirect(getToken(), "Setup", router);
+  accesstokenRef.value = getToken();
+  localLoggedInUserRef.value = getUser();
+});
 
 </script>
 

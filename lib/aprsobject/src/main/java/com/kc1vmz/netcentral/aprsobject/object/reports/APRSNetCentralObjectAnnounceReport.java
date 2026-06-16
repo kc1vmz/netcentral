@@ -28,6 +28,7 @@ public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
     public static final String OBJECT_TYPE_SHELTER = "SH";
     public static final String OBJECT_TYPE_MEDICAL = "MC";
     public static final String OBJECT_TYPE_GENERAL = "GN";
+    public static final String OBJECT_TYPE_NETMGR = "NM";
     public static final String UNKNOWN = "UK";
 
     private String type;
@@ -53,6 +54,9 @@ public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
         } else if (objectType.equals(ObjectType.RESOURCE)) {
             this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_GENERAL_RESOURCE_OBJECT);
             this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_GENERAL_RESOURCE_OBJECT_ANNOUNCE);
+        } else if (objectType.equals(ObjectType.NETMGR)) {
+            this.setReportObjectType(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NETMGR_OBJECT);
+            this.setReportType(APRSNetCentralReportConstants.REPORT_TYPE_NETMGR_OBJECT_ANNOUNCE);
         } else {
             this.setReportObjectType(UNKNOWN);
             this.setReportType(UNKNOWN);
@@ -113,6 +117,11 @@ public class APRSNetCentralObjectAnnounceReport extends APRSNetCentralReport {
                 if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_GENERAL_RESOURCE_OBJECT_ANNOUNCE)) {
                     isValid = true;
                     type = ObjectType.RESOURCE;
+                }
+            } else if (objectType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_OBJECT_TYPE_NETMGR_OBJECT)) {
+                if (reportType.equalsIgnoreCase(APRSNetCentralReportConstants.REPORT_TYPE_NETMGR_OBJECT_ANNOUNCE)) {
+                    isValid = true;
+                    type = ObjectType.NETMGR;
                 }
             }
 

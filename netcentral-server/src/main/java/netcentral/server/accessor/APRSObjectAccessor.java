@@ -170,6 +170,8 @@ public class APRSObjectAccessor {
     @Inject
     private GeneralResourceObjectCommandAccessor generalResourceObjectCommandAccessor;
     @Inject
+    private NetManagerObjectCommandAccessor netManagerObjectCommandAccessor;
+    @Inject
     private FederatedObjectReporterAccessor federatedObjectReporterAccessor;
     @Inject
     private TrackedStationTypeRulesProcessor trackedStationTypeRulesProcessor;
@@ -889,6 +891,7 @@ public class APRSObjectAccessor {
         String callsignTo = Stripper.stripWhitespace(innerAPRSMessage.getCallsignTo());
 
         APRSObject priorityObject = null;
+        APRSObject netManagerObject = null;
         APRSObject generalResourceObject = null;
         Net net = netCentralNetMessage(loggedInUser, callsignTo);
         String completedNetId = null;
@@ -896,9 +899,15 @@ public class APRSObjectAccessor {
             completedNetId = net.getCompletedNetId();
         } else {
             // if it is not a message to a net, is it a message to one of our priority objects?
-            priorityObject = netCentralPriorityObject(loggedInUser, callsignTo);
-            if (priorityObject == null) {
-                generalResourceObject = netCentralGeneralResourceObject(loggedInUser, callsignTo);
+            netManagerObject = netCentralNetManagerObject(loggedInUser, callsignTo);
+            if ((netManagerObject != null) && (!netManagerObject.isAlive())) {
+                netManagerObject = null;
+            }
+            if (netManagerObject == null) {
+                priorityObject = netCentralPriorityObject(loggedInUser, callsignTo);
+                if (priorityObject == null) {
+                    generalResourceObject = netCentralGeneralResourceObject(loggedInUser, callsignTo);
+                }
             }
         }
 
@@ -938,6 +947,8 @@ public class APRSObjectAccessor {
             priorityObjectCommandAccessor.processMessage(loggedInUser, priorityObject, innerAPRSMessage, source);
         } else if (generalResourceObject != null) {
             generalResourceObjectCommandAccessor.processMessage(loggedInUser, generalResourceObject, innerAPRSMessage, source);
+        } else if (netManagerObject != null) {
+            netManagerObjectCommandAccessor.processMessage(loggedInUser, netManagerObject, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && ((rec.callsign_from().equals("WHO-IS")) || (rec.callsign_from().equals("WHO-15")))) {
             processWHOISMessage(loggedInUser, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && (rec.callsign_from().equals(toolsAccessor.getWinlinkGatewayCallsign()))) {
@@ -1186,6 +1197,21 @@ public class APRSObjectAccessor {
         try {
             obj = getObjectByCallsign(loggedInUser, callsign);
             if ((!obj.getType().equals(ObjectType.EOC)) && (!obj.getType().equals(ObjectType.MEDICAL)) && (!obj.getType().equals(ObjectType.SHELTER))) {
+                // not a priority object
+                obj = null;
+            }
+        } catch (Exception e) {
+        }
+
+        return obj;
+    }
+
+    private APRSObject netCentralNetManagerObject(User loggedInUser, String callsign) {
+        APRSObject obj = null;
+
+        try {
+            obj = getObjectByCallsign(loggedInUser, callsign);
+            if (!obj.getType().equals(ObjectType.NETMGR)) {
                 // not a priority object
                 obj = null;
             }
@@ -1522,7 +1548,8 @@ public class APRSObjectAccessor {
                     if (priorityOnly) {
                         badrec = rec;
                         if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
-                                (ObjectType.values()[rec.type()] == ObjectType.MEDICAL)) {  //|| (ObjectType.values()[rec.type()] == ObjectType.NET) - remove nets
+                                (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || 
+                                (ObjectType.values()[rec.type()] == ObjectType.NETMGR)) {
                             ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                             rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
                                             ObjectType.values()[rec.type()], remote, rec.symbol_table_id(), rec.symbol_table_code()));
@@ -1562,7 +1589,8 @@ public class APRSObjectAccessor {
                     if ("NETCENTRAL".equals(rec.source())) {
                         if (priorityOnly && generalOnly ) {
                             if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
-                                    (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
+                                    (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET) ||
+                                    (ObjectType.values()[rec.type()] == ObjectType.NETMGR)) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
                                                 ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
@@ -1573,7 +1601,8 @@ public class APRSObjectAccessor {
                             }
                         } else if (priorityOnly) {
                             if ((ObjectType.values()[rec.type()] == ObjectType.EOC) || (ObjectType.values()[rec.type()] == ObjectType.SHELTER) || 
-                                    (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET)) {
+                                    (ObjectType.values()[rec.type()] == ObjectType.MEDICAL) || (ObjectType.values()[rec.type()] == ObjectType.NET) ||
+                                    (ObjectType.values()[rec.type()] == ObjectType.NETMGR)) {
                                 ret.add(new APRSObject(rec.aprs_object_id(), rec.callsign_from(), 
                                                 rec.callsign_to(), rec.alive(), rec.lat(), rec.lon(), rec.time(), rec.heard_time(), rec.comment(), 
                                                 ObjectType.values()[rec.type()], false, rec.symbol_table_id(), rec.symbol_table_code()));
