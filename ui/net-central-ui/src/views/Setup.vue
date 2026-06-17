@@ -49,6 +49,13 @@
               <SettingsNetManagerPane/> 
             </div>
           </Tab>
+          <Tab value="Resource Rules">
+            <div class="content">
+              <TrackedStationRuleHeaderPane/> 
+              <TrackedStationRuleListPane/> 
+              <TrackedStationRuleDetailsPane/> 
+            </div>
+          </Tab>
           <Tab value="Transceivers">
             <div class="content">
               <TransceiversListPane/> 
@@ -84,6 +91,10 @@ import SettingsAnnouncementsPane from '@/components/SettingsAnnouncementsPane.vu
 import SettingsTimersPane from '@/components/SettingsTimersPane.vue'
 import SettingsMapCachePane from '@/components/SettingsMapCachePane.vue'
 import SettingsNetManagerPane from '@/components/SettingsNetManagerPane.vue'
+import TrackedStationRuleHeaderPane from '@/components/TrackedStationRuleHeaderPane.vue'
+import TrackedStationRuleListPane from '@/components/TrackedStationRuleListPane.vue'
+import TrackedStationRuleDetailsPane from '@/components/TrackedStationRuleDetailsPane.vue'
+
 
 import { Tabs, Tab } from 'super-vue3-tabs';
 import { reactive, onMounted } from 'vue';

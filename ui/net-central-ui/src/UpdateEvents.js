@@ -116,3 +116,8 @@ export function updateCallsignACE(payload) {
     }
 }
 
+export const updateRuleEvent = reactive({ value: "" });
+export function updateRule() {
+    updateRuleEvent.value = generateValue();
+}
+

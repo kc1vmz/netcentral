@@ -163,12 +163,12 @@ function update() {
       <input type="text" id="aprsNetManagerCallsign" v-model="aprsNetManagerCallsignRef.value" maxlength="20" />
     </div>
     <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
-      <label for="aprsNetManagerLon">Longitude:</label>
-      <input type="text" id="aprsNetManagerLon" v-model="aprsNetManagerLonRef.value" maxlength="20" />
-    </div>
-    <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
       <label for="aprsNetManagerLat">Latitude:</label>
       <input type="text" id="aprsNetManagerLat" v-model="aprsNetManagerLatRef.value" maxlength="20" />
+    </div>
+    <div v-if="(aprsNetManagerEnabledRef.value == 'true')" class="field-group">
+      <label for="aprsNetManagerLon">Longitude:</label>
+      <input type="text" id="aprsNetManagerLon" v-model="aprsNetManagerLonRef.value" maxlength="20" />
     </div>
     <div>
       <br>

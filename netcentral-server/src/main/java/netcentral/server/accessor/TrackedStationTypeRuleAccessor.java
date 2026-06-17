@@ -37,6 +37,7 @@ import netcentral.server.enums.TrackedStationTypeRuleTarget;
 import netcentral.server.enums.TrackedStationTypeRuleType;
 import netcentral.server.object.TrackedStationTypeRule;
 import netcentral.server.object.User;
+import netcentral.server.object.request.TrackedStationRuleRequest;
 import netcentral.server.record.TrackedStationTypeRuleRecord;
 import netcentral.server.repository.TrackedStationTypeRuleRepository;
 
@@ -141,4 +142,35 @@ public class TrackedStationTypeRuleAccessor {
         return obj;
 
     }
+
+    public TrackedStationTypeRule createByRequest(User loggedInUser, TrackedStationRuleRequest request) {
+        TrackedStationTypeRule rule = convertRequestToRule(request);
+        return create(loggedInUser, rule);
+    }
+
+    public TrackedStationTypeRule updateByRequest(User loggedInUser, String id, TrackedStationRuleRequest request) {
+        TrackedStationTypeRule rule = convertRequestToRule(request);
+        rule.setId(id);
+        return update(loggedInUser, id, rule);
+    }
+
+    private TrackedStationTypeRule convertRequestToRule(TrackedStationRuleRequest request) {
+        //@NotBlank String ruleType, String value, String trackedStationType, String ruleTarget
+        TrackedStationTypeRuleTarget ruleTarget = TrackedStationTypeRuleTarget.UNKNOWN;
+        TrackedStationTypeRuleType ruleType = TrackedStationTypeRuleType.UNKNOWN;
+        TrackedStationType trackedStationType = TrackedStationType.UNKNOWN;
+
+        try {
+            ruleTarget = TrackedStationTypeRuleTarget.valueOf(request.ruleTarget());
+            ruleType = TrackedStationTypeRuleType.valueOf(request.ruleType());
+            trackedStationType = TrackedStationType.valueOf(request.trackedStationType());
+        } catch (Exception e) {
+            logger.error("Error converting request to rule", e);
+        }
+
+        TrackedStationTypeRule rule = new TrackedStationTypeRule(null, ruleTarget, ruleType, request.value(), trackedStationType);
+
+        return rule;
+    }
+
 }

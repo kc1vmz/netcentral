@@ -37,6 +37,7 @@ import netcentral.server.accessor.TrackedStationTypeRuleAccessor;
 import netcentral.server.auth.SessionAccessor;
 import netcentral.server.object.TrackedStationTypeRule;
 import netcentral.server.object.User;
+import netcentral.server.object.request.TrackedStationRuleRequest;
 
 @Controller("/api/v1/trackedStationTypeRules") 
 @Secured(SecurityRule.IS_ANONYMOUS) 
@@ -52,6 +53,15 @@ public class TrackedStationTypeRulesController {
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         TrackedStationTypeRule rule = trackedStationTypeRuleAccessor.create(loggedInUser, obj);
+        return rule;
+    }
+
+    @Post("/requests")
+    public TrackedStationTypeRule createUsingRequest(HttpRequest<?> request,  @Body TrackedStationRuleRequest obj) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        TrackedStationTypeRule rule = trackedStationTypeRuleAccessor.createByRequest(loggedInUser, obj);
         return rule;
     }
 
@@ -84,11 +94,11 @@ public class TrackedStationTypeRulesController {
         return;
     }
 
-    @Put("/{id}")
-    public TrackedStationTypeRule update(HttpRequest<?> request,  @PathVariable String id, @Body TrackedStationTypeRule obj) {
+    @Put("/{id}/requests")
+    public TrackedStationTypeRule updateByRequest(HttpRequest<?> request,  @PathVariable String id, @Body TrackedStationRuleRequest obj) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
-        return trackedStationTypeRuleAccessor.update(loggedInUser, id, obj);
+        return trackedStationTypeRuleAccessor.updateByRequest(loggedInUser, id, obj);
     }
 }
