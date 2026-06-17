@@ -21,7 +21,7 @@
 <script setup>
 import { loggedInUser, loggedInUserToken, updateLoggedInUser, updateLoggedInUserToken, loginPageShow, logoutPageShow, getToken, getUser, registerPageShow } from "@/LoginInformation.js";
 import { selectedObjectType } from "@/SelectedObjectType.js";
-import { updateSelectedObject } from "@/SelectedObject.js";
+import { updateSelectedObject , selectedObject } from "@/SelectedObject.js";
 import { ref, watch, reactive, onMounted } from 'vue';
 import { nudgeObject, nudge, nudgeUpdateObject, nudgeUpdate, nudgeRemoveObject, nudgeRemove, nudgeAddObject, nudgeAdd  } from "@/nudgeObject.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
@@ -552,7 +552,6 @@ watch(nudgeUpdateObject, (newNudgeUpdateObject, oldNudgeUpdateObject) => {
 });
 
 
-
 watch(nudgeRemoveObject, (newNudgeRemoveObject, oldNudgeRemoveObject) => {
   if (newNudgeRemoveObject.value != null) {
     // find the localObject
@@ -577,6 +576,13 @@ watch(nudgeRemoveObject, (newNudgeRemoveObject, oldNudgeRemoveObject) => {
     nudgeRemoveObject.value = null;
   }
 });
+
+
+watch(selectedObject, (newValue, oldValue) => {
+    selectedItem.value = newValue.ncSelectedObject;
+    updateSelectedObject(newValue.ncSelectedObject); 
+});
+
 </script>
 
 <template>

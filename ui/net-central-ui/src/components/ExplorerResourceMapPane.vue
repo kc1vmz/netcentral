@@ -31,6 +31,14 @@ import { useSocketIO } from "@/composables/socket";
 import { updateTrackedStationEvent, updateObjectEvent, updateCallsignEvent, updateAll, updateIgnoredEvent, updateIgnored, updateWeatherReportEvent, updateWeatherReport } from "@/UpdateEvents.js";
 import { liveUpdateEnabled, enableLiveUpdate, disableLiveUpdate } from "@/composables/liveUpdate";
 import { getMapServerUrl } from "@/composables/mapserver";
+import { updateSelectedObject , selectedObject } from "@/SelectedObject.js";
+
+const localSelectedObject = reactive({ncSelectedObject : null});
+
+const colorSelected = 'black';
+const colorSelectedFill = 'black';
+const colorNotSelected = 'blue';
+const colorNotSelectedFill = 'blue';
 
 const { socket } = useSocketIO();
 socket.on("updateTrackedStation", (data) => {
@@ -47,6 +55,45 @@ socket.on("updateIgnored", (data) => {
 });
 socket.on("updateWeatherReport", (data) => {
   updateWeatherReport(data)
+});
+
+watch(selectedObject, (newValue, oldValue) => {
+  var previousSelected = null;
+  var newSelected = null;
+
+  if ((explorerMapRef.value) && (explorerMapRef.value.leafletObject)) {
+    
+    explorerMapRef.value.leafletObject.eachLayer(function(layer) {
+        if ((previousSelected == null) || (newSelected == null)) {
+          if ((layer.options != null) && (layer.options.callsign != null)) {
+            if ((localSelectedObject.ncSelectedObject != null) && (localSelectedObject.ncSelectedObject.callsign != null) && (layer.options.callsign == localSelectedObject.ncSelectedObject.callsign)) {
+              previousSelected = layer;
+            } else if ((newValue.ncSelectedObject != null) && (newValue.ncSelectedObject.callsign != null) && (layer.options.callsign == newValue.ncSelectedObject.callsign)) {
+              newSelected = layer;
+            }
+          }
+        }
+    });
+  }
+
+  if ((previousSelected != newSelected) && (newSelected != null)) {
+    if (previousSelected != null) {
+      previousSelected.closePopup();
+      previousSelected.setStyle({
+          color: colorNotSelected,
+          fillColor: colorNotSelectedFill
+      });
+    }
+    if (newSelected != null) {
+      newSelected.openPopup();
+      newSelected.setStyle({
+          color: colorSelected,
+          fillColor: colorSelectedFill
+      });
+    }
+  }
+  localSelectedObject.ncSelectedObject = newValue.ncSelectedObject;
+
 });
 
 function updateTrackedStation(data) {
@@ -418,7 +465,7 @@ function createObjectNo() {
                 <!-- display all points -->
                 <!-- <l-marker v-for="mapPoint in mapPoints.value.items" :lat-lng="[mapPoint.latitude, mapPoint.longitude]"></l-marker> -->
                   <l-circle-marker v-for="mapPoint in mapPoints.value.items"  :lat-lng="[mapPoint.latitude, mapPoint.longitude]" 
-                            :options="{ callsign: mapPoint.title }" :key="mapPoint.title" :radius=8  color="blue" fillColor="blue" :fillOpacity="0.7"
+                            :options="{ callsign: mapPoint.title }" :key="mapPoint.title" :radius=8  :color=colorNotSelected :fillColor=colorNotSelectedFill :fillOpacity="0.7"
                             v-on:click.native="onMapClick">
                     <l-popup>
                       <div v-if="((mapPoint.itemObject != null) && (mapPoint.object) && (mapPoint.itemObject.type == 'SHELTER'))">
