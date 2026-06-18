@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>transceiver.test</groupId>
   <artifactId>transceiver-test</artifactId>
-  <version>1.0.23</version>
+  <version>1.0.24</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -22,7 +22,7 @@
     <micronaut.aot.enabled>false</micronaut.aot.enabled>
     <micronaut.aot.packageName>transceiver.test.aot.generated</micronaut.aot.packageName>
     <exec.mainClass>netcentral.transceiver.test.Application</exec.mainClass>
-    <netcentral.version>1.0.23</netcentral.version>
+    <netcentral.version>1.0.24</netcentral.version>
   </properties>
 
   <dependencies>

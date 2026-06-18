@@ -1,4 +1,4 @@
-SET NETCENTRAL_VERSION=1.0.23
+SET NETCENTRAL_VERSION=1.0.24
 docker tag netcentral-server:%NETCENTRAL_VERSION% kc1vmz/netcentral-server:%NETCENTRAL_VERSION%
 docker tag netcentral-server-h2:%NETCENTRAL_VERSION% kc1vmz/netcentral-server-h2:%NETCENTRAL_VERSION%
 docker tag osm-proxy-cache:%NETCENTRAL_VERSION% kc1vmz/osm-proxy-cache:%NETCENTRAL_VERSION%
