@@ -21,7 +21,7 @@
 <template>
   <div>
     <div class="mobilepageheader">How APRS nets work</div>
-    <br>Start a net from the web app (not mobile) and let people know about it.  Nets can be announced as bulletins when started.
+    <br>Start a net from the web app or Net Central's configured Net Manager callsign (not mobile) and let people know about it.  Nets can be announced as bulletins when started.
     <br>Operators can then participate by checking in and out of a net by sending APRS messages to the callsign of the net.
     <p></p>
     <br>List of valid commands sent as APRS messages to the net callsign:
@@ -52,6 +52,18 @@
     <br><b>CI, CO, T, F, X, E, B, NCI and Y</b> can all be combined in a single message  (ex: CI X 50 E COMM B SO NCI)
     <br>
     <br>You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!
+    <br>
+    <br>
+    <br>Ad-hoc nets can be created if Net Central is configured to have a Net Manager enabled.
+    <br>By sending a command to the Net Central's Net Manager callsign, you can start and stop nets without using the web interface.
+    <br>This can be configured from the Setup page's Net Manager tab in the web user interface.
+    <p></p>
+    <br>List of valid commands sent as APRS messages to the Net Manager callsign:
+    <br><b>L</b> - List the active public nets hosted by this Net Central server
+    <br><b>C callsign</b> - Create a public net with the provided callsign.
+    <br><b>CP callsign</b> - Create a private net with the provided callsign.
+    <br><b>S callsign</b> - Secure an ad-hoc net.
+    <br><b>H</b> - display help message of all commands
   </div>
 </template>
 

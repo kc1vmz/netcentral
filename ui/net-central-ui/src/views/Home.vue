@@ -64,6 +64,21 @@
         <br>You must be a registered user on Net Central to start and close nets, but any operator with APRS can participate!
     </div>
     <div class="grid-item">
+        <div class="pagesubheader">No net - no problem!</div>
+        <br>
+        <br>Ad-hoc nets can be created if Net Central is configured to have a Net Manager enabled.
+        <br>By sending a command to the Net Central's Net Manager callsign, you can start and stop nets without using the web interface.
+        <br>This can be configured from the Setup page's Net Manager tab.
+        <p></p>
+        <br>List of valid commands sent as APRS messages to the Net Manager callsign:
+        <br><b>L</b> - List the active public nets hosted by this Net Central server
+        <br><b>C callsign</b> - Create a public net with the provided callsign.
+        <br><b>CP callsign</b> - Create a private net with the provided callsign.
+        <br><b>S callsign</b> - Secure an ad-hoc net.
+        <br><b>H</b> - display help message of all commands
+        <br>
+        <br>
+        <br>
         <div class="pagesubheader">Enriching APRS</div>
         <br>
         <br>APRS objects representing useful emergency resources, such as medical centers, shelters and EOCs can be created to pinpoint location.
@@ -74,6 +89,9 @@
         <div class="pagesubheader">Licensing</div>
         <br>
         <br>For license agreements, look <a href="/License">here</a>.
+        <br>
+        <br>
+        <br>
     </div>
   </div>
 </template>
