@@ -70,3 +70,12 @@ List of valid commands sent to a general resource object callsign:
 ?APRSS - returns object status
 ?NCGRI - returns name, comment
 ?NCGRV - returns token=value pairs stored for object
+
+
+List of commands sent to the Net Manager callsign
+
+L - List active nets
+C callsign - Create active net with callsign 
+CP callsign - Create private active net with callsign
+S callsign - Secure active net with callsign
+H - Help
