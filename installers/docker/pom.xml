@@ -6,7 +6,7 @@
 
     <groupId>com.kc1vmz.netcentral</groupId>
     <artifactId>netcentral-docker-image-build-scripts</artifactId>
-    <version>1.0.24</version>
+    <version>1.0.25</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -14,7 +14,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <netcentral.version>1.0.24</netcentral.version>
+        <netcentral.version>1.0.25</netcentral.version>
     </properties>
 
     <build>
