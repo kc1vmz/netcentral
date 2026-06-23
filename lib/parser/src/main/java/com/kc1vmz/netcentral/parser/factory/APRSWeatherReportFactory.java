@@ -32,6 +32,7 @@ import com.kc1vmz.netcentral.parser.exception.APRSTimeConversionException;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
+import com.kc1vmz.netcentral.parser.util.StringUtils;
 
 public class APRSWeatherReportFactory {
     private static final Logger logger = LogManager.getLogger(APRSWeatherReportFactory.class);
@@ -49,109 +50,204 @@ public class APRSWeatherReportFactory {
         ret.setDti(data[0]);
         ret.setCallsignFrom(AgwHeaderParser.getCallsignFrom(header));
 
-        int messageIndex = 1;
-
         if (data[0] == '_') {
-            // positionless weather data
-            messageIndex = 9;
-            byte [] time_bytes = Arrays.copyOfRange(data, 1, 9);
-            ret.setTime(new String(time_bytes));
-            try {
-                ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
-            } catch (APRSTimeConversionException e) {
-                logger.error("Exception caught", e);
-            }
+            ret = parsePositionless(header, data, ret);
         } else if ((data[0] == '!') || (data[0] == '=')) {
-            messageIndex = 1;
-            byte [] lat = Arrays.copyOfRange(data, messageIndex+0, messageIndex+8);
-            ret.setLat(new String(lat));
-            //byte symTableId = data[messageIndex+8];
-            byte [] lon = Arrays.copyOfRange(data, messageIndex+9, messageIndex+18);
-
-            if ((lon[8] != 'E') && (lon[8] != 'W')) {
-                lon = Arrays.copyOfRange(data, messageIndex+9, messageIndex+17);
-                // bad lon - short one character
-                String prependZero = "0"+new String(lon);
-                lon = prependZero.getBytes();
-                messageIndex += 17;
-            } else {
-                messageIndex +=18;
-            }
-            ret.setLon(new String(lon));
-
-            byte symbolCode_byte = data[messageIndex];
-            char symbolCode = (char) symbolCode_byte;
-            if (symbolCode == '_') {
-                // next is 7 bytes for wind speed/direction
-                 byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, messageIndex+1, messageIndex+8);
-                 String directionAndSpeed = new String(directionAndSpeed_bytes);
-                 String [] dsArray = directionAndSpeed.split("/");
-                 if ((dsArray != null) && (dsArray.length == 2)) {
-                    ret.setWindDirection(Integer.parseInt(dsArray[0]));
-                    ret.setWindSpeed(Integer.parseInt(dsArray[1]));
-                 }
-            }
-            messageIndex += 8;
+            ret = parseCompleteWithoutTimestamp(header, data, ret);
         } else if ((data[0] == '/') || (data[0] == '@')) {
-            // time is same in both
-            byte [] time_bytes = Arrays.copyOfRange(data, 1, 9);
-            ret.setTime(new String(time_bytes));
-            try {
-                ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
-            } catch (APRSTimeConversionException e) {
-                logger.error("Exception caught", e);
-            }
+            ret = parseCompleteWithTimestamp(header, data, ret);
+        }
 
-            if (data[17] == '_') {
-                // compressed location data
-                byte [] compressedData = Arrays.copyOfRange(data, messageIndex+9, messageIndex+17);
-                String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitudeShort(compressedData), "NS");
-                String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitudeShort(compressedData), "EW");
-                ret.setLat(lat);
-                ret.setLon(lon);
-                messageIndex += 21; // compressed + _ + compressed wind speed/dir + T
-            } else if (data[26] == '_') {
-                // unmcompressed
-                byte [] lat = Arrays.copyOfRange(data, 8, 16);
-                ret.setLat(new String(lat));
-                //byte symTableId = data[messageIndex+8];
-                byte [] lon = Arrays.copyOfRange(data, 17, 26);
-
-                if ((lon[8] != 'E') && (lon[8] != 'W')) {
-                    lon = Arrays.copyOfRange(data, 17, 25);
-                    // bad lon - short one character
-                    String prependZero = "0"+new String(lon);
-                    lon = prependZero.getBytes();
-                    messageIndex = 25;
-                } else {
-                    messageIndex = 26;
-                }
-                ret.setLon(new String(lon));
-
-                byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, messageIndex, messageIndex+7);
-                String directionAndSpeed = new String(directionAndSpeed_bytes);
-                String [] dsArray = directionAndSpeed.split("/");
-                if ((dsArray != null) && (dsArray.length == 2)) {
-                   ret.setWindDirection(Integer.parseInt(dsArray[0]));
-                   ret.setWindSpeed(Integer.parseInt(dsArray[1]));
-                }
-
-                messageIndex += 7; // skip wind speed and direction
-            } else {
-                // bad format
+        if (ret != null) {
+            if (ret.getTime() == null) {
+                ret.setTime("");
+                ret.setLdtime(ZonedDateTime.now());
             }
         }
+
+        return ret;
+    }
+
+    private static APRSWeatherReport parseCompleteWithTimestamp(byte[] header, byte[] data, APRSWeatherReport ret) {
+        int messageIndex = 0;
+
+        // time is the same in both
+        byte [] time_bytes = Arrays.copyOfRange(data, 1, 8);
+        ret.setTime(new String(time_bytes));
+        try {
+            ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
+        } catch (APRSTimeConversionException e) {
+            logger.error("Exception caught", e);
+        }
+
+        if (data[17] == '_') {
+            return parseCompleteWithTimestampCompressedLocation(header, data, ret);
+        }
+
+        // uncompressed location
+
+        ret.setSymbolTableId(StringUtils.stringify(data[16]));
+        ret.setSymbolTableCode(StringUtils.stringify(data[26]));
+
+        byte [] lat = Arrays.copyOfRange(data, 8, 16);
+        ret.setLat(new String(lat));
+        byte [] lon = Arrays.copyOfRange(data, 17, 26);
+
+        if ((lon[8] != 'E') && (lon[8] != 'W')) {
+            lon = Arrays.copyOfRange(data, 17, 25);
+            // bad lon - short one character
+            String prependZero = "0"+new String(lon);
+            lon = prependZero.getBytes();
+            messageIndex = 26;
+        } else {
+            messageIndex = 27;
+        }
+        ret.setLon(new String(lon));
+
+        byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, messageIndex, messageIndex+7);
+        String directionAndSpeed = new String(directionAndSpeed_bytes);
+        String [] dsArray = directionAndSpeed.split("/");
+        if ((dsArray != null) && (dsArray.length == 2)) {
+            ret.setWindDirection(Integer.parseInt(dsArray[0]));
+            ret.setWindSpeed(Integer.parseInt(dsArray[1]));
+        }
+
+        messageIndex += 7; // skip wind speed and direction
 
         byte [] weatherData_bytes = Arrays.copyOfRange(data, messageIndex, data.length);
         parseWeatherData(weatherData_bytes, ret);
 
-        if (ret.getTime() == null) {
-            ret.setTime("");
-            ret.setLdtime(ZonedDateTime.now());
+        return ret;
+    }
+
+    private static APRSWeatherReport parseCompleteWithTimestampCompressedLocation(byte[] header, byte[] data, APRSWeatherReport ret) {
+        // compressed location data
+        byte [] compressedData = Arrays.copyOfRange(data, 9, 17);
+        String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitudeShort(compressedData), "NS");
+        String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitudeShort(compressedData), "EW");
+        ret.setLat(lat);
+        ret.setLon(lon);
+
+        ret.setSymbolTableId(StringUtils.stringify(data[8]));
+        ret.setSymbolTableCode(StringUtils.stringify(data[17]));
+
+        // next is 7 bytes for wind speed/direction
+        byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, 18, 21);
+        String directionAndSpeed = new String(directionAndSpeed_bytes);
+        ret = determineDirectionAndSpeedFromCompressed(ret, directionAndSpeed);
+
+        byte [] weatherData_bytes = Arrays.copyOfRange(data, 21, data.length);
+        parseWeatherData(weatherData_bytes, ret);
+
+        return ret;
+    }
+
+    private static APRSWeatherReport parseCompleteWithoutTimestamp(byte[] header, byte[] data, APRSWeatherReport ret) {
+        int messageIndex = 0;
+
+        if (data[10] == '_') {
+            return parseCompleteWithoutTimestampCompressedLocation(header, data, ret);
+        }
+
+        byte [] lat = Arrays.copyOfRange(data, 1, 9);
+        ret.setLat(new String(lat));
+        ret.setSymbolTableId(StringUtils.stringify(data[9]));
+        byte [] lon = Arrays.copyOfRange(data, 10, 19);
+
+        if ((lon[8] != 'E') && (lon[8] != 'W')) {
+            lon = Arrays.copyOfRange(data, 10, 18);
+            // bad lon - short one character
+            String prependZero = "0"+new String(lon);
+            lon = prependZero.getBytes();
+            messageIndex = 18;
+        } else {
+            messageIndex = 19;
+        }
+        ret.setLon(new String(lon));
+
+        if (data[messageIndex] != '_') {
+            // this must be an underscore
+            return null;
+        }
+        ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex]));
+        messageIndex++;
+
+        // next is 7 bytes for wind speed/direction
+        byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, messageIndex, messageIndex+7);
+        String directionAndSpeed = new String(directionAndSpeed_bytes);
+        String [] dsArray = directionAndSpeed.split("/");
+        if ((dsArray != null) && (dsArray.length == 2)) {
+            ret.setWindDirection(Integer.parseInt(dsArray[0]));
+            ret.setWindSpeed(Integer.parseInt(dsArray[1]));
+        }
+        messageIndex += 7;
+
+        byte [] weatherData_bytes = Arrays.copyOfRange(data, messageIndex, data.length);
+        parseWeatherData(weatherData_bytes, ret);
+
+        return ret;
+    }
+
+    private static APRSWeatherReport parseCompleteWithoutTimestampCompressedLocation(byte[] header, byte[] data, APRSWeatherReport ret) {
+        ret.setSymbolTableId(StringUtils.stringify(data[1]));
+        ret.setSymbolTableCode(StringUtils.stringify(data[10]));
+
+        byte [] compressedData = Arrays.copyOfRange(data, 2, 10);
+        String lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitudeShort(compressedData), "NS");
+        String lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitudeShort(compressedData), "EW");
+        ret.setLat(new String(lat));
+        ret.setLon(new String(lon));
+
+        byte [] directionAndSpeed_bytes = Arrays.copyOfRange(data, 11, 14);
+        String directionAndSpeed = new String(directionAndSpeed_bytes);
+        ret = determineDirectionAndSpeedFromCompressed(ret, directionAndSpeed);
+
+        byte [] weatherData_bytes = Arrays.copyOfRange(data, 14, data.length);
+        parseWeatherData(weatherData_bytes, ret);
+
+        return ret;
+    }
+
+    private static APRSWeatherReport determineDirectionAndSpeedFromCompressed(APRSWeatherReport ret, String directionAndSpeed) {
+
+        if (directionAndSpeed.startsWith(" ")) {
+            // ignore this value
+            return ret;
+        }
+
+        char c = directionAndSpeed.charAt(0);
+        if ((c >= '!') && (c <= 'z')) {
+            // 0 - 89 after subtracting 33 from c
+            // compressed course / speed
+            int cInt = (int) c;
+            cInt -= 33;
+
+            ret.setWindDirection(cInt*4);
+
+            char s = directionAndSpeed.charAt(1);
+            int sInt = (int) s;
+            double base = 1.08;
+            double result = Math.pow(base, sInt) - 1;
+            ret.setWindSpeed((int) Math.round(result));
         }
 
         return ret;
+    }
 
+    private static APRSWeatherReport parsePositionless(byte[] header, byte[] data, APRSWeatherReport ret) {
+        // positionless weather data
+        byte [] time_bytes = Arrays.copyOfRange(data, 1, 9);
+        ret.setTime(new String(time_bytes));
+        try {
+            ret.setLdtime(APRSTime.convertAPRSTimeToZonedDateTime(ret.getTime()));
+        } catch (APRSTimeConversionException e) {
+            logger.error("Exception caught", e);
+        }
+
+        byte [] weatherData_bytes = Arrays.copyOfRange(data, 9, data.length);
+        parseWeatherData(weatherData_bytes, ret);
+
+        return ret;
     }
 
     private static void parseWeatherData(byte[] weatherData_bytes, APRSWeatherReport ret) {
@@ -161,6 +257,7 @@ public class APRSWeatherReportFactory {
         int index = 0;
         boolean seenS = false;
         boolean stop = false;
+
         while ((index < weatherData_bytes.length) && (!stop)) {
             char type = (char) weatherData_bytes[index];
             byte [] value_bytes;

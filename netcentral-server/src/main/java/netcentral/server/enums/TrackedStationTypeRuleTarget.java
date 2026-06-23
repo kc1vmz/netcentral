@@ -21,5 +21,5 @@ package netcentral.server.enums;
 */
 
 public enum TrackedStationTypeRuleTarget {
-    UNKNOWN, STATUS, COMMENT
+    UNKNOWN, STATUS, COMMENT, CALLSIGN, SYMBOL
 }

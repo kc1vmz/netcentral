@@ -50,11 +50,13 @@ public class APRSWeatherReport implements APRSPacketInterface {
     private String lon;
     private byte dti;
     private String prettyLdtime;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public APRSWeatherReport(String id, String callsignFrom, String callsignTo, String time,  int windDirection, int windSpeed, int gust, int temperature,
                                 int rainfallLast1Hr, int rainfallLast24Hr, int rainfallSinceMidnight, int humidity, 
                                 int barometricPressure, int luminosity, int snowfallLast24Hr,
-                                int rawRainCounter, String lat, String lon, ZonedDateTime ldtime) {
+                                int rawRainCounter, String lat, String lon, ZonedDateTime ldtime, String symbolTableId, String symbolTableCode) {
         this.id = id;
         this.callsignFrom = callsignFrom;
         this.callsignTo = callsignTo;
@@ -75,6 +77,8 @@ public class APRSWeatherReport implements APRSPacketInterface {
         this.lon = lon;
         this.ldtime = ldtime;
         this.prettyLdtime = PrettyZonedDateTimeFormatter.format(ldtime);
+        this.symbolTableId = symbolTableId;
+        this.symbolTableCode = symbolTableCode;
     }
 
     public APRSWeatherReport() {
@@ -227,5 +231,17 @@ public class APRSWeatherReport implements APRSPacketInterface {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

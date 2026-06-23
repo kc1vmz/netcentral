@@ -69,10 +69,11 @@ public class ToolsAccessor {
     private TransceiverCommunicationAccessor transceiverCommunicationAccessor;
 
     private static final String WINLINK_GATEWAY_CALLSIGN = "WLNK-1";
+    private static final String WINLINK_BROADCAST_CALLSIGN = "WINLINK";
     private static final String NTS_GATEWAY_CALLSIGN = "NTSGTE";
 
-    public String getWinlinkGatewayCallsign() {
-        return WINLINK_GATEWAY_CALLSIGN;
+    public String getWinlinkBroadcastCallsign() {
+        return WINLINK_BROADCAST_CALLSIGN;
     }
 
     public WinlinkSendMessageResponse initiateWinlinkMessage(User loggedInUser, WinlinkSendMessageRequest request) {

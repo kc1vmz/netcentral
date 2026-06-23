@@ -32,6 +32,7 @@ import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
 import com.kc1vmz.netcentral.parser.util.MicELatDigitProcessor;
 import com.kc1vmz.netcentral.parser.util.MicELonDegreeProcessor;
 import com.kc1vmz.netcentral.parser.util.MicELonMinuteProcessor;
+import com.kc1vmz.netcentral.parser.util.StringUtils;
 
 public class APRSMicEFactory {
     private static final Logger logger = LogManager.getLogger(APRSMicEFactory.class);
@@ -53,6 +54,9 @@ public class APRSMicEFactory {
         byte [] lonBytes = Arrays.copyOfRange(data, 1, 4);
         ret.setLat(determineLatitude(destField));
         ret.setLon(determineLongitude(destField, lonBytes, (ret.getLat().contains("  "))));
+
+        ret.setSymbolTableId(StringUtils.stringify(data[7]));
+        ret.setSymbolTableCode(StringUtils.stringify(data[8]));
 
         ret.setStatus(new String (Arrays.copyOfRange(data, 9, data.length)));
 

@@ -59,7 +59,10 @@ public class TrackedStationTypeUtils {
             if (value.equals(TrackedStationType.UNKNOWN) && skipUnknown) {
                 continue;
             }
-            ret += convertTrackedStationTypeToString(value);
+            String val = convertTrackedStationTypeToString(value);
+            if (!ret.contains(val)) {
+                ret += val;
+            }
         }
         return ret;
     }

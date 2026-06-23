@@ -110,20 +110,59 @@ function performCreateRule() {
               <div>
                 <label for="ruleSourceField">Source:</label>
                 <select name="ruleSourceField" id="ruleSourceField" v-model="ruleSourceRef.value" >
+                  <div v-if="(ruleSourceRef.value == 'CALLSIGN')">
+                    <option value="CALLSIGN" selected>Callsign</option>
+                  </div>
+                  <div v-else>
+                    <option value="CALLSIGN">Callsign</option>
+                  </div>
+                  <div v-if="(ruleSourceRef.value == 'COMMENT')">
+                    <option value="COMMENT" selected>Comment</option>
+                  </div>
+                  <div v-else>
+                    <option value="COMMENT">Comment</option>
+                  </div>
                   <div v-if="(ruleSourceRef.value == 'STATUS')">
                     <option value="STATUS" selected>Status</option>
-                    <option value="COMMENT">Comment</option>
                   </div>
                   <div v-else>
                     <option value="STATUS">Status</option>
-                    <option value="COMMENT" selected>Comment</option>
+                  </div>
+                  <div v-if="(ruleSourceRef.value == 'SYMBOL')">
+                    <option value="SYMBOL" selected>Symbol</option>
+                  </div>
+                  <div v-else>
+                    <option value="SYMBOL">Symbol</option>
                   </div>
                 </select>
               </div>
               <div>
                 <label for="ruleActionField">Action:</label>
                 <select name="ruleActionField" id="ruleActionField" v-model="ruleActionRef.value" >
-                  <option value="CONTAINS" selected>Contains</option>
+                  <div v-if="(ruleActionRef.value == 'CONTAINS')">
+                    <option value="CONTAINS" selected>Contains</option>
+                  </div>
+                  <div v-else>
+                    <option value="CONTAINS">Contains</option>
+                  </div>
+                  <div v-if="(ruleActionRef.value == 'ENDS_WITH')">
+                    <option value="ENDS_WITH" selected>Ends with</option>
+                  </div>
+                  <div v-else>
+                    <option value="ENDS_WITH">Ends with</option>
+                  </div>
+                  <div v-if="(ruleActionRef.value == 'EQUALS')">
+                    <option value="EQUALS" selected>Equals</option>
+                  </div>
+                  <div v-else>
+                    <option value="EQUALS">Equals</option>
+                  </div>
+                  <div v-if="(ruleActionRef.value == 'STARTS_WITH')">
+                    <option value="STARTS_WITH" selected>Starts with</option>
+                  </div>
+                  <div v-else>
+                    <option value="STARTS_WITH">Starts with</option>
+                  </div>
                 </select>
               </div>
               <div>

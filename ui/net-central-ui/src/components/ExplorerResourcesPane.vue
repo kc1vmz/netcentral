@@ -160,21 +160,31 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
       trackedStations.value.splice(indexToRemove, 1);
     }
   } else if (newValue.value.action == "Update") {
-    if (trackedStations.value != null) {
-      trackedStations.value.forEach(function(trackedStation){
-        if (trackedStation.callsign == newValue.value.callsign) {
-          trackedStation.name = newValue.value.object.name;
-          trackedStation.status = newValue.value.object.status;
-          trackedStation.lat = newValue.value.object.lat;
-          trackedStation.lon = newValue.value.object.lon;
-          trackedStation.radioStyle = newValue.value.object.radioStyle;
-          trackedStation.transmitPower = newValue.value.object.transmitPower;
-          trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
-          trackedStation.types = newValue.value.object.types;
-          trackedStation.prettyTypes = newValue.value.object.prettyTypes;
+      var found = false;
+
+      if (trackedStations.value != null) {
+        trackedStations.value.forEach(function(trackedStation){
+          if (trackedStation.callsign == newValue.value.callsign) {
+            trackedStation.name = newValue.value.object.name;
+            trackedStation.status = newValue.value.object.status;
+            trackedStation.lat = newValue.value.object.lat;
+            trackedStation.lon = newValue.value.object.lon;
+            trackedStation.radioStyle = newValue.value.object.radioStyle;
+            trackedStation.transmitPower = newValue.value.object.transmitPower;
+            trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
+            trackedStation.types = newValue.value.object.types;
+            trackedStation.prettyTypes = newValue.value.object.prettyTypes;
+            found = true;
+          }
+        });
+      }
+
+      if (!found) {
+        if (trackedStations.value == null) {
+          trackedStations.value = [];
         }
-      });
-    }
+        trackedStations.value.push(newValue.value.object);
+      }
   }
 });
 
@@ -230,6 +240,7 @@ watch(updateObjectEvent, (newValue, oldValue) => {
       trackedStations.value.splice(indexToRemove, 1);
     }
   } else if (newValue.value.action == "Update") {
+    var found = false;
     if (trackedStations.value != null) {
       trackedStations.value.forEach(function(trackedStation){
         if (trackedStation.callsign == newValue.value.callsign) {
@@ -242,8 +253,28 @@ watch(updateObjectEvent, (newValue, oldValue) => {
           trackedStation.prettyLastHeard = newValue.value.object.prettyLastHeard;
           trackedStation.types = newValue.value.object.types;
           trackedStation.prettyTypes = newValue.value.object.prettyTypes;
+          found = true;
         }
       });
+    }
+
+    if (!found) {
+      newValue.value.object.name = newValue.value.object.callsignTo;
+      newValue.value.object.callsign = newValue.value.object.callsignTo;
+      newValue.value.object.prettyLastHeard = newValue.value.object.prettyLdtime;
+      if ((newValue.value.object.prettyTypes == null) || (newValue.value.object.prettyTypes.length == 0)) {
+        newValue.value.object.types = ['OBJECT'];
+        newValue.value.object.prettyTypes = "OBJECT";
+      }
+      if (newValue.value.object.alive) {
+        newValue.value.object.status = "Alive";
+      } else {
+        newValue.value.object.status = "Dead";
+      }
+      if (trackedStations.value == null) {
+        trackedStations.value = [];
+      }
+      trackedStations.value.push(newValue.value.object);
     }
   }
 });
@@ -287,6 +318,7 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
       trackedStations.value.splice(indexToRemove, 1);
     }
   } else if (newValue.value.action == "Update") {
+    var found = false;
     if (trackedStations.value != null) {
       trackedStations.value.forEach(function(trackedStation){
         if (trackedStation.callsign == newValue.value.callsign) {
@@ -297,8 +329,22 @@ watch(updateCallsignEvent, (newValue, oldValue) => {
           trackedStation.id = newValue.value.callsign;
           trackedStation.types = ["CALLSIGN"];
           trackedStation.prettyTypes = "CALLSIGN";
+          found = true;
         }
       });
+    }
+
+    if (!found) {
+      newValue.value.object.id = newValue.value.callsign;
+      newValue.value.object.callsign = newValue.value.callsign;
+      newValue.value.object.prettyLastHeard = "";
+      newValue.value.object.status = "Heard";
+      newValue.value.object.types = ["CALLSIGN"];
+      newValue.value.object.prettyTypes = "CALLSIGN";
+      if (trackedStations.value == null) {
+        trackedStations.value = [];
+      }
+      trackedStations.value.push(newValue.value.object);
     }
   }
 });

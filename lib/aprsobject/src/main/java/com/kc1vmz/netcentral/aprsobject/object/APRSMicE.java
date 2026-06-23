@@ -34,6 +34,8 @@ public class APRSMicE implements APRSPacketInterface {
     private String lon;
     private MicECommentType commentType;
     private String status;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public byte [] getData() {
         return data;
@@ -97,6 +99,18 @@ public class APRSMicE implements APRSPacketInterface {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }
 

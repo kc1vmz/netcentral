@@ -59,7 +59,7 @@ List of valid commands sent to a priority object shelter callsign:
 ?NCPSC - returns shelter census
 ?NCPSF - returns shelter food reports
 ?NCPSM - returns shelter materiel reports
-?NCPSW - returns sheleter worker census reports
+?NCPSW - returns shelter worker census reports
 
 List of valid commands sent to a general resource object callsign:
 

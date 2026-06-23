@@ -21,5 +21,5 @@ package netcentral.server.enums;
 */
 
 public enum TrackedStationTypeRuleType {
-    UNKNOWN, CONTAINS
+    UNKNOWN, CONTAINS, EQUALS, STARTS_WITH, ENDS_WITH
 }

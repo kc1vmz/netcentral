@@ -23,9 +23,6 @@ import java.util.List;
     http://www.kc1vmz.com
 */
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import netcentral.server.enums.TrackedStationType;
@@ -40,25 +37,20 @@ public class TrackedStationTypeRulesProcessor {
     @Inject
     private TrackedStationTypeRuleAccessor trackedStationTypeRuleAccessor;
 
-    private static final Logger logger = LogManager.getLogger(TrackedStationTypeRulesProcessor.class);
-    private List<TrackedStationTypeRule> rules = null;
-
-    private synchronized void initialize() {
-        if (rules != null) {
-            return;
-        }
-        rules = new ArrayList<>();
-        logger.info("Initializing TrackedStationTypeRulesProcessor");
-
-        rules.addAll(trackedStationTypeRuleAccessor.getAll(null));
-    }
-
     public List<TrackedStationType> determineTypesFromStatus(String value) {
         return determineTypes(value, TrackedStationTypeRuleTarget.STATUS);
     }
 
     public List<TrackedStationType> determineTypesFromComment(String value) {
         return determineTypes(value, TrackedStationTypeRuleTarget.COMMENT);
+    }
+
+    public List<TrackedStationType> determineTypesFromCallsign(String value) {
+        return determineTypes(value, TrackedStationTypeRuleTarget.CALLSIGN);
+    }
+
+    public List<TrackedStationType> determineTypesFromSymbol(String symbolTable, String symbolCode) {
+        return determineTypes(symbolTable+symbolCode, TrackedStationTypeRuleTarget.SYMBOL);
     }
 
     private List<TrackedStationType> determineTypes(String value, TrackedStationTypeRuleTarget target) {
@@ -69,9 +61,9 @@ public class TrackedStationTypeRulesProcessor {
             return ret;
         }
 
-        initialize();
         String valueUpper = value.toUpperCase();
 
+        List<TrackedStationTypeRule> rules = trackedStationTypeRuleAccessor.getAll(null);
         for (TrackedStationTypeRule rule : rules) {
             if (!rule.getRuleTarget().equals(target)) {
                 continue;
@@ -81,7 +73,19 @@ public class TrackedStationTypeRulesProcessor {
                 if (valueUpper.contains(rule.getValue())) {
                     ret = TrackedStationTypeUtils.addTrackedStationType(ret, rule.getTrackedStationType());
                 }
-            }
+            } else if (rule.getRuleType().equals(TrackedStationTypeRuleType.EQUALS)) {
+                if (valueUpper.equals(rule.getValue())) {
+                    ret = TrackedStationTypeUtils.addTrackedStationType(ret, rule.getTrackedStationType());
+                }
+            } else if (rule.getRuleType().equals(TrackedStationTypeRuleType.STARTS_WITH)) {
+                if (valueUpper.startsWith(rule.getValue())) {
+                    ret = TrackedStationTypeUtils.addTrackedStationType(ret, rule.getTrackedStationType());
+                }
+            } else if (rule.getRuleType().equals(TrackedStationTypeRuleType.ENDS_WITH)) {
+                if (valueUpper.endsWith(rule.getValue())) {
+                    ret = TrackedStationTypeUtils.addTrackedStationType(ret, rule.getTrackedStationType());
+                }
+            } 
         }
 
         return ret;
@@ -133,5 +137,4 @@ public class TrackedStationTypeRulesProcessor {
 
         return ret;
     }
-
 }

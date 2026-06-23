@@ -48,7 +48,16 @@ public class TrackedStationTypeRuleAccessor {
     @Inject
     private TrackedStationTypeRuleRepository trackedStationTypeRuleRepository;
 
-    public List<TrackedStationTypeRule> getAll(User loggedInUser) {
+    private List<TrackedStationTypeRule> rules = null;
+
+    private synchronized void initialize(boolean forceReset) {
+
+        if (forceReset) {
+            rules = null;
+        }
+
+        rules = new ArrayList<>();
+
         List<TrackedStationTypeRuleRecord> recs = trackedStationTypeRuleRepository.findAll();
         List<TrackedStationTypeRule> ret = new ArrayList<>();
 
@@ -60,7 +69,13 @@ public class TrackedStationTypeRuleAccessor {
             }
         }
 
-        return ret;
+        rules = ret;
+    }
+
+    public List<TrackedStationTypeRule> getAll(User loggedInUser) {
+        initialize(false);
+
+        return rules;
     }
 
     public TrackedStationTypeRule get(User loggedInUser, String id) {
@@ -87,6 +102,7 @@ public class TrackedStationTypeRuleAccessor {
                                                     rule.getValue());
         TrackedStationTypeRuleRecord rec = trackedStationTypeRuleRepository.save(src);
         if (rec != null) {
+            initialize(true);
             return new TrackedStationTypeRule(rec.tracked_station_type_rule_id(), TrackedStationTypeRuleTarget.values()[rec.rule_target()], 
                                 TrackedStationTypeRuleType.values()[rec.rule_type()], 
                                 rec.value(), TrackedStationType.values()[rec.tracked_station_type()]);
@@ -112,6 +128,7 @@ public class TrackedStationTypeRuleAccessor {
         }
     
         trackedStationTypeRuleRepository.delete(recOpt.get());
+        initialize(true);
         
         return null;
     }
@@ -138,6 +155,7 @@ public class TrackedStationTypeRuleAccessor {
                                                     obj.getValue());
         trackedStationTypeRuleRepository.update(updatedRec);
         obj = get(loggedInUser, id);
+        initialize(true);
 
         return obj;
 
@@ -172,5 +190,4 @@ public class TrackedStationTypeRuleAccessor {
 
         return rule;
     }
-
 }

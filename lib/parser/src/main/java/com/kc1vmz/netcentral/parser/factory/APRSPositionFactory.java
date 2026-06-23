@@ -31,6 +31,7 @@ import com.kc1vmz.netcentral.parser.exception.APRSTimeConversionException;
 import com.kc1vmz.netcentral.parser.exception.ParserException;
 import com.kc1vmz.netcentral.parser.util.APRSTime;
 import com.kc1vmz.netcentral.parser.util.AgwHeaderParser;
+import com.kc1vmz.netcentral.parser.util.StringUtils;
 
 public class APRSPositionFactory {
     private static final Logger logger = LogManager.getLogger(APRSPositionFactory.class);
@@ -62,8 +63,12 @@ public class APRSPositionFactory {
 
         if ((data[messageIndex] == '!') || (data[messageIndex] == '=')) {
             // no timestamp
+            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex+9]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+19]));
             messageIndex += 1; // move down buffer
         } else {
+            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex+16]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+26]));
             messageIndex += 1; // move down buffer
             time_bytes = Arrays.copyOfRange(data, messageIndex+0, messageIndex+7);
             messageIndex += 7; // account for timestamp
@@ -80,6 +85,7 @@ public class APRSPositionFactory {
             byte [] compressedData = Arrays.copyOfRange(data, messageIndex, messageIndex+13);
             lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
+
             messageIndex += 13; // compressed is 13 bytes
         } else {
             byte [] latByte = Arrays.copyOfRange(data, messageIndex, messageIndex+8);
@@ -120,8 +126,8 @@ public class APRSPositionFactory {
             ret.setGain(calculateGain(comment[5]));
             ret.setDirectivity(calculateDirectivity(comment[6]));
             commentStr = commentStr.substring(7);  // skip DFS data
-        } else if ((commentStr.length() > 7) && (commentStr.charAt(3) == '/') && (commentStr.charAt(7) == 'g')) {
-            // weather report starts with 'g'
+        } else if (ret.getSymbolTableCode().equals("_")) {
+            // weather report has a symbol code of underscore
             ret.setHasWeatherReport(true);
             ret.setWeatherReport(commentStr);
         }

@@ -316,13 +316,13 @@ const headers = [
         { text: "Temperature", value: "temperature", sortable: true},
         { text: "Pressure", value: "barometricPressure", sortable: true},
         { text: "Humidity", value: "humidity", sortable: true},
-        { text: "Rain 1h", value: "rainfallLast1Hr", sortable: true},
-        { text: "Rain 24h", value: "rainfallLast24Hr", sortable: true},
-        { text: "Rain 00:00", value: "rainfallSinceMidnight", sortable: true},
+        { text: "Rain 1h/100", value: "rainfallLast1Hr", sortable: true},
+        { text: "Rain 24h/100", value: "rainfallLast24Hr", sortable: true},
+        { text: "Rain 00:00/100", value: "rainfallSinceMidnight", sortable: true},
         { text: "Wind MPH", value: "windSpeed", sortable: true},
         { text: "Wind Dir", value: "windDirection", sortable: true},
         { text: "Gust MPH", value: "gust", sortable: true},
-        { text: "Snow 24h", value: "snowfallLast24Hr", sortable: true}
+        { text: "Snow 24h/100", value: "snowfallLast24Hr", sortable: true}
       ];
 
 const headersEOCMobilizations = [
@@ -3767,14 +3767,14 @@ function findValues(key) {
                 <div class="weather-box-header">Precipitation</div>
                 <div class="weather-temperature">{{ latestWeatherReport.value.temperature }}F</div>
                 <div>Humidity: {{ latestWeatherReport.value.humidity }} %</div>
-                <div>Last hour: {{ latestWeatherReport.value.rainfallLast1Hr }} inches</div>
+                <div>Last hour: {{ latestWeatherReport.value.rainfallLast1Hr }} inches/100</div>
                 <div>Pressure: {{ latestWeatherReport.value.barometricPressure }} mb</div>
-                <div>Last day: {{ latestWeatherReport.value.rainfallLast24Hr }} inches</div>
+                <div>Last day: {{ latestWeatherReport.value.rainfallLast24Hr }} inches/100</div>
                 <div>Wind: {{ latestWeatherReport.value.windSpeed }} MPH {{ latestWeatherReport.value.windDirection }} degrees</div>
-                <div>Since 00:00: {{ latestWeatherReport.value.rainfallSinceMidnight }} inches</div>
+                <div>Since 00:00: {{ latestWeatherReport.value.rainfallSinceMidnight }} inches/100</div>
                 <div>{{ latestWeatherReport.value.prettyLdtime }}</div>
                 <div>Gust: {{ latestWeatherReport.value.gust }} MPH</div>
-                <div>Snow: {{ latestWeatherReport.value.snowfallLast24Hr }} inches</div>
+                <div>Snow: {{ latestWeatherReport.value.snowfallLast24Hr }} inches/100</div>
               </div>
           </Tab>
           <Tab value="Past Weather">

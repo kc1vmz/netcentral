@@ -47,6 +47,8 @@ public class APRSPosition implements APRSPacketInterface {
     private boolean hasWeatherReport;
     private String weatherReport;
     private String prettyLdtime;
+    private String symbolTableId;
+    private String symbolTableCode;
 
     public String getComment() {
         return comment;
@@ -171,5 +173,17 @@ public class APRSPosition implements APRSPacketInterface {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+    public String getSymbolTableId() {
+        return symbolTableId;
+    }
+    public void setSymbolTableId(String symbolTableId) {
+        this.symbolTableId = symbolTableId;
+    }
+    public String getSymbolTableCode() {
+        return symbolTableCode;
+    }
+    public void setSymbolTableCode(String symbolTableCode) {
+        this.symbolTableCode = symbolTableCode;
     }
 }

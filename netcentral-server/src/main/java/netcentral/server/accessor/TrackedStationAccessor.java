@@ -183,12 +183,17 @@ public class TrackedStationAccessor {
         }
 
         String id = UUID.randomUUID().toString(); // pre-assign instance id for completed net
+        String types = TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes());
+        if ((types == null) || (types.isEmpty())) {
+            types = "A";  // for unknown
+        }
+
         TrackedStationRecord src = new TrackedStationRecord(id, obj.getCallsign(), obj.getLat(), obj.getLon(), obj.getName(),
                                                 obj.getDescription(), obj.getFrequencyTx(), obj.getFrequencyRx(), obj.getTone(), obj.getLastHeard(),
                                                 obj.isTrackingActive(), obj.getStatus().ordinal(), obj.getIpAddress(),
                                                 obj.getElectricalPowerType().ordinal(), obj.getBackupElectricalPowerType().ordinal(), 
                                                 obj.getRadioStyle().ordinal(), obj.getTransmitPower(),
-                                                TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes()));
+                                                types);
 
         TrackedStationRecord rec = trackedStationRepository.save(src);
         if (rec != null) {
@@ -220,6 +225,10 @@ public class TrackedStationAccessor {
         if (!recOpt.isPresent()) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Station not found");
         }
+        String types = TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes());
+        if ((types == null) || (types.isEmpty())) {
+            types = "A";  // for unknown
+        }
         TrackedStationRecord rec = recOpt.get();
         TrackedStationRecord updatedRec = new TrackedStationRecord(rec.tracked_station_id(), obj.getCallsign(), 
                                                 (obj.getLat() != null) ? obj.getLat() : rec.lat(), 
@@ -231,7 +240,7 @@ public class TrackedStationAccessor {
                                                 (obj.getBackupElectricalPowerType().ordinal() != ElectricalPowerType.UNKNOWN.ordinal()) ? obj.getBackupElectricalPowerType().ordinal() : rec.backup_electrical_power_type(), 
                                                 (obj.getRadioStyle().ordinal() != RadioStyle.UNKNOWN.ordinal()) ? obj.getRadioStyle().ordinal() : rec.radio_style(), 
                                                 (obj.getTransmitPower() != 0) ? obj.getTransmitPower() : rec.transmit_power(),
-                                                TrackedStationTypeUtils.convertTrackedStationTypesToString(obj.getTypes()));
+                                                types);
         trackedStationRepository.update(updatedRec);
 
         TrackedStation trackedStationFinal = get(loggedInUser, id);

@@ -296,7 +296,8 @@ public class APRSObjectAccessor {
                                                                 innerAPRSWeatherReport.getRainfallLast1Hr(), innerAPRSWeatherReport.getRainfallLast24Hr(),
                                                                 innerAPRSWeatherReport.getRainfallSinceMidnight(), innerAPRSWeatherReport.getHumidity(), innerAPRSWeatherReport.getBarometricPressure(),
                                                                     innerAPRSWeatherReport.getLuminosity(), innerAPRSWeatherReport.getSnowfallLast24Hr(),
-                                                                0, innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon(), innerAPRSWeatherReport.getLdtime());
+                                                                0, innerAPRSWeatherReport.getLat(), innerAPRSWeatherReport.getLon(), innerAPRSWeatherReport.getLdtime(),
+                                                                innerAPRSWeatherReport.getSymbolTableId(), innerAPRSWeatherReport.getSymbolTableCode());
         changePublisherAccessor.publishWeatherReportUpdate( innerAPRSWeatherReport.getCallsignFrom(), ChangePublisherAccessor.CREATE,  weatherReport);
         return new APRSObjectResource(id, innerAPRSWeatherReport, source, heardTime);
     }
@@ -442,6 +443,8 @@ public class APRSObjectAccessor {
             TrackedStation temp = processObjectComment(innerAPRSPosition.getComment(), TrackedStationType.UNKNOWN);
             types = temp.getTypes();
         }
+        types.addAll(trackedStationTypeRulesProcessor.determineTypesFromSymbol(innerAPRSPosition.getSymbolTableId(), innerAPRSPosition.getSymbolTableCode()));
+
         trackStation(loggedInUser,  innerAPRSPosition.getCallsignFrom(), innerAPRSPosition.getLat(), innerAPRSPosition.getLon(), types, null);
         return new APRSObjectResource(id, innerAPRSPosition, source, heardTime);
     }
@@ -502,6 +505,13 @@ public class APRSObjectAccessor {
                 String value = report.substring(index+1, index+4);
                 rain24  = getWeatherValue(value);
                 if (rain24 == null) {
+                    if (!"...".equals(value)) bWarnNull = true;
+                }
+                index +=4;
+            } else if (report.charAt(index) == 'P') {
+                String value = report.substring(index+1, index+4);
+                rainmid  = getWeatherValue(value);
+                if (rainmid == null) {
                     if (!"...".equals(value)) bWarnNull = true;
                 }
                 index +=4;
@@ -606,9 +616,11 @@ public class APRSObjectAccessor {
         }
 
         try {
+            types.addAll(trackedStationTypeRulesProcessor.determineTypesFromCallsign(callsign));
             String id = UUID.randomUUID().toString();
             trackedStation = new TrackedStation(id, types, callsign, description, callsign, lat, lon, null, null, 
-                                    null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN, ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
+                                    null, ZonedDateTime.now(), false, TrackedStationStatus.UP, null, ElectricalPowerType.UNKNOWN,
+                                    ElectricalPowerType.UNKNOWN, RadioStyle.UNKNOWN, 0);
             trackedStationAccessor.create(loggedInUser, trackedStation);
             // given a tracked station, register their root callsign
             registerCallsign(loggedInUser, trackedStation.getCallsign());
@@ -638,6 +650,15 @@ public class APRSObjectAccessor {
                 trackedStation.setDescription(description);
             }
             trackedStation.setLastHeard(ZonedDateTime.now());
+
+            // update types
+            List<TrackedStationType> existingTypes = trackedStation.getTypes();
+            if ((types != null) && (!types.isEmpty())) {
+                for (TrackedStationType type : types) {
+                    existingTypes = TrackedStationTypeUtils.addTrackedStationType(existingTypes, type);
+                }
+            }
+            trackedStation.setTypes(existingTypes);
             try {
                 trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
             } catch (Exception e) {
@@ -876,8 +897,11 @@ public class APRSObjectAccessor {
                                                         null, null, innerAPRSMicE.getStatus());
 
             APRSPositionRecord rec = aprsPositionRepository.save(src);
-            TrackedStationType type = TrackedStationType.UNKNOWN;
-            trackStation(loggedInUser,  rec.callsign_from(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), type, null);
+            List<TrackedStationType> types = new ArrayList<>();
+            types.add(TrackedStationType.UNKNOWN);
+            types.addAll(trackedStationTypeRulesProcessor.determineTypesFromSymbol(innerAPRSMicE.getSymbolTableId(), innerAPRSMicE.getSymbolTableCode()));
+
+            trackStation(loggedInUser,  rec.callsign_from(), innerAPRSMicE.getLat(), innerAPRSMicE.getLon(), types, null);
         } catch (Exception e) {
             logger.error("Exception caught saving MicE object", e);
         }
@@ -951,7 +975,7 @@ public class APRSObjectAccessor {
             netManagerObjectCommandAccessor.processMessage(loggedInUser, netManagerObject, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && ((rec.callsign_from().equals("WHO-IS")) || (rec.callsign_from().equals("WHO-15")))) {
             processWHOISMessage(loggedInUser, innerAPRSMessage, source);
-        } else if ((rec.callsign_from() != null) && (rec.callsign_from().equals(toolsAccessor.getWinlinkGatewayCallsign()))) {
+        } else if ((rec.callsign_from() != null) && (rec.callsign_from().equals(toolsAccessor.getWinlinkBroadcastCallsign()))) {
             processWLNKMessage(loggedInUser, innerAPRSMessage, source);
         } else if ((rec.callsign_from() != null) && (!innerAPRSMessage.isMustAck())) {
             // object sent a message not needing an ack - figure out if it sent a response
@@ -1422,7 +1446,7 @@ public class APRSObjectAccessor {
                     (rec.luminosity() == null) ? 0 : rec.luminosity(),
                     (rec.snowfall_last_24hr() == null) ? 0 : rec.snowfall_last_24hr(),
                     (rec.raw_rain_counter() == null) ? 0 : rec.raw_rain_counter(),
-                    rec.lat(), rec.lon(), rec.heard_time()));
+                    rec.lat(), rec.lon(), rec.heard_time(), "", ""));
                 }
             }
         } catch (Exception e) {
@@ -1452,7 +1476,7 @@ public class APRSObjectAccessor {
                             (rec.luminosity() == null) ? 0 : rec.luminosity(),
                             (rec.snowfall_last_24hr() == null) ? 0 : rec.snowfall_last_24hr(),
                             (rec.raw_rain_counter() == null) ? 0 : rec.raw_rain_counter(),
-                            rec.lat(), rec.lon(), rec.heard_time());
+                            rec.lat(), rec.lon(), rec.heard_time(), "", "");
                     }
                 }
             }
