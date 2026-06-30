@@ -83,7 +83,7 @@ function getRules() {
         rulesRef.value = data;
 
         // find the previously selected list item and update it for everyone else
-        if (usersRef.value != null) {
+        if (rulesRef.value != null) {
           rulesRef.value.forEach(function(rule){
               if (rule.id == localSelectedRule.value.id) {
                 updateSelectedRule({ value : rule});
