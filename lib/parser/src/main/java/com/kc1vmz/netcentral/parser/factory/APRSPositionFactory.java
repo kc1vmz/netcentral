@@ -63,12 +63,8 @@ public class APRSPositionFactory {
 
         if ((data[messageIndex] == '!') || (data[messageIndex] == '=')) {
             // no timestamp
-            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex+9]));
-            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+19]));
             messageIndex += 1; // move down buffer
         } else {
-            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex+16]));
-            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+26]));
             messageIndex += 1; // move down buffer
             time_bytes = Arrays.copyOfRange(data, messageIndex+0, messageIndex+7);
             messageIndex += 7; // account for timestamp
@@ -82,12 +78,16 @@ public class APRSPositionFactory {
 
         if ((data[messageIndex] < '0') || (data[messageIndex] > '9')) { // if it is not a digit, then it is compressed
             // compressed location data
+            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+9]));
             byte [] compressedData = Arrays.copyOfRange(data, messageIndex, messageIndex+13);
             lat = CompressedDataFormatUtils.convertDecimalToDDMMSSx(CompressedDataFormatUtils.getLatitude(compressedData), "NS");
             lon = CompressedDataFormatUtils.convertDecimalToDDDMMSSx(CompressedDataFormatUtils.getLongitude(compressedData), "EW");
 
             messageIndex += 13; // compressed is 13 bytes
         } else {
+            ret.setSymbolTableId(StringUtils.stringify(data[messageIndex+8]));
+            ret.setSymbolTableCode(StringUtils.stringify(data[messageIndex+18]));
             byte [] latByte = Arrays.copyOfRange(data, messageIndex, messageIndex+8);
             messageIndex += 9;
             byte [] lonByte = Arrays.copyOfRange(data, messageIndex, messageIndex+9);
