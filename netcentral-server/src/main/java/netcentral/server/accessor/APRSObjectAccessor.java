@@ -792,6 +792,7 @@ public class APRSObjectAccessor {
                                                                         (innerAPRSObject.getType() != null) ? innerAPRSObject.getType().ordinal() : first.type(),
                                                                         innerAPRSObject.getSymbolTableId(), innerAPRSObject.getSymbolTableCode());
                 rec = aprsObjectRepository.update(updated);
+                id = first.aprs_object_id();
                 changePublisherAccessor.publishObjectUpdate(first.callsign_to(), ChangePublisherAccessor.UPDATE, innerAPRSObject);
             } else {
                 APRSObjectRecord src = new APRSObjectRecord(id, source, innerAPRSObject.getCallsignFrom(), innerAPRSObject.getCallsignTo(), heardTime, innerAPRSObject.isAlive(),
@@ -1715,15 +1716,15 @@ public class APRSObjectAccessor {
         }
     }
 
-    public void upObject(User loggedInUser, ObjectCreateRequest messageRequest) {
-       actObject(loggedInUser, messageRequest, true);
+    public APRSObjectResource upObject(User loggedInUser, ObjectCreateRequest messageRequest) {
+       return actObject(loggedInUser, messageRequest, true);
     }
 
-    public void downObject(User loggedInUser, ObjectCreateRequest messageRequest) {
-       actObject(loggedInUser, messageRequest, false);
+    public APRSObjectResource downObject(User loggedInUser, ObjectCreateRequest messageRequest) {
+       return actObject(loggedInUser, messageRequest, false);
     }
 
-    public void actObject(User loggedInUser, ObjectCreateRequest messageRequest, boolean alive) {
+    public APRSObjectResource actObject(User loggedInUser, ObjectCreateRequest messageRequest, boolean alive) {
         ZonedDateTime now = ZonedDateTime.now();
         APRSObject obj = new APRSObject();
         obj.setAlive(alive);
@@ -1740,7 +1741,7 @@ public class APRSObjectAccessor {
         String id = UUID.randomUUID().toString();
 
         Optional<APRSObject> innerAPRSObjectOpt = Optional.of(obj);
-        createAPRSObject(loggedInUser, id, innerAPRSObjectOpt, "NETCENTRAL", now);
+        return createAPRSObject(loggedInUser, id, innerAPRSObjectOpt, "NETCENTRAL", now);
     }
 
     public void deleteWeatherReports(User systemUser, ZonedDateTime before) {

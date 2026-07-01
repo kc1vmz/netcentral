@@ -1,6 +1,7 @@
 package netcentral.server.controller;
 
 import com.kc1vmz.netcentral.aprsobject.enums.ObjectType;
+import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
 
 /*
     Net Central
@@ -95,7 +96,11 @@ public class NetCentralServerConfigurationController {
         } else {
             alive = false;
             // disable the manager - kill the object
-            aprsObjectAccessor.downObject(loggedInUser, objectCreateRequest);
+            APRSObjectResource obj = aprsObjectAccessor.downObject(loggedInUser, objectCreateRequest);
+            if ((obj != null) && (obj.getId().isPresent())) {
+                // really delete it from our database
+                aprsObjectAccessor.deleteObject(loggedInUser, obj.getId().get());
+            }
         }
 
         transceiverCommunicationAccessor.sendObject(loggedInUser,next.getNetMgrCallsign(), next.getNetMgrCallsign(), description, alive, 
