@@ -115,11 +115,28 @@ watch(updateWeatherReportEvent, (newValue, oldValue) => {
   }
 });
 
+function isObjectType(objectTypes, objectTypeSought) {
+  var found = false;
+  if (objectTypes != null) {
+    objectTypes.forEach(function(objectType){
+      if ((!found) && (objectType == objectTypeSought)) {
+        found = true;
+      }
+    });
+  }
+
+  return found;
+}
+
 watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if (!liveUpdateEnabled.value) {
     return;
   }
   if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "CALLSIGN") || (localSelectedObjectType.value == "GENERALRESOURCE")) {
+    return;
+  }
+  if (((localSelectedObjectType.value != "ALL") && (!isObjectType(newValue.value.object.types, localSelectedObjectType.value))) || (localSelectedObjectType.value=="ALL")) {
+    // not the right object for the selected object type
     return;
   }
   if (newValue.value.action == "Create") {
@@ -207,6 +224,10 @@ function isReady() {
 }
 
 function updateMapObjects() {
+    if (!liveUpdateEnabled.value) {
+      return;
+    }
+
     if ((localSelectedObjectType.value != null) && (localSelectedObjectType.value != "CALLSIGN") && (localSelectedObjectType.value != "IS")) {
       var requestOptions = {
         method: "GET",

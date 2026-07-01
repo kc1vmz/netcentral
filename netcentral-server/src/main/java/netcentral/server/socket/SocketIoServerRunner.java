@@ -59,6 +59,7 @@ public class SocketIoServerRunner implements ApplicationEventListener<StartupEve
         socketConfig.setReuseAddress(true);
         socketConfig.setSoLinger(0);
         socketConfig.setTcpKeepAlive(true);
+        config.setSocketConfig(socketConfig);
 
         this.server = new SocketIOServer(config);
     }

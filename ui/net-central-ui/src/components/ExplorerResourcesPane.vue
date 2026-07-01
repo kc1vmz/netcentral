@@ -131,7 +131,7 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
   if ((localSelectedObjectType.value == "OBJECT") || (localSelectedObjectType.value == "PRIORITYOBJECT") || (localSelectedObjectType.value == "GENERALRESOURCE") || (localSelectedObjectType.value == "CALLSIGN")) {
     return;
   }
-  if (((!isObjectType(newValue.value.object.types, localSelectedObjectType.value)) && (localSelectedObjectType.value != "ALL")) || (localSelectedObjectType.value=="ALL")) {
+  if (((localSelectedObjectType.value != "ALL") && (!isObjectType(newValue.value.object.types, localSelectedObjectType.value))) || (localSelectedObjectType.value=="ALL")) {
     // not the right object for the selected object type
     return;
   }
