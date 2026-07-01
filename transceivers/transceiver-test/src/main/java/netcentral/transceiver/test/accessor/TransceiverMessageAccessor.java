@@ -35,26 +35,28 @@ public class TransceiverMessageAccessor {
 
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
-    public void create(TransceiverMessage obj) {
+    public TransceiverMessage create(TransceiverMessage obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
-            return;
+            return null;
         }
         logger.info(String.format("Message received from %s to %s: %s", obj.getCallsignFrom(), obj.getCallsignTo(), obj.getMessage()));
+        return obj;
     }
-    public void create(TransceiverMessageMany obj) {
+    public TransceiverMessageMany create(TransceiverMessageMany obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
-            return;
+            return null;
         }
         for (String message : obj.getMessages()) {
             logger.info(String.format("Message received from %s to %s: %s", obj.getCallsignFrom(), obj.getCallsignTo(), message));
         }
+        return obj;
     }
 }

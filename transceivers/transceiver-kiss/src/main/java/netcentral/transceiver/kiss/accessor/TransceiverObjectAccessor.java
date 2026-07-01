@@ -39,14 +39,14 @@ public class TransceiverObjectAccessor {
     @Inject
     private SendQueueAccessor sendQueueAccessor;
 
-    public void createObject(TransceiverObject obj) {
+    public TransceiverObject createObject(TransceiverObject obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
 
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             logger.warn("Wrong transceiver - sent = " + obj.getTransceiverId() + " expecting = " + registeredTransceiverAccessor.getRegisteredTransceiverId());
-            return;
+            return null;
         }
 
         if (obj.getCallsignFrom() == null) {
@@ -56,5 +56,6 @@ public class TransceiverObjectAccessor {
         // need to send this object out via APRS
         logger.info(String.format("object received %s (%s): %s", obj.getName(), obj.isAlive() ? "Alive" : "Dead", obj.getMessage()));
         sendQueueAccessor.queueRequest(obj);
+        return obj;
     }
 }

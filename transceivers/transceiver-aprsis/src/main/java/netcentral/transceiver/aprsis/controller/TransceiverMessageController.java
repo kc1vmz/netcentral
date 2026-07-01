@@ -42,11 +42,11 @@ public class TransceiverMessageController {
     RegisteredTransceiverAccessor registeredTransceiverAccessor;
 
     @Post
-    public void create(HttpRequest<?> request, @Body TransceiverMessage obj) {
-        transceiverMessageAccessor.create(obj);
+    public TransceiverMessage create(HttpRequest<?> request, @Body TransceiverMessage obj) {
+        return transceiverMessageAccessor.create(obj);
     }
     @Post("/many")
-    public void create(HttpRequest<?> request, @Body TransceiverMessageMany obj) {
-        transceiverMessageAccessor.create(obj);
+    public TransceiverMessageMany create(HttpRequest<?> request, @Body TransceiverMessageMany obj) {
+        return transceiverMessageAccessor.create(obj);
     }
 }

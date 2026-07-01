@@ -41,7 +41,7 @@ public class TransceiverObjectController {
     RegisteredTransceiverAccessor registeredTransceiverAccessor;
 
     @Post
-    public void create(HttpRequest<?> request, @Body TransceiverObject obj) {
-        transceiverObjectAccessor.createObject(obj);
+    public TransceiverObject create(HttpRequest<?> request, @Body TransceiverObject obj) {
+        return transceiverObjectAccessor.createObject(obj);
     }
 }

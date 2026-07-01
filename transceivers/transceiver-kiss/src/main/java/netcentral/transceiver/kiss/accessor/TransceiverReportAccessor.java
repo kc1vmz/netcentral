@@ -41,14 +41,14 @@ public class TransceiverReportAccessor {
     private SendQueueAccessor sendQueueAccessor;
 
 
-    public void create(TransceiverReport obj) {
+    public TransceiverReport create(TransceiverReport obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
             logger.warn("Wrong transceiver - sent = " + obj.getTransceiverId() + " expecting = " + registeredTransceiverAccessor.getRegisteredTransceiverId());
-            return;
+            return null;
         }
 
         if (obj.getCallsignFrom() == null) {
@@ -56,5 +56,6 @@ public class TransceiverReportAccessor {
         }
 
         sendQueueAccessor.queueRequest(obj);
+        return obj;
     }
 }

@@ -38,7 +38,7 @@ public class TransceiverReportController {
     TransceiverReportAccessor transceiverReportAccessor;
 
     @Post
-    public void create(HttpRequest<?> request, @Body TransceiverReport obj) {
-        transceiverReportAccessor.create(obj);
+    public TransceiverReport create(HttpRequest<?> request, @Body TransceiverReport obj) {
+        return transceiverReportAccessor.create(obj);
     }
 }

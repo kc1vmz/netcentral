@@ -42,14 +42,14 @@ public class TransceiverMessageAccessor {
     private SendQueueAccessor sendQueueAccessor;
 
 
-    public void create(TransceiverMessage obj) {
+    public TransceiverMessage create(TransceiverMessage obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
             logger.warn("Wrong transceiver - sent = " + obj.getTransceiverId() + " expecting = " + registeredTransceiverAccessor.getRegisteredTransceiverId());
-            return;
+            return null;
         }
 
         if (obj.getCallsignFrom() == null) {
@@ -57,20 +57,22 @@ public class TransceiverMessageAccessor {
         }
 
         sendQueueAccessor.queueRequest(obj);
+        return obj;
     }
 
-    public void create(TransceiverMessageMany obj) {
+    public TransceiverMessageMany create(TransceiverMessageMany obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
-            return;
+            return obj;
         }
         if (obj.getCallsignFrom() == null) {
             obj.setCallsignFrom(aprsConfiguration.getCallsign());
         }
 
         sendQueueAccessor.queueRequest(obj);
+        return obj;
     }
 }

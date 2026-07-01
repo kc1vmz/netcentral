@@ -38,7 +38,7 @@ public class TransceiverQueryController {
     TransceiverQueryAccessor transceiverQueryAccessor;
 
     @Post
-    public void create(HttpRequest<?> request, @Body TransceiverQuery obj) {
-        transceiverQueryAccessor.create(obj);
+    public TransceiverQuery create(HttpRequest<?> request, @Body TransceiverQuery obj) {
+        return transceiverQueryAccessor.create(obj);
     }
 }

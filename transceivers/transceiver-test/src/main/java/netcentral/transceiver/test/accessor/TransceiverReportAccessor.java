@@ -35,17 +35,18 @@ public class TransceiverReportAccessor {
     @Inject
     private RegisteredTransceiverAccessor registeredTransceiverAccessor;
 
-    public void create(TransceiverReport obj) {
+    public TransceiverReport create(TransceiverReport obj) {
         if ((obj == null) || (obj.getTransceiverId() == null)) {
-            return;
+            return null;
         }
         if (!obj.getTransceiverId().equals(registeredTransceiverAccessor.getRegisteredTransceiverId())) {
             // not for us
             logger.warn("Wrong transceiver - sent = " + obj.getTransceiverId() + " expecting = " + registeredTransceiverAccessor.getRegisteredTransceiverId());
-            return;
+            return null;
         }
 
         // need to send this report out via APRS
         logger.info(String.format("Report received %s: %s", obj.getCallsignFrom(), obj.getReport().getReportData()));
+        return obj;
     }
 }
