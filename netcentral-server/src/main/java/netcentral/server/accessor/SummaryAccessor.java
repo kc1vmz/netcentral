@@ -736,4 +736,32 @@ public class SummaryAccessor {
     private String getNameField(APRSObject object) {
         return object.getCallsignTo();
     }
+
+    public RenderedMapItem getMapPoint(User loggedInUser, APRSObject object) {
+        RenderedMapItem item = null;
+
+        if (object != null) {
+            Object renderObject = object;
+            if (object.getType().equals(ObjectType.SHELTER)) {
+                renderObject = getShelterInformation(loggedInUser, object);
+            } else if (object.getType().equals(ObjectType.EOC)) {
+                renderObject = getEOCInformation(loggedInUser, object);
+            } else if (object.getType().equals(ObjectType.MEDICAL)) {
+                renderObject = getMedicalInformation(loggedInUser, object);
+            } else if (object.getType().equals(ObjectType.RESOURCE)) {
+                renderObject = getGeneralResourceInformation(loggedInUser, object);
+            } else if (object.getType().equals(ObjectType.NETMGR)) {
+                renderObject = getNetManagerInformation(loggedInUser, object);
+            }
+            if ((object.getLat() != null) && (object.getLon() != null)) {
+                item = new RenderedMapItem(
+                    object.getLon(), object.getLat(), getNameField(object), getTitleField(object), renderObject);
+                if (item.isValid()) {
+                    item.setObject(true);
+                }
+            }
+        } 
+        return item;
+    }
+
 }

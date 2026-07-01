@@ -103,18 +103,6 @@ function updateObject(data) {
     updateObjectEvent.value = JSON.parse(data);
 }
 
-watch(updateWeatherReportEvent, (newValue, oldValue) => {
-  if (!liveUpdateEnabled.value) {
-    return;
-  }
-  if (localSelectedObjectType.value != "WEATHER") {
-    return;
-  }
-  if (newValue.value.action == "Create") {
-    updateMapObjects();
-  }
-});
-
 function isObjectType(objectTypes, objectTypeSought) {
   var found = false;
   if (objectTypes != null) {
@@ -140,10 +128,11 @@ watch(updateTrackedStationEvent, (newValue, oldValue) => {
     return;
   }
   if (newValue.value.action == "Create") {
-    updateMapObjects();
+    addMapTrackedStation(newValue);
   } else if (newValue.value.action == "Delete") {
-    updateMapObjects();
+    deleteMapTrackedStation(newValue);
   } else if (newValue.value.action == "Update") {
+    addMapTrackedStation(newValue);
   }
 });
 
@@ -154,11 +143,13 @@ watch(updateObjectEvent, (newValue, oldValue) => {
   if ((localSelectedObjectType.value != "OBJECT") && (localSelectedObjectType.value != "PRIORITYOBJECT") && (localSelectedObjectType.value != "GENERALRESOURCE")) {
     return;
   }
+
   if (newValue.value.action == "Create") {
-    updateMapObjects();
+    addMapObject(newValue);
   } else if (newValue.value.action == "Delete") {
-    updateMapObjects();
+    deleteMapObject(newValue);
   } else if (newValue.value.action == "Update") {
+    addMapObject(newValue);
   }
 });
 
@@ -170,10 +161,11 @@ watch(updateIgnoredEvent, (newValue, oldValue) => {
     return;
   }
   if (newValue.value.action == "Create") {
-    updateMapObjects();
+    addMapTrackedStation(newValue);
   } else if (newValue.value.action == "Delete") {
-    updateMapObjects();
+    deleteMapTrackedStation(newValue);
   } else if (newValue.value.action == "Update") {
+    addMapTrackedStation(newValue);
   }
 });
 
@@ -221,6 +213,116 @@ function isReady() {
   if ((explorerMapRef.value) && (explorerMapRef.value.leafletObject)) {
      explorerMapRef.value.leafletObject.fitBounds(maxBounds.value);                                             
   }
+}
+
+function deleteMapTrackedStation(objectValue) {
+    if (!liveUpdateEnabled.value) {
+      return;
+    }
+
+    if ((mapPoints == null) || (mapPoints.value == null) || (mapPoints.value.items == null)) {
+      // nothing to delete
+      return;
+    }
+
+    const indexToRemove = mapPoints.value.items.findIndex(obj => obj.itemObject.callsign === objectValue.value.callsign);
+    if (indexToRemove !== -1) {
+      if ((selectedItem.value != null) && (selectedItem.value.callsign === objectValue.value.callsign)) {
+        selectedItem.value = null;
+        updateSelectedObject(null); 
+      }
+      mapPoints.value.items.splice(indexToRemove, 1);
+    }
+}
+
+function deleteMapObject(objectValue) {
+    if (!liveUpdateEnabled.value) {
+      return;
+    }
+
+    if ((mapPoints == null) || (mapPoints.value == null) || (mapPoints.value.items == null)) {
+      // nothing to delete
+      return;
+    }
+
+    const indexToRemove = mapPoints.value.items.findIndex(obj => obj.itemObject.callsign === objectValue.value.callsign);
+    if (indexToRemove !== -1) {
+      if ((selectedItem.value != null) && (selectedItem.value.callsign === objectValue.value.callsign)) {
+        selectedItem.value = null;
+        updateSelectedObject(null); 
+      }
+      mapPoints.value.items.splice(indexToRemove, 1);
+    }
+}
+
+function addMapTrackedStation(objectValue) {
+    if (!liveUpdateEnabled.value) {
+      return;
+    }
+
+    if ((mapPoints == null) || (mapPoints.value == null) || (mapPoints.value.items == null)) {
+      mapPoints.value.items = [];
+    }
+
+    var requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : getToken()
+        },
+      body: null
+    };
+    fetch(buildNetCentralUrl('/summaries/trackedStations/mapPoint/'+objectValue.value.callsign), requestOptions)
+      .then(response => response.json())
+      .then(data => {
+          var mapPoint = data;
+          addMapPointToMapPoints(mapPoint);
+      })
+      .catch(error => { console.error('Error getting object type map point from server:', error); })
+}
+
+function addMapObject(objectValue) {
+    if (!liveUpdateEnabled.value) {
+      return;
+    }
+
+    if ((mapPoints == null) || (mapPoints.value == null) || (mapPoints.value.items == null)) {
+      mapPoints.value.items = [];
+    }
+
+    var requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : getToken()
+        },
+      body: null
+    };
+    fetch(buildNetCentralUrl('/summaries/objects/mapPoint/'+objectValue.value.callsign), requestOptions)
+      .then(response => response.json())
+      .then(data => {
+          var mapPoint = data;
+          addObjectMapPointToMapPoints(mapPoint);
+      })
+      .catch(error => { console.error('Error getting object type map point from server:', error); })
+}
+
+function addMapPointToMapPoints(mapPoint) {
+    const indexToUpdate = mapPoints.value.items.findIndex(obj => obj.itemObject.callsign === mapPoint.itemObject.callsign);
+    if (indexToUpdate !== -1) {
+      mapPoints.value.items[indexToUpdate] = mapPoint;
+    } else {
+      // add to end
+      mapPoints.value.items.push(mapPoint);
+    }
+}
+
+function addObjectMapPointToMapPoints(mapPoint) {
+    const indexToUpdate = mapPoints.value.items.findIndex(obj => obj.itemObject.callsignTo === mapPoint.itemObject.name);
+    if (indexToUpdate !== -1) {
+      mapPoints.value.items[indexToUpdate] = mapPoint;
+    } else {
+      // add to end
+      mapPoints.value.items.push(mapPoint);
+    }
 }
 
 function updateMapObjects() {

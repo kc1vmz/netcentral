@@ -21,6 +21,7 @@ package netcentral.server.controller;
 */
 
 import com.kc1vmz.netcentral.aprsobject.common.NetCentralServerStatistics;
+import com.kc1vmz.netcentral.aprsobject.object.APRSObject;
 
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -31,6 +32,7 @@ import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import netcentral.server.accessor.APRSObjectAccessor;
 import netcentral.server.accessor.StatisticsAccessor;
 import netcentral.server.accessor.SummaryAccessor;
 import netcentral.server.accessor.TrackedStationAccessor;
@@ -51,6 +53,8 @@ public class SummaryController {
     @Inject
     private TrackedStationAccessor trackedStationAccessor;
     @Inject
+    private APRSObjectAccessor aprsObjectAccessor;
+    @Inject
     private StatisticsAccessor statisticsAccessor;
 
     @Get("/dashboardCounts")
@@ -70,14 +74,24 @@ public class SummaryController {
         return summaryAccessor.getNetMapPoints(loggedInUser, callsign, includeTrackedStations, includeInfrastructure, includeObjects, includePriorityObjects);
     }
 
-    @Get("/trackedStation/mapPoint/{callsign}")
-    public RenderedMapItem getMapPoint(HttpRequest<?> request,  @PathVariable String callsign) {
+    @Get("/trackedStations/mapPoint/{callsign}")
+    public RenderedMapItem getMapPointTrackedStation(HttpRequest<?> request,  @PathVariable String callsign) {
         String token = sessionAccessor.getTokenFromSession(request);
         User loggedInUser = sessionAccessor.getUserFromToken(token);
 
         TrackedStation station = trackedStationAccessor.getByCallsign(loggedInUser, callsign);
 
         return trackedStationAccessor.getMapPoint(loggedInUser, station);
+    }
+
+    @Get("/objects/mapPoint/{callsign}")
+    public RenderedMapItem getMapPointObject(HttpRequest<?> request,  @PathVariable String callsign) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        APRSObject object = aprsObjectAccessor.getObjectByCallsign(loggedInUser, callsign);
+
+        return summaryAccessor.getMapPoint(loggedInUser, object);
     }
 
     @Get("/objectTypeMapPoints/{objectType}")
