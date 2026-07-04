@@ -49,7 +49,7 @@ public class TileController {
     }
 
     @Put("/modes/{mode}")
-    public Mode updateMode(HttpRequest<?> request,  @PathVariable String mode) {
+    public Mode updateMode(HttpRequest<?> request, @PathVariable String mode) {
         Mode ret = new Mode();
         ret.setMode(tileAccessor.updateMode(mode));
         return ret;
@@ -65,5 +65,17 @@ public class TileController {
     @Get("/statistics")
     public Statistics getStatistics(HttpRequest<?> request) {
         return tileAccessor.getStatistics();
+    }
+
+    @Get("/precaches/degrees/{lat}/{lon}") 
+    public String preCacheByLatLonDegrees(HttpRequest<?> request, @PathVariable Float lat, @PathVariable Float lon) {
+        tileAccessor.cacheByLatLonDegrees(lat, lon);
+        return "ok";
+    }
+
+    @Get("/precaches/aprs/{lat}/{lon}") 
+    public String preCacheByLatLonAPRS(HttpRequest<?> request, @PathVariable String lat, @PathVariable String lon) {
+        tileAccessor.cacheByLatLonAPRS(lat, lon);
+        return "ok";
     }
 }

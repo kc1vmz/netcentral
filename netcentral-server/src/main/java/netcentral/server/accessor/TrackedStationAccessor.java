@@ -44,6 +44,7 @@ import netcentral.server.exceptions.TrackedStationExists;
 import netcentral.server.object.RenderedMapItem;
 import netcentral.server.object.TrackedStation;
 import netcentral.server.object.User;
+import netcentral.server.osm.client.OSMServerRESTClient;
 import netcentral.server.record.TrackedStationRecord;
 import netcentral.server.repository.TrackedStationRepository;
 import netcentral.server.utils.TrackedStationTypeUtils;
@@ -56,6 +57,8 @@ public class TrackedStationAccessor {
     private TrackedStationRepository trackedStationRepository;
     @Inject
     private ChangePublisherAccessor changePublisherAccessor;
+    @Inject
+    private OSMServerRESTClient osmServerRESTClient;
 
     public List<TrackedStation> getAll(User loggedInUser, String name, String callsign, String type) {
         List<TrackedStationRecord> recs;
@@ -199,6 +202,7 @@ public class TrackedStationAccessor {
         if (rec != null) {
             TrackedStation trackedStationFinal = get(loggedInUser, id);
             changePublisherAccessor.publishTrackedStationUpdate(obj.getCallsign(), ChangePublisherAccessor.CREATE, trackedStationFinal);
+            osmServerRESTClient.sendPrecacheRequest(obj.getLat(), obj.getLon());
             return trackedStationFinal;
         }
 

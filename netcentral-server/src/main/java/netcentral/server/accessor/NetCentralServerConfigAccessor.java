@@ -77,7 +77,8 @@ public class NetCentralServerConfigAccessor {
                             netCentralServerConfig.getNetReportMinutes(), netCentralServerConfig.getBulletinAnnounce(), netCentralServerConfig.getLatitudeMin(), netCentralServerConfig.getLongitudeMin(), 
                             netCentralServerConfig.getLatitudeMax(), netCentralServerConfig.getLongitudeMax(), netCentralServerConfig.isFederated(), netCentralServerConfig.isFederatedPushUserDefinedPacket(), 
                             netCentralServerConfig.isFederatedPushMessage(), netCentralServerConfig.isFederatedInterrogate(), netCentralServerConfig.isLogRawPackets(),
-                            netCentralServerConfig.getAprsNetManagerEnabled(), netCentralServerConfig.getAprsNetManagerCallsign(), netCentralServerConfig.getAprsNetManagerLon(), netCentralServerConfig.getAprsNetManagerLat());
+                            netCentralServerConfig.getAprsNetManagerEnabled(), netCentralServerConfig.getAprsNetManagerCallsign(), netCentralServerConfig.getAprsNetManagerLon(),
+                            netCentralServerConfig.getAprsNetManagerLat(), netCentralServerConfig.getOsmServerPreCache());
 
         try {
             cachedRecord = netCentralServerConfigRepository.save(ret);
@@ -111,7 +112,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     private void updateConfigurationData(NetCentralServerConfigRecord recNew) {
@@ -134,7 +135,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getScheduledNetCheckMinutes() {
@@ -147,7 +148,7 @@ public class NetCentralServerConfigAccessor {
                         scheduledNetCheckMinutes, rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getNetParticipantReminderMinutes() {
@@ -160,7 +161,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), netParticipantReminderMinutes, rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public String getBulletinAnnounce() {
@@ -173,7 +174,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), bulletinAnnounce, 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getQueueObjectHandlerSize() {
@@ -204,7 +205,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getQueueObjectHandlerThreads() {
@@ -235,7 +236,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         latitudeMin, rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getLatitudeMax() {
@@ -248,7 +249,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), latitudeMax, rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getLongitudeMin() {
@@ -261,7 +262,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), longitudeMin, rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getLongitudeMax() {
@@ -274,7 +275,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), longitudeMax, rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isFederated() {
@@ -287,7 +288,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), federated, 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Integer getNetReportMinutes() {
@@ -300,7 +301,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), netReportMinutes, rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isLogRawPackets() {
@@ -313,7 +314,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), logRawPackets,
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isFederatedPushUserDefinedPacket() {
@@ -326,7 +327,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         federatedPushUserDefinedPacket, rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isFederatedPushMessage() {
@@ -339,7 +340,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), federatedPushMessage, rec.federated_interrogate(), rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isFederatedInterrogate() {
@@ -352,7 +353,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), federatedInterrogate, rec.log_raw_packets(),
-                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                        rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         updateConfigurationData(recNew);
     }
     public Boolean isAPRSNetManagerEnabled() {
@@ -369,7 +370,7 @@ public class NetCentralServerConfigAccessor {
                         rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                         rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                         rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                        netMgrEnabled, callsign, lon, lat);
+                        netMgrEnabled, callsign, lon, lat, rec.osm_precache());
         updateConfigurationData(recNew);
     }
 
@@ -379,7 +380,7 @@ public class NetCentralServerConfigAccessor {
                 rec.scheduled_net_check_minutes(), rec.net_participant_reminder_minutes(), rec.net_report_minutes(), rec.bulletin_announce(), 
                 rec.map_default_latitude_min(), rec.map_default_longitude_min(), rec.map_default_latitude_max(), rec.map_default_longitude_max(), rec.federated(), 
                 rec.federated_push_udp(), rec.federated_push_message(), rec.federated_interrogate(), rec.log_raw_packets(),
-                rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat());
+                rec.net_mgr_enabled(), rec.net_mgr_callsign(), rec.net_mgr_lon(), rec.net_mgr_lat(), rec.osm_precache());
         return ret;
     }
 
@@ -388,7 +389,7 @@ public class NetCentralServerConfigAccessor {
                             obj.getScheduledNetCheckMinutes(), obj.getNetParticipantReminderMinutes(), obj.getNetReportMinutes(), obj.getBulletinAnnounce(), 
                             obj.getMapDefaultLatitudeMin(), obj.getMapDefaultLongitudeMin(), obj.getMapDefaultLatitudeMax(), obj.getMapDefaultLongitudeMax(), obj.isFederated(), 
                             obj.isFederatedPushUdp(), obj.isFederatedPushMessage(), obj.isFederatedInterrogate(), obj.isLogRawPackets(),
-                            obj.isNetMgrEnabled(), obj.getNetMgrCallsign(), obj.getNetMgrLon(), obj.getNetMgrLat());
+                            obj.isNetMgrEnabled(), obj.getNetMgrCallsign(), obj.getNetMgrLon(), obj.getNetMgrLat(), obj.isOsmPreCache());
         updateConfigurationData(ret);
         return obj;
     }

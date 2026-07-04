@@ -31,6 +31,8 @@ public class ProxyConfig {
     private int osmRefreshTileDays;
     @Value("${osm.config}")
     private String mode;
+    @Value("${osm.precache.queue.size}")
+    private int osmPrecacheQueueSize;
 
     public static final String MODE_PROXY = "proxy";  // only pass through to OSM server, no not cache
     public static final String MODE_PROXYCACHE = "proxycache";  // get and cache
@@ -53,5 +55,11 @@ public class ProxyConfig {
     }
     public void setMode(String mode) {
         this.mode = mode;
+    }
+    public int getOsmPrecacheQueueSize() {
+        return osmPrecacheQueueSize;
+    }
+    public void setOsmPrecacheQueueSize(int osmPrecacheQueueSize) {
+        this.osmPrecacheQueueSize = osmPrecacheQueueSize;
     }
 }

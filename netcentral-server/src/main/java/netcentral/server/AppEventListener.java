@@ -81,6 +81,8 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
 
     private static final long MINUTES_TO_MILLIS = 60000L;
 
+    private ThreadGroup objectProcessorThreadGroup = null;
+
     @Override
     public void onApplicationEvent(StartupEvent event) {
         initializeSettableConfigParameters();
@@ -93,10 +95,40 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
         startObjectCleanupThread();
         startNetQuestionReminderThread();
         startNetReportThread();
+        startThreadWatcherThread();
     }
 
     void initializeSettableConfigParameters() {
         configParametersAccessor.setLogRawPackets(netCentralServerConfigAccessor.isLogRawPackets());
+    }
+
+    void startThreadWatcherThread() {
+        new Thread(() -> {
+            boolean run = true;
+            while (run) {
+                try {
+                    if (run) {
+                        Thread.sleep(MINUTES_TO_MILLIS*5);  // run every 5 minutes
+                    }
+                    // check if there are the correct number of threads running
+                    if (objectProcessorThreadGroup != null) {
+                        int activeCount = objectProcessorThreadGroup.activeCount();
+                        int expectedTotal = netCentralServerConfigAccessor.getQueueObjectHandlerThreads();
+                        if (expectedTotal > activeCount) {
+                            for (int i = activeCount; i < netCentralServerConfigAccessor.getQueueObjectHandlerThreads(); i++) {
+                                logger.info("Starting new object thread");
+                                startObjectThread();
+                            }
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("InterruptedException caught watching threads", e);
+                    run = false;
+                } catch (Exception e) {
+                    logger.error("Exception caught watching threads", e);
+                }
+            }
+        }).start();
     }
 
     void startReportCleanupThread() {
@@ -112,7 +144,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getReportCleanupMinutes());
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught cleaning up reports", e);
+                    logger.error("InterruptedException caught cleaning up reports", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught cleaning up reports", e);
@@ -142,7 +174,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getScheduledNetCheckMinutes());
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught in scheduled net loop", e);
+                    logger.error("InterruptedException caught in scheduled net loop", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught in scheduled net loop", e);
@@ -164,7 +196,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getObjectBeaconMinutes());
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught beaconing objects", e);
+                    logger.error("InterruptedException caught beaconing objects", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught beaconing objects", e);
@@ -186,7 +218,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*1); // check every minute
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught reminding net participants of questions", e);
+                    logger.error("InterruptedException caught reminding net participants of questions", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught reminding net participants of questions", e);
@@ -208,7 +240,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getNetParticipantReminderMinutes());
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught reminding net participants", e);
+                    logger.error("InterruptedException caught reminding net participants", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught reminding net participants", e);
@@ -230,7 +262,7 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
                         Thread.sleep(MINUTES_TO_MILLIS*netCentralServerConfigAccessor.getNetReportMinutes());
                     }
                 } catch (InterruptedException e) {
-                    logger.error("Exception caught reporting nets", e);
+                    logger.error("InterruptedException caught reporting nets", e);
                     run = false;
                 } catch (Exception e) {
                     logger.error("Exception caught reporting nets", e);
@@ -263,46 +295,51 @@ public class AppEventListener implements ApplicationEventListener<StartupEvent> 
     }
 
     void startAPRSObjectProcessorThreads() {
+        objectProcessorThreadGroup = new ThreadGroup("ObjectProcessorThreadGroup");
         for (int i = 0; i < netCentralServerConfigAccessor.getQueueObjectHandlerThreads(); i++) {
-            new Thread(null, () -> {
-                while (true) {
-                    boolean run = true;
-                    boolean shutdownok = false;
-                    ArrayBlockingQueue<APRSObjectResource> queue = aprsCreateObjectQueue.getQueue();
-                    User user = new User();
-                    APRSObjectResource aprsObject = null;
-                    while (run) {
-                        try {
-                            shutdownok = false;
-                            aprsObject = queue.take();
-                            int queueSize = queue.size();
-                            statisticsAccessor.setOutstandingObjects(queueSize);
-                            aprsObjectAccessor.create(user, aprsObject);
-                            run = aprsCreateObjectQueue.stayRunning();
-                            if (!run) {
-                                // if told to shutdown, that's ok
-                                shutdownok = true;
-                            }
-                        } catch (InterruptedException e) {
-                            logger.error("InterruptedException caught processing objects", e);
-                            run = false;
+            startObjectThread();
+        }
+    }
+
+    private void startObjectThread() {
+        new Thread(objectProcessorThreadGroup, () -> {
+            while (true) {
+                boolean run = true;
+                boolean shutdownok = false;
+                ArrayBlockingQueue<APRSObjectResource> queue = aprsCreateObjectQueue.getQueue();
+                User user = new User();
+                APRSObjectResource aprsObject = null;
+                while (run) {
+                    try {
+                        shutdownok = false;
+                        aprsObject = queue.take();
+                        int queueSize = queue.size();
+                        statisticsAccessor.setOutstandingObjects(queueSize);
+                        aprsObjectAccessor.create(user, aprsObject);
+                        run = aprsCreateObjectQueue.stayRunning();
+                        if (!run) {
+                            // if told to shutdown, that's ok
                             shutdownok = true;
-                        } catch (Exception e) {
-                            logger.error("Exception caught processing objects", e);
                         }
-                    }
-                    if (!shutdownok) { 
-                        logger.error("Unexpected end of processing loop - go again");
-                        if (aprsObject != null) {
-                            logger.error("Object in question: "+getObjectIdentified(aprsObject));
-                        }
-                    } else {
-                        logger.info("End of processing loop");
-                        break;
+                    } catch (InterruptedException e) {
+                        logger.error("InterruptedException caught processing objects", e);
+                        run = false;
+                        shutdownok = true;
+                    } catch (Exception e) {
+                        logger.error("Exception caught processing objects", e);
                     }
                 }
-            }, "ObjProcessorThread").start();
-        }
+                if (!shutdownok) { 
+                    logger.error("Unexpected end of processing loop - go again");
+                    if (aprsObject != null) {
+                        logger.error("Object in question: "+getObjectIdentified(aprsObject));
+                    }
+                } else {
+                    logger.info("End of processing loop");
+                    break;
+                }
+            }
+        }, "ObjProcessorThread").start();
     }
 
     private String getObjectIdentified(APRSObjectResource obj) {

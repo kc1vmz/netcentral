@@ -1,8 +1,8 @@
-package netcentral.server.utils;
+package osm.proxy.cache.accessor;
 
 /*
     Net Central
-    Copyright (c) 2025, 2026 John Rokicki KC1VMZ
+    Copyright (c) 2026 John Rokicki KC1VMZ
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,43 +25,38 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.kc1vmz.netcentral.aprsobject.object.APRSObjectResource;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import netcentral.server.accessor.NetCentralServerConfigAccessor;
-import netcentral.server.accessor.StatisticsAccessor;
+import osm.proxy.cache.config.ProxyConfig;
+import osm.proxy.cache.objects.TileCacheRequest;
 
 @Singleton
-public class APRSCreateObjectQueue {
-    @Inject
-    private NetCentralServerConfigAccessor netCentralServerConfigAccessor;
-    @Inject
-    private StatisticsAccessor statisticsAccessor;
+public class TilePrecacheQueue {
 
-    private static final Logger logger = LogManager.getLogger(APRSCreateObjectQueue.class);
+    private static final Logger logger = LogManager.getLogger(TilePrecacheQueue.class);
 
-    private ArrayBlockingQueue<APRSObjectResource> queue = null;
+    @Inject
+    private ProxyConfig proxyConfig;
+
+    private ArrayBlockingQueue<TileCacheRequest> queue = null;
     private boolean stop = false;
 
     private void initializeQueue() {
         if (queue == null) {
-            queue = new ArrayBlockingQueue<>(netCentralServerConfigAccessor.getQueueObjectHandlerSize());
+            queue = new ArrayBlockingQueue<>(proxyConfig.getOsmPrecacheQueueSize());
         }
     }
-    public synchronized ArrayBlockingQueue<APRSObjectResource> getQueue() {
+    public synchronized ArrayBlockingQueue<TileCacheRequest> getQueue() {
         initializeQueue();
         return queue;
     }
-    public synchronized void addAPRSObject(APRSObjectResource obj) {
+    public synchronized void addRequest(TileCacheRequest obj) {
         if (!stayRunning()) {
             return;
         }
-        ArrayBlockingQueue<APRSObjectResource> initializedQueue = getQueue();
+        ArrayBlockingQueue<TileCacheRequest> initializedQueue = getQueue();
         try {
             initializedQueue.add(obj);
-            int count = queue.size();
-            statisticsAccessor.setOutstandingObjects(count);
         } catch (IllegalStateException e) {
             logger.error("IllegalStateException adding to queue", e);
             if ((e.getMessage() != null) && (!(e.getMessage().contains("queue")))) {

@@ -19,14 +19,40 @@
 -->
 
 <script setup>
+import { getToken } from "@/LoginInformation.js";
 import { reactive, ref, onMounted } from 'vue';
 import { buildNetCentralOSMPCUrl } from "@/netCentralOSMPCServerConfig.js";
+import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 
 onMounted(() => {
+  accesstoken.value = getToken()
   getSettings();
+  getServerSettings();
 });
 
+var accesstoken = ref('');
 var modeRef = reactive({value : null});
+var settingsRef = reactive({value : null});
+var objectBeaconMinutesRef = reactive({value : null});
+var objectCleanupMinutesRef = reactive({value : null});
+var reportCleanupMinutesRef = reactive({value : null});
+var scheduledNetCheckMinutesRef = reactive({value : null});
+var netParticipantReminderMinutesRef = reactive({value : null});
+var netReportMinutesRef = reactive({value : null});
+var bulletinAnnounceRef = reactive({value : null});
+var mapDefaultLatitudeMinRef = reactive({value : null});
+var mapDefaultLongitudeMinRef = reactive({value : null});
+var mapDefaultLatitudeMaxRef = reactive({value : null});
+var mapDefaultLongitudeMaxRef = reactive({value : null});
+var federatedRef = reactive({value : null});
+var federatedPushUdpRef = reactive({value : null});
+var federatedPushMessageRef = reactive({value : null});
+var federatedInterrogateRef = reactive({value : null});
+var aprsNetManagerEnabledRef = reactive({value : null});
+var aprsNetManagerCallsignRef = reactive({value : null});
+var aprsNetManagerLonRef = reactive({value : null});
+var aprsNetManagerLatRef = reactive({value : null});
+var osmPreCacheRef = reactive({value : null});
 
 function getSettings() {
   var requestOptions = {
@@ -43,6 +69,23 @@ function getSettings() {
     .catch(error => { console.error('Error getting settings from OSMPC server:', error); })
 }
 
+function getServerSettings() {
+  var requestOptions = {
+    method: "GET",
+    headers: { "Content-Type": "application/json",
+                "SessionID" : accesstoken.value
+    },
+    body: null
+  };
+  fetch(buildNetCentralUrl('/configurations'), requestOptions)
+    .then(response => response.json())
+    .then(data => {
+        settingsRef.value = data;
+        updateRefs();
+    })
+    .catch(error => { console.error('Error getting settings from server:', error); })
+}
+
 function updateSettings() {
     var requestOptions = {
       method: "PUT",
@@ -57,12 +100,78 @@ function updateSettings() {
       .catch(error => { console.error('Error updating settings from OSMPC server:', error); })
 }
 
+
+function updateServerSettings() {
+    var bodyObject = { 
+      objectCleanupMinutes: objectCleanupMinutesRef.value,
+      objectBeaconMinutes: objectBeaconMinutesRef.value,
+      reportCleanupMinutes: reportCleanupMinutesRef.value,
+      scheduledNetCheckMinutes: scheduledNetCheckMinutesRef.value,
+      netParticipantReminderMinutes: netParticipantReminderMinutesRef.value,
+      netReportMinutes: netReportMinutesRef.value,
+      bulletinAnnounce: bulletinAnnounceRef.value,
+      mapDefaultLatitudeMin: mapDefaultLatitudeMinRef.value,
+      mapDefaultLongitudeMin: mapDefaultLongitudeMinRef.value,
+      mapDefaultLatitudeMax: mapDefaultLatitudeMaxRef.value,
+      mapDefaultLongitudeMax: mapDefaultLongitudeMaxRef.value,
+      federated: federatedRef.value == 'true',
+      federatedPushUdp: federatedPushUdpRef.value,
+      federatedPushMessage: federatedPushMessageRef.value,
+      federatedInterrogate: federatedInterrogateRef.value,
+      configSet: settingsRef.value.configSet,
+      netMgrEnabled: aprsNetManagerEnabledRef.value,
+      netMgrCallsign: aprsNetManagerCallsignRef.value,
+      netMgrLon: aprsNetManagerLonRef.value,
+      netMgrLat: aprsNetManagerLatRef.value,
+      osmPreCache: (osmPreCacheRef.value == 'true') ? true : false
+    };
+    var requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstoken.value
+      },
+        body: JSON.stringify(bodyObject)
+    };
+    fetch(buildNetCentralUrl('/configurations'), requestOptions)
+      .then(response => response.json())
+      .then(data => {
+          settingsRef.value = data;
+          updateRefs();
+      })
+      .catch(error => { console.error('Error updating settings from server:', error); })
+}
+
+function updateRefs() {
+    bulletinAnnounceRef.value = settingsRef.value.bulletinAnnounce;
+    federatedRef.value = settingsRef.value.federated;
+    federatedPushUdpRef.value = settingsRef.value.federatedPushUdp;
+    federatedPushMessageRef.value = settingsRef.value.federatedPushMessage;
+    federatedInterrogateRef.value = settingsRef.value.federatedInterrogate;
+    mapDefaultLatitudeMinRef.value = settingsRef.value.mapDefaultLatitudeMin;
+    mapDefaultLongitudeMinRef.value = settingsRef.value.mapDefaultLongitudeMin;
+    mapDefaultLatitudeMaxRef.value = settingsRef.value.mapDefaultLatitudeMax;
+    mapDefaultLongitudeMaxRef.value = settingsRef.value.mapDefaultLongitudeMax;
+    objectBeaconMinutesRef.value = settingsRef.value.objectBeaconMinutes;
+    objectCleanupMinutesRef.value = settingsRef.value.objectCleanupMinutes;
+    reportCleanupMinutesRef.value = settingsRef.value.reportCleanupMinutes;
+    scheduledNetCheckMinutesRef.value = settingsRef.value.scheduledNetCheckMinutes;
+    netParticipantReminderMinutesRef.value = settingsRef.value.netParticipantReminderMinutes;
+    netReportMinutesRef.value = settingsRef.value.netReportMinutes;
+    aprsNetManagerEnabledRef.value = settingsRef.value.netMgrEnabled;
+    aprsNetManagerCallsignRef.value = settingsRef.value.netMgrCallsign;
+    aprsNetManagerLonRef.value = settingsRef.value.netMgrLon;
+    aprsNetManagerLatRef.value = settingsRef.value.netMgrLat;
+    osmPreCacheRef.value = (settingsRef.value.osmPreCache) ? "true" : "false";
+}
+
 function refresh() {
   getSettings();
+  getServerSettings();
 }
 
 function update() {
   updateSettings();
+  updateServerSettings();
 }
 </script>
 
@@ -75,27 +184,46 @@ function update() {
       <br> Map information must have been previously viewed and cached.
     </div>
     <br>
-      <label for="osmServerMode">OSM server mode:</label>
-      <select name="osmServerMode" id="modeRef" v-model="modeRef.value" style="display: inline;">
-        <div v-if="(modeRef.value == 'proxy')">
-          <option value="proxy" selected>Proxy-only</option>
+      <div>
+        <label for="osmServerMode">OSM server mode:</label>
+        <select name="osmServerMode" id="modeRef" v-model="modeRef.value" style="display: inline;">
+          <div v-if="(modeRef.value == 'proxy')">
+            <option value="proxy" selected>Proxy-only</option>
+          </div>
+          <div v-else>
+            <option value="proxy">Proxy-only</option>
+          </div>
+          <div v-if="(modeRef.value == 'cache')">
+            <option value="cache" selected>Cache-only</option>
+          </div>
+          <div v-else>
+            <option value="cache">Cache-only</option>
+          </div>
+          <div v-if="(modeRef.value == 'proxycache')">
+            <option value="proxycache" selected>Proxy and cache</option>
+          </div>
+          <div v-else>
+            <option value="proxycache">Proxy and cache</option>
+          </div>
+        </select>
         </div>
-        <div v-else>
-          <option value="proxy">Proxy-only</option>
+        <div>
+          <label for="osmPreCache">Map pre-cache mode:</label>
+          <select name="osmPreCache" id="osmPreCache" v-model="osmPreCacheRef.value" style="display: inline;">
+            <div v-if="(osmPreCacheRef.value == 'true')">
+              <option value="true" selected>Enabled</option>
+            </div>
+            <div v-else>
+              <option value="false">Disabled</option>
+            </div>
+            <div v-if="(osmPreCacheRef.value == 'false')">
+              <option value="true">Enabled</option>
+            </div>
+            <div v-else>
+              <option value="false" selected>Disabled</option>
+            </div>
+          </select>
         </div>
-        <div v-if="(modeRef.value == 'cache')">
-          <option value="cache" selected>Cache-only</option>
-        </div>
-        <div v-else>
-          <option value="cache">Cache-only</option>
-        </div>
-        <div v-if="(modeRef.value == 'proxycache')">
-          <option value="proxycache" selected>Proxy and cache</option>
-        </div>
-        <div v-else>
-          <option value="proxycache">Proxy and cache</option>
-        </div>
-      </select>
     <div>
       <br>
       <button class="boxButton" v-on:click.native="refresh">Refresh</button>

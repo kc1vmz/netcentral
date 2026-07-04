@@ -23,7 +23,11 @@
             "name": "Transceiver-APRSIS",
             "request": "launch",
             "mainClass": "netcentral.transceiver.aprsis.Application",
-            "projectName": "transceiver-aprsis"
+            "projectName": "transceiver-aprsis",
+            "env": {
+                "NETCENTRAL_TRANS_APRSIS_QUERY_EASTCOAST": "a/40/-85/30/-73 a/40/-70/45/-80 r/42.222/-71.57/500",
+                "NETCENTRAL_TRANS_APRSIS_QUERY": "r/42.222/-71.57/500"
+            }
         },
         {
             "type": "java",

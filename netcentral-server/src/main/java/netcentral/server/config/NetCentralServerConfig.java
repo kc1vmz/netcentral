@@ -81,7 +81,12 @@ public class NetCentralServerConfig {
     private String aprsNetManagerLon;
     @Value("${netcentral.aprsnetmgr.lat}")
     private String aprsNetManagerLat;
-
+    @Value("${netcentral.osmserver.host}")
+    private String osmServerHost;
+    @Value("${netcentral.osmserver.port}")
+    private Integer osmServerPort;
+    @Value("${netcentral.osmserver.precache}")
+    private Boolean osmServerPreCache;
     
     public String getTempDir() {
         return tempDir;
@@ -250,5 +255,23 @@ public class NetCentralServerConfig {
     }
     public void setAprsNetManagerLat(String aprsNetManagerLat) {
         this.aprsNetManagerLat = aprsNetManagerLat;
+    }
+    public String getOsmServerHost() {
+        return osmServerHost;
+    }
+    public void setOsmServerHost(String osmServerHost) {
+        this.osmServerHost = osmServerHost;
+    }
+    public Integer getOsmServerPort() {
+        return osmServerPort;
+    }
+    public void setOsmServerPort(Integer osmServerPort) {
+        this.osmServerPort = osmServerPort;
+    }
+    public Boolean getOsmServerPreCache() {
+        return osmServerPreCache;
+    }
+    public void setOsmServerPreCache(Boolean osmServerPreCache) {
+        this.osmServerPreCache = osmServerPreCache;
     }
 }

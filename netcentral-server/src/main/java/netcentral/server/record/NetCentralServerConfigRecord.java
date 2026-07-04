@@ -52,6 +52,7 @@ public record NetCentralServerConfigRecord(
                 @NonNull @NotBlank Boolean net_mgr_enabled,
                 @Nullable String net_mgr_callsign,
                 @Nullable String net_mgr_lon,
-                @Nullable String net_mgr_lat
+                @Nullable String net_mgr_lat,
+                @Nullable Boolean osm_precache
                 ) {  
 }

@@ -49,6 +49,7 @@ var aprsNetManagerEnabledRef = reactive({value : null});
 var aprsNetManagerCallsignRef = reactive({value : null});
 var aprsNetManagerLonRef = reactive({value : null});
 var aprsNetManagerLatRef = reactive({value : null});
+var osmPreCacheRef = reactive({value : null});
 
 
 function getSettings() {
@@ -89,7 +90,8 @@ function updateSettings() {
       netMgrEnabled: aprsNetManagerEnabledRef.value,
       netMgrCallsign: aprsNetManagerCallsignRef.value,
       netMgrLon: aprsNetManagerLonRef.value,
-      netMgrLat: aprsNetManagerLatRef.value
+      netMgrLat: aprsNetManagerLatRef.value,
+      osmPreCache: osmPreCacheRef.value
     };
     var requestOptions = {
       method: "PUT",
@@ -127,6 +129,7 @@ function updateRefs() {
     aprsNetManagerCallsignRef.value = settingsRef.value.netMgrCallsign;
     aprsNetManagerLonRef.value = settingsRef.value.netMgrLon;
     aprsNetManagerLatRef.value = settingsRef.value.netMgrLat;
+    osmPreCacheRef.value = settingsRef.value.osmPreCache;
 }
 
 function refresh() {

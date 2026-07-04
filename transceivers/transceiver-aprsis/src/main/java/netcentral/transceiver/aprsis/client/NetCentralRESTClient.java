@@ -56,6 +56,8 @@ public class NetCentralRESTClient {
     @Inject
     private NetCentralClientConfig netControlConfig;
 
+    private HttpClient globalClient = null;
+
     private String buildURL(String tail) {
         return String.format("http://%s:%d/%s", netControlConfig.getServer(), netControlConfig.getPort(), tail);
     }
@@ -117,7 +119,7 @@ public class NetCentralRESTClient {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginRequest);
 
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(buildURL("api/v1/login")))
                 .header("Content-Type", "application/json")
@@ -153,7 +155,7 @@ public class NetCentralRESTClient {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginResponse);
 
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(buildURL("api/v1/logout")))
                 .header("Content-Type", "application/json")
@@ -194,8 +196,16 @@ public class NetCentralRESTClient {
         return ret;
     }
 
+    private synchronized HttpClient getHTTPClient() {
+        if (globalClient == null) {
+            globalClient = HttpClient.newBuilder().build();
+        }
+        return globalClient;
+    }
+
     private String post(String uri, String sessionId, String data) throws Exception {
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .header("SessionID", sessionId)
@@ -249,7 +259,7 @@ public class NetCentralRESTClient {
     }
 
     private String get(String uri) throws Exception {
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .GET()

@@ -35,6 +35,8 @@ import jakarta.inject.Singleton;
 import osm.proxy.cache.config.ProxyConfig;
 import osm.proxy.cache.objects.Statistics;
 import osm.proxy.cache.objects.StatisticsKeeper;
+import osm.proxy.cache.objects.TileCacheRequest;
+import osm.proxy.cache.utils.ConvertLonLat;
 
 @Singleton
 public class TileAccessor {
@@ -47,6 +49,9 @@ public class TileAccessor {
     private TileDatabaseAccessor tileDatabaseAccessor;
     @Inject
     private StatisticsKeeper statisticsKeeper;
+    @Inject
+    private TilePrecacheQueue tilePrecacheQueue;
+
 
     public byte [] fetch(String x, String y, String z) {
         init();
@@ -92,18 +97,18 @@ public class TileAccessor {
         byte [] ret = null;
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(String.format(fileUrlFmt, x, y, z)))
+                .uri(URI.create(String.format(fileUrlFmt, z, x, y)))
                 .GET()
                 .build();
 
         try {
             HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-            // 4. Check status code and write to local file
             if (response.statusCode() == 200) {
                 ret = response.body();
             } else {
-                logger.error("Failed to fetch tile from OWM server - HTTP Status: " + response.statusCode());
+                String error = String.format("Failed to fetch tile (%s, %s, %s) from OSM server - HTTP Status: %d - %s", x, y, z, response.statusCode(),new String(response.body()));
+                logger.warn(error);
             }
 
         } catch (IOException | InterruptedException e) {
@@ -133,5 +138,21 @@ public class TileAccessor {
         ret.setRequests(statisticsKeeper.getRequests());
 
         return ret;
+    }
+
+    public void cacheByLatLonDegrees(Float lat, Float lon) {
+        if (proxyConfig.getMode().equalsIgnoreCase(ProxyConfig.MODE_PROXYCACHE)) {
+            TileCacheRequest request = new TileCacheRequest(lat, lon);
+            tilePrecacheQueue.addRequest(request);
+        }
+    }
+
+    public void cacheByLatLonAPRS(String lat, String lon) {
+        if (proxyConfig.getMode().equalsIgnoreCase(ProxyConfig.MODE_PROXYCACHE)) {
+            double latD = ConvertLonLat.convertLatitude(lat);
+            double lonD = ConvertLonLat.convertLongitude(lon);
+            TileCacheRequest request = new TileCacheRequest((float) latD, (float) lonD);
+            tilePrecacheQueue.addRequest(request);
+        }
     }
 }

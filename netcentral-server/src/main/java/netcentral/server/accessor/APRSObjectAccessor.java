@@ -111,6 +111,7 @@ import netcentral.server.repository.aprs.APRSUnknownRepository;
 import netcentral.server.repository.aprs.APRSWeatherReportRepository;
 import netcentral.server.utils.Stripper;
 import netcentral.server.utils.TrackedStationTypeUtils;
+import netcentral.server.utils.WeatherReportParser;
 
 @Singleton
 public class APRSObjectAccessor {
@@ -309,7 +310,7 @@ public class APRSObjectAccessor {
         if (netCentralServerConfigAccessor.isFederated()) {
 
             String dataStr = new String(innerAPRSUserDefined.getData());
-            logger.info("User defined packet data - " + dataStr);
+            logger.info(String.format("User defined packet data - %s - %s", innerAPRSUserDefined.getCallsignFrom(), dataStr));
 
             if (federatedObjectIngestionAccessor.isFederatedUserDefinedPacket(innerAPRSUserDefined)) {
                 federatedObjectIngestionAccessor.processFederatedPacket(loggedInUser, id, innerAPRSUserDefined, source, heardTime);
@@ -456,6 +457,13 @@ public class APRSObjectAccessor {
         int index = 0;
         boolean bWarnNull = false;
 
+        if (report == null) {
+            logger.warn(String.format("Weather report from %s is null", innerAPRSPosition.getCallsignFrom()));
+            return;
+        } else if (report.length() < 7) {
+            logger.warn(String.format("Weather report from %s is too short - %s", innerAPRSPosition.getCallsignFrom(), report));
+            return;
+        }
         String checkWindSpeedDirectionFlag = report.substring(3, 4);
         if (checkWindSpeedDirectionFlag.equals("/")) {
             // weather report is prefixed with SSS/DDD
@@ -464,61 +472,94 @@ public class APRSObjectAccessor {
             report = report.substring(7);  // move past this
         }
 
+        boolean [] lettersProcessed = WeatherReportParser.createBitmask();
         // parse the weather report
         while (index < report.length()) {
-            if (report.charAt(index) == 'c') {
+            if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_WIND_DIRECTION) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_DIRECTION]) break;
                 String value = report.substring(index+1, index+4);
                 wind_dir = getWeatherValue(value);
                 if (wind_dir == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 's') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_DIRECTION] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_WIND_SPEED) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_SPEED]) break;
                 String value = report.substring(index+1, index+4);
                 wind_sp  = getWeatherValue(value);
                 if (wind_sp == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 'g') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_SPEED] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_WIND_GUST) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_GUST]) break;
                 String value = report.substring(index+1, index+4);
                 gust  = getWeatherValue(value);
                 if (gust == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 't') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_WIND_GUST] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_TEMPERATURE) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_TEMPERATURE]) break;
                 String value = report.substring(index+1, index+4);
                 temp  = getWeatherValue(value);
                 if (temp == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)){
+                        // try a 2 digit temp
+                        value = report.substring(index+1, index+3);
+                        temp  = getWeatherValue(value);
+                        if (temp == null) {
+                            bWarnNull = true;
+                            index += 4; // advance per spec
+                        } else {
+                            index += 3;
+                        }
+                    } else {
+                        // valid ... digit temp
+                        index +=4;
+                    }
+                } else {
+                    // valid 3 digit temp
+                    index +=4;
                 }
-                index +=4;
-            } else if (report.charAt(index) == 'r') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_TEMPERATURE] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_RAIN_LAST_HOUR) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_LAST_HOUR]) break;
                 String value = report.substring(index+1, index+4);
                 rain_1  = getWeatherValue(value);
                 if (rain_1 == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 'p') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_LAST_HOUR] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_RAIN_LAST_24HOUR) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_LAST_24HOUR]) break;
                 String value = report.substring(index+1, index+4);
                 rain24  = getWeatherValue(value);
                 if (rain24 == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 'P') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_LAST_24HOUR] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_RAIN_SINCE_MIDNIGHT) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_SINCE_MIDNIGHT]) break;
                 String value = report.substring(index+1, index+4);
                 rainmid  = getWeatherValue(value);
                 if (rainmid == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == '#') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_SINCE_MIDNIGHT] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_RAIN_RAW) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_RAW]) break;
                 // not keeping raw rain counter
                 index +=4;
-            } else if (report.charAt(index) == 'b') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_RAIN_RAW] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_BAROMETRIC_PRESSURE) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_BAROMETRIC_PRESSURE]) break;
                 String value = report.substring(index+1, index+6);
                 if ((value.startsWith("...")) || ((value.startsWith("   ")))) {
                     // skip it
@@ -530,23 +571,29 @@ public class APRSObjectAccessor {
                     }
                     index +=6;
                 }
-            } else if (report.charAt(index) == 'L') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_BAROMETRIC_PRESSURE] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_LUMOSITY) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_LUMOSITY]) break;
                 String value = report.substring(index+1, index+4);
                 lum  = getWeatherValue(value);
                 if (lum == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 'l') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_LUMOSITY] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_LUMOSITY_LARGE) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_LUMOSITY_LARGE]) break;
                 String value = report.substring(index+1, index+4);
                 lum  = getWeatherValue(value);
                 if (lum == null) {
-                    if (!"...".equals(value)) bWarnNull = true;
+                    if (!isUndefinedValue(value)) bWarnNull = true;
                 } else {
                     lum += 1000;
                 }
                 index +=4;
-            } else if (report.charAt(index) == 'h') {
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_LUMOSITY_LARGE] = true;
+            } else if (report.charAt(index) == WeatherReportParser.WEATHERREPORT_FIELD_HUMIDITY) {
+                if (lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_HUMIDITY]) break;
                 String value = report.substring(index+1, index+3);
                 if ((value.startsWith("..")) || ((value.startsWith("  ")))) {
                     String test = report.substring(index+1, index+4); // try 3 characters
@@ -564,6 +611,7 @@ public class APRSObjectAccessor {
                     if (hum == null) bWarnNull = true;
                     index +=3;
                 }
+                lettersProcessed[WeatherReportParser.INDEX_WEATHERREPORT_FIELD_HUMIDITY] = true;
             } else {
                 // hit an unknown value - end of weather data - one char for APRS software, rest for sofware WX Unit
                 break;
@@ -584,12 +632,20 @@ public class APRSObjectAccessor {
 
     }
 
+    private boolean isUndefinedValue(String value) {
+        boolean ret = false;
+        if (value.equals("...") || value.equals("   ")) {
+            ret = true;
+        }
+        return ret;
+    }
+
     private Integer getWeatherValue(String value) {
-        if (!value.equals("...") && !value.equals("   ")) {
+        if (!isUndefinedValue(value)) {
             try {
                 return Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                logger.error("NumberFormatException caught - " + value, e);
+                logger.warn("NumberFormatException caught - " + value, e);
             } catch (Exception e) {
                 logger.error("Exception caught - " + value, e);
             }

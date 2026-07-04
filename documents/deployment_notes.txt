@@ -231,6 +231,15 @@ To change the mode which the OSM proxy cache operates, make the following change
   SET NETCENTRAL_OSMPC_CONFIG=proxy 
     operates as only a proxy and will not cache map information locally
 
+To change OSM server configuration, make the following changes
+
+  set NETCENTRAL_OSMPC_HOSTNAME=hostname
+    tells Net Central where to find the OSM Proxy Cache if not running on localhost
+  set NETCENTRAL_OSMPC_PRECACHE=true
+    tells Net Central to fetch the map tiles for resource with a location as a pre-cache
+  set NETCENTRAL_OSMPC_PRECACHE=false 
+    tells Net Central not to fetch the map tiles for resource with a location as a pre-cache
+
 Make sure the environment variables are in the proper format for the operating system being used (forward vs back slashes).
 
 
@@ -367,6 +376,8 @@ NETCENTRAL_OSMPC_MYSQL_PORT     default 3306
 NETCENTRAL_OSMPC_MYSQL_DBNAME   default netcentral_osmproxycache
 NETCENTRAL_OSMPC_MYSQL_USERNAME default netcentral_osmproxycache
 NETCENTRAL_OSMPC_MYSQL_PASSWORD default netcentral_osmproxycache
+NETCENTRAL_OSMPC_HOSTNAME       default localhost
+NETCENTRAL_OSMPC_PRECACHE       default false | true
 
 
 All transceivers

@@ -74,6 +74,10 @@ public class SendQueueAccessor {
             initializedQueue.add(message);
         } catch (IllegalStateException e) {
             logger.error("IllegalStateException adding to queue", e);
+            if ((e.getMessage() != null) && (!(e.getMessage().contains("queue")))) {
+                // queue not full - shutdown
+                shutdown();
+            }
         } catch (Exception e) {
             logger.error("Exception adding to queue", e);
         }

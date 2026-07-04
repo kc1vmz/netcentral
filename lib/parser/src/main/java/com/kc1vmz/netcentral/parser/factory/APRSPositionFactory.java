@@ -127,9 +127,12 @@ public class APRSPositionFactory {
             ret.setDirectivity(calculateDirectivity(comment[6]));
             commentStr = commentStr.substring(7);  // skip DFS data
         } else if (ret.getSymbolTableCode().equals("_")) {
-            // weather report has a symbol code of underscore
-            ret.setHasWeatherReport(true);
-            ret.setWeatherReport(commentStr);
+            // weather report has a symbol code of _
+            if ((commentStr != null) && (commentStr.length() >= 7)) {
+                // there is really a weather report - has SSS/DDD
+                ret.setHasWeatherReport(true);
+                ret.setWeatherReport(commentStr);
+            }
         }
         ret.setComment(commentStr);
         ret.setLat(lat);

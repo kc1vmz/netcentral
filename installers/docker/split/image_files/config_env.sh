@@ -17,6 +17,7 @@ echo "export NETCENTRAL_SERVER_TEMP_DIR=$NETCENTRAL_SERVER_TEMP_DIR" | sudo tee 
 echo "export NETCENTRAL_SERVER_SQLITE_FILE=$NETCENTRAL_SERVER_SQLITE_FILE" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export NETCENTRAL_SERVER_SQLITE_USERNAME=$NETCENTRAL_SERVER_SQLITE_USERNAME" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 echo "export NETCENTRAL_SERVER_SQLITE_PASSWORD=$NETCENTRAL_SERVER_SQLITE_PASSWORD" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
+echo "export NETCENTRAL_OSMPC_PRECACHE=$NETCENTRAL_OSMPC_PRECACHE" | sudo tee -a /etc/conf.d/netcentral-server >  /dev/null
 
 echo "export NETCENTRAL_OSMPC_MYSQL_HOST=$NETCENTRAL_OSMPC_MYSQL_HOST" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null
 echo "export NETCENTRAL_OSMPC_MYSQL_PORT=$NETCENTRAL_OSMPC_MYSQL_PORT" | sudo tee -a /etc/conf.d/osm-proxy-cache >  /dev/null

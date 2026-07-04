@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-  <include file="changelog/01-31-schema.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/32-schema.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/33-schema.xml" relativeToChangelogFile="true"/>
+  <changeSet id="33" author="kc1vmz">
+    <addColumn tableName="config_settings">
+      <column name="osm_precache" type="TINYINT" defaultValue="0">
+          <constraints nullable="false" unique="false" />
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
