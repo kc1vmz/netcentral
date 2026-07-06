@@ -41,9 +41,9 @@ public class TileController {
     private
     @Inject TileAccessor tileAccessor;
 
-    @Get("/{x}/{y}/{z}")
+    @Get("/{z}/{x}/{y}")
     @Produces(MediaType.IMAGE_PNG)
-    public byte [] getOne(HttpRequest<?> request, @PathVariable String x, @PathVariable String y, @PathVariable String z) {
+    public byte [] getOne(HttpRequest<?> request, @PathVariable String z, @PathVariable String x, @PathVariable String y) {
         byte [] fileContent = tileAccessor.fetch(x,y,z);
         return fileContent;
     }
