@@ -52,6 +52,8 @@ import netcentral.transceiver.test.config.NetCentralClientConfig;
 public class NetCentralRESTClient {
     private static final Logger logger = LogManager.getLogger(NetCentralRESTClient.class);
 
+    private HttpClient globalClient = null;
+
     @Inject
     private NetCentralClientConfig netControlConfig;
 
@@ -96,7 +98,7 @@ public class NetCentralRESTClient {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginRequest);
 
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(buildURL("api/v1/login")))
                 .header("Content-Type", "application/json")
@@ -132,7 +134,7 @@ public class NetCentralRESTClient {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(loginResponse);
 
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(buildURL("api/v1/logout")))
                 .header("Content-Type", "application/json")
@@ -172,7 +174,7 @@ public class NetCentralRESTClient {
     }
 
     private String post(String uri, String sessionId, String data) throws Exception {
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = getHTTPClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .header("SessionID", sessionId)
@@ -209,5 +211,12 @@ public class NetCentralRESTClient {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return objectMapper;
+    }
+
+    private synchronized HttpClient getHTTPClient() {
+        if (globalClient == null) {
+            globalClient = HttpClient.newBuilder().build();
+        }
+        return globalClient;
     }
 }
