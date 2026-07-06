@@ -64,7 +64,7 @@ public class APRSCreateObjectQueue {
             statisticsAccessor.setOutstandingObjects(count);
         } catch (IllegalStateException e) {
             logger.error("IllegalStateException adding to queue", e);
-            if ((e.getMessage() != null) && (!(e.getMessage().contains("queue")))) {
+            if ((e.getMessage() != null) && (!(e.getMessage().contains("Queue full")))) {
                 // queue not full - shutdown
                 shutdown();
             }
