@@ -23,6 +23,7 @@ package osm.proxy.cache.controller;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Produces;
@@ -46,6 +47,12 @@ public class TileController {
     public byte [] getOne(HttpRequest<?> request, @PathVariable String z, @PathVariable String x, @PathVariable String y) {
         byte [] fileContent = tileAccessor.fetch(x,y,z);
         return fileContent;
+    }
+
+    @Delete
+    public void deleteAll(HttpRequest<?> request) {
+        tileAccessor.deleteAll();
+        return;
     }
 
     @Put("/modes/{mode}")

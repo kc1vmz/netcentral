@@ -155,4 +155,8 @@ public class TileAccessor {
             tilePrecacheQueue.addRequest(request);
         }
     }
+
+    public void deleteAll() {
+        tileDatabaseAccessor.deleteAll();
+    }
 }

@@ -19,18 +19,23 @@
 -->
 
 <script setup>
-import { getToken } from "@/LoginInformation.js";
+import { getToken, getUser } from "@/LoginInformation.js";
 import { reactive, ref, onMounted } from 'vue';
 import { buildNetCentralOSMPCUrl } from "@/netCentralOSMPCServerConfig.js";
 import { buildNetCentralUrl } from "@/netCentralServerConfig.js";
 
 onMounted(() => {
-  accesstoken.value = getToken()
+  accesstoken.value = getToken();
+  loggedInUserLocalRef.value = getUser();
   getSettings();
   getServerSettings();
 });
 
+const dialogConfirmCacheClear = ref(null);
+const dialogConfirmCacheClearShow = reactive({ value : false });
+
 var accesstoken = ref('');
+const loggedInUserLocalRef = reactive({value : null});
 var modeRef = reactive({value : null});
 var settingsRef = reactive({value : null});
 var objectBeaconMinutesRef = reactive({value : null});
@@ -173,9 +178,56 @@ function update() {
   updateSettings();
   updateServerSettings();
 }
+
+function clearCache() {
+    dialogConfirmCacheClearShow.value = true;
+}
+
+function clearCacheYes() {
+    // perform the cache clear
+    performClearCache();
+}
+
+function clearCacheNo() {
+    dialogConfirmCacheClearShow.value = false;
+}
+
+function performClearCache() {
+    const requestOptions = {
+      method: "DELETE",
+      body:null
+    };
+    fetch(buildNetCentralOSMPCUrl('/tiles'), requestOptions)
+      .then(response => {
+        if (response.status == 200) {
+          dialogConfirmCacheClearShow.value = false;
+        }
+        return response;
+      })
+      .then(data => {
+      })
+      .catch(error => { console.error('Error clearing map cache:', error); })
+}
+
 </script>
 
 <template>
+  <!-- dialogs -->
+  <div v-if="dialogConfirmCacheClearShow.value">
+    <teleport to="#modals">
+      <dialog :open="dialogConfirmCacheClearShow.value" ref="dialogConfirmCacheClear" @close="dialogConfirmCacheClearShow.value = false" class="topz">  
+        <form v-if="dialogConfirmCacheClearShow.value" method="dialog">
+          <div class="pagesubheader">Confirm</div>
+          <div class="line"><hr/></div>
+          Do you wish to clear the map cache ?
+          <br>
+          <button class="boxButton" v-on:click.native="clearCacheYes">Yes</button>
+          <button class="boxButton" v-on:click.native="clearCacheNo">No</button>
+        </form>
+      </dialog>
+    </teleport>
+  </div>
+  <!-- main page -->
   <div v-if="(modeRef.value != null)">
     <br>
     <div>
@@ -228,6 +280,11 @@ function update() {
       <br>
       <button class="boxButton" v-on:click.native="refresh">Refresh</button>
       <button class="boxButton" v-on:click.native="update">Update</button>
+
+      <div v-if="((accesstoken != null) && (loggedInUserLocalRef != null) && (loggedInUserLocalRef.value != null) && ((loggedInUserLocalRef.value.role == 'ADMIN') || (loggedInUserLocalRef.value.role == 'SYSADMIN')))">
+        <br>Administrators are able to clear the cache and allow Net Central to retrieve new map information.
+        <br><button class="boxButton" v-on:click.native="clearCache">Clear Map Cache</button>
+      </div>
     </div>
 </div>
 </template>

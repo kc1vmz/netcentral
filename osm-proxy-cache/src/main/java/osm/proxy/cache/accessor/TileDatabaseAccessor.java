@@ -76,7 +76,7 @@ public class TileDatabaseAccessor {
         try {
             TileRecord saved = tileRepository.save(record);
             if (saved != null) {
-                logger.error(String.format("Error writing tile key %s", tileKey));
+                logger.warn(String.format("Error writing tile key %s", tileKey));
             }
         } catch (Exception e) {
             logger.error(String.format("Exception caught writing tile key %s", tileKey), e);
@@ -91,4 +91,7 @@ public class TileDatabaseAccessor {
         return ret;
     }
 
+    public void deleteAll() {
+        tileRepository.deleteAll();
+    }
 }
