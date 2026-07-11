@@ -962,8 +962,9 @@ public class RadioCommandAccessor {
         if (!isNetCentral) {
             List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
             if ((participants != null) && (!participants.isEmpty())) {
+                String messageText = String.format("%s-%s", (netMessage.getCallsignFrom() != null) ? netMessage.getCallsignFrom() : "", netMessage.getMessage());
                 for (Participant participant : participants) {
-                    transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), netMessage.getMessage());
+                    transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), messageText);
                 }
             }
         } else {
@@ -1175,12 +1176,26 @@ public class RadioCommandAccessor {
     private void ackMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementAcksSent();
-        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.ACK+msg.getMessageNumber());
+        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), determineMessageNumber(APRSConstants.ACK,msg.getMessageNumber()));
     }
 
     private void rejMessage(User loggedInUser, APRSMessage msg, String transceiverSourceId) {
         statisticsAccessor.incrementAcksRequested();
         statisticsAccessor.incrementRejsSent();
-        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), APRSConstants.REJ+msg.getMessageNumber());
+        transceiverMessageAccessor.sendAckMessage(loggedInUser, transceiverSourceId, msg.getCallsignTo(), msg.getCallsignFrom(), determineMessageNumber(APRSConstants.REJ, msg.getMessageNumber()));
+    }
+
+    private String determineMessageNumber(String command, String messageNumber) {
+        String trueMessageNumber = messageNumber;
+        String ret = command;
+        try {
+            int index = trueMessageNumber.indexOf("}");
+            if (index != -1) {
+                trueMessageNumber = trueMessageNumber.substring(0, index);
+            }
+        } catch (Exception e) {
+        }
+        ret += trueMessageNumber;
+        return ret;
     }
 }
