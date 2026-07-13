@@ -82,7 +82,7 @@ public class APRSListenerAccessor {
     public void sendReport(String callsignFrom, APRSNetCentralReport obj) {
         String data = new String(obj.getBytes());
         logger.debug(String.format("Sending report %s: %s", obj.getObjectName(), data));
-        String aprsMessage = String.format("%s>%s:%c%c%c%s\r\n", callsignFrom, NetCentralToCallConstant.TOCALL_NC1, 
+        String aprsMessage = String.format("%s>%s,TCPIP*:%c%c%c%s\r\n", callsignFrom, NetCentralToCallConstant.TOCALL_NC1, 
                                 NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_APRS_COMMAND,
                                 NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_USER_ID,
                                 NetCentralUserDefinedPacketConstant.USER_DEFINED_PACKET_TYPE, 
@@ -104,7 +104,7 @@ public class APRSListenerAccessor {
 
     public void sendMessage(String callsignFrom, String callsignTo, String messageText) {
         logger.debug(String.format("Sending message from %s to %s: %s", callsignFrom, callsignTo, messageText));
-        String aprsMessage = String.format("%s>%s::%-9s:%s\r\n", callsignFrom, NetCentralToCallConstant.TOCALL_NC1, callsignTo, messageText);
+        String aprsMessage = String.format("%s>%s,TCPIP*::%-9s:%s\r\n", callsignFrom, NetCentralToCallConstant.TOCALL_NC1, callsignTo, messageText);
 
         writeLock.lock();
         try {
@@ -124,7 +124,7 @@ public class APRSListenerAccessor {
 
     public void sendBulletin(String callsignFrom, String bulletinId, String messageText) {
         logger.debug(String.format("Sending bulletin from %s to %s: %s", callsignFrom, bulletinId, messageText));
-        String aprsMessage = callsignFrom + ">"+ NetCentralToCallConstant.TOCALL_NC1 +"::"+bulletinId+"     :"+messageText+"\r\n";
+        String aprsMessage = callsignFrom + ">"+ NetCentralToCallConstant.TOCALL_NC1 +",TCPIP*::"+bulletinId+"     :"+messageText+"\r\n";
 
         writeLock.lock();
         try {
@@ -156,7 +156,7 @@ public class APRSListenerAccessor {
         // time[7]lat[8]sym[/]lon[9]sym[>]meta[7]comment[36]
         String time = APRSTime.convertZonedDateTimeToDDHHMM(ZonedDateTime.now());
 
-        aprsMessage = String.format("%s>%s:;%s%s%s%s%s%s%s%s\r\n", objectName,  NetCentralToCallConstant.TOCALL_NC1, String.format("%-9s", objectName), ud, time, lat, symbolTableId, lon, symbolTableCode, messageText);
+        aprsMessage = String.format("%s>%s,TCPIP*:;%s%s%s%s%s%s%s%s\r\n", objectName,  NetCentralToCallConstant.TOCALL_NC1, String.format("%-9s", objectName), ud, time, lat, symbolTableId, lon, symbolTableCode, messageText);
         writeLock.lock();
         try {
             if (sender != null) {
