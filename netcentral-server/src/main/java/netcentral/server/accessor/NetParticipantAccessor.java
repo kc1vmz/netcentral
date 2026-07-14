@@ -201,6 +201,14 @@ public class NetParticipantAccessor {
         }
 
         if (netQuestions.isEmpty()) {
+            if (netParticipant != null) {
+                try {
+                    String message = "No unanswered questions";
+                    logger.info(message);
+                    transceiverMessageAccessor.sendMessage(user, net.getCallsign(), netParticipant.getCallsign(), message);
+                } catch (Exception e) {
+                }
+            }
             return;
         }
 
