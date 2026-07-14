@@ -962,7 +962,7 @@ public class RadioCommandAccessor {
         if (!isNetCentral) {
             List<Participant> participants = netParticipantAccessor.getAllParticipants(loggedInUser, net);
             if ((participants != null) && (!participants.isEmpty())) {
-                String messageText = String.format("%s-%s", (netMessage.getCallsignFrom() != null) ? netMessage.getCallsignFrom() : "", netMessage.getMessage());
+                String messageText = String.format("%s%s", (netMessage.getCallsignFrom() != null) ? (netMessage.getCallsignFrom()+" msg-") : "", netMessage.getMessage());
                 for (Participant participant : participants) {
                     transceiverMessageAccessor.sendMessage(loggedInUser, net.getCallsign(), participant.getCallsign(), messageText);
                 }
