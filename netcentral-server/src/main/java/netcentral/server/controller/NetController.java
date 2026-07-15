@@ -219,6 +219,20 @@ public class NetController {
         return ret;
     }
 
+    @Put("/{id}/participants/{callsign}")
+    public Participant updateParticipants(HttpRequest<?> request, @PathVariable String id, @PathVariable String callsign, @Body Participant participant) {
+        String token = sessionAccessor.getTokenFromSession(request);
+        User loggedInUser = sessionAccessor.getUserFromToken(token);
+
+        Net net = netAccessor.get(loggedInUser, id);
+
+        participantAccessor.update(loggedInUser, callsign, participant);
+        netParticipantAccessor.updateParticipant(loggedInUser, net, participant);
+
+        return participant;
+    }
+
+
     @Get("/{id}/expectedParticipants") 
     public List<ExpectedParticipant> getExpectedParticipants(HttpRequest<?> request, @PathVariable String id) {
         String token = sessionAccessor.getTokenFromSession(request);

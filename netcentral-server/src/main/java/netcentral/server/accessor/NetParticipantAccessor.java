@@ -314,10 +314,31 @@ public class NetParticipantAccessor {
         if (participantRec == null) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Not a net participant");
         }
-        NetParticipantRecord rec = new NetParticipantRecord(participantRec.net_participant_id(), participantRec.net_callsign(), participantRec.participant_callsign(), 
-                                                participantRec.start_time(), participant.getTacticalCallsign(), participant.isNotifyOnCheckInCheckOut());
-        netParticipantRepository.update(rec);
-        participant.setStartTime(rec.start_time());
+
+        try {
+            NetParticipantRecord rec = new NetParticipantRecord(participantRec.net_participant_id(), participantRec.net_callsign(), participantRec.participant_callsign(), 
+                                                    participantRec.start_time(), participant.getTacticalCallsign(), participant.isNotifyOnCheckInCheckOut());
+            netParticipantRepository.update(rec);
+            participant.setStartTime(rec.start_time());
+        } catch (Exception e) {
+            logger.error("Exception caught updating net participant record", e);
+        }
+
+        // update the radio type, transmit power, electrical
+        try {
+            TrackedStation trackedStation = trackedStationAccessor.getByCallsign(loggedInUser, participant.getCallsign());
+            if (trackedStation != null) {
+                trackedStation.setElectricalPowerType(participant.getElectricalPowerType());
+                trackedStation.setBackupElectricalPowerType(participant.getBackupElectricalPowerType());
+                trackedStation.setTransmitPower(participant.getTransmitPower());
+                trackedStation.setRadioStyle(participant.getRadioStyle());
+
+                trackedStationAccessor.update(loggedInUser, trackedStation.getId(), trackedStation);
+            }
+        } catch (Exception e) {
+            logger.error("Exception caught updating tracked station for participant", e);
+        }
+
         changePublisherAccessor.publishNetParticipantUpdate(net.getCallsign(), ChangePublisherAccessor.UPDATE, hydrateParticipant(loggedInUser, participant));
     }
 

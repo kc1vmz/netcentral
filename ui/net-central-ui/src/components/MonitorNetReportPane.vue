@@ -106,16 +106,28 @@ const callsignRef = reactive({value : ''});
 const rootCallsignRef = reactive({value : ''});
 const netCallsignRef = reactive({value : ''});
 const accesstokenRef = reactive({value : ''});
+const localLoggedInUserRef = reactive({ value : null });
 const errorMessageRef = reactive({value : ''});
+
+const tacticalCallsignRef = ref('');
+const electricalPowerTypeRef = ref('');
+const backupElectricalPowerTypeRef = ref('');
+const radioStyleRef = ref('');
+const transmitPowerRef = ref('');
+const voiceFrequencyRef = ref('');
+const statusRef = ref('');
 
 var dialogIdentify = ref('');
 var dialogIdentifyShow = reactive({value : false});
 var dialogSendCallsignMessage = ref('');
 var dialogSendCallsignMessageShow = reactive({value : false});
+var dialogEditParticipant = ref('');
+var dialogEditParticipantShow = reactive({value : false});
 var messageRef = ref('');
 
 onMounted(() => {
     accesstokenRef.value = getToken();
+    localLoggedInUserRef.value = getUser();
     selectedObject.value = null;
 });
 
@@ -151,7 +163,6 @@ function updateLocalObject(newObject) {
       })
       .catch(error => { console.error('Error getting callsign info from server:', error); })
   }
-
 }
 
 // Watch for changes in the selected object ref
@@ -248,10 +259,275 @@ function performSendMessage() {
       })
       .catch(error => { console.error('Error sending message:', error); })   
 }
+
+function editParticipant() {
+    electricalPowerTypeRef.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.electricalPowerType);
+    backupElectricalPowerTypeRef.value  = convertElectricalPowerTypeToNumber(localSelectedObject.ncSelectedObject.backupElectricalPowerType);
+    radioStyleRef.value  = convertRadioStyleToNumber(localSelectedObject.ncSelectedObject.radioStyle);
+    transmitPowerRef.value = localSelectedObject.ncSelectedObject.transmitPower;
+    tacticalCallsignRef.value = localSelectedObject.ncSelectedObject.tacticalCallsign;
+    voiceFrequencyRef.value = localSelectedObject.ncSelectedObject.voiceFrequency;
+    statusRef.value = localSelectedObject.ncSelectedObject.status;
+    callsignRef.value = localSelectedObject.ncSelectedObject.callsign;
+    dialogEditParticipantShow.value = true;
+}
+
+function convertElectricalPowerTypeToNumber(val) {
+    if (val == null) return null;
+    if (val == "COMMERCIAL") return "1";
+    if (val == "GENERATOR") return "2";
+    if (val == "SOLAR") return "3";
+    if (val == "BATTERY") return "4";
+    if (val == "OTHER") return "5";
+    if (val == "NONE") return "6";
+    return "0";
+}
+
+function convertRadioStyleToNumber(val) {
+    if (val == null) return null;
+    if (val == "HANDHELD") return "1";
+    if (val == "MOBILE") return "2";
+    if (val == "BASE") return "3";
+    if (val == "APPLIANCE") return "4";
+    if (val == "INTERNET") return "5";
+    if (val == "OTHER") return "6";
+    return "0";
+}
+
+function convertNumberToElectricalPowerType(val) {
+    if (val == null) return null;
+    if (val == "1") return "COMMERCIAL";
+    if (val == "2") return "GENERATOR";
+    if (val == "3") return "SOLAR";
+    if (val == "4") return "BATTERY";
+    if (val == "5") return "OTHER";
+    if (val == "6") return "NONE";
+    return "UNKNOWN";
+}
+
+function convertNumberToRadioStyle(val) {
+    if (val == null) return null;
+    if (val == "1") return "HANDHELD";
+    if (val == "2") return "MOBILE";
+    if (val == "3") return "BASE";
+    if (val == "4") return "APPLIANCE";
+    if (val == "5") return "INTERNET";
+    if (val == "6") return "OTHER";
+    return "UNKNOWN";
+}
+
+function editParticipantYes() {
+    dialogEditParticipantShow.value = false;
+    // perform the edit participant
+    performEditParticipant();
+}
+
+function editParticipantNo() {
+    dialogEditParticipantShow.value = false;
+}
+
+function performEditParticipant() {
+    localSelectedObject.ncSelectedObject.electricalPowerType = convertNumberToElectricalPowerType(electricalPowerTypeRef.value);
+    localSelectedObject.ncSelectedObject.backupElectricalPowerType = convertNumberToElectricalPowerType(backupElectricalPowerTypeRef.value);
+    localSelectedObject.ncSelectedObject.radioStyle = convertNumberToRadioStyle(radioStyleRef.value);
+    localSelectedObject.ncSelectedObject.transmitPower = transmitPowerRef.value;
+    localSelectedObject.ncSelectedObject.tacticalCallsign = tacticalCallsignRef.value;
+    localSelectedObject.ncSelectedObject.voiceFrequency = voiceFrequencyRef.value;
+    localSelectedObject.ncSelectedObject.status = statusRef.value;
+
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json",
+                  "SessionID" : accesstokenRef.value
+        },
+      body: JSON.stringify(localSelectedObject.ncSelectedObject)
+    };
+    fetch(buildNetCentralUrl("/nets/"+localSelectedNet.ncSelectedNet.callsign+"/participants/"+localSelectedObject.ncSelectedObject.callsign), requestOptions)
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+            dialogEditParticipantShow.value = false;
+      })
+      .catch(error => { console.error('Error editing participant info:', error); })
+}
+
 </script>
 
 <template>
   <!-- dialog -->
+    <div v-if="dialogEditParticipantShow.value">
+      <teleport to="#modals">
+        <dialog :open="dialogEditParticipantShow.value" ref="dialogEditParticipant" @close="dialogEditParticipantShow.value = false" class="topz">  
+          <form v-if="dialogEditParticipantShow.value" method="dialog">
+            <div class="pagesubheader">Edit Participant Information for {{ callsignRef.value }}</div>
+            <div class="line"><hr/></div>
+
+              <div>
+                <label for="tacticalCallsignField">Tactical callsign:</label>
+                <input type="text" id="tacticalCallsignField" v-model="tacticalCallsignRef" />
+              </div>
+              <div>
+                <label for="statusField">Status:</label>
+                <input type="text" id="statusField" v-model="statusRef" />
+              </div>
+              <div>
+                <label for="voiceFrequencyField">Voice frequency:</label>
+                <input type="text" id="voiceFrequencyField" v-model="voiceFrequencyRef" />
+              </div>
+              <div>
+                <label for="transmitPowerField">Transmit power (watts):</label>
+                <input type="number" id="transmitPowerField" v-model="transmitPowerRef" />
+              </div>
+              <div>
+                  <label for="electricalPowerTypeField">Electrical power:</label>
+                  <select name="electricalPowerTypeField" id="electricalPowerType" v-model="electricalPowerTypeRef" style="display: inline;">
+                    <div v-if="(electricalPowerTypeRef == '0')">
+                      <option value="0" selected>Unknown</option>
+                    </div>
+                    <div v-else>
+                      <option value="0">Unknown</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '1')">
+                      <option value="1" selected>Commercial</option>
+                    </div>
+                    <div v-else>
+                      <option value="1">Commercial</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '2')">
+                      <option value="2" selected>Generator</option>
+                    </div>
+                    <div v-else>
+                      <option value="2">Generator</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '3')">
+                      <option value="3" selected>Solar</option>
+                    </div>
+                    <div v-else>
+                      <option value="3">Solar</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '4')">
+                      <option value="4" selected>Battery</option>
+                    </div>
+                    <div v-else>
+                      <option value="4">Battery</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '5')">
+                      <option value="5" selected>Other</option>
+                    </div>
+                    <div v-else>
+                      <option value="5">Other</option>
+                    </div>
+                    <div v-if="(electricalPowerTypeRef == '6')">
+                      <option value="6" selected>None</option>
+                    </div>
+                    <div v-else>
+                      <option value="6">None</option>
+                    </div>
+                  </select>
+              </div>
+              <div>
+                  <label for="backupElectricalPowerTypeField">Backup electrical power:</label>
+                  <select name="backupElectricalPowerTypeField" id="backupElectricalPowerType" v-model="backupElectricalPowerTypeRef" style="display: inline;">
+                    <div v-if="(backupElectricalPowerTypeRef == '0')">
+                      <option value="0" selected>Unknown</option>
+                    </div>
+                    <div v-else>
+                      <option value="0">Unknown</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '1')">
+                      <option value="1" selected>Commercial</option>
+                    </div>
+                    <div v-else>
+                      <option value="1">Commercial</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '2')">
+                      <option value="2" selected>Generator</option>
+                    </div>
+                    <div v-else>
+                      <option value="2">Generator</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '3')">
+                      <option value="3" selected>Solar</option>
+                    </div>
+                    <div v-else>
+                      <option value="3">Solar</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '4')">
+                      <option value="4" selected>Battery</option>
+                    </div>
+                    <div v-else>
+                      <option value="4">Battery</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '5')">
+                      <option value="5" selected>Other</option>
+                    </div>
+                    <div v-else>
+                      <option value="5">Other</option>
+                    </div>
+                    <div v-if="(backupElectricalPowerTypeRef == '6')">
+                      <option value="6" selected>None</option>
+                    </div>
+                    <div v-else>
+                      <option value="6">None</option>
+                    </div>
+                  </select>
+              </div>
+              <div>
+                  <label for="radioStyleField">Radio style:</label>
+                  <select name="radioStyleField" id="radioStyle" v-model="radioStyleRef" style="display: inline;">
+                    <div v-if="(radioStyleRef == '0')">
+                      <option value="0" selected>Unknown</option>
+                    </div>
+                    <div v-else>
+                      <option value="0">Unknown</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '1')">
+                      <option value="1" selected>Handheld</option>
+                    </div>
+                    <div v-else>
+                      <option value="1">Handheld</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '2')">
+                      <option value="2" selected>Mobile</option>
+                    </div>
+                    <div v-else>
+                      <option value="2">Mobile</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '3')">
+                      <option value="3" selected>Base</option>
+                    </div>
+                    <div v-else>
+                      <option value="3">Base</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '4')">
+                      <option value="4" selected>Appliance</option>
+                    </div>
+                    <div v-else>
+                      <option value="4">Appliance</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '5')">
+                      <option value="5" selected>Internet</option>
+                    </div>
+                    <div v-else>
+                      <option value="5">Internet</option>
+                    </div>
+                    <div v-if="(radioStyleRef == '6')">
+                      <option value="6" selected>Other</option>
+                    </div>
+                    <div v-else>
+                      <option value="6">Other</option>
+                    </div>
+                  </select>
+              </div>
+
+            <br>
+            <button class="boxButton" v-on:click.native="editParticipantYes">Update</button>
+            <button class="boxButton" v-on:click.native="editParticipantNo">Cancel</button>
+          </form>
+        </dialog>
+      </teleport>
+    </div>
     <div v-if="dialogIdentifyShow.value">
       <teleport to="#modals">
         <dialog :open="dialogIdentifyShow.value" ref="dialogIdentify" @close="dialogIdentifyShow.value = false" class="topz">  
@@ -306,6 +582,7 @@ function performSendMessage() {
               <br><b>Start time:</b> <br>{{ localSelectedObject.ncSelectedObject.prettyStartTime }}
               <br><b>Status:</b> <br>{{ localSelectedObject.ncSelectedObject.status }}
               <br><b>Location:</b> <br>{{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
+              <br><b>Voice Frequency:</b> <br>{{ localSelectedObject.ncSelectedObject.voiceFrequency }}
               <br><b>Radio Type:</b> <br>{{ localSelectedObject.ncSelectedObject.radioStyle }}
               <br><b>Transmit Power:</b> <br>{{ localSelectedObject.ncSelectedObject.transmitPower }}
               <br><b>Electrical Power:</b> <br>{{ localSelectedObject.ncSelectedObject.electricalPowerType }}
@@ -354,6 +631,7 @@ function performSendMessage() {
                 <br>Start time: {{ localSelectedObject.ncSelectedObject.prettyStartTime }}
                 <br>Status: {{ localSelectedObject.ncSelectedObject.status }}
                 <br>Location: {{ localSelectedObject.ncSelectedObject.lat }} / {{ localSelectedObject.ncSelectedObject.lon }}
+                <br>Voice Frequency: {{ localSelectedObject.ncSelectedObject.voiceFrequency }}
                 <br>Radio Type: {{ localSelectedObject.ncSelectedObject.radioStyle }}
                 <br>Transmit Power: {{ localSelectedObject.ncSelectedObject.transmitPower }}
                 <br>Electrical Power: {{ localSelectedObject.ncSelectedObject.electricalPowerType }}
@@ -374,6 +652,12 @@ function performSendMessage() {
               </Tab>
               <Tab value="Actions">
                 <div class="grid-container-actions">
+                  <div v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))" class="grid-item">
+                    <button class="boxButton" v-on:click.native="editParticipant">Edit</button>
+                  </div>
+                  <div v-if="(accesstokenRef.value != null) && ((localLoggedInUserRef.value.role == 'ADMIN') || (localLoggedInUserRef.value.role == 'SYSADMIN'))" class="grid-item">
+                    Edit participant's tactical net data, including tactical call sign, power and electrical systems usage.
+                  </div>
                   <div v-if="((accesstokenRef.value != null) && (!localSelectedObject.ncSelectedObject.trackingActive))" class="grid-item">
                     <button class="boxButton" v-on:click.native="sendMessage">Send Message</button>
                   </div>

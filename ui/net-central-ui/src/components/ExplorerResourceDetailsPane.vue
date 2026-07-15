@@ -1711,7 +1711,8 @@ function convertRadioStyleToNumber(val) {
     if (val == "MOBILE") return "2";
     if (val == "BASE") return "3";
     if (val == "APPLIANCE") return "4";
-    if (val == "OTHER") return "5";
+    if (val == "INTERNET") return "5";
+    if (val == "OTHER") return "6";
     return "0";
 }
 
@@ -1732,7 +1733,8 @@ function convertNumberToRadioStyle(val) {
     if (val == "2") return "MOBILE";
     if (val == "3") return "BASE";
     if (val == "4") return "APPLIANCE";
-    if (val == "5") return "OTHER";
+    if (val == "5") return "INTERNET";
+    if (val == "6") return "OTHER";
     return "UNKNOWN";
 }
 
@@ -2766,10 +2768,10 @@ function findValues(key) {
                       <option value="5">Other</option>
                     </div>
                     <div v-if="(electricalPowerType2Ref.value == '6')">
-                      <option value="5" selected>None</option>
+                      <option value="6" selected>None</option>
                     </div>
                     <div v-else>
-                      <option value="5">None</option>
+                      <option value="6">None</option>
                     </div>
                   </select>
               </div>
@@ -2813,10 +2815,10 @@ function findValues(key) {
                       <option value="5">Other</option>
                     </div>
                     <div v-if="(backupElectricalPowerType2Ref.value == '6')">
-                      <option value="5" selected>None</option>
+                      <option value="6" selected>None</option>
                     </div>
                     <div v-else>
-                      <option value="5">None</option>
+                      <option value="6">None</option>
                     </div>
                   </select>
               </div>
@@ -2860,10 +2862,10 @@ function findValues(key) {
                       <option value="5">Internet</option>
                     </div>
                     <div v-if="(radioStyle2Ref.value == '6')">
-                      <option value="5" selected>Other</option>
+                      <option value="6" selected>Other</option>
                     </div>
                     <div v-else>
-                      <option value="5">Other</option>
+                      <option value="6">Other</option>
                     </div>
                   </select>
               </div>
