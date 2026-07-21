@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>transceiver.kenwood</groupId>
   <artifactId>transceiver-kenwood</artifactId>
-  <version>1.0.26</version>
+  <version>1.0.27</version>
   <packaging>${packaging}</packaging>
 
   <parent>
@@ -22,7 +22,7 @@
     <micronaut.aot.packageName>transceiver.kenwood.aot.generated</micronaut.aot.packageName>
     <micronaut.runtime>netty</micronaut.runtime>
     <exec.mainClass>netcentral.transceiver.kenwood.Application</exec.mainClass>
-    <netcentral.version>1.0.26</netcentral.version>
+    <netcentral.version>1.0.27</netcentral.version>
   </properties>
 
   <dependencies>

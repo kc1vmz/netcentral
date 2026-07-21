@@ -1,4 +1,4 @@
-SET NETCENTRAL_VERSION=1.0.26
+SET NETCENTRAL_VERSION=1.0.27
 docker build --no-cache -t netcentral-server:%NETCENTRAL_VERSION% -f Dockerfile-server ../../..
 docker build --no-cache -t netcentral-server-h2:%NETCENTRAL_VERSION% -f Dockerfile-server-h2 ../../..
 docker build --no-cache -t osm-proxy-cache:%NETCENTRAL_VERSION% -f Dockerfile-osm-proxy-cache ../../..

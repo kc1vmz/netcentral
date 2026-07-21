@@ -47,13 +47,13 @@ ADD installers/docker/full/image_files/nc_setcap.sh /netcentral/src/nc_setcap.sh
 RUN ["dos2unix", "/netcentral/src/nc_setcap.sh"]
 RUN ["/netcentral/src/nc_setcap.sh"]
 
-ADD netcentral-server/target/netcentral-server-1.0.26.jar /netcentral/src/netcentral-server.jar
-ADD osm-proxy-cache/target/osm-proxy-cache-1.0.26.jar /netcentral/src/osm-proxy-cache.jar
-ADD transceivers/transceiver-agw/target/transceiver-agw-1.0.26.jar /netcentral/src/transceiver-agw.jar
-ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.26.jar /netcentral/src/transceiver-aprsis.jar
-ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.26.jar /netcentral/src/transceiver-kenwood.jar
-ADD transceivers/transceiver-kiss/target/transceiver-kiss-1.0.26.jar /netcentral/src/transceiver-kiss.jar
-ADD ui/net-central-ui/target/netcentral-ui-1.0.26.zip /netcentral/src/netcentral-ui.zip
+ADD netcentral-server/target/netcentral-server-1.0.27.jar /netcentral/src/netcentral-server.jar
+ADD osm-proxy-cache/target/osm-proxy-cache-1.0.27.jar /netcentral/src/osm-proxy-cache.jar
+ADD transceivers/transceiver-agw/target/transceiver-agw-1.0.27.jar /netcentral/src/transceiver-agw.jar
+ADD transceivers/transceiver-aprsis/target/transceiver-aprsis-1.0.27.jar /netcentral/src/transceiver-aprsis.jar
+ADD transceivers/transceiver-kenwood/target/transceiver-kenwood-1.0.27.jar /netcentral/src/transceiver-kenwood.jar
+ADD transceivers/transceiver-kiss/target/transceiver-kiss-1.0.27.jar /netcentral/src/transceiver-kiss.jar
+ADD ui/net-central-ui/target/netcentral-ui-1.0.27.zip /netcentral/src/netcentral-ui.zip
 RUN chown -R ${UNAME}:${GNAME} /netcentral
 
 # make sure mariadb auto-starts
